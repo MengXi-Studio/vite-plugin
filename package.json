@@ -15,7 +15,7 @@
 		"dev:playground": "pnpm --filter @meng-xi/vite-plugin-playground dev",
 		"build:playground": "pnpm --filter @meng-xi/vite-plugin-playground build",
 		"release": "bumpp",
-		"lint": "eslint . --ext .ts,.tsx,.vue,.js,.jsx",
+		"lint": "eslint . --ext .ts,.js",
 		"lint:fix": "pnpm lint --fix",
 		"clean": "rimraf --glob node_modules pnpm-lock.yaml packages/**/node_modules packages/**/pnpm-lock.yaml"
 	},
