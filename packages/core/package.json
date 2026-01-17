@@ -1,0 +1,48 @@
+{
+	"name": "@meng-xi/vite-plugin",
+	"type": "module",
+	"version": "1.0.2",
+	"private": false,
+	"description": "一个为 Vite 提供的插件",
+	"keywords": [
+		"meng-xi",
+		"vite",
+		"plugin"
+	],
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"dev": "unbuild --watch",
+		"build": "unbuild"
+	},
+	"peerDependencies": {
+		"vite": "^5.0.0"
+	},
+	"dependencies": {
+		"vite": "^5.0.0"
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"unbuild": "^3.0.0",
+		"typescript": "^5.2.0"
+	},
+	"author": {
+		"name": "PedroQue99",
+		"email": "ksmengfang@163.com"
+	},
+	"license": "MIT",
+	"homepage": "https://github.com/MengXi-Studio/vite-plugin#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MengXi-Studio/vite-plugin.git"
+	},
+	"bugs": "https://github.com/MengXi-Studio/vite-plugin/issues"
+}

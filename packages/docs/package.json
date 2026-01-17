@@ -1,0 +1,13 @@
+{
+	"name": "@meng-xi/vite-plugin-docs",
+	"version": "1.0.2",
+	"description": "Vite 自定义插件使用文档",
+	"scripts": {
+		"dev": "vitepress dev",
+		"build": "vitepress build",
+		"preview": "vitepress preview"
+	},
+	"devDependencies": {
+		"vitepress": "^1.6.0"
+	}
+}

@@ -1,0 +1,44 @@
+{
+	"name": "vite-plugin",
+	"version": "1.0.2",
+	"private": true,
+	"description": "vite-plugin 是一个为 Vite 提供的插件",
+	"packageManager": "pnpm@10.11.0",
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"dev:core": "pnpm --filter @meng-xi/vite-plugin dev",
+		"build:core": "pnpm --filter @meng-xi/vite-plugin build",
+		"dev:docs": "pnpm --filter @meng-xi/vite-plugin-docs dev",
+		"build:docs": "pnpm --filter @meng-xi/vite-plugin-docs build",
+		"dev:playground": "pnpm --filter @meng-xi/vite-plugin-playground dev",
+		"build:playground": "pnpm --filter @meng-xi/vite-plugin-playground build",
+		"release": "bumpp",
+		"lint": "eslint . --ext .ts,.tsx,.vue,.js,.jsx",
+		"lint:fix": "pnpm lint --fix",
+		"clean": "rimraf --glob node_modules pnpm-lock.yaml packages/**/node_modules packages/**/pnpm-lock.yaml"
+	},
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^7.18.0",
+		"@typescript-eslint/parser": "^7.18.0",
+		"bumpp": "^10.4.0",
+		"eslint": "^8.57.1",
+		"eslint-config-prettier": "^8.10.2",
+		"eslint-plugin-prettier": "^4.2.5",
+		"prettier": "^3.8.0",
+		"rimraf": "^5.0.10",
+		"typescript": "^5.9.3"
+	},
+	"author": {
+		"name": "PedroQue99",
+		"email": "ksmengfang@163.com"
+	},
+	"license": "MIT",
+	"homepage": "https://github.com/MengXi-Studio/vite-plugin#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MengXi-Studio/vite-plugin.git"
+	},
+	"bugs": "https://github.com/MengXi-Studio/vite-plugin/issues"
+}
