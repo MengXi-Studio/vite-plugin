@@ -2,7 +2,7 @@ import { defineBuildConfig } from 'unbuild'
 import { resolve } from 'path'
 
 export default defineBuildConfig({
-	entries: ['src/index'],
+	entries: ['src/index', { input: 'src/plugins/', outDir: 'dist/plugins' }],
 	clean: true,
 	declaration: true,
 	alias: {
@@ -11,8 +11,7 @@ export default defineBuildConfig({
 	rollup: {
 		emitCJS: true,
 		esbuild: {
-			// 禁用压缩以保留所有注释
-			minify: false
+			minify: true
 		}
 	}
 })

@@ -1,6 +1,6 @@
 import { type Plugin } from 'vite'
 import type { CopyFileOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget } from '@/utils/fs'
+import { checkSourceExists, ensureTargetDir, copySourceToTarget } from '@/utils'
 
 /**
  * 复制文件插件
