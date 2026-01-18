@@ -7,12 +7,10 @@
 </template>
 
 <script setup lang="ts">
-import { feature1 } from '@vite-plugin-project/core'
-
 function testPlugin() {
-	const myFeature = feature1()
-	console.log('Testing plugin feature:', myFeature)
-	alert('Plugin tested! Check console for details.')
+	console.log('Testing plugin feature:')
+	console.log(1);
+	
 }
 </script>
 

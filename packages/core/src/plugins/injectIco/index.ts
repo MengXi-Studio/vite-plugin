@@ -51,14 +51,34 @@ import { checkSourceExists, ensureTargetDir, copySourceToTarget, generateIconTag
  *     targetDir: 'dist/assets/icons'
  *   }
  * })
+ *
+ * // 根据环境启用
+ * injectIco({
+ *   base: '/assets',
+ *   enabled: process.env.NODE_ENV === 'production',
+ *   copyOptions: {
+ *     sourceDir: 'src/assets/icons',
+ *     targetDir: 'dist/assets/icons'
+ *   }
+ * })
+ *
+ * // 禁用插件
+ * injectIco({
+ *   base: '/assets',
+ *   enabled: false,
+ *   copyOptions: {
+ *     sourceDir: 'src/assets/icons',
+ *     targetDir: 'dist/assets/icons'
+ *   }
+ * })
  * ```
  */
 export function injectIco(options?: InjectIcoOptions | string): Plugin {
 	// 标准化选项
 	const normalizedOptions: InjectIcoOptions = typeof options === 'string' ? { base: options } : options || {}
 
-	// 获取日志配置，默认为 true
-	const { verbose = true } = normalizedOptions
+	// 获取配置，设置默认值
+	const { verbose = true, enabled = true } = normalizedOptions
 
 	return {
 		name: 'inject-ico',
@@ -70,6 +90,14 @@ export function injectIco(options?: InjectIcoOptions | string): Plugin {
 		 * @returns 经过修改后的 HTML 内容，在 `</head>` 标签前注入图标链接
 		 */
 		transformIndexHtml(html) {
+			// 如果禁用了插件，跳过执行
+			if (!enabled) {
+				if (verbose) {
+					console.log('ℹ inject-ico: 插件已禁用，跳过图标注入')
+				}
+				return html
+			}
+
 			// 生成图标标签
 			const iconTags = generateIconTags(normalizedOptions)
 
@@ -108,11 +136,19 @@ export function injectIco(options?: InjectIcoOptions | string): Plugin {
 		 * 构建完成后执行的钩子函数，用于复制图标文件到打包目录
 		 *
 		 * @remarks
-		 * 只有当配置了 copyOptions 对象时才会执行复制操作
+		 * 只有当配置了 copyOptions 对象且 enabled 为 true 时才会执行复制操作
 		 *
 		 * @throws 当源文件不存在、权限不足或复制过程中出现其他错误时抛出异常
 		 */
 		async writeBundle() {
+			// 如果禁用了插件，跳过执行
+			if (!enabled) {
+				if (verbose) {
+					console.log('ℹ inject-ico: 插件已禁用，跳过文件复制')
+				}
+				return
+			}
+
 			// 检查是否配置了文件复制相关选项
 			const { copyOptions } = normalizedOptions
 

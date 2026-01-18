@@ -1,4 +1,68 @@
 /**
+ * 图标配置项接口
+ *
+ * @interface Icon
+ */
+interface Icon {
+	/**
+	 * 图标关系类型
+	 */
+	rel: string
+
+	/**
+	 * 图标 URL
+	 */
+	href: string
+
+	/**
+	 * 图标尺寸
+	 */
+	sizes?: string
+
+	/**
+	 * 图标 MIME 类型
+	 */
+	type?: string
+}
+
+/**
+ * 图标文件复制配置选项接口
+ *
+ * @interface CopyOptions
+ */
+interface CopyOptions {
+	/**
+	 * 图标源文件目录，用于复制图标到打包目录
+	 *
+	 * @example 'src/assets/icons'
+	 */
+	sourceDir: string
+
+	/**
+	 * 图标目标目录（打包目录），用于复制图标到打包目录
+	 *
+	 * @example 'dist/assets/icons'
+	 */
+	targetDir: string
+
+	/**
+	 * 是否覆盖同名文件
+	 *
+	 * @defaultValue true
+	 * @example false
+	 */
+	overwrite?: boolean
+
+	/**
+	 * 是否支持递归复制
+	 *
+	 * @defaultValue true
+	 * @example false
+	 */
+	recursive?: boolean
+}
+
+/**
  * 注入网站图标链接的配置选项接口
  *
  * @interface InjectIcoOptions
@@ -35,27 +99,8 @@ export interface InjectIcoOptions {
 	 *   { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
 	 *   { rel: 'icon', href: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' }
 	 * ]
-	 */ icons?: Array<{
-		/**
-		 * 图标关系类型
-		 */
-		rel: string
-
-		/**
-		 * 图标 URL
-		 */
-		href: string
-
-		/**
-		 * 图标尺寸
-		 */
-		sizes?: string
-
-		/**
-		 * 图标 MIME 类型
-		 */
-		type?: string
-	}>
+	 */
+	icons?: Icon[]
 
 	/**
 	 * 是否显示详细日志
@@ -66,40 +111,18 @@ export interface InjectIcoOptions {
 	verbose?: boolean
 
 	/**
+	 * 是否启用图标注入和文件复制功能
+	 *
+	 * @defaultValue true
+	 * @example false
+	 */
+	enabled?: boolean
+
+	/**
 	 * 图标文件复制配置选项
 	 *
 	 * @remarks
 	 * 当此对象存在时，才会开启图标文件复制功能
 	 */
-	copyOptions?: {
-		/**
-		 * 图标源文件目录，用于复制图标到打包目录
-		 *
-		 * @example 'src/assets/icons'
-		 */
-		sourceDir: string
-
-		/**
-		 * 图标目标目录（打包目录），用于复制图标到打包目录
-		 *
-		 * @example 'dist/assets/icons'
-		 */
-		targetDir: string
-
-		/**
-		 * 是否覆盖同名文件
-		 *
-		 * @defaultValue true
-		 * @example false
-		 */
-		overwrite?: boolean
-
-		/**
-		 * 是否支持递归复制
-		 *
-		 * @defaultValue true
-		 * @example false
-		 */
-		recursive?: boolean
-	}
+	copyOptions?: CopyOptions
 }

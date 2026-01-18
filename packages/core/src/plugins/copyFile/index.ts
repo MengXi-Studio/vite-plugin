@@ -24,6 +24,20 @@ import { checkSourceExists, ensureTargetDir, copySourceToTarget } from '@/utils'
  *   verbose: true,
  *   recursive: false
  * })
+ *
+ * // 根据环境启用
+ * copyFile({
+ *   sourceDir: 'src/assets',
+ *   targetDir: 'dist/assets',
+ *   enabled: process.env.NODE_ENV === 'production'
+ * })
+ *
+ * // 禁用复制功能
+ * copyFile({
+ *   sourceDir: 'src/assets',
+ *   targetDir: 'dist/assets',
+ *   enabled: false
+ * })
  * ```
  *
  * @remarks
@@ -31,7 +45,7 @@ import { checkSourceExists, ensureTargetDir, copySourceToTarget } from '@/utils'
  */
 export function copyFile(options: CopyFileOptions): Plugin {
 	// 提取配置参数，设置默认值
-	const { sourceDir, targetDir, overwrite = true, recursive = true, verbose = true } = options
+	const { sourceDir, targetDir, overwrite = true, recursive = true, verbose = true, enabled = true } = options
 
 	return {
 		// 插件名称
@@ -48,6 +62,14 @@ export function copyFile(options: CopyFileOptions): Plugin {
 		 * @throws 当源文件不存在、权限不足或复制过程中出现其他错误时抛出异常
 		 */
 		async writeBundle() {
+			// 如果 disabled，跳过执行
+			if (!enabled) {
+				if (verbose) {
+					console.log(`ℹ 复制文件功能已禁用，跳过执行：从 ${sourceDir} 到 ${targetDir}`)
+				}
+				return
+			}
+
 			try {
 				// 检查源文件是否存在
 				await checkSourceExists(sourceDir)

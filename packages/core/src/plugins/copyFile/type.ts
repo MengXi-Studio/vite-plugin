@@ -37,4 +37,11 @@ export interface CopyFileOptions {
 	 * @example false
 	 */
 	verbose?: boolean
+	/**
+	 * 是否启用复制功能
+	 *
+	 * @defaultValue true
+	 * @example false
+	 */
+	enabled?: boolean
 }
