@@ -8,9 +8,7 @@
 
 <script setup lang="ts">
 function testPlugin() {
-	console.log('Testing plugin feature:')
-	console.log(1);
-	
+	console.log('Testing plugins')
 }
 </script>
 

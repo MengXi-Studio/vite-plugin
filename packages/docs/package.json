@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"private": false,
 	"description": "Vite 自定义插件使用文档",
+	"type": "module",
 	"scripts": {
 		"dev": "vitepress dev",
 		"build": "vitepress build",
