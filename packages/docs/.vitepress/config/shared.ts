@@ -79,7 +79,7 @@ export const sharedConfig = defineConfig({
 
 		/** 网站主题配置 页脚 */
 		footer: {
-			copyright: 'Copyright © 2025-present MengXi Studio',
+			copyright: 'Copyright © 2025-present 梦曦工作室',
 			message: 'Released under the MIT License.'
 		},
 

@@ -36,10 +36,6 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 				activeMatch: '^/guide/'
 			},
 			{
-				text: 'API Reference',
-				link: '/api/'
-			},
-			{
 				text: 'Links',
 				items: [
 					{

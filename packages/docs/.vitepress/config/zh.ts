@@ -32,12 +32,8 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 		nav: [
 			{
 				text: '教程',
-				link: '/zh-CN/guide/',
-				activeMatch: '^/zh-CN/guide/'
-			},
-			{
-				text: 'API 参考',
-				link: '/zh-CN/api/'
+				link: '/guide/',
+				activeMatch: '^/guide/'
 			},
 			{
 				text: '相关链接',
@@ -56,42 +52,7 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 
 		/** 网站主题配置 侧边栏 */
 		sidebar: {
-			'/zh-CN/api/': [
-				{
-					text: 'API 参考',
-					items: [
-						{
-							text: 'API 概览',
-							link: '/zh-CN/api/'
-						},
-						{
-							text: '核心函数',
-							link: '/zh-CN/api/core.html'
-						},
-						{
-							text: '组合式 API',
-							link: '/zh-CN/api/composition-api.html'
-						},
-						{
-							text: '组件',
-							link: '/zh-CN/api/components.html'
-						},
-						{
-							text: '工具函数',
-							link: '/zh-CN/api/utilities.html'
-						},
-						{
-							text: '插件',
-							link: '/zh-CN/api/plugins.html'
-						},
-						{
-							text: '类型定义',
-							link: '/zh-CN/api/types.html'
-						}
-					]
-				}
-			],
-			'/zh-CN/guide/': [
+			'/guide/': [
 				{
 					text: '设置',
 					items: [
