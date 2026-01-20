@@ -40,11 +40,11 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 				items: [
 					{
 						text: 'Discussions',
-						link: 'https://github.com/MengXi-Studio/uni-router/discussions'
+						link: 'https://github.com/MengXi-Studio/vite-plugin/discussions'
 					},
 					{
 						text: '更新日志',
-						link: 'https://github.com/MengXi-Studio/uni-router/releases'
+						link: 'https://github.com/MengXi-Studio/vite-plugin/releases'
 					}
 				]
 			}
@@ -52,17 +52,17 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 
 		/** 网站主题配置 侧边栏 */
 		sidebar: {
-			'/guide/': [
+			'/': [
 				{
 					text: '设置',
 					items: [
 						{
 							text: '介绍',
-							link: '/zh/introduction.html'
+							link: '/introduction.html'
 						},
 						{
 							text: '安装',
-							link: '/zh/installation.html'
+							link: '/installation.html'
 						}
 					]
 				},

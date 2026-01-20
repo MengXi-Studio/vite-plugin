@@ -32,19 +32,19 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 		nav: [
 			{
 				text: 'Guide',
-				link: '/guide/',
-				activeMatch: '^/guide/'
+				link: '/en/guide/',
+				activeMatch: '^/en/guide/'
 			},
 			{
 				text: 'Links',
 				items: [
 					{
 						text: 'Discussions',
-						link: 'https://github.com/MengXi-Studio/uni-router/discussions'
+						link: 'https://github.com/MengXi-Studio/vite-plugin/discussions'
 					},
 					{
 						text: 'Changelog',
-						link: 'https://github.com/MengXi-Studio/uni-router/releases'
+						link: 'https://github.com/MengXi-Studio/vite-plugin/releases'
 					}
 				]
 			}
@@ -52,52 +52,17 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 
 		/** 网站主题配置 侧边栏 */
 		sidebar: {
-			'/api/': [
-				{
-					text: 'API Reference',
-					items: [
-						{
-							text: 'API Overview',
-							link: '/api/'
-						},
-						{
-							text: 'Core Functions',
-							link: '/api/core.html'
-						},
-						{
-							text: 'Composition API',
-							link: '/api/composition-api.html'
-						},
-						{
-							text: 'Components',
-							link: '/api/components.html'
-						},
-						{
-							text: 'Utilities',
-							link: '/api/utilities.html'
-						},
-						{
-							text: 'Plugins',
-							link: '/api/plugins.html'
-						},
-						{
-							text: 'Type Definitions',
-							link: '/api/types.html'
-						}
-					]
-				}
-			],
-			'/': [
+			'/en/': [
 				{
 					text: 'Setup',
 					items: [
 						{
 							text: 'Introduction',
-							link: '/introduction.html'
+							link: '/en/introduction.html'
 						},
 						{
 							text: 'Installation',
-							link: '/installation.html'
+							link: '/en/installation.html'
 						}
 					]
 				},
