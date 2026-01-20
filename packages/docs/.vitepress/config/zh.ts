@@ -31,11 +31,6 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 		/** 网站主题配置 导航栏 */
 		nav: [
 			{
-				text: '教程',
-				link: '/guide/',
-				activeMatch: '^/guide/'
-			},
-			{
 				text: '相关链接',
 				items: [
 					{
@@ -67,86 +62,15 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 					]
 				},
 				{
-					text: '基础',
+					text: '插件列表',
 					items: [
 						{
-							text: '入门',
-							link: '/zh/guide/'
+							text: 'copyFile',
+							link: '/plugins/copy-file.html'
 						},
 						{
-							text: '动态路由匹配',
-							link: '/zh/guide/essentials/dynamic-matching.html'
-						},
-						{
-							text: '路由的匹配语法',
-							link: '/zh/guide/essentials/route-matching-syntax.html'
-						},
-						{
-							text: '嵌套路由',
-							link: '/zh/guide/essentials/nested-routes.html'
-						},
-						{
-							text: '命名路由',
-							link: '/zh/guide/essentials/named-routes.html'
-						},
-						{
-							text: '编程式导航',
-							link: '/zh/guide/essentials/programmatic-navigation.html'
-						}
-					]
-				},
-				{
-					text: '工具',
-					items: [
-						{
-							text: 'deepMerge 函数',
-							link: '/zh/guide/utilities/deep-merge.html'
-						},
-						{
-							text: 'deepEqual 函数',
-							link: '/zh/guide/utilities/deep-equal.html'
-						},
-						{
-							text: 'singleCase 函数',
-							link: '/zh/guide/utilities/single-case.html'
-						}
-					]
-				},
-				{
-					text: '进阶',
-					items: [
-						{
-							text: '路由守卫',
-							link: '/zh/guide/advanced/navigation-guards.html'
-						},
-						{
-							text: '路由元信息',
-							link: '/zh/guide/advanced/route-meta.html'
-						},
-						{
-							text: '自动路由生成',
-							link: '/zh/guide/advanced/auto-router.html'
-						},
-						{
-							text: '组合式 API',
-							link: '/zh/guide/advanced/composition-api.html'
-						},
-						{
-							text: '路由组件',
-							link: '/zh/guide/advanced/components.html'
-						}
-					]
-				},
-				{
-					text: '插件',
-					items: [
-						{
-							text: 'uni-pages 插件',
-							link: '/zh/guide/plugins/uni-pages.html'
-						},
-						{
-							text: 'copyFile 插件',
-							link: '/zh/guide/plugins/copy-file.html'
+							text: 'injectIco',
+							link: '/plugins/inject-ico.html'
 						}
 					]
 				}

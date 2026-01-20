@@ -1,9 +1,10 @@
 {
 	"name": "@meng-xi/vite-plugin",
 	"type": "module",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"private": false,
-	"description": "一个为 Vite 提供的插件",
+	"description": "一个为 Vite 提供的插件库",
+	"readme": "README.md",
 	"keywords": [
 		"meng-xi",
 		"vite",
@@ -24,6 +25,9 @@
 			"types": "./dist/plugins/*.d.ts"
 		}
 	},
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"dev": "unbuild --watch",
 		"build": "unbuild"

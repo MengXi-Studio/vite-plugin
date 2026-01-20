@@ -1,6 +1,6 @@
 {
 	"name": "vite-plugin",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"private": false,
 	"description": "vite-plugin 是一个为 Vite 提供的插件",
 	"packageManager": "pnpm@10.11.0",

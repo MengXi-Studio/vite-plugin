@@ -1,6 +1,6 @@
 # Introduction
 
-@meng-xi/vite-plugin is a toolkit that provides practical plugins for Vite.
+`@meng-xi/vite-plugin` is a toolkit that provides practical plugins for Vite.
 
 This toolkit aims to extend Vite's core functionality, simplify development workflow, improve build efficiency, and provide developers with more convenient and efficient Vite plugin solutions.
 

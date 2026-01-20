@@ -1,6 +1,6 @@
 {
 	"name": "@meng-xi/vite-plugin-playground",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"private": false,
 	"description": "Vite 自定义插件测试示例",
 	"scripts": {

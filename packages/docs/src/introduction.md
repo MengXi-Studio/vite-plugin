@@ -1,6 +1,6 @@
 # 介绍
 
-@meng-xi/vite-plugin 是一个为 Vite 提供实用插件的工具包。
+`@meng-xi/vite-plugin` 是一个为 Vite 提供实用插件的工具包。
 
 该工具包旨在扩展 Vite 的核心功能，简化开发工作流，提高构建效率，为开发者提供更加便捷、高效的 Vite 插件解决方案。
 

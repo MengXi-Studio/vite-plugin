@@ -31,11 +31,6 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 		/** 网站主题配置 导航栏 */
 		nav: [
 			{
-				text: 'Guide',
-				link: '/en/guide/',
-				activeMatch: '^/en/guide/'
-			},
-			{
 				text: 'Links',
 				items: [
 					{
@@ -67,86 +62,15 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 					]
 				},
 				{
-					text: 'Essentials',
+					text: 'Plugins List',
 					items: [
 						{
-							text: 'Getting Started',
-							link: '/guide/'
+							text: 'copyFile',
+							link: '/en/plugins/copy-file.html'
 						},
 						{
-							text: 'Dynamic Route Matching',
-							link: '/guide/essentials/dynamic-matching.html'
-						},
-						{
-							text: 'Route Matching Syntax',
-							link: '/guide/essentials/route-matching-syntax.html'
-						},
-						{
-							text: 'Nested Routes',
-							link: '/guide/essentials/nested-routes.html'
-						},
-						{
-							text: 'Named Routes',
-							link: '/guide/essentials/named-routes.html'
-						},
-						{
-							text: 'Programmatic Navigation',
-							link: '/guide/essentials/programmatic-navigation.html'
-						}
-					]
-				},
-				{
-					text: 'Utilities',
-					items: [
-						{
-							text: 'deepMerge function',
-							link: '/guide/utilities/deep-merge.html'
-						},
-						{
-							text: 'deepEqual function',
-							link: '/guide/utilities/deep-equal.html'
-						},
-						{
-							text: 'singleCase function',
-							link: '/guide/utilities/single-case.html'
-						}
-					]
-				},
-				{
-					text: 'Advanced',
-					items: [
-						{
-							text: 'Navigation Guards',
-							link: '/guide/advanced/navigation-guards.html'
-						},
-						{
-							text: 'Route Meta',
-							link: '/guide/advanced/route-meta.html'
-						},
-						{
-							text: 'Auto Router',
-							link: '/guide/advanced/auto-router.html'
-						},
-						{
-							text: 'Composition API',
-							link: '/guide/advanced/composition-api.html'
-						},
-						{
-							text: 'Router Components',
-							link: '/guide/advanced/components.html'
-						}
-					]
-				},
-				{
-					text: 'Plugins',
-					items: [
-						{
-							text: 'uni-pages Plugin',
-							link: '/guide/plugins/uni-pages.html'
-						},
-						{
-							text: 'copyFile Plugin',
-							link: '/guide/plugins/copy-file.html'
+							text: 'injectIco',
+							link: '/en/plugins/inject-ico.html'
 						}
 					]
 				}
