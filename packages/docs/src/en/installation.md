@@ -22,7 +22,7 @@ pnpm add @meng-xi/vite-plugin --save-dev
 
 :::
 
-Projects using package managers typically access @meng-xi/vite-plugin using ES modules, such as `import * as VitePlugin from '@meng-xi/vite-plugin'`.
+Projects using package managers typically access @meng-xi/vite-plugin using ES modules, such as `import * as vitePlugin from '@meng-xi/vite-plugin'`.
 
 ## Learn More
 
