@@ -38,21 +38,16 @@ Start reading the [documentation](https://mengxi-studio.github.io/vite-plugin/).
 
 Install `@meng-xi/vite-plugin` using a package manager:
 
-::: code-group
-
-```bash [npm]
+```bash
+# Using npm
 npm install @meng-xi/vite-plugin --save-dev
-```
 
-```bash [yarn]
+# Using yarn
 yarn add @meng-xi/vite-plugin --save-dev
-```
 
-```bash [pnpm]
+# Using pnpm
 pnpm add @meng-xi/vite-plugin --save-dev
 ```
-
-:::
 
 ## Changelog
 

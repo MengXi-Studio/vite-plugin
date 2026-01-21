@@ -38,21 +38,16 @@
 
 使用包管理器安装 `@meng-xi/vite-plugin`：
 
-::: code-group
-
-```bash [npm]
+```bash
+# 使用 npm
 npm install @meng-xi/vite-plugin --save-dev
-```
 
-```bash [yarn]
+# 使用 yarn
 yarn add @meng-xi/vite-plugin --save-dev
-```
 
-```bash [pnpm]
+# 使用 pnpm
 pnpm add @meng-xi/vite-plugin --save-dev
 ```
-
-:::
 
 ## 更新日志
 
