@@ -22,7 +22,7 @@ pnpm add @meng-xi/vite-plugin --save-dev
 
 :::
 
-使用包管理器的项目通常会使用 ES 模块来访问 @meng-xi/vite-plugin，例如 `import * as VitePlugin from '@meng-xi/vite-plugin'`。
+使用包管理器的项目通常会使用 ES 模块来访问 @meng-xi/vite-plugin，例如 `import * as vitePlugin from '@meng-xi/vite-plugin'`。
 
 ## 了解更多
 
