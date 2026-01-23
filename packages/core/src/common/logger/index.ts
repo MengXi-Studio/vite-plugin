@@ -1,4 +1,5 @@
-import type { LoggerOptions } from './type'
+import { LogLevelEnum } from '@/enum'
+import type { LoggerOptions, LogLevel } from './type'
 
 /**
  * 日志工具类
@@ -20,6 +21,10 @@ export class Logger {
 	 * 是否显示时间戳
 	 */
 	private showTimestamp: boolean
+	/**
+	 * 日志级别
+	 */
+	private logLevel: LogLevel
 
 	/**
 	 * 构造函数
@@ -27,8 +32,9 @@ export class Logger {
 	 */
 	constructor(options: LoggerOptions) {
 		this.name = options.name
-		this.enabled = options.enabled ?? false
+		this.enabled = options.enabled ?? true
 		this.showTimestamp = options.showTimestamp ?? false
+		this.logLevel = options.logLevel ?? LogLevelEnum.INFO
 	}
 
 	/**
@@ -39,7 +45,7 @@ export class Logger {
 		let prefix = `[${this.libName}:${this.name}]`
 
 		if (this.showTimestamp) {
-			const timestamp = new Date().toLocaleString()
+			const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
 			prefix = `[${timestamp}] ${prefix}`
 		}
 
@@ -47,25 +53,57 @@ export class Logger {
 	}
 
 	/**
+	 * 检查日志级别是否允许输出
+	 * @param level 要检查的日志级别
+	 * @returns 是否允许输出
+	 */
+	private shouldLog(level: LogLevel): boolean {
+		const levels = Object.values(LogLevelEnum) as string[]
+		return levels.indexOf(this.logLevel as string) <= levels.indexOf(level as string)
+	}
+
+	/**
 	 * 统一日志输出方法
-	 * @param method 日志方法
+	 * @param level 日志级别
 	 * @param message 日志消息
 	 * @param data 附加数据
-	 * @param icon 日志图标
 	 */
-	private log(method: (...args: any[]) => void, message: string, data?: any, icon?: string): void {
-		if (!this.enabled) return
+	private log(level: LogLevel, message: string, data?: any): void {
+		if (!this.enabled || !this.shouldLog(level)) return
 
 		const prefix = this.formatPrefix()
-		const logPrefix = icon ? `${icon} ${prefix}` : prefix
+		const levelPrefix = `[${level.toUpperCase()}]`
+		const logPrefix = `${prefix} ${levelPrefix}`
 
-		method('======================================================')
+		const consoleMethod = this.getConsoleMethod(level)
+
 		if (data !== undefined && data !== null) {
-			method(logPrefix, message, data)
+			consoleMethod(logPrefix, message, data)
 		} else {
-			method(logPrefix, message)
+			consoleMethod(logPrefix, message)
 		}
-		method('======================================================')
+	}
+
+	/**
+	 * 获取对应的控制台方法
+	 * @param level 日志级别
+	 * @returns 控制台方法
+	 */
+	private getConsoleMethod(level: LogLevel): (...args: any[]) => void {
+		switch (level) {
+			case LogLevelEnum.ERROR:
+				return console.error
+			case LogLevelEnum.WARN:
+				return console.warn
+			case LogLevelEnum.INFO:
+				return console.info
+			case LogLevelEnum.DEBUG:
+				return console.debug
+			case LogLevelEnum.TRACE:
+				return console.trace
+			default:
+				return console.log
+		}
 	}
 
 	/**
@@ -74,7 +112,7 @@ export class Logger {
 	 * @param data 附加数据
 	 */
 	success(message: string, data?: any): void {
-		this.log(console.log, message, data, '✅')
+		this.log(LogLevelEnum.INFO, message, data)
 	}
 
 	/**
@@ -83,7 +121,7 @@ export class Logger {
 	 * @param data 附加数据
 	 */
 	info(message: string, data?: any): void {
-		this.log(console.log, message, data)
+		this.log(LogLevelEnum.INFO, message, data)
 	}
 
 	/**
@@ -92,7 +130,7 @@ export class Logger {
 	 * @param data 附加数据
 	 */
 	warn(message: string, data?: any): void {
-		this.log(console.warn, message, data, '⚠')
+		this.log(LogLevelEnum.WARN, message, data)
 	}
 
 	/**
@@ -101,7 +139,25 @@ export class Logger {
 	 * @param data 附加数据
 	 */
 	error(message: string, data?: any): void {
-		this.log(console.error, message, data, '❌')
+		this.log(LogLevelEnum.ERROR, message, data)
+	}
+
+	/**
+	 * 输出调试日志
+	 * @param message 日志消息
+	 * @param data 附加数据
+	 */
+	debug(message: string, data?: any): void {
+		this.log(LogLevelEnum.DEBUG, message, data)
+	}
+
+	/**
+	 * 输出跟踪日志
+	 * @param message 日志消息
+	 * @param data 附加数据
+	 */
+	trace(message: string, data?: any): void {
+		this.log(LogLevelEnum.TRACE, message, data)
 	}
 
 	/**
@@ -114,6 +170,9 @@ export class Logger {
 		}
 		if (options.showTimestamp !== undefined) {
 			this.showTimestamp = options.showTimestamp
+		}
+		if (options.logLevel !== undefined) {
+			this.logLevel = options.logLevel
 		}
 	}
 }

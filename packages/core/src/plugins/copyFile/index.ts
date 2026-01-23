@@ -1,12 +1,10 @@
 import type { Plugin } from 'vite'
 import type { CopyFileOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget, Logger } from '@/common'
+import { BasePlugin, createPluginFactory } from '@/base'
+import { checkSourceExists, copySourceToTarget } from '@/common'
 
 /**
  * 复制文件插件
- *
- * @param options - 配置参数
- * @returns 一个 Vite 插件实例
  *
  * @example
  * ```typescript
@@ -39,60 +37,50 @@ import { checkSourceExists, ensureTargetDir, copySourceToTarget, Logger } from '
  *   enabled: false
  * })
  * ```
- *
- * @remarks
- * 该插件会在 Vite 构建完成后执行，将指定源目录的所有文件和子目录复制到目标目录
  */
-export function copyFile(options: CopyFileOptions): Plugin {
-	// 提取配置参数，设置默认值
-	const { sourceDir, targetDir, overwrite = true, recursive = true, verbose = true, enabled = true } = options
+class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
+	protected getPluginName(): string {
+		return 'copy-file'
+	}
 
-	// 创建日志工具实例
-	const logger = new Logger({ name: 'copy-file', enabled: verbose })
+	protected getEnforce(): 'post' {
+		return 'post'
+	}
 
-	return {
-		// 插件名称
-		name: 'copy-file',
-		// 插件在构建流程的最后阶段执行，确保其他构建任务完成后再进行文件复制
-		enforce: 'post',
-
-		/**
-		 * Vite 构建完成后触发的钩子函数，执行文件复制操作
-		 *
-		 * @remarks
-		 * 该钩子在 Vite 构建流程的最后阶段执行，确保所有构建任务完成后再进行文件复制
-		 *
-		 * @throws 当源文件不存在、权限不足或复制过程中出现其他错误时抛出异常
-		 */
-		async writeBundle() {
-			// 如果 disabled，跳过执行
-			if (!enabled) {
-				logger.info(`插件已禁用，跳过执行：从 ${sourceDir} 到 ${targetDir}`)
+	protected addPluginHooks(plugin: Plugin): void {
+		// 绑定writeBundle钩子
+		plugin.writeBundle = async () => {
+			// 如果禁用，跳过执行
+			if (!this.options.enabled) {
+				this.logger.info(`插件已禁用，跳过执行：从 ${this.options.sourceDir} 到 ${this.options.targetDir}`)
 				return
 			}
 
 			try {
+				const { sourceDir, targetDir, overwrite = true, recursive = true } = this.options
+
 				// 检查源文件是否存在
 				await checkSourceExists(sourceDir)
 
-				// 创建目标目录（如果不存在）
-				await ensureTargetDir(targetDir)
-
 				// 执行文件复制操作
-				await copySourceToTarget(sourceDir, targetDir, { recursive, overwrite })
+				const result = await copySourceToTarget(sourceDir, targetDir, {
+					recursive,
+					overwrite,
+					incremental: true // 启用增量复制
+				})
 
 				// 输出成功日志
-				logger.success(`复制文件成功：从 ${sourceDir} 到 ${targetDir}`)
-			} catch (err) {
-				// 输出错误日志
-				if (err instanceof Error) {
-					logger.error(err.message)
-				} else {
-					logger.error(`复制文件失败：未知错误 - ${sourceDir} -> ${targetDir}`, err)
-				}
-				// 重新抛出错误，确保构建流程能捕获到错误
-				throw err
+				this.logger.success(`复制文件成功：从 ${sourceDir} 到 ${targetDir}`, `复制了 ${result.copiedFiles} 个文件，跳过了 ${result.skippedFiles} 个文件，耗时 ${result.executionTime}ms`)
+			} catch (error) {
+				this.handleError(error, '文件复制失败')
 			}
 		}
 	}
 }
+
+/**
+ * 创建复制文件插件
+ * @param options 插件配置
+ * @returns Vite 插件实例
+ */
+export const copyFile = createPluginFactory(CopyFilePlugin)
