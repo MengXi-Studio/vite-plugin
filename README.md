@@ -10,12 +10,9 @@
   <h1>@meng-xi/vite-plugin</h1>
 
   <p>
-    <img alt="license" src="https://img.shields.io/github/license/MengXi-Studio/vite-plugin.svg" />
-
-    <img alt="npm" src="https://img.shields.io/npm/v/@meng-xi/vite-plugin?color=blue" />
-
-    <img alt="npm" src="https://img.shields.io/npm/dt/@meng-xi/vite-plugin?color=green" />
-
+    ![license](https://img.shields.io/github/license/MengXi-Studio/vite-plugin.svg)
+    ![npm](https://img.shields.io/npm/v/@meng-xi/vite-plugin?color=blue)
+    ![npm](https://img.shields.io/npm/dt/@meng-xi/vite-plugin?color=green)
   </p>
 </div>
 
