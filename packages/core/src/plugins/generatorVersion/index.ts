@@ -1,12 +1,12 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { GeneratorVersionOptions } from './type'
-import { Logger, ensureTargetDir, isExist, writeFileContent } from '@/common/'
+import { Logger, ensureTargetDir, writeFileContent } from '@/common'
 import path from 'path'
 import { getOutputFileName } from './common/getOutputFileName'
 import { type OutputType, OutputTypeEnum, type VersionType, VersionTypeEnum } from './common/enum'
 import { getVersion } from './common/getVersion'
 import { generateFileContent } from './common/generateFileContent'
-import { isOutputType, isVersionType } from './common/is'
+import { isOutputType, isVersionType, validateFilename, validateCustomVersion, validateCustomExt } from './common/is'
 
 /**
  * 生成版本信息插件
@@ -60,20 +60,26 @@ export function generatorVersion(options: GeneratorVersionOptions): Plugin {
 	const logger = new Logger({ name: 'generator-version', enabled: verbose })
 	let _outputType: OutputType
 	let _versionType: VersionType
+	let _filename: string
+	let _customExt: string | undefined
+	let _customVersion: string | undefined
 
 	try {
 		// 验证输出类型是否有效
 		_outputType = isOutputType(outputType)
 		// 验证版本类型是否有效
 		_versionType = isVersionType(versionType)
-
-		// 校验输出文件名
-		isExist(filename, '输出文件名不能为空！')
+		// 验证文件名是否有效
+		_filename = validateFilename(filename)
+		// 条件验证：当版本类型为custom时，必须提供customVersion
+		_customVersion = validateCustomVersion(_versionType, customVersion)
+		// 条件验证：当输出类型为custom时，必须提供customExt
+		_customExt = validateCustomExt(_outputType, customExt)
 	} catch (error) {
 		if (error instanceof Error) {
-			logger.error(error.message)
+			logger.error(`配置校验失败：${error.message}`)
 		} else {
-			logger.error(`插件初始化失败：未知错误`, error)
+			logger.error(`配置校验失败：未知错误`, error)
 		}
 		// 重新抛出错误，确保构建流程能捕获到错误
 		throw error
@@ -109,10 +115,10 @@ export function generatorVersion(options: GeneratorVersionOptions): Plugin {
 
 			try {
 				// 生成输出文件名
-				const outputFileName = getOutputFileName(_outputType, filename, customExt)
+				const outputFileName = getOutputFileName(_outputType, _filename, _customExt)
 
 				// 生成版本值
-				const version = getVersion(_versionType, customVersion)
+				const version = getVersion(_versionType, _customVersion)
 
 				// 获取 Vite 输出目录
 				const outputDir = viteConfig.build.outDir
@@ -126,14 +132,14 @@ export function generatorVersion(options: GeneratorVersionOptions): Plugin {
 				const content = generateFileContent(version, _outputType)
 
 				// 写入版本信息文件
-				await writeFileContent(fullOutputPath, content!)
+				await writeFileContent(fullOutputPath, content)
 
 				// 输出成功日志
 				logger.success(`版本文件生成成功：名称为${outputFileName}，版本值为${version}`)
 			} catch (err) {
 				// 输出错误日志
 				if (err instanceof Error) {
-					logger.error(err.message)
+					logger.error(`版本文件生成失败：${err.message}`)
 				} else {
 					logger.error(`版本文件生成失败：未知错误`, err)
 				}
