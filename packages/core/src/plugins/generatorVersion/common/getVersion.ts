@@ -1,5 +1,6 @@
 import { type VersionType, VersionTypeEnum } from './enum'
-import { getGitCommitHash, getSvnRevisionNumber, isExist } from '@/common'
+import { getGitCommitHash, getSvnRevisionNumber, isExist, readFileSync } from '@/common'
+import { resolve } from 'path'
 
 /**
  * 获取 package.json 版本号
@@ -7,9 +8,12 @@ import { getGitCommitHash, getSvnRevisionNumber, isExist } from '@/common'
  */
 function getPkgVersion(): string {
 	try {
-		return process.env.npm_package_version as string
-	} catch {
-		throw new Error('获取package.json版本号失败！请确保当前项目存在package.json文件。')
+		const pkgContent = readFileSync(resolve(process.cwd(), 'package.json'))
+		const pkg = JSON.parse(pkgContent)
+		return pkg.version
+	} catch (error) {
+		const errMsg = error instanceof Error ? error.message : '未知错误'
+		throw new Error(`获取package.json版本号失败：${errMsg}。请确保当前项目存在package.json文件。`)
 	}
 }
 

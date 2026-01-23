@@ -88,3 +88,23 @@ export async function writeFileContent(filePath: string, content: string): Promi
 		}
 	}
 }
+
+/**
+ * 同步读取文件内容
+ *
+ * @param filePath - 文件路径
+ * @returns 文件内容字符串
+ * @throws 当读取过程中出现错误时抛出异常
+ */
+export function readFileSync(filePath: string): string {
+	try {
+		return fs.readFileSync(filePath, 'utf-8')
+	} catch (err) {
+		const error = err as NodeJS.ErrnoException
+		if (error.code === 'EACCES') {
+			throw new Error(`❌ 读取文件失败：没有权限读取文件 - ${filePath}`)
+		} else {
+			throw new Error(`❌ 读取文件失败：读取文件时出错 - ${filePath}，错误：${error.message}`)
+		}
+	}
+}
