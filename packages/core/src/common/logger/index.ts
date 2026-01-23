@@ -59,11 +59,13 @@ export class Logger {
 		const prefix = this.formatPrefix()
 		const logPrefix = icon ? `${icon} ${prefix}` : prefix
 
+		method('======================================================')
 		if (data !== undefined && data !== null) {
 			method(logPrefix, message, data)
 		} else {
 			method(logPrefix, message)
 		}
+		method('======================================================')
 	}
 
 	/**

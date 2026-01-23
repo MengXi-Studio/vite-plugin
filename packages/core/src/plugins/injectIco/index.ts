@@ -1,6 +1,7 @@
-import { type Plugin } from 'vite'
+import type { Plugin } from 'vite'
 import type { InjectIcoOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget, generateIconTags, Logger } from '@/utils'
+import { generateIconTags } from './common'
+import { checkSourceExists, ensureTargetDir, copySourceToTarget, Logger } from '@/common'
 
 /**
  * 注入网站图标链接到 HTML 文件的头部

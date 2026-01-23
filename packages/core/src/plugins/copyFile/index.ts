@@ -1,6 +1,6 @@
-import { type Plugin } from 'vite'
+import type { Plugin } from 'vite'
 import type { CopyFileOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget, Logger } from '@/utils'
+import { checkSourceExists, ensureTargetDir, copySourceToTarget, Logger } from '@/common'
 
 /**
  * 复制文件插件
