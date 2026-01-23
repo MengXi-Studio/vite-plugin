@@ -14,6 +14,8 @@
 		"build:docs": "pnpm --filter @meng-xi/vite-plugin-docs build",
 		"dev:playground": "pnpm --filter @meng-xi/vite-plugin-playground dev",
 		"build:playground": "pnpm --filter @meng-xi/vite-plugin-playground build",
+		"test": "pnpm --filter @meng-xi/vite-plugin-test test",
+		"test:full": "pnpm --filter @meng-xi/vite-plugin-test test:full",
 		"release": "bumpp",
 		"lint": "eslint . --ext .ts,.js",
 		"lint:fix": "pnpm lint --fix",

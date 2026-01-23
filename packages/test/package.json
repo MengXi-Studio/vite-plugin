@@ -1,0 +1,22 @@
+{
+  "name": "@meng-xi/vite-plugin-test",
+  "version": "0.0.1",
+  "private": true,
+  "description": "测试打包后的 Vite 插件功能",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build:core": "pnpm --filter @meng-xi/vite-plugin build",
+    "test:full": "pnpm build:core && pnpm test"
+  },
+  "dependencies": {
+    "@meng-xi/vite-plugin": "workspace:*",
+    "vite": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "4.0.18",
+    "typescript": "^5.2.0",
+    "vitest": "^4.0.18"
+  }
+}
