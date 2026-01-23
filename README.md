@@ -9,11 +9,8 @@
 <div align="center">
   <h1>@meng-xi/vite-plugin</h1>
 
-[![license](https://img.shields.io/github/license/MengXi-Studio/vite-plugin.svg)](LICENSE)
-
-    [![npm](https://img.shields.io/npm/v/@meng-xi/vite-plugin?color=blue)](https://www.npmjs.com/package/@meng-xi/vite-plugin)
-
-    ![npm](https://img.shields.io/npm/dt/@meng-xi/vite-plugin?color=green)
+[![license](https://img.shields.io/github/license/MengXi-Studio/vite-plugin.svg)](LICENSE) [![npm](https://img.shields.io/npm/v/@meng-xi/vite-plugin?color=blue)](https://www.npmjs.com/package/@meng-xi/vite-plugin)
+![npm](https://img.shields.io/npm/dt/@meng-xi/vite-plugin?color=green)
 
 </div>
 
