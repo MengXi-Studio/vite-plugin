@@ -68,3 +68,23 @@ export async function copySourceToTarget(sourcePath: string, targetPath: string,
 		}
 	}
 }
+
+/**
+ * 写入文件内容
+ *
+ * @param filePath - 文件路径
+ * @param content - 文件内容
+ * @throws 当写入过程中出现错误时抛出异常
+ */
+export async function writeFileContent(filePath: string, content: string): Promise<void> {
+	try {
+		await fs.promises.writeFile(filePath, content, 'utf-8')
+	} catch (err) {
+		const error = err as NodeJS.ErrnoException
+		if (error.code === 'EACCES') {
+			throw new Error(`❌ 写入文件失败：没有权限写入文件 - ${filePath}`)
+		} else {
+			throw new Error(`❌ 写入文件失败：写入文件时出错 - ${filePath}，错误：${error.message}`)
+		}
+	}
+}
