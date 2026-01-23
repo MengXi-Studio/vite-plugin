@@ -1,6 +1,6 @@
 import { type Plugin } from 'vite'
 import type { CopyFileOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget } from '@/utils'
+import { checkSourceExists, ensureTargetDir, copySourceToTarget, Logger } from '@/utils'
 
 /**
  * 复制文件插件
@@ -47,6 +47,9 @@ export function copyFile(options: CopyFileOptions): Plugin {
 	// 提取配置参数，设置默认值
 	const { sourceDir, targetDir, overwrite = true, recursive = true, verbose = true, enabled = true } = options
 
+	// 创建日志工具实例
+	const logger = new Logger({ name: 'copy-file', enabled: verbose })
+
 	return {
 		// 插件名称
 		name: 'copy-file',
@@ -64,9 +67,7 @@ export function copyFile(options: CopyFileOptions): Plugin {
 		async writeBundle() {
 			// 如果 disabled，跳过执行
 			if (!enabled) {
-				if (verbose) {
-					console.log(`ℹ 复制文件功能已禁用，跳过执行：从 ${sourceDir} 到 ${targetDir}`)
-				}
+				logger.info(`插件已禁用，跳过执行：从 ${sourceDir} 到 ${targetDir}`)
 				return
 			}
 
@@ -81,17 +82,13 @@ export function copyFile(options: CopyFileOptions): Plugin {
 				await copySourceToTarget(sourceDir, targetDir, { recursive, overwrite })
 
 				// 输出成功日志
-				if (verbose) {
-					console.log(`✅ 复制文件成功：从 ${sourceDir} 到 ${targetDir}`)
-				}
+				logger.success(`复制文件成功：从 ${sourceDir} 到 ${targetDir}`)
 			} catch (err) {
 				// 输出错误日志
-				if (verbose) {
-					if (err instanceof Error) {
-						console.error(err.message)
-					} else {
-						console.error(`❌ 复制文件失败：未知错误 - ${sourceDir} -> ${targetDir}`, err)
-					}
+				if (err instanceof Error) {
+					logger.error(err.message)
+				} else {
+					logger.error(`复制文件失败：未知错误 - ${sourceDir} -> ${targetDir}`, err)
 				}
 				// 重新抛出错误，确保构建流程能捕获到错误
 				throw err

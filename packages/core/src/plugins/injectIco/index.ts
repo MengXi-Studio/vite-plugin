@@ -1,6 +1,6 @@
 import { type Plugin } from 'vite'
 import type { InjectIcoOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget, generateIconTags } from '@/utils'
+import { checkSourceExists, ensureTargetDir, copySourceToTarget, generateIconTags, Logger } from '@/utils'
 
 /**
  * 注入网站图标链接到 HTML 文件的头部
@@ -80,6 +80,9 @@ export function injectIco(options?: InjectIcoOptions | string): Plugin {
 	// 获取配置，设置默认值
 	const { verbose = true, enabled = true } = normalizedOptions
 
+	// 创建日志工具实例
+	const logger = new Logger({ name: 'inject-ico', enabled: verbose })
+
 	return {
 		name: 'inject-ico',
 
@@ -92,9 +95,7 @@ export function injectIco(options?: InjectIcoOptions | string): Plugin {
 		transformIndexHtml(html) {
 			// 如果禁用了插件，跳过执行
 			if (!enabled) {
-				if (verbose) {
-					console.log('ℹ inject-ico: 插件已禁用，跳过图标注入')
-				}
+				logger.info('插件已禁用，跳过图标注入')
 				return html
 			}
 
@@ -103,9 +104,7 @@ export function injectIco(options?: InjectIcoOptions | string): Plugin {
 
 			// 如果没有图标标签需要注入，直接返回原始 HTML
 			if (iconTags.length === 0) {
-				if (verbose) {
-					console.log('ℹ inject-ico: 没有生成图标标签，跳过注入')
-				}
+				logger.info('没有生成图标标签，跳过注入')
 				return html
 			}
 
@@ -117,16 +116,13 @@ export function injectIco(options?: InjectIcoOptions | string): Plugin {
 			if (headCloseIndex !== -1) {
 				const tagsHtml = iconTags.join('\n') + '\n'
 				modifiedHtml = modifiedHtml.substring(0, headCloseIndex) + tagsHtml + modifiedHtml.substring(headCloseIndex)
-				if (verbose) {
-					console.log(`✅ inject-ico: 成功注入 ${iconTags.length} 个图标标签到 HTML 文件`)
-					iconTags.forEach(tag => {
-						console.log(`  - ${tag}`)
-					})
-				}
+
+				logger.success(`成功注入 ${iconTags.length} 个图标标签到 HTML 文件`)
+				iconTags.forEach(tag => {
+					logger.info(`  - ${tag}`)
+				})
 			} else {
-				if (verbose) {
-					console.warn('⚠ inject-ico: 未找到 </head> 标签，跳过图标注入')
-				}
+				logger.warn('未找到 </head> 标签，跳过图标注入')
 			}
 
 			return modifiedHtml
@@ -143,9 +139,7 @@ export function injectIco(options?: InjectIcoOptions | string): Plugin {
 		async writeBundle() {
 			// 如果禁用了插件，跳过执行
 			if (!enabled) {
-				if (verbose) {
-					console.log('ℹ inject-ico: 插件已禁用，跳过文件复制')
-				}
+				logger.info('插件已禁用，跳过文件复制')
 				return
 			}
 
@@ -169,17 +163,13 @@ export function injectIco(options?: InjectIcoOptions | string): Plugin {
 				await copySourceToTarget(sourceDir, targetDir, { recursive, overwrite })
 
 				// 输出成功日志
-				if (verbose) {
-					console.log(`✅ inject-ico: 图标文件复制成功：从 ${sourceDir} 到 ${targetDir}`)
-				}
+				logger.success(`图标文件复制成功：从 ${sourceDir} 到 ${targetDir}`)
 			} catch (err) {
 				// 输出错误日志
-				if (verbose) {
-					if (err instanceof Error) {
-						console.error(err.message)
-					} else {
-						console.error(`❌ inject-ico: 图标文件复制失败：未知错误 - ${sourceDir} -> ${targetDir}`, err)
-					}
+				if (err instanceof Error) {
+					logger.error(err.message)
+				} else {
+					logger.error(`图标文件复制失败：未知错误 - ${sourceDir} -> ${targetDir}`, err)
 				}
 				// 重新抛出错误，确保构建流程能捕获到错误
 				throw err

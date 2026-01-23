@@ -1,18 +1,16 @@
-<div align="center">
-	<a href="https://github.com/MengXi-Studio/vite-plugin">
-		<img alt="梦曦工作室 Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.svg">
-	</a>
-	<br>
-	<br>
-
-[![license](https://img.shields.io/github/license/MengXi-Studio/vite-plugin.svg)](LICENSE)
-
-  <h1>@meng-xi/vite-plugin</h1>
-</div>
-
-[![npm](https://img.shields.io/npm/v/@meng-xi/vite-plugin?color=blue)](https://www.npmjs.com/package/@meng-xi/vite-plugin) ![npm](https://img.shields.io/npm/dt/@meng-xi/vite-plugin?color=green)
-
 **English** | [中文](./README.md)
+
+<div align="center">
+  <a href="https://github.com/MengXi-Studio/vite-plugin">
+    <img alt="梦曦工作室 Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.svg">
+  </a>
+  <br>
+  <h1>@meng-xi/vite-plugin</h1>
+
+[![license](https://img.shields.io/github/license/MengXi-Studio/vite-plugin.svg)](LICENSE) [![npm](https://img.shields.io/npm/v/@meng-xi/vite-plugin?color=blue)](https://www.npmjs.com/package/@meng-xi/vite-plugin)
+![npm](https://img.shields.io/npm/dt/@meng-xi/vite-plugin?color=green)
+
+</div>
 
 ## Introduction
 
