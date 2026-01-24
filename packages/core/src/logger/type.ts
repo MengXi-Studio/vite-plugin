@@ -10,8 +10,4 @@ export interface LoggerOptions {
 	 * 是否启用日志
 	 */
 	enabled?: boolean
-	/**
-	 * 是否显示时间戳
-	 */
-	showTimestamp?: boolean
 }
