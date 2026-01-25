@@ -33,4 +33,11 @@ export interface CopyFileOptions extends BasePluginOptions {
 	 * @default true
 	 */
 	recursive?: boolean
+
+	/**
+	 * 是否启用增量复制
+	 *
+	 * @default true
+	 */
+	incremental?: boolean
 }
