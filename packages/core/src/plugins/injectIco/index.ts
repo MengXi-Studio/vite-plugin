@@ -1,179 +1,177 @@
-import { type Plugin } from 'vite'
-import type { InjectIcoOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget, generateIconTags, Logger } from '@/utils'
+import type { Plugin } from 'vite'
+import { BasePlugin } from '@/factory'
+import type { InjectIcoOptions } from './types'
+import { generateIconTags } from './common'
+import { checkSourceExists, copySourceToTarget, Validator } from '@/common'
 
 /**
- * 注入网站图标链接到 HTML 文件的头部
+ * 注入图标插件类，用于在构建过程中注入图标链接到 HTML 文件
  *
- * @param options - 配置选项（字符串时视为 base）
- * @returns 一个 Vite 插件实例，用于在构建过程中修改 HTML 文件
+ * @class InjectIcoPlugin
+ * @extends {BasePlugin<InjectIcoOptions>}
+ * @description 该插件会在 Vite 构建完成后执行，将指定图标文件的链接注入到 HTML 文件的 `<head>` 标签中。
+ */
+class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
+	/**
+	 * 构造函数，创建注入图标插件实例
+	 *
+	 * @constructor
+	 * @param {string | InjectIcoOptions} [options] - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
+	 * @description 标准化插件配置选项，将字符串类型的选项转换为完整的配置对象，然后调用父类构造函数初始化插件
+	 */
+	constructor(options?: string | InjectIcoOptions) {
+		// 标准化选项
+		const normalizedOptions: InjectIcoOptions = typeof options === 'string' ? { base: options } : options || {}
+		super(normalizedOptions)
+	}
+
+	protected validateOptions(): void {
+		// 使用公共验证器验证配置
+		this.validator.field('base').string().default('/').field('url').string().field('link').string().field('icons').array()
+
+		if (this.options?.copyOptions) {
+			this.validator.field('copyOptions').object()
+
+			const copyOptionsValidator = new Validator(this.options.copyOptions)
+			copyOptionsValidator.field('sourceDir').required().string().field('targetDir').required().string().field('overwrite').boolean().default(true).field('recursive').boolean().default(true).validate()
+		}
+
+		this.validator.validate()
+	}
+
+	protected getPluginName(): string {
+		return 'inject-ico'
+	}
+
+	/**
+	 * 转换 HTML 入口文件，将图标标签注入到 HTML 文件的 `<head>` 标签中
+	 *
+	 * @private
+	 * @param {string} html - 原始的 HTML 内容
+	 * @returns {string} 经过修改后的 HTML 内容，在 `</head>` 标签前注入图标链接
+	 * @description 该方法检查插件是否启用，生成图标标签，然后将图标标签注入到 HTML 文件的 `<head>` 标签前。
+	 * 如果未找到 `</head>` 标签，则输出警告并返回原始 HTML。
+	 */
+	private injectIcoTags(html: string): string {
+		// 如果插件未启用，直接返回原始 HTML
+		if (!this.options.enabled) {
+			this.logger.info('插件已禁用，跳过图标注入')
+			return html
+		}
+
+		// 生成图标标签
+		const iconTags = generateIconTags(this.options)
+
+		// 如果没有图标标签需要注入，直接返回原始 HTML
+		if (iconTags.length === 0) {
+			this.logger.info('没有生成图标标签，跳过注入')
+			return html
+		}
+
+		// 检查是否已经存在图标标签，避免重复注入
+		let modifiedHtml = html
+
+		// 注入图标标签到 </head> 标签前
+		const headCloseIndex = modifiedHtml.indexOf('</head>')
+		if (headCloseIndex !== -1) {
+			const tagsHtml = iconTags.join('\n') + '\n'
+			modifiedHtml = modifiedHtml.substring(0, headCloseIndex) + tagsHtml + modifiedHtml.substring(headCloseIndex)
+
+			this.logger.success(`成功注入 ${iconTags.length} 个图标标签到 HTML 文件`)
+			iconTags.forEach(tag => {
+				this.logger.info(`  - ${tag}`)
+			})
+		} else {
+			this.logger.warn('未找到 </head> 标签，跳过图标注入')
+		}
+
+		return modifiedHtml
+	}
+
+	/**
+	 * 复制图标文件到目标目录
+	 *
+	 * @private
+	 * @async
+	 * @returns {Promise<void>} 无返回值
+	 * @throws {Error} 如果源文件不存在、权限不足或复制过程中出现其他错误，抛出异常
+	 * @description 该方法检查插件是否启用，如果启用则获取 copyOptions 配置，检查源文件是否存在，然后执行文件复制操作，并输出成功日志。
+	 * 支持增量复制、递归复制和覆盖控制。
+	 */
+	private async copyFiles(): Promise<void> {
+		// 如果禁用了插件，跳过执行
+		if (!this.options.enabled) {
+			this.logger.info('插件已禁用，跳过文件复制')
+			return
+		}
+
+		// 检查是否配置了文件复制相关选项
+		const { copyOptions } = this.options
+
+		// 没有配置复制选项，跳过复制操作
+		if (!copyOptions) return
+
+		const { sourceDir, targetDir, overwrite = true, recursive = true } = copyOptions
+
+		// 检查源文件是否存在
+		await checkSourceExists(sourceDir)
+
+		// 执行文件复制操作
+		const result = await copySourceToTarget(sourceDir, targetDir, {
+			recursive,
+			overwrite,
+			incremental: true // 启用增量复制
+		})
+
+		// 输出成功日志
+		this.logger.success(`图标文件复制成功：从 ${sourceDir} 到 ${targetDir}`, `复制了 ${result.copiedFiles} 个文件，跳过了 ${result.skippedFiles} 个文件，耗时 ${result.executionTime}ms`)
+	}
+
+	protected addPluginHooks(plugin: Plugin): void {
+		plugin.transformIndexHtml = (html: string) => {
+			return this.injectIcoTags(html)
+		}
+
+		plugin.writeBundle = async () => {
+			await this.safeExecute(() => this.copyFiles(), '图标文件复制')
+		}
+	}
+}
+
+/**
+ * 创建注入图标插件实例
  *
+ * @export
+ * @param {string | InjectIcoOptions} [options] - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
+ * @returns {Plugin} Vite 插件实例，用于在构建过程中注入图标链接到 HTML 文件
  * @example
  * ```typescript
  * // 基本使用
- * injectIco({ base: '/assets' })
+ * injectIco() // 使用默认配置
  *
- * // 自定义图标
+ * // 使用字符串配置 base 路径
+ * injectIco('/assets')
+ *
+ * // 使用完整配置
  * injectIco({
+ *   base: '/assets',
  *   icons: [
  *     { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
- *     { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
- *     { rel: 'icon', href: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' }
- *   ]
- * })
- *
- * // 带文件复制功能（适用于 uni-app 等框架）
- * injectIco({
- *   base: '/assets',
- *   copyOptions: {
- *     sourceDir: 'src/assets/icons',
- *     targetDir: 'dist/assets/icons'
- *   }
- * })
- *
- * // 带完整复制配置的使用
- * injectIco({
- *   base: '/assets',
- *   copyOptions: {
- *     sourceDir: 'src/assets/icons',
- *     targetDir: 'dist/assets/icons',
- *     overwrite: false,
- *     recursive: true
- *   }
- * })
- *
- * // 关闭日志输出
- * injectIco({
- *   base: '/assets',
- *   verbose: false,
- *   copyOptions: {
- *     sourceDir: 'src/assets/icons',
- *     targetDir: 'dist/assets/icons'
- *   }
- * })
- *
- * // 根据环境启用
- * injectIco({
- *   base: '/assets',
- *   enabled: process.env.NODE_ENV === 'production',
- *   copyOptions: {
- *     sourceDir: 'src/assets/icons',
- *     targetDir: 'dist/assets/icons'
- *   }
- * })
- *
- * // 禁用插件
- * injectIco({
- *   base: '/assets',
- *   enabled: false,
+ *     { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+ *   ],
  *   copyOptions: {
  *     sourceDir: 'src/assets/icons',
  *     targetDir: 'dist/assets/icons'
  *   }
  * })
  * ```
+ * @remarks
+ * 该函数创建并返回一个 Vite 插件实例，该实例会在构建过程中：
+ * 1. 将图标链接注入到 HTML 文件的 `<head>` 标签中
+ * 2. 如果配置了 copyOptions，将图标文件复制到目标目录
+ *
+ * 支持自定义图标链接、图标数组配置以及图标文件复制功能。
  */
-export function injectIco(options?: InjectIcoOptions | string): Plugin {
-	// 标准化选项
-	const normalizedOptions: InjectIcoOptions = typeof options === 'string' ? { base: options } : options || {}
-
-	// 获取配置，设置默认值
-	const { verbose = true, enabled = true } = normalizedOptions
-
-	// 创建日志工具实例
-	const logger = new Logger({ name: 'inject-ico', enabled: verbose })
-
-	return {
-		name: 'inject-ico',
-
-		/**
-		 * 转换 HTML 入口文件的钩子函数
-		 *
-		 * @param html - 原始的 HTML 内容
-		 * @returns 经过修改后的 HTML 内容，在 `</head>` 标签前注入图标链接
-		 */
-		transformIndexHtml(html) {
-			// 如果禁用了插件，跳过执行
-			if (!enabled) {
-				logger.info('插件已禁用，跳过图标注入')
-				return html
-			}
-
-			// 生成图标标签
-			const iconTags = generateIconTags(normalizedOptions)
-
-			// 如果没有图标标签需要注入，直接返回原始 HTML
-			if (iconTags.length === 0) {
-				logger.info('没有生成图标标签，跳过注入')
-				return html
-			}
-
-			// 检查是否已经存在图标标签，避免重复注入
-			let modifiedHtml = html
-
-			// 注入图标标签到 </head> 标签前
-			const headCloseIndex = modifiedHtml.indexOf('</head>')
-			if (headCloseIndex !== -1) {
-				const tagsHtml = iconTags.join('\n') + '\n'
-				modifiedHtml = modifiedHtml.substring(0, headCloseIndex) + tagsHtml + modifiedHtml.substring(headCloseIndex)
-
-				logger.success(`成功注入 ${iconTags.length} 个图标标签到 HTML 文件`)
-				iconTags.forEach(tag => {
-					logger.info(`  - ${tag}`)
-				})
-			} else {
-				logger.warn('未找到 </head> 标签，跳过图标注入')
-			}
-
-			return modifiedHtml
-		},
-
-		/**
-		 * 构建完成后执行的钩子函数，用于复制图标文件到打包目录
-		 *
-		 * @remarks
-		 * 只有当配置了 copyOptions 对象且 enabled 为 true 时才会执行复制操作
-		 *
-		 * @throws 当源文件不存在、权限不足或复制过程中出现其他错误时抛出异常
-		 */
-		async writeBundle() {
-			// 如果禁用了插件，跳过执行
-			if (!enabled) {
-				logger.info('插件已禁用，跳过文件复制')
-				return
-			}
-
-			// 检查是否配置了文件复制相关选项
-			const { copyOptions } = normalizedOptions
-
-			// 没有配置复制选项，跳过复制操作
-			if (!copyOptions) return
-
-			// 获取复制配置，设置默认值
-			const { sourceDir, targetDir, overwrite = true, recursive = true } = copyOptions
-
-			try {
-				// 检查源文件是否存在
-				await checkSourceExists(sourceDir)
-
-				// 创建目标目录（如果不存在）
-				await ensureTargetDir(targetDir)
-
-				// 执行文件复制操作
-				await copySourceToTarget(sourceDir, targetDir, { recursive, overwrite })
-
-				// 输出成功日志
-				logger.success(`图标文件复制成功：从 ${sourceDir} 到 ${targetDir}`)
-			} catch (err) {
-				// 输出错误日志
-				if (err instanceof Error) {
-					logger.error(err.message)
-				} else {
-					logger.error(`图标文件复制失败：未知错误 - ${sourceDir} -> ${targetDir}`, err)
-				}
-				// 重新抛出错误，确保构建流程能捕获到错误
-				throw err
-			}
-		}
-	}
+export function injectIco(options?: string | InjectIcoOptions): Plugin {
+	return new InjectIcoPlugin(options).toPlugin()
 }

@@ -4,13 +4,15 @@ The `copyFile` plugin is used to copy files or directories to specified location
 
 ## Features
 
-- Execute at the final stage of the Vite build process (ensuring file copying is performed after other build tasks are completed)
+- Execute at the final stage of the Vite build process (using `enforce: 'post'`, ensuring file copying is performed after other build tasks are completed)
 - Copy files or directories to specified locations
 - Support recursive copying
 - Support overwriting existing files
+- Support incremental copying (only copy modified files, improving build efficiency)
 - Support enabling/disabling the plugin
 - Support detailed log output
-- Provide error handling mechanism to ensure build process can catch errors
+- Provide flexible error handling mechanism with configurable error handling strategies
+- Support custom error messages and validation rules
 
 ## Basic Usage
 
@@ -43,8 +45,10 @@ export default defineConfig({
 			targetDir: 'dist/assets',
 			overwrite: true,
 			recursive: true,
+			incremental: true,
 			enabled: true,
-			verbose: true
+			verbose: true,
+			errorStrategy: 'throw'
 		})
 	]
 })
@@ -52,14 +56,16 @@ export default defineConfig({
 
 ## Configuration Options
 
-| Option    | Type    | Default  | Description                           |
-| --------- | ------- | -------- | ------------------------------------- |
-| sourceDir | string  | Required | The path of the source file directory |
-| targetDir | string  | Required | The path of the target file directory |
-| overwrite | boolean | true     | Whether to overwrite existing files   |
-| recursive | boolean | true     | Whether to support recursive copying  |
-| enabled   | boolean | true     | Whether to enable the plugin          |
-| verbose   | boolean | true     | Whether to show detailed logs         |
+| Option        | Type                         | Default  | Description                                                                                      |
+| ------------- | ---------------------------- | -------- | ------------------------------------------------------------------------------------------------ |
+| sourceDir     | string                       | Required | The path of the source file directory, must be a non-empty string                                |
+| targetDir     | string                       | Required | The path of the target file directory, must be a non-empty string                                |
+| overwrite     | boolean                      | true     | Whether to overwrite existing files                                                              |
+| recursive     | boolean                      | true     | Whether to support recursive copying of subdirectories                                           |
+| incremental   | boolean                      | true     | Whether to enable incremental copying, only copy modified files to improve build efficiency      |
+| enabled       | boolean                      | true     | Whether to enable the plugin                                                                     |
+| verbose       | boolean                      | true     | Whether to show detailed logs                                                                    |
+| errorStrategy | 'throw' \| 'log' \| 'ignore' | 'throw'  | Error handling strategy: 'throw' to throw errors, 'log' to log errors, 'ignore' to ignore errors |
 
 ## Examples
 
@@ -92,7 +98,9 @@ export default defineConfig({
 			targetDir: 'dist/static',
 			overwrite: false,
 			verbose: true,
-			recursive: false
+			recursive: false,
+			incremental: false, // Disable incremental copying, copy all files every time
+			errorStrategy: 'log' // Only log errors, don't interrupt build
 		})
 	]
 })
@@ -134,11 +142,17 @@ export default defineConfig({
 
 ## Notes
 
-- The plugin executes at the final stage of the Vite build process (enforce: 'post'), ensuring file copying is performed after other build tasks are completed
+- The plugin executes at the final stage of the Vite build process (`enforce: 'post'`), ensuring file copying is performed after other build tasks are completed
 - Ensure the source file directory exists, otherwise an error will be thrown
 - The target directory will be automatically created if it doesn't exist
 - When `overwrite` is `false`, if the target file already exists, copying will be skipped
 - When `recursive` is `false`, only files in the source directory will be copied, not subdirectories
+- When `incremental` is `true`, only modified files will be copied, improving build efficiency
 - When `enabled` is `false`, the plugin will not perform any operations
-- The plugin will throw errors to ensure the build process can catch them
+- The `errorStrategy` option determines the error handling behavior:
+  - `'throw'`: Throw errors, interrupting the build process
+  - `'log'`: Log errors but don't interrupt the build
+  - `'ignore'`: Ignore errors and continue execution
 - When `verbose` is `true`, detailed execution logs will be output, facilitating debugging and problem troubleshooting
+- `sourceDir` and `targetDir` must be non-empty strings, otherwise validation errors will be thrown
+- The plugin validates the configuration's validity and throws detailed error messages when the configuration is invalid

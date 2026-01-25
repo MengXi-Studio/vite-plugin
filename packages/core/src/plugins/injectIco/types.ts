@@ -1,3 +1,5 @@
+import type { BasePluginOptions } from '@/factory/types'
+
 /**
  * 图标配置项接口
  *
@@ -48,16 +50,14 @@ interface CopyOptions {
 	/**
 	 * 是否覆盖同名文件
 	 *
-	 * @defaultValue true
-	 * @example false
+	 * @default true
 	 */
 	overwrite?: boolean
 
 	/**
 	 * 是否支持递归复制
 	 *
-	 * @defaultValue true
-	 * @example false
+	 * @default true
 	 */
 	recursive?: boolean
 }
@@ -67,11 +67,11 @@ interface CopyOptions {
  *
  * @interface InjectIcoOptions
  */
-export interface InjectIcoOptions {
+export interface InjectIcoOptions extends BasePluginOptions {
 	/**
-	 * 图标文件的基础路径，默认为根路径 `/`
+	 * 图标文件的基础路径，默认为根路径 '/'
 	 *
-	 * @defaultValue `/`
+	 * @default '/'
 	 * @example '/assets'
 	 */
 	base?: string
@@ -101,22 +101,6 @@ export interface InjectIcoOptions {
 	 * ]
 	 */
 	icons?: Icon[]
-
-	/**
-	 * 是否显示详细日志
-	 *
-	 * @defaultValue true
-	 * @example false
-	 */
-	verbose?: boolean
-
-	/**
-	 * 是否启用图标注入和文件复制功能
-	 *
-	 * @defaultValue true
-	 * @example false
-	 */
-	enabled?: boolean
 
 	/**
 	 * 图标文件复制配置选项

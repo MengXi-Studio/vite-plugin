@@ -1,4 +1,4 @@
-import type { LoggerOptions } from './type'
+import type { LoggerOptions } from './types'
 
 /**
  * 日志工具类
@@ -16,10 +16,36 @@ export class Logger {
 	 * 是否启用日志
 	 */
 	private enabled: boolean
+
 	/**
-	 * 是否显示时间戳
+	 * 日志类型映射
 	 */
-	private showTimestamp: boolean
+	private readonly logTypes = {
+		info: {
+			method: console.log,
+			icon: '',
+			color: '',
+			reset: ''
+		},
+		success: {
+			method: console.log,
+			icon: '✅',
+			color: '\x1b[32m', // 绿色
+			reset: '\x1b[0m'
+		},
+		warn: {
+			method: console.warn,
+			icon: '⚠️',
+			color: '\x1b[33m', // 黄色
+			reset: '\x1b[0m'
+		},
+		error: {
+			method: console.error,
+			icon: '❌',
+			color: '\x1b[31m', // 红色
+			reset: '\x1b[0m'
+		}
+	}
 
 	/**
 	 * 构造函数
@@ -28,7 +54,6 @@ export class Logger {
 	constructor(options: LoggerOptions) {
 		this.name = options.name
 		this.enabled = options.enabled ?? false
-		this.showTimestamp = options.showTimestamp ?? false
 	}
 
 	/**
@@ -38,32 +63,33 @@ export class Logger {
 	private formatPrefix(): string {
 		let prefix = `[${this.libName}:${this.name}]`
 
-		if (this.showTimestamp) {
-			const timestamp = new Date().toLocaleString()
-			prefix = `[${timestamp}] ${prefix}`
-		}
+		const timestamp = new Date().toLocaleString()
+		prefix = `[${timestamp}] ${prefix}`
 
 		return prefix
 	}
 
 	/**
 	 * 统一日志输出方法
-	 * @param method 日志方法
+	 * @param type 日志类型
 	 * @param message 日志消息
 	 * @param data 附加数据
-	 * @param icon 日志图标
 	 */
-	private log(method: (...args: any[]) => void, message: string, data?: any, icon?: string): void {
+	private log(type: keyof typeof this.logTypes, message: string, data?: any): void {
 		if (!this.enabled) return
 
 		const prefix = this.formatPrefix()
+		const logConfig = this.logTypes[type]
+		const { method, icon, color, reset } = logConfig
 		const logPrefix = icon ? `${icon} ${prefix}` : prefix
 
+		method('==================================')
 		if (data !== undefined && data !== null) {
-			method(logPrefix, message, data)
+			method(color + logPrefix + reset, color + message + reset, data)
 		} else {
-			method(logPrefix, message)
+			method(color + logPrefix + reset, color + message + reset)
 		}
+		method('==================================')
 	}
 
 	/**
@@ -72,7 +98,7 @@ export class Logger {
 	 * @param data 附加数据
 	 */
 	success(message: string, data?: any): void {
-		this.log(console.log, message, data, '✅')
+		this.log('success', message, data)
 	}
 
 	/**
@@ -81,7 +107,7 @@ export class Logger {
 	 * @param data 附加数据
 	 */
 	info(message: string, data?: any): void {
-		this.log(console.log, message, data)
+		this.log('info', message, data)
 	}
 
 	/**
@@ -90,7 +116,7 @@ export class Logger {
 	 * @param data 附加数据
 	 */
 	warn(message: string, data?: any): void {
-		this.log(console.warn, message, data, '⚠')
+		this.log('warn', message, data)
 	}
 
 	/**
@@ -99,19 +125,6 @@ export class Logger {
 	 * @param data 附加数据
 	 */
 	error(message: string, data?: any): void {
-		this.log(console.error, message, data, '❌')
-	}
-
-	/**
-	 * 更新日志配置
-	 * @param options 配置选项
-	 */
-	configure(options: Partial<LoggerOptions>): void {
-		if (options.enabled !== undefined) {
-			this.enabled = options.enabled
-		}
-		if (options.showTimestamp !== undefined) {
-			this.showTimestamp = options.showTimestamp
-		}
+		this.log('error', message, data)
 	}
 }

@@ -14,17 +14,14 @@ module.exports = {
 		es2020: true
 	},
 	// 扩展
-	extends: [
-		'eslint:recommended',
-		'plugin:@typescript-eslint/recommended',
-		'plugin:prettier/recommended'
-	],
+	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
 	// 规则
 	rules: {
 		// 基本规则
 		'no-console': 'off',
 		'no-unused-vars': 'warn',
 		'no-undef': 'off',
-		'prettier/prettier': 'error'
+		'prettier/prettier': 'error',
+		'@typescript-eslint/no-explicit-any': 'off'
 	}
 }

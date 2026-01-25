@@ -1,7 +1,7 @@
 {
 	"name": "@meng-xi/vite-plugin",
 	"type": "module",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"private": false,
 	"description": "一个为 Vite 提供的插件库",
 	"keywords": [
@@ -17,11 +17,6 @@
 			"require": "./dist/index.cjs",
 			"import": "./dist/index.mjs",
 			"types": "./dist/index.d.ts"
-		},
-		"./plugins/*": {
-			"require": "./dist/plugins/*.cjs",
-			"import": "./dist/plugins/*.mjs",
-			"types": "./dist/plugins/*.d.ts"
 		}
 	},
 	"files": [
