@@ -27,13 +27,16 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 
 	protected validateOptions(): void {
 		// 使用公共验证器验证配置
-		this.validator.field('base').string().default('/').field('url').string().field('link').string().field('icons').array().field('copyOptions').object().validate()
+		this.validator.field('base').string().default('/').field('url').string().field('link').string().field('icons').array()
 
 		if (this.options?.copyOptions) {
-			const copyOptionsValidator = new Validator(this.options.copyOptions)
+			this.validator.field('copyOptions').object()
 
+			const copyOptionsValidator = new Validator(this.options.copyOptions)
 			copyOptionsValidator.field('sourceDir').required().string().field('targetDir').required().string().field('overwrite').boolean().default(true).field('recursive').boolean().default(true).validate()
 		}
+
+		this.validator.validate()
 	}
 
 	protected getPluginName(): string {
@@ -102,7 +105,13 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 			return
 		}
 
-		const { sourceDir, targetDir, overwrite = true, recursive = true } = this.options.copyOptions
+		// 检查是否配置了文件复制相关选项
+		const { copyOptions } = this.options
+
+		// 没有配置复制选项，跳过复制操作
+		if (!copyOptions) return
+
+		const { sourceDir, targetDir, overwrite = true, recursive = true } = copyOptions
 
 		// 检查源文件是否存在
 		await checkSourceExists(sourceDir)
@@ -124,7 +133,7 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 		}
 
 		plugin.writeBundle = async () => {
-			await this.safeExecute(this.copyFiles, '图标文件复制')
+			await this.safeExecute(() => this.copyFiles(), '图标文件复制')
 		}
 	}
 }
@@ -163,6 +172,6 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
  *
  * 支持自定义图标链接、图标数组配置以及图标文件复制功能。
  */
-export function injectIco(options?: string | InjectIcoOptions) {
+export function injectIco(options?: string | InjectIcoOptions): Plugin {
 	return new InjectIcoPlugin(options).toPlugin()
 }

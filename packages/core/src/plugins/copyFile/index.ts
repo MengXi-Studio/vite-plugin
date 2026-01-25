@@ -76,7 +76,7 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 
 	protected addPluginHooks(plugin: Plugin): void {
 		plugin.writeBundle = async () => {
-			await this.safeExecute(this.copyFiles, '复制文件')
+			await this.safeExecute(() => this.copyFiles(), '复制文件')
 		}
 	}
 }
