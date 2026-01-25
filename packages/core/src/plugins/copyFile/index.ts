@@ -4,27 +4,43 @@ import type { CopyFileOptions } from './types'
 import { checkSourceExists, copySourceToTarget } from '@/common'
 
 /**
- * 复制文件插件
+ * 复制文件插件类，用于在构建过程中复制文件
+ *
+ * @class CopyFilePlugin
+ * @extends {BasePlugin<CopyFileOptions>}
+ * @description 该插件会在 Vite 构建完成后执行，将指定源目录的文件复制到目标目录
  */
 class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 	/**
 	 * 获取插件名称
+	 *
+	 * @protected
+	 * @returns {string} 插件的名称，用于 Vite 插件系统识别
 	 */
-	protected getPluginName() {
+	protected getPluginName(): string {
 		return 'copy-file'
 	}
 
 	/**
 	 * 获取插件执行时机
+	 *
+	 * @protected
+	 * @returns {Plugin['enforce']} 插件的执行时机，可选值为 'pre'、'post' 或 undefined
+	 * @description 'post' 表示插件在 Vite 构建后期执行
 	 */
 	protected getEnforce(): Plugin['enforce'] {
 		return 'post'
 	}
 
 	/**
-	 * 复制文件
+	 * 执行文件复制操作
+	 *
+	 * @protected
+	 * @async
+	 * @returns {Promise<void>} 无返回值
+	 * @description 该方法会检查插件是否启用，验证源目录存在，然后执行文件复制操作，并输出复制结果日志
 	 */
-	async copyFiles() {
+	async copyFiles(): Promise<void> {
 		// 提取配置参数，设置默认值
 		const { sourceDir, targetDir, overwrite = true, recursive = true, incremental = true, enabled = true } = this.options
 
@@ -49,7 +65,12 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 	}
 
 	/**
-	 * 添加插件钩子
+	 * 添加插件钩子到 Vite 插件对象
+	 *
+	 * @protected
+	 * @param {Plugin} plugin - Vite 插件对象，用于添加钩子
+	 * @returns {void} 无返回值
+	 * @description 为插件添加 writeBundle 钩子，该钩子在 Vite 构建完成后执行文件复制操作
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		plugin.writeBundle = async () => {
@@ -61,8 +82,8 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 /**
  * 复制文件插件
  *
- * @param options - 配置参数
- * @returns 一个 Vite 插件实例
+ * @param {CopyFileOptions} options - 插件配置选项
+ * @returns {Plugin} 一个 Vite 插件实例
  *
  * @example
  * ```typescript
@@ -71,9 +92,22 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
  *   sourceDir: 'src/assets',
  *   targetDir: 'dist/assets'
  * })
+ *
+ * // 高级配置
+ * copyFile({
+ *   sourceDir: 'src/static',
+ *   targetDir: 'dist/static',
+ *   overwrite: false,
+ *   recursive: true,
+ *   incremental: true,
+ *   enabled: true,
+ *   verbose: true,
+ *   errorStrategy: 'throw'
+ * })
  * ```
  *
  * @remarks
- * 该插件会在 Vite 构建完成后执行，将指定源目录的所有文件和子目录复制到目标目录
+ * 该插件会在 Vite 构建完成后执行，将指定源目录的所有文件和子目录复制到目标目录。
+ * 支持增量复制、递归复制和覆盖控制等功能。
  */
 export const copyFile = createPluginFactory(CopyFilePlugin)
