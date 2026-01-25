@@ -9,9 +9,16 @@ import { checkSourceExists, copySourceToTarget, Validator } from '@/common'
  *
  * @class InjectIcoPlugin
  * @extends {BasePlugin<InjectIcoOptions>}
- * @description 该插件会在 Vite 构建完成后执行，将指定图标文件的链接注入到 HTML 文件的 `<head>` 标签中
+ * @description 该插件会在 Vite 构建完成后执行，将指定图标文件的链接注入到 HTML 文件的 `<head>` 标签中。
  */
 class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
+	/**
+	 * 构造函数，创建注入图标插件实例
+	 *
+	 * @constructor
+	 * @param {string | InjectIcoOptions} [options] - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
+	 * @description 标准化插件配置选项，将字符串类型的选项转换为完整的配置对象，然后调用父类构造函数初始化插件
+	 */
 	constructor(options?: string | InjectIcoOptions) {
 		// 标准化选项
 		const normalizedOptions: InjectIcoOptions = typeof options === 'string' ? { base: options } : options || {}
@@ -34,10 +41,13 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 	}
 
 	/**
-	 * 转换 HTML 入口文件的钩子函数
+	 * 转换 HTML 入口文件，将图标标签注入到 HTML 文件的 `<head>` 标签中
 	 *
-	 * @param html - 原始的 HTML 内容
-	 * @returns 经过修改后的 HTML 内容，在 `</head>` 标签前注入图标链接
+	 * @private
+	 * @param {string} html - 原始的 HTML 内容
+	 * @returns {string} 经过修改后的 HTML 内容，在 `</head>` 标签前注入图标链接
+	 * @description 该方法检查插件是否启用，生成图标标签，然后将图标标签注入到 HTML 文件的 `<head>` 标签前。
+	 * 如果未找到 `</head>` 标签，则输出警告并返回原始 HTML。
 	 */
 	private injectIcoTags(html: string): string {
 		// 如果插件未启用，直接返回原始 HTML
@@ -75,6 +85,16 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 		return modifiedHtml
 	}
 
+	/**
+	 * 复制图标文件到目标目录
+	 *
+	 * @private
+	 * @async
+	 * @returns {Promise<void>} 无返回值
+	 * @throws {Error} 如果源文件不存在、权限不足或复制过程中出现其他错误，抛出异常
+	 * @description 该方法检查插件是否启用，如果启用则获取 copyOptions 配置，检查源文件是否存在，然后执行文件复制操作，并输出成功日志。
+	 * 支持增量复制、递归复制和覆盖控制。
+	 */
 	private async copyFiles(): Promise<void> {
 		// 如果禁用了插件，跳过执行
 		if (!this.options.enabled) {
@@ -109,6 +129,40 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 	}
 }
 
+/**
+ * 创建注入图标插件实例
+ *
+ * @export
+ * @param {string | InjectIcoOptions} [options] - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
+ * @returns {Plugin} Vite 插件实例，用于在构建过程中注入图标链接到 HTML 文件
+ * @example
+ * ```typescript
+ * // 基本使用
+ * injectIco() // 使用默认配置
+ *
+ * // 使用字符串配置 base 路径
+ * injectIco('/assets')
+ *
+ * // 使用完整配置
+ * injectIco({
+ *   base: '/assets',
+ *   icons: [
+ *     { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+ *     { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+ *   ],
+ *   copyOptions: {
+ *     sourceDir: 'src/assets/icons',
+ *     targetDir: 'dist/assets/icons'
+ *   }
+ * })
+ * ```
+ * @remarks
+ * 该函数创建并返回一个 Vite 插件实例，该实例会在构建过程中：
+ * 1. 将图标链接注入到 HTML 文件的 `<head>` 标签中
+ * 2. 如果配置了 copyOptions，将图标文件复制到目标目录
+ *
+ * 支持自定义图标链接、图标数组配置以及图标文件复制功能。
+ */
 export function injectIco(options?: string | InjectIcoOptions) {
 	return new InjectIcoPlugin(options).toPlugin()
 }
