@@ -11,23 +11,24 @@ import { checkSourceExists, copySourceToTarget } from '@/common'
  * @description 该插件会在 Vite 构建完成后执行，将指定源目录的文件复制到目标目录
  */
 class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
-	/**
-	 * 获取插件名称
-	 *
-	 * @protected
-	 * @returns {string} 插件的名称，用于 Vite 插件系统识别
-	 */
+	protected validateOptions(): void {
+		const { sourceDir, targetDir } = this.options
+
+		// 检查源目录是否存在
+		if (!sourceDir) {
+			throw new Error('复制文件插件配置错误：缺少 sourceDir 参数')
+		}
+
+		// 检查目标目录是否存在
+		if (!targetDir) {
+			throw new Error('复制文件插件配置错误：缺少 targetDir 参数')
+		}
+	}
+
 	protected getPluginName(): string {
 		return 'copy-file'
 	}
 
-	/**
-	 * 获取插件执行时机
-	 *
-	 * @protected
-	 * @returns {Plugin['enforce']} 插件的执行时机，可选值为 'pre'、'post' 或 undefined
-	 * @description 'post' 表示插件在 Vite 构建后期执行
-	 */
 	protected getEnforce(): Plugin['enforce'] {
 		return 'post'
 	}
@@ -64,15 +65,10 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 		this.logger.success(`复制文件成功：从 ${sourceDir} 到 ${targetDir}`, `复制了 ${result.copiedFiles} 个文件，跳过了 ${result.skippedFiles} 个文件，耗时 ${result.executionTime}ms`)
 	}
 
-	/**
-	 * 添加插件钩子到 Vite 插件对象
-	 *
-	 * @protected
-	 * @param {Plugin} plugin - Vite 插件对象，用于添加钩子
-	 * @returns {void} 无返回值
-	 * @description 为插件添加 writeBundle 钩子，该钩子在 Vite 构建完成后执行文件复制操作
-	 */
 	protected addPluginHooks(plugin: Plugin): void {
+		/**
+		 * 插件钩子：在 Vite 构建完成后执行文件复制操作
+		 */
 		plugin.writeBundle = async () => {
 			await this.safeExecute(this.copyFiles, '复制文件')
 		}
