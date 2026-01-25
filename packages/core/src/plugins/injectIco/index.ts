@@ -1,6 +1,6 @@
 import { type Plugin } from 'vite'
 import type { InjectIcoOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget, generateIconTags } from '@/utils'
+import { checkSourceExists, ensureTargetDir, copySourceToTarget, generateIconTags } from '@/common'
 import { Logger } from '@/logger'
 
 /**

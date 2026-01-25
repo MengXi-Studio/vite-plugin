@@ -1,6 +1,6 @@
 import { type Plugin } from 'vite'
 import type { CopyFileOptions } from './type'
-import { checkSourceExists, ensureTargetDir, copySourceToTarget } from '@/utils'
+import { checkSourceExists, ensureTargetDir, copySourceToTarget } from '@/common'
 import { Logger } from '@/logger'
 
 /**
