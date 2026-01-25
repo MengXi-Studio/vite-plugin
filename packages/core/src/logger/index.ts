@@ -35,7 +35,7 @@ export class Logger {
 		},
 		warn: {
 			method: console.warn,
-			icon: '⚠',
+			icon: '⚠️',
 			color: '\x1b[33m', // 黄色
 			reset: '\x1b[0m'
 		},
@@ -83,13 +83,13 @@ export class Logger {
 		const { method, icon, color, reset } = logConfig
 		const logPrefix = icon ? `${icon} ${prefix}` : prefix
 
-		method('=======================')
+		method('==================================')
 		if (data !== undefined && data !== null) {
 			method(color + logPrefix + reset, color + message + reset, data)
 		} else {
 			method(color + logPrefix + reset, color + message + reset)
 		}
-		method('=======================')
+		method('==================================')
 	}
 
 	/**
