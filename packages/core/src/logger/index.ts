@@ -1,4 +1,4 @@
-import type { LoggerOptions } from './type'
+import type { LoggerOptions } from './types'
 
 /**
  * 日志工具类

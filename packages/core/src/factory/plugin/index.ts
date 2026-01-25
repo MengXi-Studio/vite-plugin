@@ -1,7 +1,7 @@
 import type { ResolvedConfig, Plugin } from 'vite'
 import type { BasePluginOptions, PluginFactory } from './types'
 import { Logger } from '@/logger'
-import type { LoggerOptions } from '@/logger/type'
+import type { LoggerOptions } from '@/logger/types'
 import { ErrorHandlingStrategy } from '@/enums'
 import { deepMerge } from '@/common'
 
