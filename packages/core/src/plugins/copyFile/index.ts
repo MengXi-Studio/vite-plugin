@@ -12,17 +12,26 @@ import { checkSourceExists, copySourceToTarget } from '@/common'
  */
 class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 	protected validateOptions(): void {
-		const { sourceDir, targetDir } = this.options
-
-		// 检查源目录是否存在
-		if (!sourceDir) {
-			throw new Error('复制文件插件配置错误：缺少 sourceDir 参数')
-		}
-
-		// 检查目标目录是否存在
-		if (!targetDir) {
-			throw new Error('复制文件插件配置错误：缺少 targetDir 参数')
-		}
+		// 使用公共验证器验证配置
+		this.validator
+			.field('sourceDir')
+			.required()
+			.string()
+			.custom(val => val.trim() !== '', 'sourceDir 不能为空字符串')
+			.field('targetDir')
+			.required()
+			.string()
+			.custom(val => val.trim() !== '', 'targetDir 不能为空字符串')
+			.field('overwrite')
+			.boolean()
+			.default(true)
+			.field('recursive')
+			.boolean()
+			.default(true)
+			.field('incremental')
+			.boolean()
+			.default(true)
+			.validate()
 	}
 
 	protected getPluginName(): string {
@@ -41,7 +50,7 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 	 * @returns {Promise<void>} 无返回值
 	 * @description 该方法会检查插件是否启用，验证源目录存在，然后执行文件复制操作，并输出复制结果日志
 	 */
-	async copyFiles(): Promise<void> {
+	private async copyFiles(): Promise<void> {
 		// 提取配置参数，设置默认值
 		const { sourceDir, targetDir, overwrite = true, recursive = true, incremental = true, enabled = true } = this.options
 
@@ -66,9 +75,6 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 	}
 
 	protected addPluginHooks(plugin: Plugin): void {
-		/**
-		 * 插件钩子：在 Vite 构建完成后执行文件复制操作
-		 */
 		plugin.writeBundle = async () => {
 			await this.safeExecute(this.copyFiles, '复制文件')
 		}

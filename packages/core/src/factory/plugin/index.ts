@@ -2,7 +2,7 @@ import type { ResolvedConfig, Plugin } from 'vite'
 import type { BasePluginOptions, PluginFactory } from './types'
 import { Logger } from '@/logger'
 import type { LoggerOptions } from '@/logger/types'
-import { deepMerge } from '@/common'
+import { deepMerge, Validator } from '@/common'
 
 /**
  * 基础插件抽象类，提供插件开发的核心功能和生命周期管理
@@ -42,6 +42,14 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	protected logger: Logger
 
 	/**
+	 * 插件配置验证器
+	 *
+	 * @protected
+	 * @description 插件配置验证器，用于验证插件配置参数是否符合要求
+	 */
+	protected validator: Validator<T>
+
+	/**
 	 * Vite 配置
 	 *
 	 * @protected
@@ -64,6 +72,9 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 
 		// 初始化插件日志记录器
 		this.logger = this.initLogger(loggerConfig)
+
+		// 初始化插件配置验证器
+		this.validator = new Validator(this.options)
 
 		// 验证插件配置
 		this.validateOptions()
