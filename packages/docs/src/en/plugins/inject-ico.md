@@ -7,11 +7,12 @@ The `injectIco` plugin is used to inject website icon links into the head of HTM
 - Transform HTML entry files during the Vite build process, injecting website icon links
 - Execute icon file copying after Vite build is completed (when copyOptions is configured)
 - Support multiple icon configuration methods (base, url, link, icons, copyOptions)
-- Support icon file copying functionality
+- Support icon file copying functionality with incremental copy enabled by default
+- Support flexible error handling strategies (throw error, log error, or ignore error)
 - Support enabling/disabling the plugin
 - Support detailed log output
 - Support custom icon arrays
-- Provide error handling mechanism to ensure build process can catch errors
+- Provide complete configuration validation mechanism to ensure configuration correctness
 
 ## Basic Usage
 
@@ -66,15 +67,16 @@ export default defineConfig({
 
 ## Configuration Options
 
-| Option      | Type    | Default   | Description                                                                                              |
-| ----------- | ------- | --------- | -------------------------------------------------------------------------------------------------------- |
-| base        | string  | /         | The base path of icon files, default is root path `/`                                                    |
-| url         | string  | undefined | The complete URL of the icon, if provided it will be used preferentially (overriding base + favicon.ico) |
-| link        | string  | undefined | Custom complete link tag HTML, if provided it will be used preferentially (overriding url and base)      |
-| icons       | array   | undefined | Custom icon array, supporting multiple icon formats and sizes                                            |
-| verbose     | boolean | true      | Whether to show detailed logs                                                                            |
-| enabled     | boolean | true      | Whether to enable the plugin                                                                             |
-| copyOptions | object  | undefined | Icon file copying configuration, when provided, icon file copying will be executed                       |
+| Option        | Type                         | Default   | Description                                                                                              |
+| ------------- | ---------------------------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| base          | string                       | /         | The base path of icon files, default is root path `/`                                                    |
+| url           | string                       | undefined | The complete URL of the icon, if provided it will be used preferentially (overriding base + favicon.ico) |
+| link          | string                       | undefined | Custom complete link tag HTML, if provided it will be used preferentially (overriding url and base)      |
+| icons         | array                        | undefined | Custom icon array, supporting multiple icon formats and sizes                                            |
+| verbose       | boolean                      | true      | Whether to show detailed logs                                                                            |
+| enabled       | boolean                      | true      | Whether to enable the plugin                                                                             |
+| errorStrategy | 'throw' \| 'log' \| 'ignore' | 'throw'   | Error handling strategy: throw error, log error, or ignore error                                         |
+| copyOptions   | object                       | undefined | Icon file copying configuration, when provided, icon file copying will be executed                       |
 
 ### copyOptions Configuration
 
@@ -217,6 +219,26 @@ export default defineConfig({
 })
 ```
 
+### Configure Error Handling Strategy
+
+```typescript
+import { defineConfig } from 'vite'
+import { injectIco } from '@meng-xi/vite-plugin'
+
+export default defineConfig({
+	plugins: [
+		injectIco({
+			base: '/assets',
+			errorStrategy: 'log', // Log errors but don't break the build
+			copyOptions: {
+				sourceDir: 'src/assets/icons',
+				targetDir: 'dist/assets/icons'
+			}
+		})
+	]
+})
+```
+
 ## Notes
 
 - The plugin transforms HTML entry files during the Vite build process, injecting website icon links
@@ -225,8 +247,10 @@ export default defineConfig({
 - If `icons` option is provided, it will be used to generate icon tags, ignoring `url` and `base`
 - If `url` option is provided, it will be used to generate standard link tags, ignoring `base`
 - If only `base` option is provided, it will use `base + favicon.ico` to generate link tags
-- When `copyOptions` is provided, it will copy icon files from source directory to target directory
+- When `copyOptions` is provided, it will copy icon files from source directory to target directory with incremental copy enabled by default
 - When `enabled` is `false`, the plugin will not perform any operations
-- The plugin will throw errors to ensure the build process can catch them
+- The plugin supports three error handling strategies: `throw` (throw error), `log` (log error), and `ignore` (ignore error)
 - When `verbose` is `true`, detailed execution logs will be output, facilitating debugging and problem troubleshooting
 - When no `</head>` tag is found, the plugin will skip icon injection and output a warning log
+- The plugin validates the correctness of configurations to ensure they meet requirements
+- When `copyOptions` is incomplete, the plugin will throw a validation error
