@@ -2,7 +2,6 @@ import type { ResolvedConfig, Plugin } from 'vite'
 import type { BasePluginOptions, PluginFactory } from './types'
 import { Logger } from '@/logger'
 import type { LoggerOptions } from '@/logger/types'
-import { ErrorHandlingStrategy } from '@/enums'
 import { deepMerge } from '@/common'
 
 /**
@@ -49,12 +48,11 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 *
 	 * @param options 插件配置
 	 * @returns 合并后的插件配置
-	 */
-	protected mergeOptions(options: T): Required<T> {
+	 */ protected mergeOptions(options: T): Required<T> {
 		const defaultOptions: BasePluginOptions = {
 			enabled: true,
 			verbose: true,
-			errorStrategy: ErrorHandlingStrategy.THROW
+			errorStrategy: 'throw'
 		}
 
 		return deepMerge(defaultOptions, options) as Required<T>
@@ -158,12 +156,12 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 		const strategy = this.options.errorStrategy
 
 		switch (strategy) {
-			case ErrorHandlingStrategy.THROW:
+			case 'throw':
 				this.logger.error(errorMessage)
 				throw error
 
-			case ErrorHandlingStrategy.LOG:
-			case ErrorHandlingStrategy.IGNORE:
+			case 'log':
+			case 'ignore':
 				this.logger.error(errorMessage)
 				return undefined
 

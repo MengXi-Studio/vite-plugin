@@ -1,5 +1,4 @@
 import type { Plugin } from 'vite'
-import { ErrorHandlingStrategy } from '@/enums'
 
 /**
  * 基础插件配置
@@ -24,9 +23,9 @@ export interface BasePluginOptions {
 	/**
 	 * 错误处理策略
 	 *
-	 * @default ErrorHandlingStrategy.THROW
+	 * @default 'throw'
 	 */
-	errorStrategy?: ErrorHandlingStrategy
+	errorStrategy?: 'throw' | 'log' | 'ignore'
 }
 
 /**
