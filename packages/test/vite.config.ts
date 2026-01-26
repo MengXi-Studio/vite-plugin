@@ -30,9 +30,5 @@ export default defineConfig({
 				targetDir
 			}
 		})
-	],
-	build: {
-		outDir: 'dist',
-		emptyOutDir: true
-	}
+	]
 })

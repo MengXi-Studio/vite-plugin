@@ -19,3 +19,11 @@ dist
 *.njsproj
 *.sln
 *.sw?
+
+# Test output
+coverage
+.coverage
+*.lcov
+
+# Vitest
+.vitest
