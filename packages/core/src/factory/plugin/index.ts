@@ -77,7 +77,7 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 		this.validator = new Validator(this.options)
 
 		// 验证插件配置
-		this.validateOptions()
+		this.safeExecute(async () => this.validateOptions(), '插件配置验证')
 	}
 
 	/**
