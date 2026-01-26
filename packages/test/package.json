@@ -1,0 +1,21 @@
+{
+	"name": "@meng-xi/vite-plugin-test",
+	"type": "module",
+	"version": "0.0.2",
+	"private": true,
+	"description": "测试包，用于验证 @meng-xi/vite-plugin 的功能",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage"
+	},
+	"dependencies": {
+		"@meng-xi/vite-plugin": "workspace:*",
+		"vite": "^5.0.0"
+	},
+	"devDependencies": {
+		"vitest": "^1.0.0",
+		"typescript": "^5.2.0",
+		"@types/node": "^20.0.0"
+	}
+}
