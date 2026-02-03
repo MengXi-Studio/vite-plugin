@@ -10,12 +10,19 @@
 - [packages/core/src/factory/plugin/types.ts](file://packages/core/src/factory/plugin/types.ts)
 - [packages/core/src/common/validation.ts](file://packages/core/src/common/validation.ts)
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts)
+- [packages/core/src/common/object.ts](file://packages/core/src/common/object.ts)
 - [packages/docs/src/plugins/inject-ico.md](file://packages/docs/src/plugins/inject-ico.md)
 - [packages/test/src/injectIco/injectIco.test.ts](file://packages/test/src/injectIco/injectIco.test.ts)
 - [packages/playground/vite.config.ts](file://packages/playground/vite.config.ts)
 - [packages/core/src/plugins/copyFile/types.ts](file://packages/core/src/plugins/copyFile/types.ts)
 - [packages/core/package.json](file://packages/core/package.json)
 </cite>
+
+## 更新摘要
+**变更内容**
+- 新增 InjectIcoPlugin 的 `getDefaultOptions()` 方法，提供 base 路径默认配置
+- 使用增强的 `createPluginFactory` 函数简化配置处理，支持字符串或对象配置
+- 改进配置合并机制，实现基础默认值、插件特定默认值和用户配置的三层合并
 
 ## 目录
 1. [简介](#简介)
@@ -37,6 +44,8 @@ injectIco 插件是一个专为 Vite 设计的图标注入工具，能够在构�
 - 多格式图标数组配置（支持不同尺寸和 MIME 类型）
 - 与文件复制插件的集成使用
 
+**最新改进**：插件现已实现 `getDefaultOptions()` 方法提供默认配置，并通过增强的 `createPluginFactory` 函数简化配置处理，使使用更加便捷。
+
 插件采用模块化设计，通过统一的工厂模式和基础插件抽象类实现，具备完善的配置验证、错误处理和日志记录能力。
 
 ## 项目结构
@@ -52,6 +61,7 @@ subgraph "通用工具层"
 Common[common/<br/>通用函数]
 Validation[validation.ts<br/>参数验证]
 FS[fs/index.ts<br/>文件系统]
+Object[object.ts<br/>对象工具]
 end
 subgraph "基础设施层"
 BasePlugin[factory/plugin/<br/>基础插件类]
@@ -67,6 +77,7 @@ InjectIco --> BasePlugin
 InjectIco --> Types
 Common --> Validation
 Common --> FS
+Common --> Object
 BasePlugin --> BaseTypes
 Docs --> InjectIco
 Test --> InjectIco
@@ -74,12 +85,12 @@ Playground --> InjectIco
 ```
 
 **图表来源**
-- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L1-L178)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L1-L169)
 - [packages/core/src/plugins/injectIco/types.ts](file://packages/core/src/plugins/injectIco/types.ts#L1-L113)
 - [packages/core/src/plugins/injectIco/common/index.ts](file://packages/core/src/plugins/injectIco/common/index.ts#L1-L41)
 
 **章节来源**
-- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L1-L178)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L1-L169)
 - [packages/core/src/plugins/injectIco/types.ts](file://packages/core/src/plugins/injectIco/types.ts#L1-L113)
 
 ## 核心组件
@@ -109,6 +120,7 @@ class BasePlugin {
 }
 class InjectIcoPlugin {
 +constructor(options?)
+#getDefaultOptions() : Partial~InjectIcoOptions~
 #validateOptions() : void
 #getPluginName() : string
 #injectIcoTags(html) : string
@@ -140,8 +152,8 @@ InjectIcoPlugin --> CopyOptions : "可选使用"
 ```
 
 **图表来源**
-- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L27-L337)
-- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L14-L139)
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L27-L348)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L14-L132)
 - [packages/core/src/plugins/injectIco/types.ts](file://packages/core/src/plugins/injectIco/types.ts#L66-L113)
 
 ### 配置体系
@@ -152,15 +164,18 @@ InjectIcoPlugin --> CopyOptions : "可选使用"
 | 基础配置 | enabled | boolean | true | 最低 |
 | 基础配置 | verbose | boolean | true | 最低 |
 | 基础配置 | errorStrategy | 'throw' \| 'log' \| 'ignore' | 'throw' | 最低 |
-| 图标配置 | base | string | '/' | 中等 |
+| 插件特定默认 | base | string | '/' | 中等 |
 | 图标配置 | url | string | undefined | 高 |
 | 图标配置 | link | string | undefined | 最高 |
 | 图标配置 | icons | Icon[] | undefined | 中等 |
 | 文件复制 | copyOptions | CopyOptions | undefined | 仅在提供时生效 |
 
+**更新**：新增插件特定默认配置层，通过 `getDefaultOptions()` 方法提供 base 路径的默认值 '/'。
+
 **章节来源**
 - [packages/core/src/plugins/injectIco/types.ts](file://packages/core/src/plugins/injectIco/types.ts#L66-L113)
 - [packages/core/src/factory/plugin/types.ts](file://packages/core/src/factory/plugin/types.ts#L8-L29)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L15-L19)
 
 ## 架构总览
 injectIco 插件遵循 Vite 插件生命周期，通过钩子函数实现图标注入和文件复制功能：
@@ -168,12 +183,14 @@ injectIco 插件遵循 Vite 插件生命周期，通过钩子函数实现图标�
 ```mermaid
 sequenceDiagram
 participant Vite as Vite 构建系统
+participant Factory as createPluginFactory
 participant Plugin as InjectIcoPlugin
 participant Generator as IconTagGenerator
 participant FS as 文件系统
 participant Logger as 日志系统
-Vite->>Plugin : 初始化插件
-Plugin->>Plugin : 验证配置
+Vite->>Factory : 调用工厂函数
+Factory->>Plugin : 创建插件实例
+Plugin->>Plugin : 合并配置基础默认值 + 插件特定默认值 + 用户配置
 Plugin->>Logger : 记录初始化信息
 Note over Vite,Plugin : 构建过程中
 Vite->>Plugin : transformIndexHtml(html)
@@ -193,10 +210,50 @@ Plugin->>Logger : 记录复制统计
 ```
 
 **图表来源**
-- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L130-L139)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L123-L131)
 - [packages/core/src/plugins/injectIco/common/index.ts](file://packages/core/src/plugins/injectIco/common/index.ts#L9-L40)
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L369-L385)
 
 ## 详细组件分析
+
+### 配置合并机制
+**更新**：插件现在使用三层配置合并机制，提供更灵活的配置管理：
+
+```mermaid
+flowchart TD
+Start([开始配置合并]) --> GetBaseDefaults["获取基础默认值<br/>enabled: true<br/>verbose: true<br/>errorStrategy: 'throw'"]
+GetBaseDefaults --> GetPluginDefaults["获取插件特定默认值<br/>base: '/'"]
+GetPluginDefaults --> GetUserOptions["获取用户配置"]
+GetUserOptions --> MergeConfig["深度合并配置<br/>基础默认值 ← 插件特定默认值 ← 用户配置"]
+MergeConfig --> ValidateOptions["验证合并后的配置"]
+ValidateOptions --> InitPlugin["初始化插件实例"]
+InitPlugin --> End([配置合并完成])
+```
+
+**图表来源**
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L108-L118)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L15-L19)
+
+### 工厂函数增强
+**更新**：使用增强的 `createPluginFactory` 函数简化配置处理：
+
+```mermaid
+flowchart TD
+Start([调用 injectIco 工厂函数]) --> CheckOptions{"检查选项类型"}
+CheckOptions --> |字符串| NormalizeString["标准化字符串选项<br/>{ base: options }"]
+CheckOptions --> |对象| NormalizeObject["标准化对象选项<br/>保持原样"]
+CheckOptions --> |undefined| DefaultOptions["使用空对象<br/>{}"]
+NormalizeString --> CreatePlugin["创建 InjectIcoPlugin 实例"]
+NormalizeObject --> CreatePlugin
+DefaultOptions --> CreatePlugin
+CreatePlugin --> ToPlugin["转换为 Vite 插件"]
+ToPlugin --> AddInstance["添加插件实例引用"]
+AddInstance --> ReturnPlugin([返回 Vite 插件])
+```
+
+**图表来源**
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L168)
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L369-L385)
 
 ### 图标标签生成器
 图标标签生成器负责根据配置选项生成相应的 HTML `<link>` 标签：
@@ -242,7 +299,7 @@ WarnSkip --> ReturnOriginal
 ```
 
 **图表来源**
-- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L55-L89)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L48-L82)
 
 ### 文件复制机制
 文件复制功能基于统一的文件系统抽象层实现：
@@ -279,12 +336,12 @@ SkipCopy --> EndCopy
 ```
 
 **图表来源**
-- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L101-L128)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L94-L121)
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L98-L202)
 
 **章节来源**
 - [packages/core/src/plugins/injectIco/common/index.ts](file://packages/core/src/plugins/injectIco/common/index.ts#L1-L41)
-- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L46-L128)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L48-L121)
 
 ## 依赖分析
 injectIco 插件的依赖关系体现了清晰的分层架构：
@@ -300,6 +357,8 @@ BasePlugin[BasePlugin 抽象类]
 Validator[参数验证器]
 Logger[日志系统]
 FSUtils[文件系统工具]
+ObjectUtils[对象工具]
+Factory[插件工厂]
 end
 subgraph "插件实现"
 InjectIcoPlugin[InjectIcoPlugin]
@@ -311,6 +370,8 @@ BasePlugin --> InjectIcoPlugin
 Validator --> InjectIcoPlugin
 Logger --> InjectIcoPlugin
 FSUtils --> InjectIcoPlugin
+ObjectUtils --> InjectIcoPlugin
+Factory --> InjectIcoPlugin
 IconGenerator --> InjectIcoPlugin
 ```
 
@@ -323,6 +384,8 @@ IconGenerator --> InjectIcoPlugin
 - **Validator**: 实现流畅的 API 验证机制
 - **Logger**: 统一日志记录和错误处理
 - **FS Utils**: 抽象文件系统操作，支持增量复制
+- **Object Utils**: 提供深度合并功能，支持三层配置合并
+- **Factory**: 增强的插件工厂函数，简化配置处理
 - **Icon Generator**: 专门的图标标签生成逻辑
 
 **章节来源**
@@ -345,6 +408,9 @@ injectIco 插件在设计时充分考虑了性能优化：
 ### 并发处理
 - **异步操作**: 文件复制和检查均采用异步模式
 - **错误隔离**: 单个文件错误不影响整体流程
+
+### 配置处理优化
+**更新**：三层配置合并机制减少了不必要的配置处理开销，提高了插件初始化性能。
 
 ## 故障排除指南
 
@@ -370,6 +436,12 @@ injectIco 插件在设计时充分考虑了性能优化：
 **原因**: enabled 设置为 false 或配置语法错误
 **解决**: 检查插件启用状态和配置语法
 
+#### 配置合并问题
+**更新**：如果遇到配置合并问题，检查三层配置的优先级：
+1. 基础默认值（不可覆盖）
+2. 插件特定默认值（可被用户配置覆盖）
+3. 用户配置（最高优先级）
+
 **章节来源**
 - [packages/core/src/common/validation.ts](file://packages/core/src/common/validation.ts#L195-L201)
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L10-L23)
@@ -382,6 +454,9 @@ injectIco 插件通过其模块化的架构设计和完善的错误处理机制�
 - **可靠性**: 完善的配置验证和错误处理
 - **性能**: 增量复制和异步处理优化构建性能
 - **易用性**: 清晰的 API 设计和详细的文档支持
+- **现代化**: 使用三层配置合并机制和增强的工厂函数
+
+**最新改进**使得插件的配置更加简洁直观，开发者可以通过简单的字符串配置快速使用插件，同时保留了完整的配置选项以满足高级需求。
 
 该插件特别适合需要在构建过程中自动化处理图标资源的前端项目，能够有效减少手动配置的工作量并提高构建效率。
 
@@ -393,6 +468,8 @@ injectIco 插件通过其模块化的架构设计和完善的错误处理机制�
 - **injectIco(options?)**: 创建并返回 Vite 插件实例
   - 参数: `string | InjectIcoOptions` (可选)
   - 返回: `Plugin` (Vite 插件实例)
+
+**更新**：工厂函数现在支持字符串形式的 base 路径配置，例如 `injectIco('/assets')` 等价于 `injectIco({ base: '/assets' })`。
 
 #### 配置接口定义
 - **InjectIcoOptions**: 主要配置接口
@@ -413,7 +490,28 @@ injectIco 插件通过其模块化的架构设计和完善的错误处理机制�
 ### 使用示例
 插件支持多种使用场景，从基础配置到复杂集成都有对应的示例配置。
 
+**更新**：新增简化的配置方式示例：
+
+#### 基础使用
+```typescript
+// 使用字符串配置 base 路径
+injectIco('/assets')
+
+// 使用完整配置对象
+injectIco({
+  base: '/assets',
+  icons: [
+    { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+    { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+  ],
+  copyOptions: {
+    sourceDir: 'src/assets/icons',
+    targetDir: 'dist/assets/icons'
+  }
+})
+```
+
 **章节来源**
-- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L175-L177)
+- [packages/core/src/plugins/injectIco/index.ts](file://packages/core/src/plugins/injectIco/index.ts#L168)
 - [packages/core/src/plugins/injectIco/types.ts](file://packages/core/src/plugins/injectIco/types.ts#L66-L113)
 - [packages/docs/src/plugins/inject-ico.md](file://packages/docs/src/plugins/inject-ico.md#L1-L258)

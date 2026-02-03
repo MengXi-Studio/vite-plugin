@@ -16,6 +16,13 @@
 - [packages/core/package.json](file://packages/core/package.json)
 </cite>
 
+## 更新摘要
+**所做更改**
+- 新增 getDefaultOptions() 方法实现，提供插件默认配置
+- 简化验证逻辑，利用新的工厂系统增强功能
+- 更新配置合并机制，支持插件特定默认值
+- 改进插件初始化流程，增强配置管理
+
 ## 目录
 1. [简介](#简介)
 2. [项目结构](#项目结构)
@@ -34,6 +41,7 @@
 - 支持递归复制、增量复制与覆盖控制
 - 提供完善的配置校验、日志输出与错误处理策略
 - 通过统一的插件工厂与基础插件抽象类，实现一致的生命周期与钩子接入
+- **新增**：实现 getDefaultOptions() 方法提供插件特定默认配置，简化配置管理
 
 ## 项目结构
 围绕 copyFile 插件的关键文件组织如下：
@@ -57,6 +65,7 @@ end
 subgraph "工厂与基础"
 BP["基础插件抽象<br/>factory/plugin/index.ts"]
 BPT["基础配置类型<br/>factory/plugin/types.ts"]
+PF["插件工厂<br/>createPluginFactory"]
 end
 subgraph "测试与示例"
 TT["测试用例<br/>test/src/copyFile/copyFile.test.ts"]
@@ -65,37 +74,24 @@ PG["示例配置<br/>playground/vite.config.ts"]
 end
 CF --> FS
 CF --> BP
+CF --> PF
 CF --> CFT
 FS --> FST
 BP --> VF
 BP --> LG
+PF --> BP
 TT --> CF
 DOC --> CF
 PG --> CF
 ```
 
-图表来源
-- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L1-L116)
+**图表来源**
+- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L1-L121)
 - [packages/core/src/plugins/copyFile/types.ts](file://packages/core/src/plugins/copyFile/types.ts#L1-L44)
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L1-L241)
 - [packages/core/src/common/fs/type.ts](file://packages/core/src/common/fs/type.ts#L1-L55)
-- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L1-L384)
-- [packages/core/src/factory/plugin/types.ts](file://packages/core/src/factory/plugin/types.ts#L1-L37)
-- [packages/core/src/common/validation.ts](file://packages/core/src/common/validation.ts#L1-L203)
-- [packages/core/src/logger/index.ts](file://packages/core/src/logger/index.ts#L1-L131)
-- [packages/test/src/copyFile/copyFile.test.ts](file://packages/test/src/copyFile/copyFile.test.ts#L1-L219)
-- [packages/docs/src/plugins/copy-file.md](file://packages/docs/src/plugins/copy-file.md#L1-L159)
-- [packages/playground/vite.config.ts](file://packages/playground/vite.config.ts#L1-L69)
-
-章节来源
-- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L1-L116)
-- [packages/core/src/plugins/copyFile/types.ts](file://packages/core/src/plugins/copyFile/types.ts#L1-L44)
-- [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L1-L241)
-- [packages/core/src/common/fs/type.ts](file://packages/core/src/common/fs/type.ts#L1-L55)
-- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L1-L384)
-- [packages/core/src/factory/plugin/types.ts](file://packages/core/src/factory/plugin/types.ts#L1-L37)
-- [packages/core/src/common/validation.ts](file://packages/core/src/common/validation.ts#L1-L203)
-- [packages/core/src/logger/index.ts](file://packages/core/src/logger/index.ts#L1-L131)
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L1-L386)
+- [packages/core/src/factory/plugin/types.ts](file://packages/core/src/factory/plugin/types.ts#L1-L46)
 - [packages/test/src/copyFile/copyFile.test.ts](file://packages/test/src/copyFile/copyFile.test.ts#L1-L219)
 - [packages/docs/src/plugins/copy-file.md](file://packages/docs/src/plugins/copy-file.md#L1-L159)
 - [packages/playground/vite.config.ts](file://packages/playground/vite.config.ts#L1-L69)
@@ -104,6 +100,7 @@ PG --> CF
 - 插件类与工厂
   - CopyFilePlugin：继承基础插件抽象类，负责配置校验、生命周期钩子注册与复制执行
   - 工厂函数 copyFile：基于 createPluginFactory 生成 Vite 插件实例
+  - **新增**：getDefaultOptions() 方法提供插件特定默认配置
 - 文件系统操作
   - checkSourceExists：校验源路径存在性
   - ensureTargetDir：确保目标目录存在
@@ -112,27 +109,33 @@ PG --> CF
   - copySourceToTarget：核心复制逻辑，支持目录/文件、递归、覆盖、增量
 - 基础设施
   - BasePlugin：提供配置合并、日志、错误处理、生命周期钩子注册
+  - **改进**：mergeOptions() 方法现在支持插件特定默认值合并
   - Validator：链式参数校验器
   - Logger：统一日志输出
 
-章节来源
-- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L13-L116)
+**章节来源**
+- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L13-L121)
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L98-L202)
-- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L27-L337)
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L27-L386)
 - [packages/core/src/common/validation.ts](file://packages/core/src/common/validation.ts#L16-L203)
 - [packages/core/src/logger/index.ts](file://packages/core/src/logger/index.ts#L6-L131)
 
 ## 架构总览
-copyFile 插件在 Vite 构建流程中以 post 阶段执行，通过 writeBundle 钩子触发复制逻辑。其内部通过文件系统操作模块完成目录遍历、增量判断与文件复制，并输出统计信息与日志。
+copyFile 插件在 Vite 构建流程中以 post 阶段执行，通过 writeBundle 钩子触发复制逻辑。其内部通过文件系统操作模块完成目录遍历、增量判断与文件复制，并输出统计信息与日志。**新增**：利用 getDefaultOptions() 方法提供插件特定默认配置，简化配置管理。
 
 ```mermaid
 sequenceDiagram
 participant Vite as "Vite 构建系统"
+participant Factory as "插件工厂"
 participant Plugin as "copyFile 插件实例"
 participant Base as "BasePlugin 基类"
 participant FS as "文件系统操作"
 participant Log as "Logger 日志器"
-Vite->>Plugin : 触发 writeBundle 钩子
+Vite->>Factory : 调用 createPluginFactory
+Factory->>Plugin : new CopyFilePlugin(options)
+Plugin->>Base : 构造函数初始化
+Base->>Plugin : getDefaultOptions() 获取默认配置
+Base->>Base : mergeOptions() 合并配置
 Plugin->>Base : safeExecute 包装执行
 Base->>Plugin : 调用 copyFiles()
 Plugin->>FS : checkSourceExists(sourceDir)
@@ -146,17 +149,18 @@ Plugin->>Log : success 输出统计信息
 Plugin-->>Vite : 完成
 ```
 
-图表来源
-- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L53-L81)
+**图表来源**
+- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L13-L121)
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L98-L202)
-- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L242-L248)
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L69-L118)
 - [packages/core/src/logger/index.ts](file://packages/core/src/logger/index.ts#L99-L131)
 
 ## 详细组件分析
 
 ### 插件类与生命周期
 - 继承 BasePlugin，实现 getPluginName、getEnforce、addPluginHooks
-- validateOptions 使用 Validator 对 sourceDir、targetDir、overwrite、recursive、incremental 等进行校验
+- **新增**：getDefaultOptions() 方法提供插件特定默认配置
+- **改进**：validateOptions() 使用 Validator 对 sourceDir、targetDir、overwrite、recursive、incremental 等进行校验
 - enforce 设置为 'post'，确保在构建后期执行
 - addPluginHooks 注册 writeBundle 钩子，在构建完成后执行复制
 
@@ -173,6 +177,7 @@ class BasePlugin {
 #addPluginHooks(plugin)
 }
 class CopyFilePlugin {
++getDefaultOptions()
 +validateOptions()
 +getPluginName()
 +getEnforce()
@@ -182,22 +187,24 @@ class CopyFilePlugin {
 BasePlugin <|-- CopyFilePlugin
 ```
 
-图表来源
-- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L27-L194)
-- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L13-L82)
+**图表来源**
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L27-L386)
+- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L13-L121)
 
-章节来源
-- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L13-L82)
-- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L27-L194)
+**章节来源**
+- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L13-L121)
+- [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L27-L386)
 
 ### 配置选项与类型
 - CopyFileOptions 继承基础插件配置，扩展 sourceDir、targetDir、overwrite、recursive、incremental
 - 基础配置包含 enabled、verbose、errorStrategy
+- **新增**：getDefaultOptions() 方法提供插件特定默认值
+- **改进**：mergeOptions() 方法现在支持插件特定默认值合并
 - Validator 对必填字段与类型进行校验，并支持自定义校验与默认值设置
 
-章节来源
+**章节来源**
 - [packages/core/src/plugins/copyFile/types.ts](file://packages/core/src/plugins/copyFile/types.ts#L8-L44)
-- [packages/core/src/factory/plugin/types.ts](file://packages/core/src/factory/plugin/types.ts#L8-L29)
+- [packages/core/src/factory/plugin/types.ts](file://packages/core/src/factory/plugin/types.ts#L8-L46)
 - [packages/core/src/common/validation.ts](file://packages/core/src/common/validation.ts#L45-L201)
 
 ### 文件系统操作与复制流程
@@ -233,10 +240,10 @@ SkipSingle --> IncCounters
 IncCounters --> End(["结束"])
 ```
 
-图表来源
+**图表来源**
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L98-L202)
 
-章节来源
+**章节来源**
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L9-L241)
 
 ### API 参考
@@ -245,6 +252,7 @@ IncCounters --> End(["结束"])
   - 参数：CopyFileOptions
   - 返回：Vite 插件对象（包含 name、enforce、configResolved、writeBundle 等）
   - 作用：创建并返回可直接加入 Vite 配置的插件实例
+  - **改进**：利用 createPluginFactory 增强功能
 - 插件钩子
   - writeBundle：在构建完成后执行复制
 - 复制函数
@@ -253,18 +261,19 @@ IncCounters --> End(["结束"])
   - CopyOptions：recursive、overwrite、incremental、parallelLimit、skipEmptyDirs
   - CopyResult：copiedFiles、skippedFiles、copiedDirs、executionTime
 
-章节来源
-- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L77-L82)
+**章节来源**
+- [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L77-L121)
 - [packages/core/src/common/fs/type.ts](file://packages/core/src/common/fs/type.ts#L4-L55)
 
 ### 使用示例与最佳实践
-- 基础文件复制：配置 sourceDir 与 targetDir 即可
+- 基础文件复制：配置 sourceDir 与 targetDir 即可，**默认启用覆盖、递归和增量复制**
 - 条件复制：通过 overwrite 控制覆盖行为；通过 incremental 控制增量复制
 - 批量文件处理：开启 recursive 以复制子目录；结合 incremental 提升效率
 - 环境控制：通过 enabled 控制是否启用插件；在开发/生产环境按需启用
 - 错误处理：通过 errorStrategy 选择抛错、记录日志或忽略错误
+- **新增**：插件特定默认配置简化了基本使用场景
 
-章节来源
+**章节来源**
 - [packages/docs/src/plugins/copy-file.md](file://packages/docs/src/plugins/copy-file.md#L17-L159)
 - [packages/playground/vite.config.ts](file://packages/playground/vite.config.ts#L53-L66)
 
@@ -277,12 +286,13 @@ IncCounters --> End(["结束"])
 - 插件禁用：验证 enabled: false 时跳过复制
 - 配置校验：验证必填字段缺失时抛出错误
 
-章节来源
+**章节来源**
 - [packages/test/src/copyFile/copyFile.test.ts](file://packages/test/src/copyFile/copyFile.test.ts#L39-L219)
 
 ## 依赖关系分析
 - 插件依赖
   - 继承 BasePlugin，复用配置合并、日志、错误处理与生命周期钩子
+  - **新增**：getDefaultOptions() 方法提供插件特定默认配置
   - 使用 Validator 进行参数校验
   - 使用 Logger 输出日志
 - 文件系统依赖
@@ -298,17 +308,18 @@ CF["copyFile 插件"] --> BP["BasePlugin"]
 CF --> VF["Validator"]
 CF --> LG["Logger"]
 CF --> FS["文件系统操作"]
-FS --> NodeFS["fs/promises"]
-FS --> Path["path"]
+CF --> DF["getDefaultOptions()"]
 BP --> Vite["Vite 插件系统"]
+DF --> MO["mergeOptions()"]
+MO --> PD["插件特定默认值"]
 ```
 
-图表来源
+**图表来源**
 - [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L1-L4)
 - [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L1-L5)
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L1-L3)
 
-章节来源
+**章节来源**
 - [packages/core/src/plugins/copyFile/index.ts](file://packages/core/src/plugins/copyFile/index.ts#L1-L4)
 - [packages/core/src/factory/plugin/index.ts](file://packages/core/src/factory/plugin/index.ts#L1-L5)
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L1-L3)
@@ -320,20 +331,21 @@ BP --> Vite["Vite 插件系统"]
 - 目标目录预创建：ensureTargetDir 在复制前保证目标目录存在，避免多次 stat/mkdir
 - 并行限制：类型定义中包含 parallelLimit 字段，当前实现未使用；可在后续版本引入以提升大批量文件复制性能
 - 统计输出：copySourceToTarget 返回执行时间与计数，便于性能监控与优化
+- **新增**：插件特定默认配置减少了配置处理开销
 
-章节来源
+**章节来源**
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L77-L88)
 - [packages/core/src/common/fs/type.ts](file://packages/core/src/common/fs/type.ts#L22-L23)
 
 ## 故障排除指南
 - 源路径不存在或权限不足
-  - 现象：抛出“源文件不存在”或“没有权限访问源文件”
+  - 现象：抛出"源文件不存在"或"没有权限访问源文件"
   - 排查：确认 sourceDir 存在且具备读权限
 - 目标目录权限不足
-  - 现象：抛出“没有权限创建目标目录”
+  - 现象：抛出"没有权限创建目标目录"
   - 排查：确认目标路径可写或手动创建目录
 - 配置校验失败
-  - 现象：抛出“配置验证失败”，包含具体字段错误
+  - 现象：抛出"配置验证失败"，包含具体字段错误
   - 排查：检查 sourceDir/targetDir 是否为非空字符串，overwrite/recursive/incremental 是否为布尔值
 - 插件未执行
   - 现象：目标目录无文件
@@ -341,14 +353,17 @@ BP --> Vite["Vite 插件系统"]
 - 增量复制未生效
   - 现象：每次均复制
   - 排查：确认 incremental 为 true；检查文件修改时间与大小是否变化
+- **新增**：默认配置问题
+  - 现象：期望的默认行为与实际不符
+  - 排查：确认 getDefaultOptions() 返回的默认值符合预期
 
-章节来源
+**章节来源**
 - [packages/core/src/common/fs/index.ts](file://packages/core/src/common/fs/index.ts#L10-L23)
 - [packages/core/src/common/validation.ts](file://packages/core/src/common/validation.ts#L195-L201)
 - [packages/test/src/copyFile/copyFile.test.ts](file://packages/test/src/copyFile/copyFile.test.ts#L181-L203)
 
 ## 结论
-copyFile 插件通过清晰的职责划分与统一的基础设施，实现了在 Vite 构建后期稳定、可控地复制文件与目录。其配置校验、日志输出与错误处理策略使插件易于集成与维护；增量复制与递归复制满足大多数工程化场景需求。建议在大规模目录复制时关注性能，必要时引入并行限制与缓存策略。
+copyFile 插件通过清晰的职责划分与统一的基础设施，实现了在 Vite 构建后期稳定、可控地复制文件与目录。**新增的 getDefaultOptions() 方法**提供了插件特定默认配置，简化了配置管理并提升了用户体验。其配置校验、日志输出与错误处理策略使插件易于集成与维护；增量复制与递归复制满足大多数工程化场景需求。建议在大规模目录复制时关注性能，必要时引入并行限制与缓存策略。
 
 ## 附录
 - 相关文档与示例
