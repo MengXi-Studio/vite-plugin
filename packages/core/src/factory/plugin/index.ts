@@ -77,7 +77,7 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 		this.validator = new Validator(this.options)
 
 		// 验证插件配置
-		this.safeExecute(async () => this.validateOptions(), '插件配置验证')
+		this.safeExecuteSync(() => this.validateOptions(), '插件配置验证')
 	}
 
 	/**
@@ -191,6 +191,33 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * @description 添加插件钩子到 Vite 插件对象，用于在构建过程中执行插件逻辑
 	 */
 	protected abstract addPluginHooks(plugin: Plugin): void
+
+	/**
+	 * 安全执行同步函数，自动处理执行过程中可能出现的错误
+	 *
+	 * @protected
+	 * @template T - 函数的返回值类型
+	 * @param {() => T} fn - 要执行的同步函数
+	 * @param {string} context - 执行上下文描述，用于错误日志记录
+	 * @returns {T | undefined} 函数的执行结果，如果执行过程中发生错误，根据错误策略返回 undefined 或抛出错误
+	 * @description 该方法封装了同步函数的执行，自动处理可能出现的错误，根据插件配置的 errorStrategy 决定如何处理错误
+	 * @example
+	 * ```typescript
+	 * // 安全执行同步操作
+	 * const result = this.safeExecuteSync(() => {
+	 *   return someSyncOperation()
+	 * }, '执行同步操作')
+	 *
+	 * // 如果 someSyncOperation() 抛出错误，会根据 errorStrategy 处理
+	 * ```
+	 */
+	protected safeExecuteSync<T>(fn: () => T, context: string): T | undefined {
+		try {
+			return fn()
+		} catch (error) {
+			return this.handleError(error, context)
+		}
+	}
 
 	/**
 	 * 安全执行异步函数，自动处理执行过程中可能出现的错误
