@@ -1,7 +1,7 @@
 {
 	"name": "@meng-xi/vite-plugin-test",
 	"type": "module",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"private": true,
 	"description": "测试包，用于验证 @meng-xi/vite-plugin 的功能",
 	"scripts": {
