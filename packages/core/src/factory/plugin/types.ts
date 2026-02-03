@@ -29,8 +29,17 @@ export interface BasePluginOptions {
 }
 
 /**
+ * 插件选项标准化器类型
+ *
+ * @template T 目标选项类型
+ * @template R 原始选项类型
+ */
+export type OptionsNormalizer<T, R = any> = (raw?: R) => T
+
+/**
  * 插件工厂函数类型
  *
  * @template T 插件配置类型，默认继承自 BasePluginOptions
+ * @template R 原始配置类型，默认与 T 相同
  */
-export type PluginFactory<T extends BasePluginOptions = BasePluginOptions> = (options?: T) => Plugin
+export type PluginFactory<T extends BasePluginOptions = BasePluginOptions, R = T> = (options?: R) => Plugin

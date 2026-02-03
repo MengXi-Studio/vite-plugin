@@ -1,6 +1,6 @@
 import type { ResolvedConfig, Plugin } from 'vite'
-import type { BasePluginOptions, PluginFactory } from './types'
-import { Logger } from '@/logger'
+import type { BasePluginOptions, PluginFactory, OptionsNormalizer } from './types'
+import { Logger, type PluginLogger } from '@/logger'
 import type { LoggerOptions } from '@/logger/types'
 import { deepMerge, Validator } from '@/common'
 
@@ -39,7 +39,7 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * @protected
 	 * @description 插件日志记录器，用于记录插件运行时的日志信息
 	 */
-	protected logger: Logger
+	protected logger: PluginLogger
 
 	/**
 	 * 插件配置验证器
@@ -61,12 +61,12 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * 插件构造函数
 	 *
 	 * @param options 插件配置
-	 * @param loggerConfig 日志配置或Logger实例，可选
+	 * @param loggerConfig 日志配置，可选
 	 *
 	 * @protected
 	 * @description 插件构造函数，初始化插件配置、日志记录器和验证插件参数
 	 */
-	constructor(options: T, loggerConfig?: LoggerOptions | Logger) {
+	constructor(options: T, loggerConfig?: LoggerOptions) {
 		// 合并插件配置
 		this.options = this.mergeOptions(options)
 
@@ -81,49 +81,60 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	}
 
 	/**
+	 * 获取插件的默认配置选项
+	 *
+	 * @protected
+	 * @abstract
+	 * @returns {Partial<T>} 插件特定的默认配置
+	 * @description 子类必须实现此方法，以提供插件特定的默认配置值
+	 */
+	protected abstract getDefaultOptions(): Partial<T>
+
+	/**
 	 * 合并插件配置，将用户提供的配置与默认配置合并
 	 *
 	 * @protected
 	 * @template T - 插件配置类型，必须继承自 BasePluginOptions
 	 * @param {T} options - 用户提供的插件配置
 	 * @returns {Required<T>} 合并后的完整插件配置，包含所有必填字段
-	 * @description 将用户提供的配置与默认配置进行深度合并，确保所有必填字段都有值
+	 * @description 将用户提供的配置与基础默认值、插件特定默认值进行深度合并，确保所有必填字段都有值
 	 * @example
 	 * ```typescript
 	 * const userOptions = { enabled: false }
 	 * const mergedOptions = this.mergeOptions(userOptions)
-	 * // mergedOptions 将包含 enabled: false, verbose: true, errorStrategy: 'throw'
+	 * // mergedOptions 将包含基础默认值和插件特定默认值
 	 * ```
 	 */
 	protected mergeOptions(options: T): Required<T> {
-		const defaultOptions: BasePluginOptions = {
+		const baseDefaults: BasePluginOptions = {
 			enabled: true,
 			verbose: true,
 			errorStrategy: 'throw'
 		}
 
-		return deepMerge(defaultOptions, options) as Required<T>
+		const pluginDefaults = this.getDefaultOptions()
+
+		return deepMerge<T>(baseDefaults as Partial<T>, pluginDefaults, options) as Required<T>
 	}
 
 	/**
 	 * 初始化日志记录器
 	 *
 	 * @private
-	 * @param {LoggerOptions | Logger} loggerConfig - 日志配置对象或Logger实例，可选
-	 * @returns {Logger} Logger实例，用于记录插件日志
-	 * @description 根据提供的配置或Logger实例初始化插件日志记录器，如果直接提供了Logger实例则直接使用，否则创建新的Logger实例
-	 */ private initLogger(loggerConfig?: LoggerOptions | Logger): Logger {
-		if (loggerConfig instanceof Logger) {
-			// 如果直接提供了Logger实例，直接使用
-			return loggerConfig
-		}
-
-		// 否则创建新的Logger实例
-		return new Logger({
+	 * @param {LoggerOptions} loggerConfig - 日志配置对象，可选
+	 * @returns {PluginLogger} 插件日志代理对象，用于记录插件日志
+	 * @description 使用单例 Logger 创建插件特定的日志代理对象
+	 */
+	private initLogger(loggerConfig?: LoggerOptions): PluginLogger {
+		// 使用单例 Logger 创建日志记录器
+		const loggerInstance = Logger.create({
 			name: this.getPluginName(),
 			enabled: this.options.verbose,
 			...loggerConfig
 		})
+
+		// 返回插件特定的日志代理对象
+		return loggerInstance.createPluginLogger(this.getPluginName())
 	}
 
 	/**
@@ -341,38 +352,29 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
  *
  * @template T - 插件配置类型，必须继承自 BasePluginOptions
  * @template P - 插件实例类型，必须继承自 BasePlugin<T>
- * @param {new (options: T, loggerConfig?: LoggerOptions | Logger) => P} PluginClass - 插件类构造函数
- * @returns {PluginFactory<T>} 插件工厂函数，接收插件配置并返回 Vite 插件实例
- * @description 该函数创建一个插件工厂，用于生成 Vite 插件实例。工厂函数接收插件配置，创建插件实例，转换为 Vite 插件对象，并在插件对象上添加对原始插件实例的引用
+ * @template R - 原始配置类型
+ * @param {new (options: T, loggerConfig?: LoggerOptions) => P} PluginClass - 插件类构造函数
+ * @param {OptionsNormalizer<T, R>} [normalizer] - 选项标准化器，可选
+ * @returns {PluginFactory<T, R>} 插件工厂函数，接收插件配置并返回 Vite 插件实例
+ * @description 该函数创建一个插件工厂，用于生成 Vite 插件实例。工厂函数接收插件配置，支持可选的标准化器，创建插件实例，转换为 Vite 插件对象，并在插件对象上添加对原始插件实例的引用
  * @example
  * ```typescript
- * // 定义插件类
- * class MyPlugin extends BasePlugin<MyPluginOptions> {
- *   protected getPluginName() { return 'my-plugin' }
- *   protected addPluginHooks(plugin: Plugin) { // 添加钩子 }
- * }
- *
- * // 创建插件工厂
+ * // 基本使用
  * const myPluginFactory = createPluginFactory(MyPlugin)
  *
- * // 使用工厂创建插件实例
- * const vitePlugin = myPluginFactory({
- *   enabled: true,
- *   verbose: true,
- *   // 其他自定义配置
- * })
- *
- * // 将插件添加到 Vite 配置
- * export default {
- *   plugins: [vitePlugin]
- * }
+ * // 带标准化器的使用（支持字符串或对象）
+ * const myPluginWithNormalizer = createPluginFactory(MyPlugin, (opt) => typeof opt === 'string' ? { path: opt } : opt)
  * ```
  */
-export function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>>(PluginClass: new (options: T, loggerConfig?: LoggerOptions | Logger) => P): PluginFactory<T> {
-	return (options?: T) => {
-		// 使用更安全的默认值处理，确保类型安全
-		const pluginOptions = options as T
-		const plugin = new PluginClass(pluginOptions)
+export function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>, R = T>(
+	PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P,
+	normalizer?: OptionsNormalizer<T, R>
+): PluginFactory<T, R> {
+	return (options?: R) => {
+		// 使用标准化器处理选项，如果没有则尝试转换
+		const normalizedOptions = (normalizer ? normalizer(options) : options) as T
+
+		const plugin = new PluginClass(normalizedOptions)
 		const vitePlugin = plugin.toPlugin()
 
 		// 在Vite插件对象上添加对原始插件实例的引用，方便外部访问

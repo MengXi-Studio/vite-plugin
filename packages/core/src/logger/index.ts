@@ -1,21 +1,25 @@
 import type { LoggerOptions } from './types'
 
 /**
- * 日志工具类
+ * 日志工具类（单例模式）
+ * @description 全局单例日志管理器，统一管理所有插件的日志输出
  */
 export class Logger {
+	/**
+	 * 单例实例
+	 */
+	private static instance: Logger | null = null
+
 	/**
 	 * 库名称
 	 */
 	private readonly libName: string = '@meng-xi/vite-plugin'
+
 	/**
-	 * 插件名称
+	 * 插件日志配置映射表
+	 * @description 存储每个插件的日志开关状态
 	 */
-	private name: string
-	/**
-	 * 是否启用日志
-	 */
-	private enabled: boolean
+	private pluginConfigs: Map<string, boolean> = new Map()
 
 	/**
 	 * 日志类型映射
@@ -48,20 +52,49 @@ export class Logger {
 	}
 
 	/**
-	 * 构造函数
-	 * @param options 配置选项
+	 * 私有构造函数，防止外部实例化
 	 */
-	constructor(options: LoggerOptions) {
-		this.name = options.name
-		this.enabled = options.enabled ?? false
+	private constructor() {}
+
+	/**
+	 * 获取单例实例
+	 * @returns Logger 单例实例
+	 */
+	private static getInstance(): Logger {
+		if (!Logger.instance) {
+			Logger.instance = new Logger()
+		}
+		return Logger.instance
+	}
+
+	/**
+	 * 创建日志记录器（工厂方法）
+	 * @param options 配置选项
+	 * @returns Logger 单例实例
+	 * @description 为插件创建日志记录器，实际返回单例实例并注册插件配置
+	 */
+	static create(options: LoggerOptions): Logger {
+		const instance = Logger.getInstance()
+		instance.registerPlugin(options.name, options.enabled ?? true)
+		return instance
+	}
+
+	/**
+	 * 注册插件日志配置
+	 * @param pluginName 插件名称
+	 * @param enabled 是否启用日志
+	 */
+	private registerPlugin(pluginName: string, enabled: boolean): void {
+		this.pluginConfigs.set(pluginName, enabled)
 	}
 
 	/**
 	 * 生成日志前缀
+	 * @param pluginName 插件名称
 	 * @returns 格式化的日志前缀
 	 */
-	private formatPrefix(): string {
-		let prefix = `[${this.libName}:${this.name}]`
+	private formatPrefix(pluginName: string): string {
+		let prefix = `[${this.libName}:${pluginName}]`
 
 		const timestamp = new Date().toLocaleString()
 		prefix = `[${timestamp}] ${prefix}`
@@ -70,15 +103,26 @@ export class Logger {
 	}
 
 	/**
+	 * 检查插件日志是否启用
+	 * @param pluginName 插件名称
+	 * @returns 是否启用
+	 */
+	private isPluginEnabled(pluginName: string): boolean {
+		return this.pluginConfigs.get(pluginName) ?? true
+	}
+
+	/**
 	 * 统一日志输出方法
+	 * @param pluginName 插件名称
 	 * @param type 日志类型
 	 * @param message 日志消息
 	 * @param data 附加数据
 	 */
-	private log(type: keyof typeof this.logTypes, message: string, data?: any): void {
-		if (!this.enabled) return
+	private log(pluginName: string, type: keyof typeof this.logTypes, message: string, data?: any): void {
+		// 检查插件日志状态
+		if (!this.isPluginEnabled(pluginName)) return
 
-		const prefix = this.formatPrefix()
+		const prefix = this.formatPrefix(pluginName)
 		const logConfig = this.logTypes[type]
 		const { method, icon, color, reset } = logConfig
 		const logPrefix = icon ? `${icon} ${prefix}` : prefix
@@ -93,38 +137,51 @@ export class Logger {
 	}
 
 	/**
+	 * 创建插件日志代理对象
+	 * @param pluginName 插件名称
+	 * @returns 插件日志代理对象
+	 * @internal 供 BasePlugin 内部使用
+	 */
+	createPluginLogger(pluginName: string): PluginLogger {
+		return {
+			success: (message: string, data?: any) => this.log(pluginName, 'success', message, data),
+			info: (message: string, data?: any) => this.log(pluginName, 'info', message, data),
+			warn: (message: string, data?: any) => this.log(pluginName, 'warn', message, data),
+			error: (message: string, data?: any) => this.log(pluginName, 'error', message, data)
+		}
+	}
+}
+
+/**
+ * 插件日志代理接口
+ * @description 为每个插件提供独立的日志接口
+ */
+export interface PluginLogger {
+	/**
 	 * 输出成功日志
 	 * @param message 日志消息
 	 * @param data 附加数据
 	 */
-	success(message: string, data?: any): void {
-		this.log('success', message, data)
-	}
+	success(message: string, data?: any): void
 
 	/**
 	 * 输出信息日志
 	 * @param message 日志消息
 	 * @param data 附加数据
 	 */
-	info(message: string, data?: any): void {
-		this.log('info', message, data)
-	}
+	info(message: string, data?: any): void
 
 	/**
 	 * 输出警告日志
 	 * @param message 日志消息
 	 * @param data 附加数据
 	 */
-	warn(message: string, data?: any): void {
-		this.log('warn', message, data)
-	}
+	warn(message: string, data?: any): void
 
 	/**
 	 * 输出错误日志
 	 * @param message 日志消息
 	 * @param data 附加数据
 	 */
-	error(message: string, data?: any): void {
-		this.log('error', message, data)
-	}
+	error(message: string, data?: any): void
 }

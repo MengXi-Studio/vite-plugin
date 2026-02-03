@@ -13,7 +13,7 @@
  *   .validate()
  * ```
  */
-export class Validator<T extends Record<string, any>> {
+export class Validator<T extends Record<string, any>, K extends keyof T = any> {
 	/**
 	 * 要验证的选项对象
 	 */
@@ -22,7 +22,7 @@ export class Validator<T extends Record<string, any>> {
 	/**
 	 * 当前正在验证的字段名
 	 */
-	private currentField: string | null = null
+	private currentField: K | null = null
 
 	/**
 	 * 验证错误信息
@@ -42,9 +42,10 @@ export class Validator<T extends Record<string, any>> {
 	 * @param field 字段名
 	 * @returns Validator 实例，用于链式调用
 	 */
-	field(field: keyof T): this {
-		this.currentField = field as string
-		return this
+	field<NextK extends keyof T>(field: NextK): Validator<T, NextK> {
+		const next = this as unknown as Validator<T, NextK>
+		next.currentField = field
+		return next
 	}
 
 	/**
@@ -52,13 +53,13 @@ export class Validator<T extends Record<string, any>> {
 	 * @returns Validator 实例，用于链式调用
 	 */
 	required(): this {
-		if (!this.currentField) {
+		if (this.currentField === null) {
 			throw new Error('必须先调用 field() 方法指定要验证的字段')
 		}
 
-		const value = this.options[this.currentField]
+		const value = this.options[this.currentField as K]
 		if (value === undefined || value === null) {
-			this.errors.push(`${this.currentField} 是必填字段`)
+			this.errors.push(`${String(this.currentField)} 是必填字段`)
 		}
 
 		return this
@@ -69,13 +70,13 @@ export class Validator<T extends Record<string, any>> {
 	 * @returns Validator 实例，用于链式调用
 	 */
 	string(): this {
-		if (!this.currentField) {
+		if (this.currentField === null) {
 			throw new Error('必须先调用 field() 方法指定要验证的字段')
 		}
 
-		const value = this.options[this.currentField]
+		const value = this.options[this.currentField as K]
 		if (value !== undefined && value !== null && typeof value !== 'string') {
-			this.errors.push(`${this.currentField} 必须是字符串类型`)
+			this.errors.push(`${String(this.currentField)} 必须是字符串类型`)
 		}
 
 		return this
@@ -86,13 +87,13 @@ export class Validator<T extends Record<string, any>> {
 	 * @returns Validator 实例，用于链式调用
 	 */
 	boolean(): this {
-		if (!this.currentField) {
+		if (this.currentField === null) {
 			throw new Error('必须先调用 field() 方法指定要验证的字段')
 		}
 
-		const value = this.options[this.currentField]
+		const value = this.options[this.currentField as K]
 		if (value !== undefined && value !== null && typeof value !== 'boolean') {
-			this.errors.push(`${this.currentField} 必须是布尔类型`)
+			this.errors.push(`${String(this.currentField)} 必须是布尔类型`)
 		}
 
 		return this
@@ -103,13 +104,13 @@ export class Validator<T extends Record<string, any>> {
 	 * @returns Validator 实例，用于链式调用
 	 */
 	number(): this {
-		if (!this.currentField) {
+		if (this.currentField === null) {
 			throw new Error('必须先调用 field() 方法指定要验证的字段')
 		}
 
-		const value = this.options[this.currentField]
+		const value = this.options[this.currentField as K]
 		if (value !== undefined && value !== null && typeof value !== 'number') {
-			this.errors.push(`${this.currentField} 必须是数字类型`)
+			this.errors.push(`${String(this.currentField)} 必须是数字类型`)
 		}
 
 		return this
@@ -120,13 +121,13 @@ export class Validator<T extends Record<string, any>> {
 	 * @returns Validator 实例，用于链式调用
 	 */
 	array(): this {
-		if (!this.currentField) {
+		if (this.currentField === null) {
 			throw new Error('必须先调用 field() 方法指定要验证的字段')
 		}
 
-		const value = this.options[this.currentField]
+		const value = this.options[this.currentField as K]
 		if (value !== undefined && value !== null && !Array.isArray(value)) {
-			this.errors.push(`${this.currentField} 必须是数组类型`)
+			this.errors.push(`${String(this.currentField)} 必须是数组类型`)
 		}
 
 		return this
@@ -137,13 +138,13 @@ export class Validator<T extends Record<string, any>> {
 	 * @returns Validator 实例，用于链式调用
 	 */
 	object(): this {
-		if (!this.currentField) {
+		if (this.currentField === null) {
 			throw new Error('必须先调用 field() 方法指定要验证的字段')
 		}
 
-		const value = this.options[this.currentField]
+		const value = this.options[this.currentField as K]
 		if (value !== undefined && value !== null && typeof value !== 'object' && !Array.isArray(value)) {
-			this.errors.push(`${this.currentField} 必须是对象类型`)
+			this.errors.push(`${String(this.currentField)} 必须是对象类型`)
 		}
 
 		return this
@@ -154,15 +155,14 @@ export class Validator<T extends Record<string, any>> {
 	 * @param defaultValue 默认值
 	 * @returns Validator 实例，用于链式调用
 	 */
-	default(defaultValue: any): this {
-		if (!this.currentField) {
+	default(defaultValue: T[K]): this {
+		if (this.currentField === null) {
 			throw new Error('必须先调用 field() 方法指定要验证的字段')
 		}
 
 		const value = this.options[this.currentField]
 		if (value === undefined || value === null) {
-			// 使用类型断言确保类型安全
-			;(this.options as Record<string, any>)[this.currentField] = defaultValue
+			this.options[this.currentField] = defaultValue
 		}
 
 		return this
@@ -174,8 +174,8 @@ export class Validator<T extends Record<string, any>> {
 	 * @param message 验证失败时的错误信息
 	 * @returns Validator 实例，用于链式调用
 	 */
-	custom(validator: (value: any) => boolean, message: string): this {
-		if (!this.currentField) {
+	custom(validator: (value: T[K]) => boolean, message: string): this {
+		if (this.currentField === null) {
 			throw new Error('必须先调用 field() 方法指定要验证的字段')
 		}
 

@@ -32,9 +32,6 @@
 	"peerDependencies": {
 		"vite": "^5.0.0"
 	},
-	"dependencies": {
-		"vite": "^5.0.0"
-	},
 	"devDependencies": {
 		"@types/node": "^20.0.0",
 		"unbuild": "^3.0.0",

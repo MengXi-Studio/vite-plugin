@@ -11,6 +11,14 @@ import { checkSourceExists, copySourceToTarget } from '@/common'
  * @description 该插件会在 Vite 构建完成后执行，将指定源目录的文件复制到目标目录
  */
 class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
+	protected getDefaultOptions(): Partial<CopyFileOptions> {
+		return {
+			overwrite: true,
+			recursive: true,
+			incremental: true
+		}
+	}
+
 	protected validateOptions(): void {
 		// 使用公共验证器验证配置
 		this.validator
@@ -24,13 +32,10 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 			.custom(val => val.trim() !== '', 'targetDir 不能为空字符串')
 			.field('overwrite')
 			.boolean()
-			.default(true)
 			.field('recursive')
 			.boolean()
-			.default(true)
 			.field('incremental')
 			.boolean()
-			.default(true)
 			.validate()
 	}
 

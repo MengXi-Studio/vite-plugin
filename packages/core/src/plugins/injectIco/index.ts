@@ -1,5 +1,5 @@
 import type { Plugin } from 'vite'
-import { BasePlugin } from '@/factory'
+import { BasePlugin, createPluginFactory } from '@/factory'
 import type { InjectIcoOptions } from './types'
 import { generateIconTags } from './common'
 import { checkSourceExists, copySourceToTarget, Validator } from '@/common'
@@ -12,28 +12,21 @@ import { checkSourceExists, copySourceToTarget, Validator } from '@/common'
  * @description 该插件会在 Vite 构建完成后执行，将指定图标文件的链接注入到 HTML 文件的 `<head>` 标签中。
  */
 class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
-	/**
-	 * 构造函数，创建注入图标插件实例
-	 *
-	 * @constructor
-	 * @param {string | InjectIcoOptions} [options] - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
-	 * @description 标准化插件配置选项，将字符串类型的选项转换为完整的配置对象，然后调用父类构造函数初始化插件
-	 */
-	constructor(options?: string | InjectIcoOptions) {
-		// 标准化选项
-		const normalizedOptions: InjectIcoOptions = typeof options === 'string' ? { base: options } : options || {}
-		super(normalizedOptions)
+	protected getDefaultOptions(): Partial<InjectIcoOptions> {
+		return {
+			base: '/'
+		}
 	}
 
 	protected validateOptions(): void {
 		// 使用公共验证器验证配置
-		this.validator.field('base').string().default('/').field('url').string().field('link').string().field('icons').array()
+		this.validator.field('base').string().field('url').string().field('link').string().field('icons').array()
 
 		if (this.options?.copyOptions) {
 			this.validator.field('copyOptions').object()
 
 			const copyOptionsValidator = new Validator(this.options.copyOptions)
-			copyOptionsValidator.field('sourceDir').required().string().field('targetDir').required().string().field('overwrite').boolean().default(true).field('recursive').boolean().default(true).validate()
+			copyOptionsValidator.field('sourceDir').required().string().field('targetDir').required().string().field('overwrite').boolean().field('recursive').boolean().validate()
 		}
 
 		this.validator.validate()
@@ -172,6 +165,4 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
  *
  * 支持自定义图标链接、图标数组配置以及图标文件复制功能。
  */
-export function injectIco(options?: string | InjectIcoOptions): Plugin {
-	return new InjectIcoPlugin(options).toPlugin()
-}
+export const injectIco = createPluginFactory<InjectIcoOptions, InjectIcoPlugin, string | InjectIcoOptions>(InjectIcoPlugin, options => (typeof options === 'string' ? { base: options } : options || {}))
