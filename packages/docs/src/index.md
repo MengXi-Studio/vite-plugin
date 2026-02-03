@@ -27,20 +27,20 @@ features:
     title: 增强 Vite 构建流程
     details: 提供实用插件集合，扩展 Vite 核心功能，简化开发工作流，提高构建效率。
   - icon: 🧱
-    title: 模块化插件架构
-    details: 采用模块化设计，插件可单独使用或组合使用，灵活应对不同项目需求。
+    title: 插件开发框架
+    details: 导出 BasePlugin、Logger、Validator 等核心组件，支持开发者基于相同基础设施构建自定义插件。
   - icon: 🔧
     title: 高度可配置
     details: 所有功能支持详细配置选项，可根据项目需求自定义行为，满足多样化场景。
   - icon: 🔄
-    title: 环境感知能力
-    details: 支持根据构建环境条件执行插件功能，智能控制不同环境下的行为。
+    title: 单例日志系统
+    details: 统一的日志管理器，支持插件级别的日志控制，便于调试和问题排查。
   - icon: 📊
-    title: 详细日志输出
-    details: 提供可选的详细日志，帮助开发者了解执行过程，便于调试和问题排查。
+    title: 类型安全验证
+    details: 强类型的配置验证器，确保插件配置的正确性，提供完整的 TypeScript 类型定义。
   - icon: 🎯
-    title: 类型安全
-    details: 完全使用 TypeScript 开发，提供完整类型定义，确保使用过程中的类型安全。
+    title: 插件工厂模式
+    details: 支持选项标准化器，轻松处理异构输入，简化插件开发流程。
   - icon: 🚀
     title: 无缝集成
     details: 与 Vite 构建流程无缝集成，无需复杂配置即可快速启用。

@@ -22,7 +22,64 @@ pnpm add @meng-xi/vite-plugin --save-dev
 
 :::
 
-使用包管理器的项目通常会使用 ES 模块来访问 @meng-xi/vite-plugin，例如 `import * as vitePlugin from '@meng-xi/vite-plugin'`。
+## 基本使用
+
+### 使用内置插件
+
+```typescript
+import { defineConfig } from 'vite'
+import { copyFile, injectIco } from '@meng-xi/vite-plugin'
+
+export default defineConfig({
+	plugins: [
+		copyFile({
+			sourceDir: 'src/assets',
+			targetDir: 'dist/assets'
+		}),
+		injectIco({
+			base: '/assets'
+		})
+	]
+})
+```
+
+### 开发自定义插件
+
+```typescript
+import { BasePlugin, createPluginFactory, Validator } from '@meng-xi/vite-plugin'
+import type { Plugin } from 'vite'
+
+interface MyPluginOptions {
+	path: string
+	enabled?: boolean
+	verbose?: boolean
+	errorStrategy?: 'throw' | 'log' | 'ignore'
+}
+
+class MyPlugin extends BasePlugin<MyPluginOptions> {
+	protected getDefaultOptions() {
+		return {
+			path: './default'
+		}
+	}
+
+	protected validateOptions(): void {
+		this.validator.field('path').required().string().validate()
+	}
+
+	protected getPluginName(): string {
+		return 'my-plugin'
+	}
+
+	protected addPluginHooks(plugin: Plugin): void {
+		plugin.buildStart = () => {
+			this.logger.info(`Plugin started with path: ${this.options.path}`)
+		}
+	}
+}
+
+export const myPlugin = createPluginFactory(MyPlugin)
+```
 
 ## 了解更多
 

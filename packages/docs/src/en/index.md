@@ -27,20 +27,20 @@ features:
     title: Enhance Vite Build Process
     details: Provide a collection of practical plugins, extend Vite core functionality, simplify development workflow, and improve build efficiency.
   - icon: 🧱
-    title: Modular Plugin Architecture
-    details: Adopt modular design, plugins can be used individually or in combination, flexibly responding to different project needs.
+    title: Plugin Development Framework
+    details: Export core components like BasePlugin, Logger, Validator, allowing developers to build custom plugins based on the same infrastructure.
   - icon: 🔧
     title: Highly Configurable
     details: All features support detailed configuration options, can customize behavior according to project needs, meeting diverse scenarios.
   - icon: 🔄
-    title: Environment Awareness
-    details: Support executing plugin functionality based on build environment conditions, intelligently controlling behavior in different environments.
+    title: Singleton Logger System
+    details: Unified log manager with plugin-level log control, facilitating debugging and troubleshooting.
   - icon: 📊
-    title: Detailed Log Output
-    details: Provide optional detailed logs to help developers understand the execution process, facilitating debugging and problem troubleshooting.
+    title: Type-Safe Validation
+    details: Strongly-typed configuration validator ensuring plugin configuration correctness with complete TypeScript type definitions.
   - icon: 🎯
-    title: Type Safety
-    details: Fully developed with TypeScript, providing complete type definitions to ensure type safety during use.
+    title: Plugin Factory Pattern
+    details: Support options normalizer to easily handle heterogeneous inputs, simplifying plugin development workflow.
   - icon: 🚀
     title: Seamless Integration
     details: Seamlessly integrate with Vite build process, enabling quick activation without complex configuration.
