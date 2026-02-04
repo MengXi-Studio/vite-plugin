@@ -12,26 +12,19 @@
 
 </div>
 
-## Introduction
+> - This is a toolkit that provides practical plugins for Vite, and also serves as a complete **Vite Plugin Development Framework**.
+> - Extends Vite build process functionality, providing automated processing solutions for common build tasks.
+> - All plugins support detailed configuration options, allowing customization based on project needs to meet different usage scenarios.
+> - Plugins provide error handling mechanisms to ensure build processes can catch errors, improving build reliability.
+> - Export core components like BasePlugin, Logger, Validator, allowing developers to build custom plugins based on the same infrastructure.
 
-`@meng-xi/vite-plugin` is a toolkit that provides practical plugins for Vite, helping developers simplify the build process and improve development efficiency.
-
-## Features
-
-- **Enhance Vite Build Process**: Provide a collection of practical plugins, extend Vite functionality, simplify common tasks in the build process, and improve development efficiency
-- **Modular Plugin Architecture**: Adopt modular design, plugins can be used individually or in combination, flexibly responding to different project needs
-- **Highly Configurable**: All features support detailed configuration options, can customize behavior according to project needs, meeting diverse scenarios
-- **Environment Awareness**: Support executing plugin functionality based on build environment conditions, intelligently controlling behavior in different environments
-- **Detailed Log Output**: Provide optional detailed logs to help developers understand the execution process, facilitating debugging and problem troubleshooting
-- **Type Safety**: Fully developed with TypeScript, providing complete type definitions to ensure type safety during use
-- **Seamless Integration**: Seamlessly integrate with Vite build process, enabling quick activation without complex configuration
-- **Optimize Development Experience**: Simplify common build tasks, reduce manual operations, allowing developers to focus on core business logic
-
-## Documentation
+---
 
 Start reading the [documentation](https://mengxi-studio.github.io/vite-plugin/).
 
-## Installation
+## Quick Start
+
+### Installation
 
 Install `@meng-xi/vite-plugin` using a package manager:
 
@@ -46,11 +39,98 @@ yarn add @meng-xi/vite-plugin --save-dev
 pnpm add @meng-xi/vite-plugin --save-dev
 ```
 
-## Changelog
+### Basic Usage
 
-[CHANGELOG](https://github.com/MengXi-Studio/vite-plugin/releases)
+#### Using Built-in Plugins
 
-## How to Contribute
+```typescript
+import { defineConfig } from 'vite'
+import { copyFile, injectIco } from '@meng-xi/vite-plugin'
+
+export default defineConfig({
+  plugins: [
+    // Copy file plugin
+    copyFile({
+      sourceDir: 'src/assets',
+      targetDir: 'dist/assets'
+    }),
+
+    // Inject icon plugin
+    injectIco({
+      base: '/assets'
+    })
+  ]
+})
+```
+
+#### Developing Custom Plugins
+
+```typescript
+import { BasePlugin, createPluginFactory, Validator } from '@meng-xi/vite-plugin'
+import type { Plugin } from 'vite'
+
+interface MyPluginOptions {
+  path: string
+  enabled?: boolean
+  verbose?: boolean
+  errorStrategy?: 'throw' | 'log' | 'ignore'
+}
+
+class MyPlugin extends BasePlugin<MyPluginOptions> {
+  protected getDefaultOptions() {
+    return {
+      path: './default'
+    }
+  }
+
+  protected validateOptions(): void {
+    this.validator.field('path').required().string().validate()
+  }
+
+  protected getPluginName(): string {
+    return 'my-plugin'
+  }
+
+  protected addPluginHooks(plugin: Plugin): void {
+    plugin.buildStart = () => {
+      this.logger.info(`Plugin started with path: ${this.options.path}`)
+    }
+  }
+}
+
+export const myPlugin = createPluginFactory(MyPlugin)
+```
+
+## Plugin Details
+
+### copyFile Plugin
+
+Used to copy files or directories to specified locations after Vite build is completed.
+
+**Configuration Options**:
+
+- `sourceDir`: Source directory path (required)
+- `targetDir`: Target directory path (required)
+- `overwrite`: Whether to overwrite existing files, default is `true`
+- `recursive`: Whether to recursively copy subdirectories, default is `true`
+- `verbose`: Whether to output detailed logs, default is `true`
+- `enabled`: Whether to enable the plugin, default is `true`
+
+### injectIco Plugin
+
+Used to inject website icon links into the head of HTML files during the Vite build process.
+
+**Configuration Options**:
+
+- `base`: Base path for icon files
+- `url`: Complete URL for the icon
+- `link`: Custom complete link tag HTML
+- `icons`: Custom icon array
+- `verbose`: Whether to output detailed logs, default is `true`
+- `enabled`: Whether to enable the plugin, default is `true`
+- `copyOptions`: Icon file copying configuration
+
+## Contribution
 
 Welcome to contribute to `@meng-xi/vite-plugin`. Here are the steps to contribute code:
 

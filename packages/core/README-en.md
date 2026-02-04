@@ -12,11 +12,11 @@
 
 </div>
 
-> - This is a toolkit that provides practical plugins for Vite, helping developers simplify the build process and improve development efficiency.
+> - This is a toolkit that provides practical plugins for Vite, and also serves as a complete **Vite Plugin Development Framework**.
 > - Extends Vite build process functionality, providing automated processing solutions for common build tasks.
 > - All plugins support detailed configuration options, allowing customization based on project needs to meet different usage scenarios.
 > - Plugins provide error handling mechanisms to ensure build processes can catch errors, improving build reliability.
-> - Adopts modular design, plugins can be used individually or in combination, flexibly responding to different project needs.
+> - Export core components like BasePlugin, Logger, Validator, allowing developers to build custom plugins based on the same infrastructure.
 
 ---
 
@@ -41,7 +41,7 @@ pnpm add @meng-xi/vite-plugin --save-dev
 
 ### Basic Usage
 
-Import and use the plugins in your Vite configuration file:
+#### Using Built-in Plugins
 
 ```typescript
 import { defineConfig } from 'vite'
@@ -63,28 +63,42 @@ export default defineConfig({
 })
 ```
 
-### Import All
-
-You can also use default import to import all plugins:
+#### Developing Custom Plugins
 
 ```typescript
-import { defineConfig } from 'vite'
-import vitePlugin from '@meng-xi/vite-plugin'
+import { BasePlugin, createPluginFactory, Validator } from '@meng-xi/vite-plugin'
+import type { Plugin } from 'vite'
 
-export default defineConfig({
-	plugins: [
-		// Copy file plugin
-		vitePlugin.copyFile({
-			sourceDir: 'src/assets',
-			targetDir: 'dist/assets'
-		}),
+interface MyPluginOptions {
+	path: string
+	enabled?: boolean
+	verbose?: boolean
+	errorStrategy?: 'throw' | 'log' | 'ignore'
+}
 
-		// Inject icon plugin
-		vitePlugin.injectIco({
-			base: '/assets'
-		})
-	]
-})
+class MyPlugin extends BasePlugin<MyPluginOptions> {
+	protected getDefaultOptions() {
+		return {
+			path: './default'
+		}
+	}
+
+	protected validateOptions(): void {
+		this.validator.field('path').required().string().validate()
+	}
+
+	protected getPluginName(): string {
+		return 'my-plugin'
+	}
+
+	protected addPluginHooks(plugin: Plugin): void {
+		plugin.buildStart = () => {
+			this.logger.info(`Plugin started with path: ${this.options.path}`)
+		}
+	}
+}
+
+export const myPlugin = createPluginFactory(MyPlugin)
 ```
 
 ## Plugin Details
