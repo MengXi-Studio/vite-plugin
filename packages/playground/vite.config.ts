@@ -26,10 +26,8 @@ export default defineConfig({
 		vitePlugin.injectIco({
 			// 图标文件的基础路径，默认为根路径 `/`
 			base: '/assets',
-
 			// 是否启用插件，默认值为 true
 			enabled: true,
-
 			// 图标文件复制配置（可选）
 			// 当提供此配置时，会将图标文件从源目录复制到目标目录
 			copyOptions: {
@@ -63,6 +61,39 @@ export default defineConfig({
 			enabled: true,
 			// 是否显示详细日志，默认值为 true
 			verbose: true
+		}),
+
+		/**
+		 * generateVersion 插件示例
+		 *
+		 * 用于自动生成版本号
+		 * 支持多种版本格式：timestamp、date、datetime、semver、hash、custom
+		 * 支持输出到文件或注入到代码中
+		 */
+		vitePlugin.generateVersion({
+			// 版本号格式，可选值：timestamp、date、datetime、semver、hash、custom
+			format: 'custom',
+			// 自定义格式模板，支持占位符：{YYYY}、{MM}、{DD}、{HH}、{mm}、{ss}、{hash} 等
+			customFormat: '{YYYY}.{MM}.{DD}-{hash}',
+			// 哈希长度，范围 1-32
+			hashLength: 6,
+			// 输出类型：'file' 输出到文件，'define' 注入代码，'both' 两者兼具
+			outputType: 'both',
+			// 输出文件路径（相对于构建输出目录）
+			outputFile: 'version.json',
+			// 注入到代码中的全局变量名
+			defineName: '__APP_VERSION__',
+			// 版本号前缀
+			prefix: 'v',
+			// 是否启用插件，默认值为 true
+			enabled: true,
+			// 是否显示详细日志，默认值为 true
+			verbose: true,
+			// 额外的版本信息，会包含在输出的 JSON 文件中
+			extra: {
+				environment: 'development',
+				author: 'MengXi Studio'
+			}
 		})
 	]
 })

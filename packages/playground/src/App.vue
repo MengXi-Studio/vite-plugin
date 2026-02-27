@@ -2,13 +2,34 @@
 	<div id="app">
 		<h1>Vite Plugin Playground</h1>
 		<p>Welcome to the playground for testing our Vite plugin!</p>
+
+		<!-- generateVersion 插件示例：显示版本号 -->
+		<div class="version-info">
+			<p>应用版本: {{ appVersion }}</p>
+		</div>
+
 		<button @click="testPlugin">Test Plugin</button>
 	</div>
 </template>
 
 <script setup lang="ts">
+// 通过 generateVersion 插件注入的全局变量
+declare const __APP_VERSION__: string
+declare const __APP_VERSION___INFO: {
+	version: string
+	buildTime: string
+	timestamp: number
+	format: string
+	[key: string]: unknown
+}
+
+// 获取版本号
+const appVersion = __APP_VERSION__
+
 function testPlugin() {
-	console.log('Testing plugins')
+	// 打印版本信息
+	console.log('应用版本:', __APP_VERSION__)
+	console.log('版本详情:', __APP_VERSION___INFO)
 }
 </script>
 
@@ -30,6 +51,20 @@ h1 {
 p {
 	font-size: 1.2em;
 	margin-bottom: 2em;
+}
+
+.version-info {
+	background-color: #f5f5f5;
+	border-radius: 8px;
+	padding: 15px 25px;
+	margin: 20px auto;
+	max-width: 300px;
+}
+
+.version-info p {
+	margin: 5px 0;
+	font-size: 1em;
+	color: #666;
 }
 
 button {
