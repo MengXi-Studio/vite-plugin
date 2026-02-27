@@ -69,6 +69,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/copy-file.html'
 						},
 						{
+							text: 'generateVersion',
+							link: '/plugins/generate-version.html'
+						},
+						{
 							text: 'injectIco',
 							link: '/plugins/inject-ico.html'
 						}
