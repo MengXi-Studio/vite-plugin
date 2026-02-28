@@ -3,6 +3,23 @@ import path from 'path'
 import type { CopyOptions, CopyResult } from './type'
 
 /**
+ * 默认并发限制数
+ */
+const DEFAULT_CONCURRENCY = 10
+
+/**
+ * 文件/目录条目信息
+ */
+interface FileEntry {
+	/** 完整路径 */
+	path: string
+	/** 是否为文件 */
+	isFile: boolean
+	/** 是否为目录 */
+	isDirectory: boolean
+}
+
+/**
  * 检查源文件是否存在
  * @param sourcePath 源文件路径
  * @throws 当源文件不存在或无法访问时抛出异常
@@ -41,27 +58,25 @@ export async function ensureTargetDir(targetPath: string): Promise<void> {
 }
 
 /**
- * 读取目录内容
+ * 读取目录内容（优化版：一次性获取文件类型信息）
  * @param dirPath 目录路径
  * @param recursive 是否递归读取
- * @returns 文件和目录列表
+ * @returns 文件和目录条目列表
  */
-export async function readDirRecursive(dirPath: string, recursive: boolean): Promise<string[]> {
+export async function readDirRecursive(dirPath: string, recursive: boolean): Promise<FileEntry[]> {
 	const entries = await fs.promises.readdir(dirPath, { withFileTypes: true })
-
-	let result: string[] = []
+	const result: FileEntry[] = []
 
 	for (const entry of entries) {
 		const fullPath = path.join(dirPath, entry.name)
+		const isFile = entry.isFile()
+		const isDirectory = entry.isDirectory()
 
-		if (entry.isDirectory()) {
-			result.push(fullPath)
-			if (recursive) {
-				const subEntries = await readDirRecursive(fullPath, recursive)
-				result = [...result, ...subEntries]
-			}
-		} else {
-			result.push(fullPath)
+		result.push({ path: fullPath, isFile, isDirectory })
+
+		if (isDirectory && recursive) {
+			const subEntries = await readDirRecursive(fullPath, recursive)
+			result.push(...subEntries)
 		}
 	}
 
@@ -76,19 +91,66 @@ export async function readDirRecursive(dirPath: string, recursive: boolean): Pro
  */
 export async function shouldUpdateFile(sourceFile: string, targetFile: string): Promise<boolean> {
 	try {
-		const sourceStats = await fs.promises.stat(sourceFile)
-		const targetStats = await fs.promises.stat(targetFile)
-
+		const [sourceStats, targetStats] = await Promise.all([fs.promises.stat(sourceFile), fs.promises.stat(targetFile)])
 		// 比较修改时间和文件大小
 		return sourceStats.mtimeMs > targetStats.mtimeMs || sourceStats.size !== targetStats.size
-	} catch (error) {
+	} catch {
 		// 目标文件不存在或无法访问，需要更新
 		return true
 	}
 }
 
 /**
- * 执行文件复制操作
+ * 检查目标文件是否存在
+ * @param targetFile 目标文件路径
+ * @returns 是否存在
+ */
+async function targetFileExists(targetFile: string): Promise<boolean> {
+	try {
+		await fs.promises.access(targetFile, fs.constants.F_OK)
+		return true
+	} catch {
+		return false
+	}
+}
+
+/**
+ * 带并发限制的批量执行
+ * @param items 待处理项
+ * @param handler 处理函数
+ * @param concurrency 并发数
+ */
+async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]> {
+	const results: R[] = []
+	let index = 0
+
+	async function runNext(): Promise<void> {
+		while (index < items.length) {
+			const currentIndex = index++
+			const result = await handler(items[currentIndex])
+			results[currentIndex] = result
+		}
+	}
+
+	// 创建并发工作线程
+	const workers = Array(Math.min(concurrency, items.length))
+		.fill(null)
+		.map(() => runNext())
+	await Promise.all(workers)
+
+	return results
+}
+
+/**
+ * 复制单个文件的结果
+ */
+interface CopyFileResult {
+	copied: boolean
+	skipped: boolean
+}
+
+/**
+ * 执行文件复制操作（优化版：并行IO）
  * @param sourcePath 源文件或目录路径
  * @param targetPath 目标文件或目录路径
  * @param options 复制选项
@@ -97,7 +159,7 @@ export async function shouldUpdateFile(sourceFile: string, targetFile: string): 
  */
 export async function copySourceToTarget(sourcePath: string, targetPath: string, options: CopyOptions): Promise<CopyResult> {
 	const startTime = Date.now()
-	const { recursive, overwrite, incremental = false } = options
+	const { recursive, overwrite, incremental = false, parallelLimit = DEFAULT_CONCURRENCY } = options
 
 	let copiedFiles = 0
 	let skippedFiles = 0
@@ -110,60 +172,53 @@ export async function copySourceToTarget(sourcePath: string, targetPath: string,
 		// 确保目标目录存在
 		await ensureTargetDir(targetPath)
 
-		// 获取所有文件和目录
+		// 获取所有文件和目录（一次性获取类型信息，避免重复stat）
 		const entries = await readDirRecursive(sourcePath, recursive)
 
-		// 过滤出文件
-		const fileEntries = await Promise.all(
-			entries.map(async entry => {
-				const stats = await fs.promises.stat(entry)
-				return { path: entry, isFile: stats.isFile() }
-			})
-		)
+		// 分离文件和目录
+		const fileEntries = entries.filter(entry => entry.isFile)
+		const dirEntries = entries.filter(entry => entry.isDirectory)
+		copiedDirs = dirEntries.length
 
-		// 转换为实际的文件路径数组
-		const filePaths = fileEntries.filter(entry => entry.isFile).map(entry => entry.path)
+		// 预先创建所有需要的目录（并行）
+		const uniqueDirs = new Set<string>()
+		for (const fileEntry of fileEntries) {
+			const relativePath = path.relative(sourcePath, fileEntry.path)
+			const destDir = path.dirname(path.join(targetPath, relativePath))
+			uniqueDirs.add(destDir)
+		}
+		await Promise.all([...uniqueDirs].map(dir => ensureTargetDir(dir)))
 
-		// 逐个复制文件
-		for (const sourceFile of filePaths) {
-			const relativePath = path.relative(sourcePath, sourceFile)
+		// 并行复制文件
+		const copyFileHandler = async (fileEntry: FileEntry): Promise<CopyFileResult> => {
+			const relativePath = path.relative(sourcePath, fileEntry.path)
 			const destFile = path.join(targetPath, relativePath)
-
-			// 确保目标目录存在
-			await ensureTargetDir(path.dirname(destFile))
 
 			// 检查是否需要复制
 			let needCopy = overwrite
 			if (!needCopy) {
-				try {
-					await fs.promises.access(destFile, fs.constants.F_OK)
-					needCopy = false
-				} catch {
-					needCopy = true
-				}
+				const exists = await targetFileExists(destFile)
+				needCopy = !exists
 			}
 
 			if (incremental && needCopy) {
-				needCopy = await shouldUpdateFile(sourceFile, destFile)
+				needCopy = await shouldUpdateFile(fileEntry.path, destFile)
 			}
 
 			if (needCopy) {
-				await fs.promises.copyFile(sourceFile, destFile)
-				copiedFiles++
-			} else {
-				skippedFiles++
+				await fs.promises.copyFile(fileEntry.path, destFile)
+				return { copied: true, skipped: false }
 			}
+			return { copied: false, skipped: true }
 		}
 
-		// 统计复制的目录数量
-		const dirEntries = await Promise.all(
-			entries.map(async entry => {
-				const stats = await fs.promises.stat(entry)
-				return { path: entry, isDirectory: stats.isDirectory() }
-			})
-		)
+		const results = await runWithConcurrency(fileEntries, copyFileHandler, parallelLimit)
 
-		copiedDirs = dirEntries.filter(entry => entry.isDirectory).length
+		// 统计结果
+		for (const result of results) {
+			if (result.copied) copiedFiles++
+			if (result.skipped) skippedFiles++
+		}
 	} else {
 		// 复制单个文件
 		await ensureTargetDir(path.dirname(targetPath))
@@ -171,12 +226,8 @@ export async function copySourceToTarget(sourcePath: string, targetPath: string,
 		// 检查是否需要复制
 		let needCopy = overwrite
 		if (!needCopy) {
-			try {
-				await fs.promises.access(targetPath, fs.constants.F_OK)
-				needCopy = false
-			} catch {
-				needCopy = true
-			}
+			const exists = await targetFileExists(targetPath)
+			needCopy = !exists
 		}
 
 		if (incremental && needCopy) {

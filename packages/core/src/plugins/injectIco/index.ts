@@ -1,7 +1,7 @@
-import type { Plugin } from 'vite'
+import type { Plugin, HtmlTagDescriptor } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { InjectIcoOptions } from './types'
-import { generateIconTags } from './common'
+import { generateIconTagDescriptors } from './common'
 import { checkSourceExists, copySourceToTarget, Validator } from '@/common'
 
 /**
@@ -37,48 +37,56 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 	}
 
 	/**
-	 * 转换 HTML 入口文件，将图标标签注入到 HTML 文件的 `<head>` 标签中
+	 * 使用 Vite 原生 HtmlTagDescriptor API 注入图标标签
+	 *
+	 * @private
+	 * @returns {HtmlTagDescriptor[]} HtmlTagDescriptor 数组
+	 */
+	private getIconTagDescriptors(): HtmlTagDescriptor[] {
+		// 如果插件未启用，返回空数组
+		if (!this.options.enabled) {
+			this.logger.info('插件已禁用，跳过图标注入')
+			return []
+		}
+
+		// 使用 Vite 原生 API
+		const descriptors = generateIconTagDescriptors(this.options)
+
+		if (descriptors.length > 0) {
+			this.logger.success(`成功注入 ${descriptors.length} 个图标标签到 HTML 文件`)
+		}
+
+		return descriptors
+	}
+
+	/**
+	 * 转换 HTML 入口文件，将自定义 link 标签注入到 HTML 文件中（fallback 方案）
 	 *
 	 * @private
 	 * @param {string} html - 原始的 HTML 内容
-	 * @returns {string} 经过修改后的 HTML 内容，在 `</head>` 标签前注入图标链接
-	 * @description 该方法检查插件是否启用，生成图标标签，然后将图标标签注入到 HTML 文件的 `<head>` 标签前。
-	 * 如果未找到 `</head>` 标签，则输出警告并返回原始 HTML。
+	 * @returns {string} 经过修改后的 HTML 内容
 	 */
-	private injectIcoTags(html: string): string {
-		// 如果插件未启用，直接返回原始 HTML
-		if (!this.options.enabled) {
-			this.logger.info('插件已禁用，跳过图标注入')
+	private injectCustomLinkTag(html: string): string {
+		// 如果插件未启用或没有自定义 link 标签，直接返回原始 HTML
+		if (!this.options.enabled || !this.options.link) {
 			return html
 		}
 
-		// 生成图标标签
-		const iconTags = generateIconTags(this.options)
+		const linkTag = this.options.link
 
-		// 如果没有图标标签需要注入，直接返回原始 HTML
-		if (iconTags.length === 0) {
-			this.logger.info('没有生成图标标签，跳过注入')
-			return html
+		// 使用正则表达式匹配 </head> 标签（不区分大小写，兼容各种格式）
+		const headCloseRegex = /<\/head>/i
+		const match = html.match(headCloseRegex)
+
+		if (match && match.index !== undefined) {
+			const modifiedHtml = html.slice(0, match.index) + linkTag + '\n' + html.slice(match.index)
+			this.logger.success('成功注入自定义图标标签到 HTML 文件')
+			this.logger.info(`  - ${linkTag}`)
+			return modifiedHtml
 		}
 
-		// 检查是否已经存在图标标签，避免重复注入
-		let modifiedHtml = html
-
-		// 注入图标标签到 </head> 标签前
-		const headCloseIndex = modifiedHtml.indexOf('</head>')
-		if (headCloseIndex !== -1) {
-			const tagsHtml = iconTags.join('\n') + '\n'
-			modifiedHtml = modifiedHtml.substring(0, headCloseIndex) + tagsHtml + modifiedHtml.substring(headCloseIndex)
-
-			this.logger.success(`成功注入 ${iconTags.length} 个图标标签到 HTML 文件`)
-			iconTags.forEach(tag => {
-				this.logger.info(`  - ${tag}`)
-			})
-		} else {
-			this.logger.warn('未找到 </head> 标签，跳过图标注入')
-		}
-
-		return modifiedHtml
+		this.logger.warn('未找到 </head> 标签，跳过图标注入')
+		return html
 	}
 
 	/**
@@ -121,8 +129,26 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 	}
 
 	protected addPluginHooks(plugin: Plugin): void {
-		plugin.transformIndexHtml = (html: string) => {
-			return this.injectIcoTags(html)
+		// 使用 Vite 原生 transformIndexHtml 钩子
+		plugin.transformIndexHtml = {
+			order: 'pre',
+			handler: (html: string) => {
+				// 如果使用自定义 link 标签，使用字符串替换方式
+				if (this.options.link) {
+					return this.injectCustomLinkTag(html)
+				}
+
+				// 否则使用 Vite 原生 HtmlTagDescriptor API
+				const tags = this.getIconTagDescriptors()
+				if (tags.length > 0) {
+					return {
+						html,
+						tags
+					}
+				}
+
+				return html
+			}
 		}
 
 		plugin.writeBundle = async () => {

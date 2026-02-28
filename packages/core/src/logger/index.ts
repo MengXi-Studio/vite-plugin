@@ -27,9 +27,9 @@ export class Logger {
 	private readonly logTypes = {
 		info: {
 			method: console.log,
-			icon: '',
-			color: '',
-			reset: ''
+			icon: 'ℹ️',
+			color: '\x1b[36m', // 青色
+			reset: '\x1b[0m'
 		},
 		success: {
 			method: console.log,
@@ -54,7 +54,7 @@ export class Logger {
 	/**
 	 * 私有构造函数，防止外部实例化
 	 */
-	private constructor() {}
+	private constructor() { }
 
 	/**
 	 * 获取单例实例
@@ -94,12 +94,7 @@ export class Logger {
 	 * @returns 格式化的日志前缀
 	 */
 	private formatPrefix(pluginName: string): string {
-		let prefix = `[${this.libName}:${pluginName}]`
-
-		const timestamp = new Date().toLocaleString()
-		prefix = `[${timestamp}] ${prefix}`
-
-		return prefix
+		return `[${this.libName}:${pluginName}]`
 	}
 
 	/**
@@ -125,15 +120,13 @@ export class Logger {
 		const prefix = this.formatPrefix(pluginName)
 		const logConfig = this.logTypes[type]
 		const { method, icon, color, reset } = logConfig
-		const logPrefix = icon ? `${icon} ${prefix}` : prefix
+		const logPrefix = `${icon} ${prefix}`
 
-		method('==================================')
 		if (data !== undefined && data !== null) {
 			method(color + logPrefix + reset, color + message + reset, data)
 		} else {
 			method(color + logPrefix + reset, color + message + reset)
 		}
-		method('==================================')
 	}
 
 	/**
