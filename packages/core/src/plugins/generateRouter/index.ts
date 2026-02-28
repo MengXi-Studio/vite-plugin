@@ -37,11 +37,11 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 			includeSubPackages: true,
 			watch: true,
 			exportTypes: true,
+			preserveRouteChanges: true,
 			metaMapping: {
 				navigationBarTitleText: 'title',
 				requireAuth: 'requireAuth'
-			},
-			headerComment: '/* eslint-disable */\n// 此文件由 generateRouter 插件自动生成，请勿手动修改'
+			}
 		}
 	}
 
@@ -135,6 +135,12 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	private parsePagesJson(pagesJson: UniAppPagesJson): RouteConfig[] {
 		const routes: RouteConfig[] = []
 
+		// 校验 pages 数组
+		if (!pagesJson.pages || !Array.isArray(pagesJson.pages) || pagesJson.pages.length === 0) {
+			this.logger.warn('pages.json 中没有有效的页面配置')
+			return routes
+		}
+
 		// 解析 tabBar 页面
 		this.tabBarPages.clear()
 		if (pagesJson.tabBar?.list) {
@@ -151,8 +157,10 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 		// 解析子包页面
 		if (this.options.includeSubPackages && pagesJson.subPackages) {
 			for (const subPkg of pagesJson.subPackages) {
-				for (const page of subPkg.pages) {
-					routes.push(this.parsePageToRoute(page, subPkg.root))
+				if (subPkg.pages && Array.isArray(subPkg.pages)) {
+					for (const page of subPkg.pages) {
+						routes.push(this.parsePageToRoute(page, subPkg.root))
+					}
 				}
 			}
 		}
@@ -201,7 +209,6 @@ export interface RouteConfig {
 	 * 生成路由配置文件内容
 	 */
 	private generateFileContent(routes: RouteConfig[]): string {
-		const headerComment = this.options.headerComment || ''
 		const typeDefinitions = this.generateTypeDefinitions()
 		const isTS = this.options.outputFormat === 'ts'
 
@@ -213,41 +220,12 @@ export interface RouteConfig {
 
 		const typeAnnotation = isTS ? ': RouteConfig[]' : ''
 
-		return `${headerComment}
-${typeDefinitions}
+		return `${typeDefinitions}
 /**
  * 路由配置列表
  * @description 由 pages.json 自动生成
  */
 export const routes${typeAnnotation} = ${routesJson}
-
-/**
- * 根据路由名称获取路由配置
- */
-export function getRouteByName(name${isTS ? ': string' : ''})${isTS ? ': RouteConfig | undefined' : ''} {
-	return routes.find(route => route.name === name)
-}
-
-/**
- * 根据路由路径获取路由配置
- */
-export function getRouteByPath(path${isTS ? ': string' : ''})${isTS ? ': RouteConfig | undefined' : ''} {
-	return routes.find(route => route.path === path)
-}
-
-/**
- * 获取所有 TabBar 页面路由
- */
-export function getTabBarRoutes()${isTS ? ': RouteConfig[]' : ''} {
-	return routes.filter(route => route.meta?.isTab === true)
-}
-
-/**
- * 获取需要登录的页面路由
- */
-export function getAuthRoutes()${isTS ? ': RouteConfig[]' : ''} {
-	return routes.filter(route => route.meta?.requireAuth === true)
-}
 
 export default routes
 `
@@ -276,16 +254,95 @@ export default routes
 	}
 
 	/**
+	 * 从已存在的文件中提取 routes 配置
+	 */
+	private extractExistingRoutes(existingContent: string): Map<string, RouteConfig> {
+		const routesMap = new Map<string, RouteConfig>()
+
+		// 使用更健壮的正则提取 routes 数组
+		const routesMatch = existingContent.match(/export const routes[^=]*=\s*(\[[\s\S]*?\](?=\s*\n|\s*$|\s*\/\/))/)
+		if (!routesMatch) return routesMap
+
+		try {
+			// 安全转换为 JSON 格式
+			let jsonStr = routesMatch[1]
+				// 属性名加引号
+				.replace(/(\w+)(?=\s*:)/g, '"$1"')
+				// 先处理单引号字符串，转换为双引号
+				.replace(/'([^']*)'/g, '"$1"')
+				// 移除尾随逗号
+				.replace(/,\s*([\]\}])/g, '$1')
+
+			const routes = JSON.parse(jsonStr) as RouteConfig[]
+			for (const route of routes) {
+				if (route.path) {
+					routesMap.set(route.path, route)
+				}
+			}
+		} catch {
+			// 解析失败，返回空 map
+			this.logger.warn('解析现有 routes 配置失败，将完全重新生成')
+		}
+
+		return routesMap
+	}
+
+	/**
+	 * 合并路由配置，保留用户修改
+	 */
+	private mergeRoutes(newRoutes: RouteConfig[], existingRoutesMap: Map<string, RouteConfig>): RouteConfig[] {
+		return newRoutes.map(newRoute => {
+			const existingRoute = existingRoutesMap.get(newRoute.path)
+			if (!existingRoute) return newRoute
+
+			// 用户修改优先：先用新生成的作为基础，再用用户现有的覆盖
+			const mergedMeta: RouteMeta = {}
+
+			// 先添加新生成的 meta（作为基础，包含新增字段）
+			if (newRoute.meta) {
+				Object.assign(mergedMeta, newRoute.meta)
+			}
+
+			// 用用户现有的 meta 覆盖（用户修改优先）
+			if (existingRoute.meta) {
+				Object.assign(mergedMeta, existingRoute.meta)
+			}
+
+			return {
+				// 保留用户对整个路由的修改（如修改了 name）
+				...existingRoute,
+				// path 始终使用新的（这是标识符，由 pages.json 决定）
+				path: newRoute.path,
+				meta: Object.keys(mergedMeta).length > 0 ? mergedMeta : undefined
+			}
+		})
+	}
+
+	/**
 	 * 生成路由配置文件
 	 */
 	private async generateRouterConfig(): Promise<void> {
 		const pagesJson = this.readPagesJson()
 		if (!pagesJson) return
 
-		const routes = this.parsePagesJson(pagesJson)
-		const content = this.generateFileContent(routes)
-
+		let routes = this.parsePagesJson(pagesJson)
 		const outputPath = resolve(this.projectRoot, this.options.outputPath!)
+
+		// 如果文件已存在，读取现有内容并合并用户修改
+		if (this.options.preserveRouteChanges && existsSync(outputPath)) {
+			try {
+				const existingContent = readFileSync(outputPath)
+				const existingRoutesMap = this.extractExistingRoutes(existingContent)
+				if (existingRoutesMap.size > 0) {
+					routes = this.mergeRoutes(routes, existingRoutesMap)
+					this.logger.info('已合并用户对路由配置的修改')
+				}
+			} catch {
+				// 读取失败时忽略，继续生成新文件
+			}
+		}
+
+		const content = this.generateFileContent(routes)
 		await writeFileContent(outputPath, content)
 
 		this.logger.success(`路由配置文件已生成: ${outputPath}`)

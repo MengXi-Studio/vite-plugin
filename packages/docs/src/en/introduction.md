@@ -2,46 +2,53 @@
 
 `@meng-xi/vite-plugin` is a toolkit that provides practical plugins for Vite, and also serves as a complete **Vite Plugin Development Framework**.
 
-This toolkit not only provides a collection of ready-to-use plugins, but also exports core framework components, allowing developers to quickly build custom plugins based on the same underlying infrastructure, achieving
-high extensibility.
+## Built-in Plugins
 
-## Core Features
+Four ready-to-use plugins covering common build scenarios:
 
-### Ready-to-Use Plugins
+| Plugin                                          | Description                                                                  |
+| ----------------------------------------------- | ---------------------------------------------------------------------------- |
+| [copyFile](/en/plugins/copy-file)               | Copy files or directories to specified locations after build                 |
+| [generateRouter](/en/plugins/generate-router)   | Auto-generate router configuration from uni-app's pages.json                 |
+| [generateVersion](/en/plugins/generate-version) | Auto-generate version numbers with file output and global variable injection |
+| [injectIco](/en/plugins/inject-ico)             | Inject website icon links into HTML files                                    |
 
-- **Enhance Vite Build Process**: Provide a collection of practical plugins, extend Vite functionality, simplify common tasks in the build process, and improve development efficiency
-- **Modular Plugin Architecture**: Adopt modular design, plugins can be used individually or in combination, flexibly responding to different project needs
-- **Highly Configurable**: All features support detailed configuration options, can customize behavior according to project needs, meeting diverse scenarios
-- **Environment Awareness**: Support executing plugin functionality based on build environment conditions, intelligently controlling behavior in different environments
+## Plugin Development Framework
 
-### Plugin Development Framework
+Export core components to quickly build custom plugins:
 
-- **Complete Framework Export**: Export core components like `BasePlugin`, `Logger`, `Validator`, `createPluginFactory`
-- **Singleton Logger System**: Unified log management with plugin-level log control
-- **Type-Safe Validator**: Strongly-typed configuration validation system ensuring plugin configuration correctness
-- **Plugin Factory Pattern**: Support options normalizer to easily handle heterogeneous inputs (like strings or objects)
-- **Unified Error Handling**: Configurable error handling strategies (throw/log/ignore)
+| Component           | Description                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| BasePlugin          | Plugin base class providing lifecycle management, logging, validation and standard features |
+| createPluginFactory | Plugin factory function that handles options merging and instantiation                      |
+| Logger              | Singleton logger manager with plugin-level log control                                      |
+| Validator           | Chainable configuration validator ensuring parameter type correctness                       |
 
-### Development Experience
+## Common Options
 
-- **Detailed Log Output**: Provide optional detailed logs to help developers understand the execution process, facilitating debugging and problem troubleshooting
-- **Type Safety**: Fully developed with TypeScript, providing complete type definitions to ensure type safety during use
-- **Seamless Integration**: Seamlessly integrate with Vite build process, enabling quick activation without complex configuration
-- **Optimize Development Experience**: Simplify common build tasks, reduce manual operations, allowing developers to focus on core business logic
+All built-in plugins extend BasePlugin and support these common options:
 
-## Main Features
+```typescript
+interface BasePluginOptions {
+	/** Enable plugin, default true */
+	enabled?: boolean
+	/** Show verbose logs, default true */
+	verbose?: boolean
+	/** Error handling strategy: throw | log | ignore */
+	errorStrategy?: 'throw' | 'log' | 'ignore'
+}
+```
 
-### Built-in Plugins
+## Utility Functions
 
-- **copyFile**: Copy files or directories after build completion
-- **injectIco**: Inject website icons into HTML files
+Exported utility functions:
 
-### Core Framework API
+- **File System**: readFileSync, writeFileContent, copySourceToTarget, readDirRecursive, etc.
+- **Formatting**: formatDate, parseTemplate, generateRandomHash, padNumber, etc.
+- **Object Utils**: deepMerge, toCamelCase, toPascalCase, stripJsonComments, etc.
 
-- **BasePlugin**: Plugin base class providing lifecycle management and standard features
-- **createPluginFactory**: Plugin factory function with options normalization support
-- **Logger**: Singleton logger manager
-- **Validator**: Type-safe configuration validator
-- **Common Utils**: File system utilities, object merging and other practical functions
+## Next Steps
 
-[Quick Start](./installation.md) or check the [GitHub Repository](https://github.com/MengXi-Studio/vite-plugin) for more information.
+- [Installation](/en/installation) - Quick start
+- [Plugin Documentation](/en/plugins/copy-file) - Learn detailed plugin configurations
+- [GitHub](https://github.com/MengXi-Studio/vite-plugin) - View source code and examples

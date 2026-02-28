@@ -1,23 +1,8 @@
-# generateRouter Plugin
+# generateRouter
 
-The `generateRouter` plugin automatically generates router configuration files based on uni-app project's `pages.json` file, supporting multiple naming strategies and configuration options.
+Auto-generate router configuration from uni-app's `pages.json`.
 
-## Features
-
-- Automatically parse uni-app's `pages.json` file
-- Support main package and sub-packages
-- Automatically identify tabBar pages
-- Multiple route name generation strategies (camelCase, pascalCase, path, custom)
-- Custom meta field mapping support
-- Auto-watch `pages.json` changes and regenerate in development mode
-- Output TypeScript or JavaScript files
-- Generate type definitions and helper functions
-- Enable/disable plugin support
-- Flexible error handling mechanism
-
-## Basic Usage
-
-### Simple Configuration
+## Quick Start
 
 ```typescript
 import { defineConfig } from 'vite'
@@ -28,285 +13,117 @@ export default defineConfig({
 })
 ```
 
-### Full Configuration
+## Options
 
-```typescript
-import { defineConfig } from 'vite'
-import { generateRouter } from '@meng-xi/vite-plugin'
+| Option               | Type                           | Default                  | Description                  |
+| -------------------- | ------------------------------ | ------------------------ | ---------------------------- |
+| pagesJsonPath        | `string`                       | `'src/pages.json'`       | Path to pages.json           |
+| outputPath           | `string`                       | `'src/router.config.ts'` | Output file path             |
+| outputFormat         | `'ts' \| 'js'`                 | `'ts'`                   | Output format                |
+| nameStrategy         | `NameStrategy`                 | `'camelCase'`            | Route naming strategy        |
+| customNameGenerator  | `(path: string) => string`     | -                        | Custom name generator        |
+| includeSubPackages   | `boolean`                      | `true`                   | Include sub-package routes   |
+| watch                | `boolean`                      | `true`                   | Watch for changes            |
+| metaMapping          | `Record<string, string>`       | See below                | Style to meta field mapping  |
+| exportTypes          | `boolean`                      | `true`                   | Export type definitions (TS) |
+| preserveRouteChanges | `boolean`                      | `true`                   | Preserve user route changes  |
+| enabled              | `boolean`                      | `true`                   | Enable the plugin            |
+| verbose              | `boolean`                      | `true`                   | Show detailed logs           |
+| errorStrategy        | `'throw' \| 'log' \| 'ignore'` | `'throw'`                | Error handling strategy      |
 
-export default defineConfig({
-	plugins: [
-		generateRouter({
-			pagesJsonPath: 'src/pages.json',
-			outputPath: 'src/router.config.ts',
-			outputFormat: 'ts',
-			nameStrategy: 'camelCase',
-			includeSubPackages: true,
-			watch: true,
-			exportTypes: true,
-			metaMapping: {
-				navigationBarTitleText: 'title',
-				requireAuth: 'requireAuth'
-			},
-			enabled: true,
-			verbose: true,
-			errorStrategy: 'throw'
-		})
-	]
-})
-```
+### Route Naming Strategies
 
-## Configuration Options
+| Strategy   | Description     | Example Path          | Generated Name     |
+| ---------- | --------------- | --------------------- | ------------------ |
+| camelCase  | Camel case      | `/pages/user/profile` | pagesUserProfile   |
+| pascalCase | Pascal case     | `/pages/user/profile` | PagesUserProfile   |
+| path       | Path underscore | `/pages/user/profile` | pages_user_profile |
+| custom     | Custom function | -                     | -                  |
 
-| Option              | Type                         | Default                | Description                                                                       |
-| ------------------- | ---------------------------- | ---------------------- | --------------------------------------------------------------------------------- |
-| pagesJsonPath       | string                       | 'src/pages.json'       | Path to pages.json file (relative to project root)                                |
-| outputPath          | string                       | 'src/router.config.ts' | Output file path (relative to project root)                                       |
-| outputFormat        | 'ts' \| 'js'                 | 'ts'                   | Output file format                                                                |
-| nameStrategy        | NameStrategy                 | 'camelCase'            | Route name generation strategy                                                    |
-| customNameGenerator | function                     | -                      | Custom route name generator, only valid when nameStrategy is 'custom'             |
-| includeSubPackages  | boolean                      | true                   | Whether to include sub-package routes                                             |
-| watch               | boolean                      | true                   | Whether to watch pages.json changes and auto-regenerate                           |
-| metaMapping         | object                       | See below              | Mapping from page style fields to route meta                                      |
-| headerComment       | string                       | See below              | Header comment for generated file                                                 |
-| exportTypes         | boolean                      | true                   | Whether to export type definitions (TypeScript only)                              |
-| enabled             | boolean                      | true                   | Whether to enable the plugin                                                      |
-| verbose             | boolean                      | true                   | Whether to show verbose logs                                                      |
-| errorStrategy       | 'throw' \| 'log' \| 'ignore' | 'throw'                | Error handling strategy: 'throw' throws error, 'log' logs error, 'ignore' ignores |
-
-### Route Name Generation Strategies (NameStrategy)
-
-| Strategy   | Description        | Example Path        | Generated Name     |
-| ---------- | ------------------ | ------------------- | ------------------ |
-| camelCase  | Camel case naming  | /pages/user/profile | pagesUserProfile   |
-| pascalCase | Pascal case naming | /pages/user/profile | PagesUserProfile   |
-| path       | Path to underscore | /pages/user/profile | pages_user_profile |
-| custom     | Custom generator   | -                   | -                  |
-
-### Default Meta Mapping
+### Default metaMapping
 
 ```typescript
 {
-	navigationBarTitleText: 'title',
-	requireAuth: 'requireAuth'
+  navigationBarTitleText: 'title',
+  requireAuth: 'requireAuth'
 }
-```
-
-### Default Header Comment
-
-```typescript
-'/* eslint-disable */\n// This file is auto-generated by generateRouter plugin, do not modify manually'
 ```
 
 ## Examples
 
-### Basic Usage
+### Output JavaScript
 
 ```typescript
-import { defineConfig } from 'vite'
-import { generateRouter } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [generateRouter()]
+generateRouter({
+	outputFormat: 'js',
+	outputPath: 'src/router.config.js'
 })
 ```
 
-### Output JavaScript File
+### Custom Route Names
 
 ```typescript
-import { defineConfig } from 'vite'
-import { generateRouter } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		generateRouter({
-			outputFormat: 'js',
-			outputPath: 'src/router.config.js'
-		})
-	]
-})
-```
-
-### Use Pascal Case Strategy
-
-```typescript
-import { defineConfig } from 'vite'
-import { generateRouter } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		generateRouter({
-			nameStrategy: 'pascalCase'
-		})
-	]
-})
-```
-
-### Custom Route Name Generation
-
-```typescript
-import { defineConfig } from 'vite'
-import { generateRouter } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		generateRouter({
-			nameStrategy: 'custom',
-			customNameGenerator: path => `route_${path.replace(/\//g, '_')}`
-		})
-	]
+generateRouter({
+	nameStrategy: 'custom',
+	customNameGenerator: path => `route_${path.replace(/\//g, '_')}`
 })
 ```
 
 ### Custom Meta Mapping
 
 ```typescript
-import { defineConfig } from 'vite'
-import { generateRouter } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		generateRouter({
-			metaMapping: {
-				navigationBarTitleText: 'title',
-				requireAuth: 'requireAuth',
-				customField: 'custom'
-			}
-		})
-	]
+generateRouter({
+	metaMapping: {
+		navigationBarTitleText: 'title',
+		requireAuth: 'requireAuth',
+		customField: 'custom'
+	}
 })
 ```
 
-### Disable Sub-packages
+### Exclude Sub-packages
 
 ```typescript
-import { defineConfig } from 'vite'
-import { generateRouter } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		generateRouter({
-			includeSubPackages: false
-		})
-	]
+generateRouter({
+	includeSubPackages: false
 })
 ```
 
-### Enable Based on Environment
+## Output Example
 
 ```typescript
-import { defineConfig } from 'vite'
-import { generateRouter } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		generateRouter({
-			enabled: process.env.NODE_ENV === 'development'
-		})
-	]
-})
-```
-
-## Output File Format
-
-The generated router configuration file contains the following:
-
-### TypeScript Output Example
-
-```typescript
-/* eslint-disable */
-// This file is auto-generated by generateRouter plugin, do not modify manually
-
-/**
- * Route meta information
- */
 export interface RouteMeta {
-	/** Page title */
 	title?: string
-	/** Whether it's a TabBar page */
 	isTab?: boolean
-	/** Whether login is required */
 	requireAuth?: boolean
-	/** Custom extension fields */
 	[key: string]: unknown
 }
 
-/**
- * Route configuration item
- */
 export interface RouteConfig {
-	/** Route path */
 	path: string
-	/** Route name (for named route navigation) */
 	name?: string
-	/** Route meta information */
 	meta?: RouteMeta
 }
 
-/**
- * Route configuration list
- * @description Auto-generated from pages.json
- */
 export const routes: RouteConfig[] = [
 	{
 		path: '/pages/index/index',
 		name: 'pagesIndexIndex',
-		meta: {
-			title: 'Home',
-			isTab: true
-		}
+		meta: { title: 'Home', isTab: true }
 	},
 	{
 		path: '/pages/user/profile',
 		name: 'pagesUserProfile',
-		meta: {
-			title: 'Profile',
-			requireAuth: true
-		}
+		meta: { title: 'Profile', requireAuth: true }
 	}
 ]
-
-/**
- * Get route configuration by name
- */
-export function getRouteByName(name: string): RouteConfig | undefined {
-	return routes.find(route => route.name === name)
-}
-
-/**
- * Get route configuration by path
- */
-export function getRouteByPath(path: string): RouteConfig | undefined {
-	return routes.find(route => route.path === path)
-}
-
-/**
- * Get all TabBar page routes
- */
-export function getTabBarRoutes(): RouteConfig[] {
-	return routes.filter(route => route.meta?.isTab === true)
-}
-
-/**
- * Get routes that require authentication
- */
-export function getAuthRoutes(): RouteConfig[] {
-	return routes.filter(route => route.meta?.requireAuth === true)
-}
 
 export default routes
 ```
 
 ## Notes
 
-- The plugin generates router configuration after Vite config resolution
-- When `nameStrategy` is `'custom'`, the `customNameGenerator` function must be provided
-- File watching is enabled by default in development mode, auto-regenerating when `pages.json` changes
-- Generated files include ESLint disable comments to avoid formatting conflicts
-- TabBar pages automatically get `isTab: true` meta information
-- When `enabled` is `false`, the plugin will not perform any operations
-- The `errorStrategy` option determines error handling behavior:
-  - `'throw'`: Throws error, interrupts build process
-  - `'log'`: Logs error, but does not interrupt build
-  - `'ignore'`: Ignores error, continues execution
-- Supports comments in `pages.json` (automatically stripped before parsing)
+- `customNameGenerator` is required when `nameStrategy` is `'custom'`
+- TabBar pages automatically get `isTab: true`
+- `preserveRouteChanges: true` preserves user modifications to routes array
+- Supports parsing `pages.json` with comments

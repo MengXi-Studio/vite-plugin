@@ -156,14 +156,17 @@ export interface GenerateRouterOptions extends BasePluginOptions {
 	metaMapping?: Record<string, string>
 
 	/**
-	 * 生成的文件头部注释
-	 */
-	headerComment?: string
-
-	/**
 	 * 是否导出类型定义
 	 *
 	 * @default true
 	 */
 	exportTypes?: boolean
+
+	/**
+	 * 是否保留用户对 routes 配置的修改
+	 *
+	 * @description 开启后，用户在 routes 数组中修改的字段将被保留
+	 * @default true
+	 */
+	preserveRouteChanges?: boolean
 }

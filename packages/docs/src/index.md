@@ -7,44 +7,32 @@ titleTemplate: Vite 实用插件工具包
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite 实用插件工具包
-  tagline: 为 Vite 构建流程提供实用插件，简化开发工作流
+  tagline: 开箱即用的插件集合 + 完整的插件开发框架
   image:
     src: /logo.svg
     alt: 梦曦工作室
   actions:
     - theme: brand
-      text: 什么是 @meng-xi/vite-plugin？
-      link: /introduction
-    - theme: alt
       text: 快速开始
       link: /installation
+    - theme: alt
+      text: 什么是 @meng-xi/vite-plugin？
+      link: /introduction
     - theme: alt
       text: GitHub
       link: https://github.com/MengXi-Studio/vite-plugin
 
 features:
-  - icon: 🛠️
-    title: 增强 Vite 构建流程
-    details: 提供实用插件集合，扩展 Vite 核心功能，简化开发工作流，提高构建效率。
+  - icon: 📦
+    title: 开箱即用
+    details: 提供 copyFile、generateRouter、generateVersion、injectIco 四个实用插件，覆盖文件复制、路由生成、版本管理、图标注入等常见场景。
   - icon: 🧱
     title: 插件开发框架
-    details: 导出 BasePlugin、Logger、Validator 等核心组件，支持开发者基于相同基础设施构建自定义插件。
-  - icon: 🔧
-    title: 高度可配置
-    details: 所有功能支持详细配置选项，可根据项目需求自定义行为，满足多样化场景。
-  - icon: 🔄
-    title: 单例日志系统
-    details: 统一的日志管理器，支持插件级别的日志控制，便于调试和问题排查。
-  - icon: 📊
-    title: 类型安全验证
-    details: 强类型的配置验证器，确保插件配置的正确性，提供完整的 TypeScript 类型定义。
-  - icon: 🎯
-    title: 插件工厂模式
-    details: 支持选项标准化器，轻松处理异构输入，简化插件开发流程。
-  - icon: 🚀
-    title: 无缝集成
-    details: 与 Vite 构建流程无缝集成，无需复杂配置即可快速启用。
-  - icon: 🔍
-    title: 优化开发体验
-    details: 简化常见构建任务，减少手动操作，让开发者专注于核心业务逻辑。
+    details: 导出 BasePlugin、Logger、Validator 等核心组件，快速构建符合规范的自定义 Vite 插件。
+  - icon: 🔒
+    title: 类型安全
+    details: 完整的 TypeScript 类型定义，内置配置验证器确保参数正确性，开发体验友好。
+  - icon: ⚙️
+    title: 灵活配置
+    details: 所有插件支持详细配置选项，提供统一的启用/禁用、日志控制、错误处理策略。
 ---
