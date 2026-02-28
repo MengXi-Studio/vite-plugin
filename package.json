@@ -1,9 +1,10 @@
 {
 	"name": "vite-plugin",
+	"type": "module",
 	"version": "0.0.4",
 	"private": false,
 	"description": "vite-plugin 是一个为 Vite 提供的插件",
-	"packageManager": "pnpm@10.11.0",
+	"packageManager": "pnpm@10.30.0",
 	"workspaces": [
 		"packages/*"
 	],
@@ -17,20 +18,21 @@
 		"test": "pnpm --filter @meng-xi/vite-plugin-test test",
 		"test:watch": "pnpm --filter @meng-xi/vite-plugin-test test:watch",
 		"release": "bumpp",
-		"lint": "eslint . --ext .ts,.js",
+		"lint": "eslint .",
 		"lint:fix": "pnpm lint --fix",
 		"clean": "rimraf --glob node_modules pnpm-lock.yaml packages/**/node_modules packages/**/pnpm-lock.yaml"
 	},
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^7.18.0",
-		"@typescript-eslint/parser": "^7.18.0",
-		"bumpp": "^10.4.0",
-		"eslint": "^8.57.1",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-prettier": "^5.2.1",
-		"prettier": "^3.8.0",
-		"rimraf": "^5.0.10",
-		"typescript": "^5.9.3"
+		"@eslint/js": "^9.38.0",
+		"bumpp": "^10.4.1",
+		"eslint": "^9.38.0",
+		"eslint-config-prettier": "^10.1.0",
+		"eslint-plugin-prettier": "^5.5.0",
+		"globals": "^16.2.0",
+		"prettier": "^3.8.1",
+		"rimraf": "^6.1.0",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.56.0"
 	},
 	"author": {
 		"name": "PedroQue99",
