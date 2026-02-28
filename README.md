@@ -52,18 +52,33 @@ pnpm add @meng-xi/vite-plugin --save-dev
 
 ```typescript
 import { defineConfig } from 'vite'
-import { copyFile, injectIco } from '@meng-xi/vite-plugin'
+import { copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-  plugins: [
-    copyFile({
-      sourceDir: 'src/assets',
-      targetDir: 'dist/assets'
-    }),
-    injectIco({
-      base: '/assets'
-    })
-  ]
+	plugins: [
+		// 复制文件插件
+		copyFile({
+			sourceDir: 'src/assets',
+			targetDir: 'dist/assets'
+		}),
+
+		// 生成路由配置插件（适用于 uni-app）
+		generateRouter({
+			pagesJsonPath: 'src/pages.json',
+			outputPath: 'src/router.config.ts'
+		}),
+
+		// 生成版本号插件
+		generateVersion({
+			format: 'datetime',
+			outputType: 'both'
+		}),
+
+		// 注入图标插件
+		injectIco({
+			base: '/assets'
+		})
+	]
 })
 ```
 
@@ -74,36 +89,80 @@ import { BasePlugin, createPluginFactory, Validator } from '@meng-xi/vite-plugin
 import type { Plugin } from 'vite'
 
 interface MyPluginOptions {
-  path: string
-  enabled?: boolean
-  verbose?: boolean
-  errorStrategy?: 'throw' | 'log' | 'ignore'
+	path: string
+	enabled?: boolean
+	verbose?: boolean
+	errorStrategy?: 'throw' | 'log' | 'ignore'
 }
 
 class MyPlugin extends BasePlugin<MyPluginOptions> {
-  protected getDefaultOptions() {
-    return {
-      path: './default'
-    }
-  }
+	protected getDefaultOptions() {
+		return {
+			path: './default'
+		}
+	}
 
-  protected validateOptions(): void {
-    this.validator.field('path').required().string().validate()
-  }
+	protected validateOptions(): void {
+		this.validator.field('path').required().string().validate()
+	}
 
-  protected getPluginName(): string {
-    return 'my-plugin'
-  }
+	protected getPluginName(): string {
+		return 'my-plugin'
+	}
 
-  protected addPluginHooks(plugin: Plugin): void {
-    plugin.buildStart = () => {
-      this.logger.info(`Plugin started with path: ${this.options.path}`)
-    }
-  }
+	protected addPluginHooks(plugin: Plugin): void {
+		plugin.buildStart = () => {
+			this.logger.info(`Plugin started with path: ${this.options.path}`)
+		}
+	}
 }
 
 export const myPlugin = createPluginFactory(MyPlugin)
 ```
+
+## 内置插件
+
+### copyFile
+
+在 Vite 构建完成后复制文件或目录到指定位置。
+
+- `sourceDir`：源目录路径（必填）
+- `targetDir`：目标目录路径（必填）
+- `overwrite`：是否覆盖现有文件，默认 `true`
+- `recursive`：是否递归复制子目录，默认 `true`
+- `incremental`：是否启用增量复制，默认 `true`
+
+### generateRouter
+
+根据 uni-app 项目的 `pages.json` 自动生成路由配置文件。
+
+- `pagesJsonPath`：pages.json 文件路径，默认 `'src/pages.json'`
+- `outputPath`：输出文件路径，默认 `'src/router.config.ts'`
+- `outputFormat`：输出格式 `'ts'` 或 `'js'`，默认 `'ts'`
+- `nameStrategy`：路由名称策略 `'camelCase'` | `'pascalCase'` | `'path'` | `'custom'`
+- `includeSubPackages`：是否包含子包路由，默认 `true`
+- `watch`：是否监听变化自动重新生成，默认 `true`
+
+### generateVersion
+
+在 Vite 构建过程中自动生成版本号。
+
+- `format`：版本格式 `'timestamp'` | `'date'` | `'datetime'` | `'semver'` | `'hash'` | `'custom'`
+- `outputType`：输出类型 `'file'` | `'define'` | `'both'`
+- `outputFile`：输出文件路径，默认 `'version.json'`
+- `defineName`：注入的全局变量名，默认 `'__APP_VERSION__'`
+- `prefix`：版本号前缀
+- `suffix`：版本号后缀
+
+### injectIco
+
+在 Vite 构建过程中将网站图标链接注入到 HTML 文件的 head 中。
+
+- `base`：图标文件的基础路径
+- `url`：图标的完整 URL
+- `link`：自定义完整的 link 标签 HTML
+- `icons`：自定义图标数组
+- `copyOptions`：图标文件复制配置
 
 ## 更新日志
 

@@ -69,6 +69,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/plugins/copy-file.html'
 						},
 						{
+							text: 'generateRouter',
+							link: '/en/plugins/generate-router.html'
+						},
+						{
 							text: 'generateVersion',
 							link: '/en/plugins/generate-version.html'
 						},

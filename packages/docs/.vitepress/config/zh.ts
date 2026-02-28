@@ -69,6 +69,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/copy-file.html'
 						},
 						{
+							text: 'generateRouter',
+							link: '/plugins/generate-router.html'
+						},
+						{
 							text: 'generateVersion',
 							link: '/plugins/generate-version.html'
 						},

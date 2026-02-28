@@ -45,21 +45,33 @@ pnpm add @meng-xi/vite-plugin --save-dev
 
 ```typescript
 import { defineConfig } from 'vite'
-import { copyFile, injectIco } from '@meng-xi/vite-plugin'
+import { copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-  plugins: [
-    // Copy file plugin
-    copyFile({
-      sourceDir: 'src/assets',
-      targetDir: 'dist/assets'
-    }),
+	plugins: [
+		// Copy file plugin
+		copyFile({
+			sourceDir: 'src/assets',
+			targetDir: 'dist/assets'
+		}),
 
-    // Inject icon plugin
-    injectIco({
-      base: '/assets'
-    })
-  ]
+		// Generate router config plugin (for uni-app)
+		generateRouter({
+			pagesJsonPath: 'src/pages.json',
+			outputPath: 'src/router.config.ts'
+		}),
+
+		// Generate version plugin
+		generateVersion({
+			format: 'datetime',
+			outputType: 'both'
+		}),
+
+		// Inject icon plugin
+		injectIco({
+			base: '/assets'
+		})
+	]
 })
 ```
 
@@ -70,32 +82,32 @@ import { BasePlugin, createPluginFactory, Validator } from '@meng-xi/vite-plugin
 import type { Plugin } from 'vite'
 
 interface MyPluginOptions {
-  path: string
-  enabled?: boolean
-  verbose?: boolean
-  errorStrategy?: 'throw' | 'log' | 'ignore'
+	path: string
+	enabled?: boolean
+	verbose?: boolean
+	errorStrategy?: 'throw' | 'log' | 'ignore'
 }
 
 class MyPlugin extends BasePlugin<MyPluginOptions> {
-  protected getDefaultOptions() {
-    return {
-      path: './default'
-    }
-  }
+	protected getDefaultOptions() {
+		return {
+			path: './default'
+		}
+	}
 
-  protected validateOptions(): void {
-    this.validator.field('path').required().string().validate()
-  }
+	protected validateOptions(): void {
+		this.validator.field('path').required().string().validate()
+	}
 
-  protected getPluginName(): string {
-    return 'my-plugin'
-  }
+	protected getPluginName(): string {
+		return 'my-plugin'
+	}
 
-  protected addPluginHooks(plugin: Plugin): void {
-    plugin.buildStart = () => {
-      this.logger.info(`Plugin started with path: ${this.options.path}`)
-    }
-  }
+	protected addPluginHooks(plugin: Plugin): void {
+		plugin.buildStart = () => {
+			this.logger.info(`Plugin started with path: ${this.options.path}`)
+		}
+	}
 }
 
 export const myPlugin = createPluginFactory(MyPlugin)
@@ -113,8 +125,33 @@ Used to copy files or directories to specified locations after Vite build is com
 - `targetDir`: Target directory path (required)
 - `overwrite`: Whether to overwrite existing files, default is `true`
 - `recursive`: Whether to recursively copy subdirectories, default is `true`
-- `verbose`: Whether to output detailed logs, default is `true`
-- `enabled`: Whether to enable the plugin, default is `true`
+- `incremental`: Whether to enable incremental copying, default is `true`
+
+### generateRouter Plugin
+
+Automatically generates router configuration files based on uni-app project's `pages.json`.
+
+**Configuration Options**:
+
+- `pagesJsonPath`: Path to pages.json file, default is `'src/pages.json'`
+- `outputPath`: Output file path, default is `'src/router.config.ts'`
+- `outputFormat`: Output format `'ts'` or `'js'`, default is `'ts'`
+- `nameStrategy`: Route name strategy `'camelCase'` | `'pascalCase'` | `'path'` | `'custom'`
+- `includeSubPackages`: Whether to include sub-package routes, default is `true`
+- `watch`: Whether to watch changes and auto-regenerate, default is `true`
+
+### generateVersion Plugin
+
+Automatically generates version numbers during the Vite build process.
+
+**Configuration Options**:
+
+- `format`: Version format `'timestamp'` | `'date'` | `'datetime'` | `'semver'` | `'hash'` | `'custom'`
+- `outputType`: Output type `'file'` | `'define'` | `'both'`
+- `outputFile`: Output file path, default is `'version.json'`
+- `defineName`: Global variable name to inject, default is `'__APP_VERSION__'`
+- `prefix`: Version number prefix
+- `suffix`: Version number suffix
 
 ### injectIco Plugin
 
@@ -126,8 +163,6 @@ Used to inject website icon links into the head of HTML files during the Vite bu
 - `url`: Complete URL for the icon
 - `link`: Custom complete link tag HTML
 - `icons`: Custom icon array
-- `verbose`: Whether to output detailed logs, default is `true`
-- `enabled`: Whether to enable the plugin, default is `true`
 - `copyOptions`: Icon file copying configuration
 
 ## Contribution
