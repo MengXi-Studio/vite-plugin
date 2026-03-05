@@ -7,9 +7,9 @@
 	"keywords": [
 		"@meng-xi/vite-plugin",
 		"meng-xi",
+		"vite-plugin",
 		"vite",
-		"plugin",
-		"vite-plugin"
+		"plugin"
 	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
