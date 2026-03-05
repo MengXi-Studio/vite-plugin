@@ -1,0 +1,21 @@
+{
+	"name": "vite-plugin",
+	"version": "0.0.1",
+	"description": "为 Vite 提供实用插件的工具包",
+	"main": "main.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MengXi-Studio/vite-plugin.git"
+	},
+	"keywords": [],
+	"author": "PedroQue99",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/MengXi-Studio/vite-plugin/issues"
+	},
+	"homepage": "https://github.com/MengXi-Studio/vite-plugin#readme",
+	"devDependencies": {
+		"@dcloudio/vite-plugin-uni": "3.0.0-4080720251210001",
+		"vite": "5.2.8"
+	}
+}

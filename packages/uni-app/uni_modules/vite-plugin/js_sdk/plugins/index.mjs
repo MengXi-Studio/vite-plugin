@@ -1,0 +1,1 @@
+export{c as copyFile,g as generateRouter,a as generateVersion,i as injectIco}from"../shared/vite-plugin.CS9a5kjK.mjs";import"../shared/vite-plugin.C7isVPKg.mjs";import"../logger/index.mjs";import"fs";import"path";import"crypto";import"../shared/vite-plugin.B88RyRN8.mjs";import"../shared/vite-plugin.YvjM8LxW.mjs";
