@@ -1,46 +1,54 @@
 # 介绍
 
-`@meng-xi/vite-plugin` 是一个为 Vite 提供实用插件的工具包，同时也是一个功能完整的 **Vite 插件开发框架**。
+`@meng-xi/vite-plugin` 是一个为 Vite 提供实用插件的工具包，同时也是一个完整的 **Vite 插件开发框架**。
 
-该工具包不仅提供开箱即用的插件集合，还导出了核心框架组件，允许开发者基于相同的底层基础设施快速构建自定义插件，实现高度的可扩展性。
+## 内置插件
 
-## 核心特性
+开箱即用的四个插件，覆盖常见构建场景：
 
-### 开箱即用的插件
+| 插件                                         | 功能                                        |
+| -------------------------------------------- | ------------------------------------------- |
+| [copyFile](/plugins/copy-file)               | 构建完成后复制文件或目录到指定位置          |
+| [generateRouter](/plugins/generate-router)   | 根据 uni-app 的 pages.json 自动生成路由配置 |
+| [generateVersion](/plugins/generate-version) | 自动生成版本号，支持文件输出和全局变量注入  |
+| [injectIco](/plugins/inject-ico)             | 将网站图标链接注入到 HTML 文件              |
 
-- **增强 Vite 构建流程**：提供实用插件集合，扩展 Vite 功能，简化构建过程中的常见任务，提高开发效率
-- **模块化插件架构**：采用模块化设计，插件可单独使用或组合使用，灵活应对不同项目需求
-- **高度可配置**：所有功能支持详细配置选项，可根据项目需求自定义行为，满足多样化场景
-- **环境感知能力**：支持根据构建环境条件执行插件功能，智能控制不同环境下的行为
+## 插件开发框架
 
-### 插件开发框架
+导出核心组件，支持快速构建自定义插件：
 
-- **完整的框架导出**：导出 `BasePlugin`、`Logger`、`Validator`、`createPluginFactory` 等核心组件
-- **单例日志系统**：统一的日志管理，支持插件级别的日志控制
-- **类型安全的验证器**：强类型的配置验证系统，确保插件配置的正确性
-- **插件工厂模式**：支持选项标准化器，轻松处理异构输入（如字符串或对象）
-- **统一的错误处理**：可配置的错误处理策略（throw/log/ignore）
+| 组件                | 说明                                             |
+| ------------------- | ------------------------------------------------ |
+| BasePlugin          | 插件基类，提供生命周期管理、日志、验证等标准功能 |
+| createPluginFactory | 插件工厂函数，自动处理选项合并和实例化           |
+| Logger              | 单例日志管理器，支持插件级别的日志控制           |
+| Validator           | 链式配置验证器，确保参数类型正确                 |
 
-### 开发体验
+## 通用配置
 
-- **详细日志输出**：提供可选的详细日志，帮助开发者了解执行过程，便于调试和问题排查
-- **类型安全**：完全使用 TypeScript 开发，提供完整类型定义，确保使用过程中的类型安全
-- **无缝集成**：与 Vite 构建流程无缝集成，无需复杂配置即可快速启用
-- **优化开发体验**：简化常见构建任务，减少手动操作，让开发者专注于核心业务逻辑
+所有内置插件都继承自 BasePlugin，支持以下通用配置：
 
-## 主要功能
+```typescript
+interface BasePluginOptions {
+	/** 是否启用插件，默认 true */
+	enabled?: boolean
+	/** 是否显示详细日志，默认 true */
+	verbose?: boolean
+	/** 错误处理策略：throw 抛出 | log 记录 | ignore 忽略 */
+	errorStrategy?: 'throw' | 'log' | 'ignore'
+}
+```
 
-### 内置插件
+## 公共工具
 
-- **copyFile**：在构建完成后复制文件或目录
-- **injectIco**：注入网站图标到 HTML 文件
+导出常用工具函数：
 
-### 核心框架 API
+- **文件系统**：readFileSync、writeFileContent、copySourceToTarget、readDirRecursive 等
+- **格式化**：formatDate、parseTemplate、generateRandomHash、padNumber 等
+- **对象处理**：deepMerge、toCamelCase、toPascalCase、stripJsonComments 等
 
-- **BasePlugin**：插件基类，提供生命周期管理和标准功能
-- **createPluginFactory**：插件工厂函数，支持选项标准化
-- **Logger**：单例日志管理器
-- **Validator**：类型安全的配置验证器
-- **Common Utils**：文件系统工具、对象合并等实用函数
+## 下一步
 
-[快速开始](./installation.md)或查看 [GitHub 仓库](https://github.com/MengXi-Studio/vite-plugin) 获取更多信息。
+- [安装使用](/installation) - 快速开始
+- [插件文档](/plugins/copy-file) - 了解各插件详细配置
+- [GitHub](https://github.com/MengXi-Studio/vite-plugin) - 查看源码和示例

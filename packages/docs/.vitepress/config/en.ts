@@ -31,6 +31,22 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 		/** 网站主题配置 导航栏 */
 		nav: [
 			{
+				text: 'Common Utils',
+				link: '/en/common/index.html'
+			},
+			{
+				text: 'Plugin Factory',
+				link: '/en/factory/index.html'
+			},
+			{
+				text: 'Logger',
+				link: '/en/logger/index.html'
+			},
+			{
+				text: 'Plugins',
+				link: '/en/plugins/index.html'
+			},
+			{
 				text: 'Links',
 				items: [
 					{
@@ -61,12 +77,88 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						}
 					]
 				},
+
 				{
-					text: 'Plugins List',
+					text: 'Common Utils',
 					items: [
+						{
+							text: 'Overview',
+							link: '/en/common/index.html'
+						},
+						{
+							text: 'File System',
+							link: '/en/common/fs.html'
+						},
+						{
+							text: 'Format',
+							link: '/en/common/format.html'
+						},
+						{
+							text: 'Object',
+							link: '/en/common/object.html'
+						},
+						{
+							text: 'Validation',
+							link: '/en/common/validation.html'
+						}
+					]
+				},
+				{
+					text: 'Plugin Factory',
+					items: [
+						{
+							text: 'Overview',
+							link: '/en/factory/index.html'
+						},
+						{
+							text: 'BasePlugin',
+							link: '/en/factory/base-plugin.html'
+						},
+						{
+							text: 'createPluginFactory',
+							link: '/en/factory/create-plugin-factory.html'
+						},
+						{
+							text: 'BasePluginOptions',
+							link: '/en/factory/base-plugin-options.html'
+						}
+					]
+				},
+				{
+					text: 'Logger',
+					items: [
+						{
+							text: 'Overview',
+							link: '/en/logger/index.html'
+						},
+						{
+							text: 'Logger',
+							link: '/en/logger/logger-class.html'
+						},
+						{
+							text: 'PluginLogger',
+							link: '/en/logger/plugin-logger.html'
+						},
+						{
+							text: 'LoggerOptions',
+							link: '/en/logger/logger-options.html'
+						}
+					]
+				},
+				{
+					text: 'Plugins',
+					items: [
+						{
+							text: 'Overview',
+							link: '/en/plugins/index.html'
+						},
 						{
 							text: 'copyFile',
 							link: '/en/plugins/copy-file.html'
+						},
+						{
+							text: 'generateRouter',
+							link: '/en/plugins/generate-router.html'
 						},
 						{
 							text: 'generateVersion',

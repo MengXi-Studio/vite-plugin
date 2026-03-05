@@ -1,41 +1,52 @@
 # Installation
 
-`@meng-xi/vite-plugin` supports installation via command line package managers.
-
 ## Package Managers
-
-For an existing Vite project using JavaScript package managers, you can install @meng-xi/vite-plugin from the npm registry:
 
 ::: code-group
 
 ```bash [npm]
-npm install @meng-xi/vite-plugin --save-dev
+npm install @meng-xi/vite-plugin -D
 ```
 
 ```bash [yarn]
-yarn add @meng-xi/vite-plugin --save-dev
+yarn add @meng-xi/vite-plugin -D
 ```
 
 ```bash [pnpm]
-pnpm add @meng-xi/vite-plugin --save-dev
+pnpm add @meng-xi/vite-plugin -D
 ```
 
 :::
 
-## Basic Usage
+## Quick Start
 
 ### Using Built-in Plugins
 
 ```typescript
 import { defineConfig } from 'vite'
-import { copyFile, injectIco } from '@meng-xi/vite-plugin'
+import { copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		// Copy files
 		copyFile({
 			sourceDir: 'src/assets',
 			targetDir: 'dist/assets'
 		}),
+
+		// Generate router config (uni-app)
+		generateRouter({
+			pagesJsonPath: 'src/pages.json',
+			outputPath: 'src/router.config.ts'
+		}),
+
+		// Generate version
+		generateVersion({
+			format: 'datetime',
+			outputType: 'both'
+		}),
+
+		// Inject website icon
 		injectIco({
 			base: '/assets'
 		})
@@ -46,11 +57,11 @@ export default defineConfig({
 ### Developing Custom Plugins
 
 ```typescript
-import { BasePlugin, createPluginFactory, Validator } from '@meng-xi/vite-plugin'
+import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
 import type { Plugin } from 'vite'
 
 interface MyPluginOptions {
-	path: string
+	message: string
 	enabled?: boolean
 	verbose?: boolean
 	errorStrategy?: 'throw' | 'log' | 'ignore'
@@ -58,13 +69,11 @@ interface MyPluginOptions {
 
 class MyPlugin extends BasePlugin<MyPluginOptions> {
 	protected getDefaultOptions() {
-		return {
-			path: './default'
-		}
+		return { message: 'Hello' }
 	}
 
 	protected validateOptions(): void {
-		this.validator.field('path').required().string().validate()
+		this.validator.field('message').required().string().validate()
 	}
 
 	protected getPluginName(): string {
@@ -73,7 +82,7 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 
 	protected addPluginHooks(plugin: Plugin): void {
 		plugin.buildStart = () => {
-			this.logger.info(`Plugin started with path: ${this.options.path}`)
+			this.logger.info(this.options.message)
 		}
 	}
 }
@@ -81,6 +90,9 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 export const myPlugin = createPluginFactory(MyPlugin)
 ```
 
-## Learn More
+## Next Steps
 
-Check the [GitHub Repository](https://github.com/MengXi-Studio/vite-plugin) for more information and examples.
+- [copyFile Plugin](/en/plugins/copy-file) - File copying
+- [generateRouter Plugin](/en/plugins/generate-router) - Router generation
+- [generateVersion Plugin](/en/plugins/generate-version) - Version management
+- [injectIco Plugin](/en/plugins/inject-ico) - Icon injection

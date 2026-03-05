@@ -31,6 +31,22 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 		/** 网站主题配置 导航栏 */
 		nav: [
 			{
+				text: '公共工具',
+				link: '/common/index.html'
+			},
+			{
+				text: '插件工厂',
+				link: '/factory/index.html'
+			},
+			{
+				text: '日志模块',
+				link: '/logger/index.html'
+			},
+			{
+				text: '插件模块',
+				link: '/plugins/index.html'
+			},
+			{
 				text: '相关链接',
 				items: [
 					{
@@ -61,12 +77,88 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						}
 					]
 				},
+
 				{
-					text: '插件列表',
+					text: '公共工具',
 					items: [
+						{
+							text: '概览',
+							link: '/common/index.html'
+						},
+						{
+							text: '文件系统',
+							link: '/common/fs.html'
+						},
+						{
+							text: '格式化',
+							link: '/common/format.html'
+						},
+						{
+							text: '对象操作',
+							link: '/common/object.html'
+						},
+						{
+							text: '验证器',
+							link: '/common/validation.html'
+						}
+					]
+				},
+				{
+					text: '插件工厂',
+					items: [
+						{
+							text: '概览',
+							link: '/factory/index.html'
+						},
+						{
+							text: 'BasePlugin',
+							link: '/factory/base-plugin.html'
+						},
+						{
+							text: 'createPluginFactory',
+							link: '/factory/create-plugin-factory.html'
+						},
+						{
+							text: 'BasePluginOptions',
+							link: '/factory/base-plugin-options.html'
+						}
+					]
+				},
+				{
+					text: '日志模块',
+					items: [
+						{
+							text: '概览',
+							link: '/logger/index.html'
+						},
+						{
+							text: 'Logger',
+							link: '/logger/logger-class.html'
+						},
+						{
+							text: 'PluginLogger',
+							link: '/logger/plugin-logger.html'
+						},
+						{
+							text: 'LoggerOptions',
+							link: '/logger/logger-options.html'
+						}
+					]
+				},
+				{
+					text: '插件模块',
+					items: [
+						{
+							text: '概览',
+							link: '/plugins/index.html'
+						},
 						{
 							text: 'copyFile',
 							link: '/plugins/copy-file.html'
+						},
+						{
+							text: 'generateRouter',
+							link: '/plugins/generate-router.html'
 						},
 						{
 							text: 'generateVersion',

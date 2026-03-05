@@ -101,13 +101,20 @@ export async function shouldUpdateFile(sourceFile: string, targetFile: string): 
 }
 
 /**
- * 检查目标文件是否存在
- * @param targetFile 目标文件路径
+ * 检查文件是否存在
+ * @param filePath 文件路径
  * @returns 是否存在
+ *
+ * @example
+ * ```typescript
+ * if (await fileExists('/path/to/file')) {
+ *   console.log('文件存在')
+ * }
+ * ```
  */
-async function targetFileExists(targetFile: string): Promise<boolean> {
+export async function fileExists(filePath: string): Promise<boolean> {
 	try {
-		await fs.promises.access(targetFile, fs.constants.F_OK)
+		await fs.promises.access(filePath, fs.constants.F_OK)
 		return true
 	} catch {
 		return false
@@ -116,11 +123,23 @@ async function targetFileExists(targetFile: string): Promise<boolean> {
 
 /**
  * 带并发限制的批量执行
+ *
  * @param items 待处理项
  * @param handler 处理函数
  * @param concurrency 并发数
+ * @returns 处理结果数组，顺序与输入项对应
+ *
+ * @example
+ * ```typescript
+ * const urls = ['url1', 'url2', 'url3', 'url4', 'url5']
+ * const results = await runWithConcurrency(
+ *   urls,
+ *   async (url) => fetch(url),
+ *   3 // 最多同时处理3个请求
+ * )
+ * ```
  */
-async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]> {
+export async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]> {
 	const results: R[] = []
 	let index = 0
 
@@ -197,7 +216,7 @@ export async function copySourceToTarget(sourcePath: string, targetPath: string,
 			// 检查是否需要复制
 			let needCopy = overwrite
 			if (!needCopy) {
-				const exists = await targetFileExists(destFile)
+				const exists = await fileExists(destFile)
 				needCopy = !exists
 			}
 
@@ -226,7 +245,7 @@ export async function copySourceToTarget(sourcePath: string, targetPath: string,
 		// 检查是否需要复制
 		let needCopy = overwrite
 		if (!needCopy) {
-			const exists = await targetFileExists(targetPath)
+			const exists = await fileExists(targetPath)
 			needCopy = !exists
 		}
 

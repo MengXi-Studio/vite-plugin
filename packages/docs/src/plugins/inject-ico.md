@@ -1,96 +1,8 @@
-# injectIco 插件
+# injectIco
 
-`injectIco` 插件用于在 Vite 构建过程中注入网站图标链接到 HTML 文件的头部，支持多种配置选项。
+在 Vite 构建过程中将网站图标链接注入到 HTML 文件。
 
-## 功能特性
-
-- 在 Vite 构建过程中转换 HTML 入口文件，注入网站图标链接
-- 在 Vite 构建完成后执行图标文件复制（当配置了 copyOptions 时）
-- 支持多种图标配置方式（base、url、link、icons、copyOptions）
-- 支持图标文件复制功能，默认启用增量复制，提高构建效率
-- 支持启用/禁用插件
-- 支持详细日志输出
-- 支持自定义图标数组，支持多种图标格式和尺寸
-- 提供灵活的错误处理机制，可配置错误处理策略
-- 支持配置验证，提供详细的错误信息
-- 支持继承 BasePluginOptions 的所有配置选项
-
-## 基本用法
-
-### 字符串形式（视为 base 路径）
-
-```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [injectIco('/assets')]
-})
-```
-
-### 基本配置（base + 默认 favicon.ico）
-
-```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		injectIco({
-			base: '/assets'
-		})
-	]
-})
-```
-
-### 完整配置
-
-```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		injectIco({
-			base: '/assets',
-			enabled: true,
-			verbose: true,
-			copyOptions: {
-				sourceDir: 'src/assets/icons',
-				targetDir: 'dist/assets/icons',
-				overwrite: true,
-				recursive: true
-			}
-		})
-	]
-})
-```
-
-## 配置选项
-
-| 选项          | 类型                         | 默认值    | 描述                                                                |
-| ------------- | ---------------------------- | --------- | ------------------------------------------------------------------- |
-| base          | string                       | /         | 图标文件的基础路径，默认为根路径 `/`                                |
-| url           | string                       | undefined | 图标的完整 URL，如果提供则优先使用（覆盖 base + favicon.ico）       |
-| link          | string                       | undefined | 自定义的完整 link 标签 HTML，如果提供则优先使用（覆盖 url 和 base） |
-| icons         | array                        | undefined | 自定义图标数组，支持多种图标格式和尺寸                              |
-| verbose       | boolean                      | true      | 是否显示详细日志                                                    |
-| enabled       | boolean                      | true      | 是否启用插件                                                        |
-| errorStrategy | 'throw' \| 'log' \| 'ignore' | 'throw'   | 错误处理策略：抛出错误、记录日志或忽略错误                          |
-| copyOptions   | object                       | undefined | 图标文件复制配置，当提供时会执行图标文件复制                        |
-
-### copyOptions 配置
-
-| 选项      | 类型    | 默认值 | 描述                                             |
-| --------- | ------- | ------ | ------------------------------------------------ |
-| sourceDir | string  | 必填   | 图标源文件目录，用于复制图标到打包目录           |
-| targetDir | string  | 必填   | 图标目标目录（打包目录），用于复制图标到打包目录 |
-| overwrite | boolean | true   | 是否覆盖同名文件                                 |
-| recursive | boolean | true   | 是否支持递归复制                                 |
-
-## 示例
-
-### 基本使用
+## 快速开始
 
 ```typescript
 import { defineConfig } from 'vite'
@@ -101,157 +13,101 @@ export default defineConfig({
 })
 ```
 
-### 自定义图标
+也可以直接传入字符串作为 base 路径：
 
 ```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
 export default defineConfig({
-	plugins: [
-		injectIco({
-			icons: [
-				{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
-				{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-				{ rel: 'icon', href: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' }
-			]
-		})
+	plugins: [injectIco('/assets')]
+})
+```
+
+## 配置选项
+
+| 选项          | 类型                           | 默认值    | 说明                      |
+| ------------- | ------------------------------ | --------- | ------------------------- |
+| base          | `string`                       | `'/'`     | 图标基础路径              |
+| url           | `string`                       | -         | 图标完整 URL（覆盖 base） |
+| link          | `string`                       | -         | 自定义 link 标签 HTML     |
+| icons         | `IconConfig[]`                 | -         | 自定义图标数组            |
+| copyOptions   | `CopyOptions`                  | -         | 图标文件复制配置          |
+| enabled       | `boolean`                      | `true`    | 启用插件                  |
+| verbose       | `boolean`                      | `true`    | 显示详细日志              |
+| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'` | 错误处理策略              |
+
+### copyOptions 配置
+
+| 选项      | 类型      | 默认值 | 说明           |
+| --------- | --------- | ------ | -------------- |
+| sourceDir | `string`  | 必填   | 源文件目录     |
+| targetDir | `string`  | 必填   | 目标目录       |
+| overwrite | `boolean` | `true` | 覆盖已存在文件 |
+| recursive | `boolean` | `true` | 递归复制       |
+
+### 配置优先级
+
+`link` > `icons` > `url` > `base + favicon.ico`
+
+## 示例
+
+### 自定义图标数组
+
+```typescript
+injectIco({
+	icons: [
+		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+		{ rel: 'icon', href: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' }
 	]
 })
 ```
 
-### 带文件复制功能
+### 完整 URL
 
 ```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		injectIco({
-			base: '/assets',
-			copyOptions: {
-				sourceDir: 'src/assets/icons',
-				targetDir: 'dist/assets/icons'
-			}
-		})
-	]
+injectIco({
+	url: 'https://example.com/favicon.ico'
 })
 ```
 
-### 带完整复制配置的使用
+### 自定义 link 标签
 
 ```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		injectIco({
-			base: '/assets',
-			copyOptions: {
-				sourceDir: 'src/assets/icons',
-				targetDir: 'dist/assets/icons',
-				overwrite: false,
-				recursive: true
-			}
-		})
-	]
+injectIco({
+	link: '<link rel="icon" href="/custom.ico" type="image/x-icon">'
 })
 ```
 
-### 关闭日志输出
+### 带文件复制
 
 ```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		injectIco({
-			base: '/assets',
-			verbose: false,
-			copyOptions: {
-				sourceDir: 'src/assets/icons',
-				targetDir: 'dist/assets/icons'
-			}
-		})
-	]
+injectIco({
+	base: '/assets',
+	copyOptions: {
+		sourceDir: 'src/assets/icons',
+		targetDir: 'dist/assets/icons'
+	}
 })
 ```
 
-### 根据环境启用
+### 完整配置
 
 ```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		injectIco({
-			base: '/assets',
-			enabled: process.env.NODE_ENV === 'production',
-			copyOptions: {
-				sourceDir: 'src/assets/icons',
-				targetDir: 'dist/assets/icons'
-			}
-		})
-	]
-})
-```
-
-### 禁用插件
-
-```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		injectIco({
-			base: '/assets',
-			enabled: false,
-			copyOptions: {
-				sourceDir: 'src/assets/icons',
-				targetDir: 'dist/assets/icons'
-			}
-		})
-	]
-})
-```
-
-### 配置错误处理策略
-
-```typescript
-import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
-
-export default defineConfig({
-	plugins: [
-		injectIco({
-			base: '/assets',
-			errorStrategy: 'log', // 记录错误但不中断构建
-			copyOptions: {
-				sourceDir: 'src/assets/icons',
-				targetDir: 'dist/assets/icons'
-			}
-		})
-	]
+injectIco({
+	base: '/assets',
+	enabled: true,
+	verbose: true,
+	copyOptions: {
+		sourceDir: 'src/assets/icons',
+		targetDir: 'dist/assets/icons',
+		overwrite: true,
+		recursive: true
+	}
 })
 ```
 
 ## 注意事项
 
-- 插件会在 Vite 构建过程中转换 HTML 入口文件，注入网站图标链接
-- 插件会在 Vite 构建完成后执行图标文件复制（当配置了 copyOptions 时）
-- 如果提供了 `link` 选项，会优先使用该选项，忽略其他配置
-- 如果提供了 `icons` 选项，会使用该选项生成图标标签，忽略 `url` 和 `base`
-- 如果提供了 `url` 选项，会使用该选项生成标准 link 标签，忽略 `base`
-- 如果只提供了 `base` 选项，会使用 `base + favicon.ico` 生成 link 标签
-- 当提供了 `copyOptions` 时，会将图标文件从源目录复制到目标目录，默认启用增量复制
-- 当 `enabled` 为 `false` 时，插件不会执行任何操作
-- 插件支持三种错误处理策略：`throw`（抛出错误）、`log`（记录日志）和 `ignore`（忽略错误）
-- 当 `verbose` 为 `true` 时，会输出详细的执行日志，便于调试和问题排查
-- 当未找到 `</head>` 标签时，插件会跳过图标注入并输出警告日志
-- 插件会验证配置的正确性，确保配置选项符合要求
-- 当 `copyOptions` 配置不完整时，插件会抛出验证错误
+- 图标链接注入到 HTML 的 `</head>` 标签前
+- 未找到 `</head>` 时跳过注入并输出警告
+- `copyOptions` 启用时默认使用增量复制
+- 不完整的 `copyOptions` 会抛出验证错误

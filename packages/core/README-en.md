@@ -2,60 +2,70 @@
 
 <div align="center">
 	<a href="https://github.com/MengXi-Studio/vite-plugin">
-		<img alt="梦曦工作室 Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.svg">
+		<img alt="MengXi Studio Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.svg">
 	</a>
 	<br>
 	<h1>@meng-xi/vite-plugin</h1>
+	<p>A toolkit providing practical plugins for Vite, also a complete plugin development framework</p>
 
 [![license](https://img.shields.io/github/license/MengXi-Studio/vite-plugin.svg)](LICENSE) [![npm](https://img.shields.io/npm/v/@meng-xi/vite-plugin?color=blue)](https://www.npmjs.com/package/@meng-xi/vite-plugin)
 ![npm](https://img.shields.io/npm/dt/@meng-xi/vite-plugin?color=green)
 
 </div>
 
-> - This is a toolkit that provides practical plugins for Vite, and also serves as a complete **Vite Plugin Development Framework**.
-> - Extends Vite build process functionality, providing automated processing solutions for common build tasks.
-> - All plugins support detailed configuration options, allowing customization based on project needs to meet different usage scenarios.
-> - Plugins provide error handling mechanisms to ensure build processes can catch errors, improving build reliability.
-> - Export core components like BasePlugin, Logger, Validator, allowing developers to build custom plugins based on the same infrastructure.
+## Features
 
----
+- **Ready to Use** - Provides practical plugins for file copying, router generation, version management, icon injection
+- **Plugin Development Framework** - Exports core components like BasePlugin, Logger, Validator for building custom plugins
+- **Type Safe** - Complete TypeScript type definitions with configuration validators ensuring parameter correctness
+- **Flexible Configuration** - All plugins support detailed configuration to meet diverse scenario requirements
 
-Start reading the [documentation](https://mengxi-studio.github.io/vite-plugin/).
+## Documentation
+
+View full documentation: [https://mengxi-studio.github.io/vite-plugin/](https://mengxi-studio.github.io/vite-plugin/)
+
+## Installation
+
+```bash
+# npm
+npm install @meng-xi/vite-plugin -D
+
+# yarn
+yarn add @meng-xi/vite-plugin -D
+
+# pnpm
+pnpm add @meng-xi/vite-plugin -D
+```
 
 ## Quick Start
 
-### Installation
-
-Install `@meng-xi/vite-plugin` using a package manager:
-
-```bash
-# Using npm
-npm install @meng-xi/vite-plugin --save-dev
-
-# Using yarn
-yarn add @meng-xi/vite-plugin --save-dev
-
-# Using pnpm
-pnpm add @meng-xi/vite-plugin --save-dev
-```
-
-### Basic Usage
-
-#### Using Built-in Plugins
+### Using Built-in Plugins
 
 ```typescript
 import { defineConfig } from 'vite'
-import { copyFile, injectIco } from '@meng-xi/vite-plugin'
+import { copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
-		// Copy file plugin
+		// Copy files
 		copyFile({
 			sourceDir: 'src/assets',
 			targetDir: 'dist/assets'
 		}),
 
-		// Inject icon plugin
+		// Generate router config (uni-app)
+		generateRouter({
+			pagesJsonPath: 'src/pages.json',
+			outputPath: 'src/router.config.ts'
+		}),
+
+		// Generate version
+		generateVersion({
+			format: 'datetime',
+			outputType: 'both'
+		}),
+
+		// Inject website icon
 		injectIco({
 			base: '/assets'
 		})
@@ -63,10 +73,10 @@ export default defineConfig({
 })
 ```
 
-#### Developing Custom Plugins
+### Developing Custom Plugins
 
 ```typescript
-import { BasePlugin, createPluginFactory, Validator } from '@meng-xi/vite-plugin'
+import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
 import type { Plugin } from 'vite'
 
 interface MyPluginOptions {
@@ -78,9 +88,7 @@ interface MyPluginOptions {
 
 class MyPlugin extends BasePlugin<MyPluginOptions> {
 	protected getDefaultOptions() {
-		return {
-			path: './default'
-		}
+		return { path: './default' }
 	}
 
 	protected validateOptions(): void {
@@ -101,64 +109,74 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 export const myPlugin = createPluginFactory(MyPlugin)
 ```
 
-## Plugin Details
+## Built-in Plugins
 
-### copyFile Plugin
+### copyFile
 
-Used to copy files or directories to specified locations after Vite build is completed.
+Copy files or directories to specified locations after Vite build is completed.
 
-**Configuration Options**:
+| Option      | Type    | Default | Description                                |
+| ----------- | ------- | ------- | ------------------------------------------ |
+| sourceDir   | string  | -       | Source directory path (required)           |
+| targetDir   | string  | -       | Target directory path (required)           |
+| overwrite   | boolean | true    | Whether to overwrite existing files        |
+| recursive   | boolean | true    | Whether to recursively copy subdirectories |
+| incremental | boolean | true    | Whether to enable incremental copying      |
 
-- `sourceDir`: Source directory path (required)
-- `targetDir`: Target directory path (required)
-- `overwrite`: Whether to overwrite existing files, default is `true`
-- `recursive`: Whether to recursively copy subdirectories, default is `true`
-- `verbose`: Whether to output detailed logs, default is `true`
-- `enabled`: Whether to enable the plugin, default is `true`
+### generateRouter
 
-### injectIco Plugin
+Automatically generate router configuration files based on uni-app project's `pages.json`.
 
-Used to inject website icon links into the head of HTML files during the Vite build process.
+| Option               | Type         | Default                | Description                                      |
+| -------------------- | ------------ | ---------------------- | ------------------------------------------------ |
+| pagesJsonPath        | string       | 'src/pages.json'       | Path to pages.json file                          |
+| outputPath           | string       | 'src/router.config.ts' | Output file path                                 |
+| outputFormat         | 'ts' \| 'js' | 'ts'                   | Output file format                               |
+| nameStrategy         | string       | 'camelCase'            | Route name strategy                              |
+| includeSubPackages   | boolean      | true                   | Whether to include sub-package routes            |
+| watch                | boolean      | true                   | Whether to watch changes and auto-regenerate     |
+| metaMapping          | object       | -                      | Mapping from page style fields to meta           |
+| preserveRouteChanges | boolean      | true                   | Whether to preserve user modifications to routes |
 
-**Configuration Options**:
+### generateVersion
 
-- `base`: Base path for icon files
-- `url`: Complete URL for the icon
-- `link`: Custom complete link tag HTML
-- `icons`: Custom icon array
-- `verbose`: Whether to output detailed logs, default is `true`
-- `enabled`: Whether to enable the plugin, default is `true`
-- `copyOptions`: Icon file copying configuration
+Automatically generate version numbers during the Vite build process.
 
-## Contribution
+| Option     | Type   | Default               | Description                    |
+| ---------- | ------ | --------------------- | ------------------------------ |
+| format     | string | 'timestamp'           | Version format                 |
+| outputType | string | 'file'                | Output type                    |
+| outputFile | string | 'version.json'        | Output file path               |
+| defineName | string | '\_\_APP_VERSION\_\_' | Global variable name to inject |
+| prefix     | string | -                     | Version number prefix          |
+| suffix     | string | -                     | Version number suffix          |
 
-Welcome to contribute to `@meng-xi/vite-plugin`. Here are the steps to contribute code:
+### injectIco
 
-1. Fork the project: Fork this project on GitHub.
-2. Clone the code: Clone the forked project to your local machine.
+Inject website icon links into the head of HTML files during the Vite build process.
 
-```bash
-git clone https://github.com/your-username/vite-plugin.git
-cd vite-plugin
-```
+| Option      | Type   | Default | Description                     |
+| ----------- | ------ | ------- | ------------------------------- |
+| base        | string | -       | Base path for icon files        |
+| url         | string | -       | Complete URL for the icon       |
+| link        | string | -       | Custom complete link tag HTML   |
+| icons       | array  | -       | Custom icon array               |
+| copyOptions | object | -       | Icon file copying configuration |
 
-3. Create a new branch: Create a new feature branch based on the `master` branch.
+## Changelog
 
-```bash
-git checkout -b feature/your-feature
-```
+See [GitHub Releases](https://github.com/MengXi-Studio/vite-plugin/releases)
 
-4. Commit changes: Ensure your code passes tests and commit your changes with clear commit messages.
+## Contributing
 
-```bash
-git add .
-git commit -m "feat: add your feature description"
-```
+Contributions are welcome! Please follow these steps:
 
-5. Push changes: Push your local branch to GitHub.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit changes: `git commit -m "feat: your feature description"`
+4. Push to branch: `git push origin feature/your-feature`
+5. Create a Pull Request
 
-```bash
-git push origin feature/your-feature
-```
+## License
 
-6. Create a PR: Create a Pull Request on GitHub and wait for review.
+[MIT](LICENSE)
