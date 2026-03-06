@@ -52,7 +52,6 @@ export const sharedConfig = defineConfig({
 
 	/** 网站头标签 */
 	head: [
-		['link', { rel: 'icon', type: 'image/svg+xml', href: '/vite-plugin/logo.svg' }],
 		['link', { rel: 'icon', type: 'image/png', href: '/vite-plugin/logo.png' }],
 		['link', { rel: 'icon', href: '/vite-plugin/favicon.ico' }],
 
@@ -67,7 +66,7 @@ export const sharedConfig = defineConfig({
 	/** 网站主题配置 */
 	themeConfig: {
 		/** 网站主题配置 logo */
-		logo: '/logo.svg',
+		logo: '/logo.png',
 		/** 网站主题配置 导航栏 */
 		outline: [2, 3],
 

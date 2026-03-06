@@ -9,7 +9,7 @@ hero:
   text: Vite 实用插件工具包
   tagline: 开箱即用的插件集合 + 完整的插件开发框架
   image:
-    src: /logo.svg
+    src: /logo.png
     alt: 梦曦工作室
   actions:
     - theme: brand

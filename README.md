@@ -2,7 +2,7 @@
 
 <div align="center">
 	<a href="https://github.com/MengXi-Studio/vite-plugin">
-		<img alt="梦曦工作室 Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.svg">
+		<img alt="梦曦工作室 Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.png">
 	</a>
 	<br>
 	<h1>@meng-xi/vite-plugin</h1>

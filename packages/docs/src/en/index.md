@@ -9,7 +9,7 @@ hero:
   text: Vite Practical Plugin Toolkit
   tagline: Ready-to-use plugin collection + Complete plugin development framework
   image:
-    src: /logo.svg
+    src: /logo.png
     alt: MengXi Studio
   actions:
     - theme: brand
