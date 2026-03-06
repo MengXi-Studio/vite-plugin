@@ -2,7 +2,7 @@
 	"name": "@meng-xi/vite-plugin-playground",
 	"version": "0.0.5",
 	"private": false,
-	"description": "Vite 自定义插件测试示例",
+	"description": "@meng-xi/vite-plugin 插件测试示例",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",

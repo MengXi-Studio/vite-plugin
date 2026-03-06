@@ -1,7 +1,7 @@
 {
-	"name": "vite-plugin",
+	"name": "@meng-xi/uni-app",
 	"version": "0.0.1",
-	"description": "为 Vite 提供实用插件的工具包",
+	"description": "在 uni-app 项目中使用 @meng-xi/vite-plugin 插件功能",
 	"main": "main.js",
 	"repository": {
 		"type": "git",
