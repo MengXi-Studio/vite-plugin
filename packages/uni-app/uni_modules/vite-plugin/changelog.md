@@ -1,5 +1,4 @@
 ## 0.0.6（2026-05-18）
-
 新增插件销毁生命周期及子路径类型导出，优化日志系统
 
 ### BasePlugin
@@ -32,7 +31,6 @@
 
 - `readFileSync` 标记为已废弃，推荐使用异步版本 `readFileContent`
 - `CopyOptions` 新增 `parallelLimit`（并发限制，默认 10）和 `skipEmptyDirs`（跳过空目录）选项
-
 ## 0.0.5（2026-03-05）
 
 generateVersion 支持在构建过程中自动生成版本号，支持多种格式和输出方式
