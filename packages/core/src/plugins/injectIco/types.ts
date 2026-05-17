@@ -5,7 +5,7 @@ import type { BasePluginOptions } from '@/factory/types'
  *
  * @interface Icon
  */
-interface Icon {
+export interface Icon {
 	/**
 	 * 图标关系类型
 	 */

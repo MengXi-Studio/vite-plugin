@@ -3,7 +3,7 @@
 File system utilities.
 
 ```typescript
-import { checkSourceExists, ensureTargetDir, fileExists, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, ensureTargetDir, fileExists, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
 ```
 
 ## checkSourceExists
@@ -84,9 +84,21 @@ async function writeFileContent(filePath: string, content: string): Promise<void
 
 ---
 
+## readFileContent
+
+Asynchronously read file content.
+
+```typescript
+async function readFileContent(filePath: string): Promise<string>
+```
+
+---
+
 ## readFileSync
 
 Synchronously read file content.
+
+::: danger Deprecated Use the async version `readFileContent` instead :::
 
 ```typescript
 function readFileSync(filePath: string): string

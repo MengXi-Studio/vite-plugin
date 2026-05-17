@@ -43,7 +43,7 @@ interface BasePluginOptions {
 
 Exported utility functions:
 
-- **File System**: readFileSync, writeFileContent, copySourceToTarget, readDirRecursive, etc.
+- **File System**: readFileContent, writeFileContent, copySourceToTarget, readDirRecursive, etc.
 - **Formatting**: formatDate, parseTemplate, generateRandomHash, padNumber, etc.
 - **Object Utils**: deepMerge, toCamelCase, toPascalCase, stripJsonComments, etc.
 

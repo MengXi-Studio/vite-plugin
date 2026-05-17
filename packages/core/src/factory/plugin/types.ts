@@ -1,4 +1,17 @@
 import type { Plugin } from 'vite'
+import type { BasePlugin } from './index'
+
+/**
+ * 带插件实例引用的 Vite 插件类型
+ *
+ * @template T 插件配置类型
+ */
+export interface PluginWithInstance<T extends BasePluginOptions = BasePluginOptions> extends Plugin {
+	/**
+	 * 原始插件实例的引用，方便外部访问插件内部状态
+	 */
+	pluginInstance?: BasePlugin<T>
+}
 
 /**
  * 基础插件配置
@@ -42,4 +55,4 @@ export type OptionsNormalizer<T, R = any> = (raw?: R) => T
  * @template T 插件配置类型，默认继承自 BasePluginOptions
  * @template R 原始配置类型，默认与 T 相同
  */
-export type PluginFactory<T extends BasePluginOptions = BasePluginOptions, R = T> = (options?: R) => Plugin
+export type PluginFactory<T extends BasePluginOptions = BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>

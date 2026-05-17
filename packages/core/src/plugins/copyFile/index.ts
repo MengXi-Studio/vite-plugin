@@ -118,3 +118,4 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
  * 支持增量复制、递归复制和覆盖控制等功能。
  */
 export const copyFile = createPluginFactory(CopyFilePlugin)
+export * from './types'

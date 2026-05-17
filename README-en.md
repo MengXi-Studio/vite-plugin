@@ -17,8 +17,10 @@
 
 - **Ready to Use** - Provides practical plugins for file copying, router generation, version management, icon injection
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, Validator for building custom plugins
+- **Complete Lifecycle** - Supports initialization, config resolution, destroy lifecycle management with automatic hook composition
 - **Type Safe** - Complete TypeScript type definitions with configuration validators ensuring parameter correctness
 - **Flexible Configuration** - All plugins support detailed configuration to meet diverse scenario requirements
+- **Safe Execution** - Built-in error handling strategies (throw / log / ignore) for unified exception management
 
 ## Documentation
 
@@ -73,17 +75,29 @@ export default defineConfig({
 })
 ```
 
+### Accessing Plugin Instance
+
+All built-in plugins return an object with a `pluginInstance` property for accessing internal state:
+
+```typescript
+import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
+import type { GenerateRouterOptions } from '@meng-xi/vite-plugin'
+
+const routerPlugin = generateRouter({ watch: true }) as PluginWithInstance<GenerateRouterOptions>
+
+// Access plugin internals via pluginInstance
+console.log(routerPlugin.pluginInstance?.options)
+```
+
 ### Developing Custom Plugins
 
 ```typescript
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
+import type { BasePluginOptions, PluginWithInstance } from '@meng-xi/vite-plugin/factory'
 import type { Plugin } from 'vite'
 
-interface MyPluginOptions {
+interface MyPluginOptions extends BasePluginOptions {
 	path: string
-	enabled?: boolean
-	verbose?: boolean
-	errorStrategy?: 'throw' | 'log' | 'ignore'
 }
 
 class MyPlugin extends BasePlugin<MyPluginOptions> {
@@ -104,9 +118,121 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 			this.logger.info(`Plugin started with path: ${this.options.path}`)
 		}
 	}
+
+	protected destroy(): void {
+		super.destroy()
+		// Custom cleanup logic, e.g. close connections, stop watchers
+	}
 }
 
 export const myPlugin = createPluginFactory(MyPlugin)
+```
+
+## Plugin Development Framework
+
+### BasePlugin Core Concepts
+
+`BasePlugin` is the base class for all plugins, providing complete lifecycle management and development conventions:
+
+#### Lifecycle
+
+| Phase             | Method             | Description                                                    |
+| ----------------- | ------------------ | -------------------------------------------------------------- |
+| Initialization    | `constructor`      | Merge options, initialize logger and validator                 |
+| Config Resolution | `onConfigResolved` | Called when Vite config is resolved                            |
+| Hook Registration | `addPluginHooks`   | Register Vite plugin hooks                                     |
+| Destroy           | `destroy`          | Automatically called during `closeBundle` for resource cleanup |
+
+#### Automatic Hook Composition
+
+The `toPlugin()` method automatically composes the following hooks:
+
+- **configResolved** - Base class `onConfigResolved` runs first, then subclass hook
+- **closeBundle** - Subclass hook runs first, then base class `destroy`
+
+> Subclasses don't need to manually register `closeBundle` hooks for cleanup — just override the `destroy()` method.
+
+#### Required Methods
+
+| Method                   | Description           |
+| ------------------------ | --------------------- |
+| `getPluginName()`        | Return plugin name    |
+| `addPluginHooks(plugin)` | Add Vite plugin hooks |
+
+#### Optional Methods
+
+| Method                     | Default Behavior  | Description                                 |
+| -------------------------- | ----------------- | ------------------------------------------- |
+| `getDefaultOptions()`      | Returns `{}`      | Provide plugin default options              |
+| `validateOptions()`        | No validation     | Validate configuration parameters           |
+| `getEnforce()`             | `undefined`       | Plugin execution order (`'pre'` / `'post'`) |
+| `onConfigResolved(config)` | Store config      | Config resolved callback                    |
+| `destroy()`                | Unregister logger | Cleanup logic when plugin is destroyed      |
+
+#### Built-in Properties
+
+| Property     | Type                     | Description                   |
+| ------------ | ------------------------ | ----------------------------- |
+| `options`    | `Required<T>`            | Merged complete configuration |
+| `logger`     | `PluginLogger`           | Plugin logger                 |
+| `validator`  | `Validator<T>`           | Configuration validator       |
+| `viteConfig` | `ResolvedConfig \| null` | Resolved Vite configuration   |
+
+#### Error Handling Strategy
+
+Control error behavior via the `errorStrategy` configuration option:
+
+- `'throw'` (default) - Log error and throw exception, halting the build
+- `'log'` - Log error but don't throw, continue execution
+- `'ignore'` - Log error but don't throw, continue execution
+
+Wrap error-prone operations with `safeExecute` / `safeExecuteSync`:
+
+```typescript
+const result = await this.safeExecute(async () => {
+	return await someAsyncOperation()
+}, 'Execute async operation')
+```
+
+### createPluginFactory
+
+Create plugin factory functions with optional normalizer support:
+
+```typescript
+// Basic usage
+const myPlugin = createPluginFactory(MyPlugin)
+
+// With normalizer (supports shorthand string config)
+const myPlugin = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
+
+// Usage with shorthand
+myPlugin('./custom-path')
+```
+
+### Logger
+
+Global singleton log manager providing independent log control for each plugin:
+
+```typescript
+import { Logger } from '@meng-xi/vite-plugin/logger'
+
+// Create logger (usually called automatically by BasePlugin)
+Logger.create({ name: 'my-plugin', enabled: true })
+
+// Unregister plugin log config (automatically called on plugin destroy)
+Logger.unregister('my-plugin')
+
+// Destroy singleton (for test scenarios)
+Logger.destroy()
+```
+
+Log output format:
+
+```
+ℹ️ [@meng-xi/vite-plugin:my-plugin] Info message
+✅ [@meng-xi/vite-plugin:my-plugin] Success message
+⚠️ [@meng-xi/vite-plugin:my-plugin] Warning message
+❌ [@meng-xi/vite-plugin:my-plugin] Error message
 ```
 
 ## Built-in Plugins
@@ -127,29 +253,35 @@ Copy files or directories to specified locations after Vite build is completed.
 
 Automatically generate router configuration files based on uni-app project's `pages.json`.
 
-| Option               | Type         | Default                | Description                                      |
-| -------------------- | ------------ | ---------------------- | ------------------------------------------------ |
-| pagesJsonPath        | string       | 'src/pages.json'       | Path to pages.json file                          |
-| outputPath           | string       | 'src/router.config.ts' | Output file path                                 |
-| outputFormat         | 'ts' \| 'js' | 'ts'                   | Output file format                               |
-| nameStrategy         | string       | 'camelCase'            | Route name strategy                              |
-| includeSubPackages   | boolean      | true                   | Whether to include sub-package routes            |
-| watch                | boolean      | true                   | Whether to watch changes and auto-regenerate     |
-| metaMapping          | object       | -                      | Mapping from page style fields to meta           |
-| preserveRouteChanges | boolean      | true                   | Whether to preserve user modifications to routes |
+| Option               | Type                                              | Default                | Description                                      |
+| -------------------- | ------------------------------------------------- | ---------------------- | ------------------------------------------------ |
+| pagesJsonPath        | string                                            | 'src/pages.json'       | Path to pages.json file                          |
+| outputPath           | string                                            | 'src/router.config.ts' | Output file path                                 |
+| outputFormat         | 'ts' \| 'js'                                      | 'ts'                   | Output file format                               |
+| nameStrategy         | 'path' \| 'camelCase' \| 'pascalCase' \| 'custom' | 'camelCase'            | Route name strategy                              |
+| customNameGenerator  | (path: string) => string                          | -                      | Custom route name generator function             |
+| includeSubPackages   | boolean                                           | true                   | Whether to include sub-package routes            |
+| watch                | boolean                                           | true                   | Whether to watch changes and auto-regenerate     |
+| metaMapping          | Record\<string, string\>                          | -                      | Mapping from page style fields to meta           |
+| exportTypes          | boolean                                           | true                   | Whether to export type definitions               |
+| preserveRouteChanges | boolean                                           | true                   | Whether to preserve user modifications to routes |
 
 ### generateVersion
 
 Automatically generate version numbers during the Vite build process.
 
-| Option     | Type   | Default               | Description                    |
-| ---------- | ------ | --------------------- | ------------------------------ |
-| format     | string | 'timestamp'           | Version format                 |
-| outputType | string | 'file'                | Output type                    |
-| outputFile | string | 'version.json'        | Output file path               |
-| defineName | string | '\_\_APP_VERSION\_\_' | Global variable name to inject |
-| prefix     | string | -                     | Version number prefix          |
-| suffix     | string | -                     | Version number suffix          |
+| Option       | Type                                                                  | Default           | Description                    |
+| ------------ | --------------------------------------------------------------------- | ----------------- | ------------------------------ |
+| format       | 'timestamp' \| 'date' \| 'datetime' \| 'semver' \| 'hash' \| 'custom' | 'timestamp'       | Version format                 |
+| customFormat | string                                                                | -                 | Custom format template         |
+| semverBase   | string                                                                | '1.0.0'           | Semantic version base          |
+| outputType   | 'file' \| 'define' \| 'both'                                          | 'file'            | Output type                    |
+| outputFile   | string                                                                | 'version.json'    | Output file path               |
+| defineName   | string                                                                | '**APP_VERSION**' | Global variable name to inject |
+| hashLength   | number                                                                | 8                 | Hash length (1-32)             |
+| prefix       | string                                                                | -                 | Version number prefix          |
+| suffix       | string                                                                | -                 | Version number suffix          |
+| extra        | Record\<string, unknown\>                                             | -                 | Extra info (JSON file only)    |
 
 ### injectIco
 
@@ -157,11 +289,40 @@ Inject website icon links into the head of HTML files during the Vite build proc
 
 | Option      | Type   | Default | Description                     |
 | ----------- | ------ | ------- | ------------------------------- |
-| base        | string | -       | Base path for icon files        |
+| base        | string | '/'     | Base path for icon files        |
 | url         | string | -       | Complete URL for the icon       |
 | link        | string | -       | Custom complete link tag HTML   |
-| icons       | array  | -       | Custom icon array               |
+| icons       | Icon[] | -       | Custom icon array               |
 | copyOptions | object | -       | Icon file copying configuration |
+
+`Icon` interface definition:
+
+| Property | Type   | Required | Description        |
+| -------- | ------ | -------- | ------------------ |
+| rel      | string | Yes      | Icon relation type |
+| href     | string | Yes      | Icon URL           |
+| sizes    | string | No       | Icon sizes         |
+| type     | string | No       | Icon MIME type     |
+
+## Sub-path Exports
+
+Support importing modules on demand to reduce bundle size:
+
+```typescript
+// Full import
+import { copyFile, BasePlugin, Logger } from '@meng-xi/vite-plugin'
+
+// Module-level import
+import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
+import { Logger } from '@meng-xi/vite-plugin/logger'
+import { copyFile, generateRouter } from '@meng-xi/vite-plugin/plugins'
+import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plugin/common'
+
+// Type imports (on-demand type definitions from sub-paths)
+import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
+import type { GenerateVersionOptions, InjectIcoOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
+```
 
 ## Changelog
 

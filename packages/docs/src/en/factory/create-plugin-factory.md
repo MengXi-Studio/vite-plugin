@@ -9,7 +9,7 @@ import { createPluginFactory } from '@meng-xi/vite-plugin/factory'
 ## Signature
 
 ```typescript
-function createPluginFactory<T, P, R = T>(PluginClass: new (options: T) => P, normalizer?: (options?: R) => T): (options?: R) => Plugin
+function createPluginFactory<T, P, R = T>(PluginClass: new (options: T) => P, normalizer?: (options?: R) => T): (options?: R) => PluginWithInstance<T>
 ```
 
 ## Basic Usage

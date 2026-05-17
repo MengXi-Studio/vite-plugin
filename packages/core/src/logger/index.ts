@@ -54,7 +54,7 @@ export class Logger {
 	/**
 	 * 私有构造函数，防止外部实例化
 	 */
-	private constructor() { }
+	private constructor() {}
 
 	/**
 	 * 获取单例实例
@@ -86,6 +86,36 @@ export class Logger {
 	 */
 	private registerPlugin(pluginName: string, enabled: boolean): void {
 		this.pluginConfigs.set(pluginName, enabled)
+	}
+
+	/**
+	 * 注销插件日志配置
+	 * @param pluginName 插件名称
+	 */
+	private unregisterPlugin(pluginName: string): void {
+		this.pluginConfigs.delete(pluginName)
+	}
+
+	/**
+	 * 注销指定插件的日志配置
+	 * @param pluginName 插件名称
+	 * @description 从单例中移除指定插件的日志配置，通常在插件销毁时调用
+	 */
+	static unregister(pluginName: string): void {
+		if (Logger.instance) {
+			Logger.instance.unregisterPlugin(pluginName)
+		}
+	}
+
+	/**
+	 * 销毁单例实例，释放所有资源
+	 * @description 清除所有已注册的插件配置，重置单例实例。主要用于测试场景
+	 */
+	static destroy(): void {
+		if (Logger.instance) {
+			Logger.instance.pluginConfigs.clear()
+			Logger.instance = null
+		}
 	}
 
 	/**

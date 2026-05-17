@@ -8,28 +8,29 @@ import { BasePlugin } from '@meng-xi/vite-plugin/factory'
 
 ## Abstract Methods (Required)
 
-| Method                   | Description            |
-| ------------------------ | ---------------------- |
-| `getPluginName()`        | Return plugin name     |
-| `getDefaultOptions()`    | Return default options |
-| `addPluginHooks(plugin)` | Add Vite plugin hooks  |
+| Method                   | Description           |
+| ------------------------ | --------------------- |
+| `getPluginName()`        | Return plugin name    |
+| `addPluginHooks(plugin)` | Add Vite plugin hooks |
 
 ## Optional Methods
 
-| Method                     | Default       | Description              |
-| -------------------------- | ------------- | ------------------------ |
-| `validateOptions()`        | No validation | Validate options         |
-| `getEnforce()`             | `undefined`   | Plugin execution timing  |
-| `onConfigResolved(config)` | Store config  | Config resolved callback |
+| Method                     | Default           | Description              |
+| -------------------------- | ----------------- | ------------------------ |
+| `getDefaultOptions()`      | `{}`              | Return default options   |
+| `validateOptions()`        | No validation     | Validate options         |
+| `getEnforce()`             | `undefined`       | Plugin execution timing  |
+| `onConfigResolved(config)` | Store config      | Config resolved callback |
+| `destroy()`                | Unregister logger | Plugin destroy lifecycle |
 
 ## Built-in Properties
 
-| Property     | Type             | Description          |
-| ------------ | ---------------- | -------------------- |
-| `options`    | `Required<T>`    | Merged options       |
-| `logger`     | `PluginLogger`   | Plugin logger        |
-| `validator`  | `Validator<T>`   | Config validator     |
-| `viteConfig` | `ResolvedConfig` | Resolved Vite config |
+| Property     | Type                     | Description          |
+| ------------ | ------------------------ | -------------------- |
+| `options`    | `Required<T>`            | Merged options       |
+| `logger`     | `PluginLogger`           | Plugin logger        |
+| `validator`  | `Validator<T>`           | Config validator     |
+| `viteConfig` | `ResolvedConfig \| null` | Resolved Vite config |
 
 ## Built-in Methods
 
@@ -58,6 +59,12 @@ Convert to Vite plugin object.
 public toPlugin(): Plugin
 ```
 
+Returns a plugin object with `pluginInstance` property pointing to the original plugin instance.
+
+- Automatically composes `configResolved` hook: base class `onConfigResolved` runs first, then subclass hook
+- Automatically composes `closeBundle` hook: subclass hook runs first, then base class `destroy`
+- The returned plugin object has a `pluginInstance` property for accessing plugin internal state
+
 ## Example
 
 ```typescript
@@ -75,6 +82,10 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 			if (!this.options.enabled) return
 			this.logger.info('Build started')
 		}
+	}
+
+	protected destroy(): void {
+		super.destroy()
 	}
 }
 ```

@@ -1,5 +1,7 @@
-import { B as BasePluginOptions, P as PluginFactory } from '../shared/vite-plugin.UkE7CdSe.cjs';
+import { BasePluginOptions, PluginFactory } from '../factory/index.cjs';
 import 'vite';
+import '../shared/vite-plugin.CLr0ttuO.cjs';
+import '../shared/vite-plugin.CiHfwMiN.cjs';
 
 /**
  * 复制文件插件的配置选项接口
@@ -72,6 +74,84 @@ interface CopyFileOptions extends BasePluginOptions {
  */
 declare const copyFile: PluginFactory<CopyFileOptions, CopyFileOptions>;
 
+/**
+ * 路由元信息
+ */
+interface RouteMeta {
+    /** 页面标题 */
+    title?: string;
+    /** 是否为TabBar页面 */
+    isTab?: boolean;
+    /** 是否需要登录 */
+    requireAuth?: boolean;
+    /** 自定义扩展字段 */
+    [key: string]: unknown;
+}
+/**
+ * 路由配置项
+ */
+interface RouteConfig {
+    /** 路由路径 */
+    path: string;
+    /** 路由名称（用于命名路由导航） */
+    name?: string;
+    /** 路由元信息 */
+    meta?: RouteMeta;
+}
+/**
+ * uni-app pages.json 中的页面配置项
+ */
+interface UniAppPageConfig {
+    /** 页面路径 */
+    path: string;
+    /** 页面样式 */
+    style?: {
+        /** 导航栏标题 */
+        navigationBarTitleText?: string;
+        /** 是否需要登录 */
+        requireAuth?: boolean;
+        /** 其他自定义属性 */
+        [key: string]: unknown;
+    };
+    /** 其他属性 */
+    [key: string]: unknown;
+}
+/**
+ * uni-app pages.json 中的 tabBar 配置
+ */
+interface UniAppTabBarConfig {
+    /** tabBar 列表 */
+    list?: Array<{
+        /** 页面路径 */
+        pagePath: string;
+        /** 文字 */
+        text?: string;
+        /** 图标路径 */
+        iconPath?: string;
+        /** 选中图标路径 */
+        selectedIconPath?: string;
+    }>;
+    /** 其他属性 */
+    [key: string]: unknown;
+}
+/**
+ * uni-app pages.json 结构
+ */
+interface UniAppPagesJson {
+    /** 页面列表 */
+    pages: UniAppPageConfig[];
+    /** 子包 */
+    subPackages?: Array<{
+        root: string;
+        pages: UniAppPageConfig[];
+    }>;
+    /** tabBar 配置 */
+    tabBar?: UniAppTabBarConfig;
+    /** 全局样式 */
+    globalStyle?: Record<string, unknown>;
+    /** 其他属性 */
+    [key: string]: unknown;
+}
 /**
  * 输出文件格式类型
  */
@@ -260,12 +340,6 @@ interface GenerateVersionOptions extends BasePluginOptions {
      * @default '1.0.0'
      */
     semverBase?: string;
-    /**
-     * 是否自动递增补丁版本号
-     *
-     * @default false
-     */
-    autoIncrement?: boolean;
     /**
      * 输出类型
      *
@@ -503,3 +577,4 @@ interface InjectIcoOptions extends BasePluginOptions {
 declare const injectIco: PluginFactory<InjectIcoOptions, string | InjectIcoOptions>;
 
 export { copyFile, generateRouter, generateVersion, injectIco };
+export type { CopyFileOptions, GenerateRouterOptions, GenerateVersionOptions, Icon, InjectIcoOptions, NameStrategy, OutputFormat, OutputType, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, VersionFormat };

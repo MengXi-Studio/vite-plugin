@@ -192,3 +192,4 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
  * 支持自定义图标链接、图标数组配置以及图标文件复制功能。
  */
 export const injectIco = createPluginFactory<InjectIcoOptions, InjectIcoPlugin, string | InjectIcoOptions>(InjectIcoPlugin, options => (typeof options === 'string' ? { base: options } : options || {}))
+export * from './types'

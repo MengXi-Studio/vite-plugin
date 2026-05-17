@@ -20,7 +20,6 @@ export default defineConfig({
 | format        | `VersionFormat`                | `'timestamp'`       | 版本号格式               |
 | customFormat  | `string`                       | -                   | 自定义格式模板           |
 | semverBase    | `string`                       | `'1.0.0'`           | 语义化版本基础值         |
-| autoIncrement | `boolean`                      | `false`             | 自动递增补丁版本号       |
 | outputType    | `OutputType`                   | `'file'`            | 输出类型                 |
 | outputFile    | `string`                       | `'version.json'`    | 输出文件路径             |
 | defineName    | `string`                       | `'__APP_VERSION__'` | 全局变量名               |

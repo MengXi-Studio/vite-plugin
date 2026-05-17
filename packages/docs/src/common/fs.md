@@ -3,7 +3,7 @@
 文件系统操作工具。
 
 ```typescript
-import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
 ```
 
 ## checkSourceExists
@@ -181,9 +181,37 @@ await writeFileContent('/path/to/file.txt', 'Hello World')
 
 ---
 
+## readFileContent
+
+异步读取文件内容。
+
+```typescript
+async function readFileContent(filePath: string): Promise<string>
+```
+
+**参数**
+
+| 参数     | 类型     | 说明     |
+| -------- | -------- | -------- |
+| filePath | `string` | 文件路径 |
+
+**返回值**
+
+`Promise<string>` - 文件内容
+
+**示例**
+
+```typescript
+const content = await readFileContent('/path/to/file.txt')
+```
+
+---
+
 ## readFileSync
 
 同步读取文件内容。
+
+::: danger 已废弃请使用异步版本 `readFileContent` :::
 
 ```typescript
 function readFileSync(filePath: string): string

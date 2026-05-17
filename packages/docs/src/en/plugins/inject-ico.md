@@ -28,7 +28,7 @@ export default defineConfig({
 | base          | `string`                       | `'/'`     | Icon base path          |
 | url           | `string`                       | -         | Full icon URL           |
 | link          | `string`                       | -         | Custom link tag HTML    |
-| icons         | `IconConfig[]`                 | -         | Custom icon array       |
+| icons         | `Icon[]`                       | -         | Custom icon array       |
 | copyOptions   | `CopyOptions`                  | -         | Icon file copy config   |
 | enabled       | `boolean`                      | `true`    | Enable the plugin       |
 | verbose       | `boolean`                      | `true`    | Show detailed logs      |

@@ -133,10 +133,18 @@ declare function copySourceToTarget(sourcePath: string, targetPath: string, opti
  */
 declare function writeFileContent(filePath: string, content: string): Promise<void>;
 /**
+ * 读取文件内容
+ * @param filePath 文件路径
+ * @returns 文件内容字符串
+ * @throws 当读取过程中出现错误时抛出异常
+ */
+declare function readFileContent(filePath: string): Promise<string>;
+/**
  * 同步读取文件内容
  * @param filePath 文件路径
  * @returns 文件内容字符串
  * @throws 当读取过程中出现错误时抛出异常
+ * @deprecated 请使用异步版本 readFileContent
  */
 declare function readFileSync(filePath: string): string;
 
@@ -306,5 +314,5 @@ declare function stripJsonComments(jsonString: string): string;
  */
 declare function deepMerge<T extends Record<string, any>>(...sources: Partial<T>[]): T;
 
-export { checkSourceExists, copySourceToTarget, deepMerge, ensureTargetDir, fileExists, formatDate, generateRandomHash, getDateFormatParams, padNumber, parseTemplate, readDirRecursive, readFileSync, runWithConcurrency, shouldUpdateFile, stripJsonComments, toCamelCase, toPascalCase, writeFileContent };
+export { checkSourceExists, copySourceToTarget, deepMerge, ensureTargetDir, fileExists, formatDate, generateRandomHash, getDateFormatParams, padNumber, parseTemplate, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, shouldUpdateFile, stripJsonComments, toCamelCase, toPascalCase, writeFileContent };
 export type { DateFormatOptions };

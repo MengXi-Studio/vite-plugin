@@ -1,7 +1,57 @@
-import { ResolvedConfig, Plugin } from 'vite';
-import { B as BasePluginOptions, O as OptionsNormalizer, P as PluginFactory } from '../shared/vite-plugin.UkE7CdSe.mjs';
-import { P as PluginLogger, a as LoggerOptions } from '../shared/vite-plugin.B3PARlU9.mjs';
+import { Plugin, ResolvedConfig } from 'vite';
+import { P as PluginLogger, a as LoggerOptions } from '../shared/vite-plugin.CLr0ttuO.mjs';
 import { V as Validator } from '../shared/vite-plugin.CiHfwMiN.mjs';
+
+/**
+ * 带插件实例引用的 Vite 插件类型
+ *
+ * @template T 插件配置类型
+ */
+interface PluginWithInstance<T extends BasePluginOptions = BasePluginOptions> extends Plugin {
+    /**
+     * 原始插件实例的引用，方便外部访问插件内部状态
+     */
+    pluginInstance?: BasePlugin<T>;
+}
+/**
+ * 基础插件配置
+ *
+ * @interface BasePluginOptions
+ */
+interface BasePluginOptions {
+    /**
+     * 是否启用插件
+     *
+     * @default true
+     */
+    enabled?: boolean;
+    /**
+     * 是否启用日志
+     *
+     * @default true
+     */
+    verbose?: boolean;
+    /**
+     * 错误处理策略
+     *
+     * @default 'throw'
+     */
+    errorStrategy?: 'throw' | 'log' | 'ignore';
+}
+/**
+ * 插件选项标准化器类型
+ *
+ * @template T 目标选项类型
+ * @template R 原始选项类型
+ */
+type OptionsNormalizer<T, R = any> = (raw?: R) => T;
+/**
+ * 插件工厂函数类型
+ *
+ * @template T 插件配置类型，默认继承自 BasePluginOptions
+ * @template R 原始配置类型，默认与 T 相同
+ */
+type PluginFactory<T extends BasePluginOptions = BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>;
 
 /**
  * 基础插件抽象类，提供插件开发的核心功能和生命周期管理
@@ -66,11 +116,10 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
      * 获取插件的默认配置选项
      *
      * @protected
-     * @abstract
      * @returns {Partial<T>} 插件特定的默认配置
-     * @description 子类必须实现此方法，以提供插件特定的默认配置值
+     * @description 子类可以重写此方法，以提供插件特定的默认配置值。默认返回空对象
      */
-    protected abstract getDefaultOptions(): Partial<T>;
+    protected getDefaultOptions(): Partial<T>;
     /**
      * 合并插件配置，将用户提供的配置与默认配置合并
      *
@@ -142,6 +191,21 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
      * @description 处理 Vite 配置解析完成事件，将解析后的配置存储到插件实例中
      */
     protected onConfigResolved(config: ResolvedConfig): void;
+    /**
+     * 插件销毁生命周期
+     *
+     * @protected
+     * @virtual
+     * @description 插件销毁时调用的清理方法。基类会注销日志配置，子类可重写此方法添加自定义清理逻辑
+     * @example
+     * ```typescript
+     * protected destroy(): void {
+     *   super.destroy()
+     *   this.stopWatching()
+     * }
+     * ```
+     */
+    protected destroy(): void;
     /**
      * 添加插件钩子到 Vite 插件对象
      *
@@ -258,3 +322,4 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
 declare function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>, R = T>(PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P, normalizer?: OptionsNormalizer<T, R>): PluginFactory<T, R>;
 
 export { BasePlugin, createPluginFactory };
+export type { BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance };

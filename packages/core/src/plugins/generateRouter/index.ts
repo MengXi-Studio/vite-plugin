@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig, UniAppPageConfig, RouteMeta } from './types'
-import { writeFileContent, readFileSync, toCamelCase, toPascalCase, stripJsonComments } from '@/common'
+import { writeFileContent, readFileContent, toCamelCase, toPascalCase, stripJsonComments } from '@/common'
 import { resolve } from 'path'
 import { existsSync, watch as fsWatch } from 'fs'
 
@@ -234,7 +234,7 @@ export default routes
 	/**
 	 * 读取并解析 pages.json
 	 */
-	private readPagesJson(): UniAppPagesJson | null {
+	private async readPagesJson(): Promise<UniAppPagesJson | null> {
 		const pagesJsonPath = resolve(this.projectRoot, this.options.pagesJsonPath!)
 
 		if (!existsSync(pagesJsonPath)) {
@@ -243,8 +243,7 @@ export default routes
 		}
 
 		try {
-			const content = readFileSync(pagesJsonPath)
-			// 使用公共方法移除 JSON 中的注释
+			const content = await readFileContent(pagesJsonPath)
 			const jsonContent = stripJsonComments(content)
 			return JSON.parse(jsonContent) as UniAppPagesJson
 		} catch (error) {
@@ -322,16 +321,15 @@ export default routes
 	 * 生成路由配置文件
 	 */
 	private async generateRouterConfig(): Promise<void> {
-		const pagesJson = this.readPagesJson()
+		const pagesJson = await this.readPagesJson()
 		if (!pagesJson) return
 
 		let routes = this.parsePagesJson(pagesJson)
 		const outputPath = resolve(this.projectRoot, this.options.outputPath!)
 
-		// 如果文件已存在，读取现有内容并合并用户修改
 		if (this.options.preserveRouteChanges && existsSync(outputPath)) {
 			try {
-				const existingContent = readFileSync(outputPath)
+				const existingContent = await readFileContent(outputPath)
 				const existingRoutesMap = this.extractExistingRoutes(existingContent)
 				if (existingRoutesMap.size > 0) {
 					routes = this.mergeRoutes(routes, existingRoutesMap)
@@ -380,24 +378,20 @@ export default routes
 	}
 
 	protected addPluginHooks(plugin: Plugin): void {
-		// 在配置解析完成后生成路由配置
 		plugin.configResolved = async config => {
-			if (!this.options.enabled) return
-
 			this.projectRoot = config.root
 
 			await this.safeExecute(() => this.generateRouterConfig(), '生成路由配置')
 
-			// 开发模式下启动文件监听
 			if (config.command === 'serve') {
 				this.startWatching()
 			}
 		}
+	}
 
-		// 构建结束时停止监听
-		plugin.buildEnd = () => {
-			this.stopWatching()
-		}
+	protected destroy(): void {
+		super.destroy()
+		this.stopWatching()
 	}
 }
 
@@ -453,3 +447,4 @@ export default routes
  * - 开发模式下自动监听 pages.json 变化并重新生成
  */
 export const generateRouter = createPluginFactory(GenerateRouterPlugin)
+export * from './types'

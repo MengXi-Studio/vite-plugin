@@ -1,3 +1,5 @@
+import type { Icon } from '../types'
+
 /**
  * 图标配置选项接口
  *
@@ -22,25 +24,5 @@ export interface IconOptions {
 	/**
 	 * 自定义图标数组，支持多种图标格式和尺寸
 	 */
-	icons?: Array<{
-		/**
-		 * 图标关系类型
-		 */
-		rel: string
-
-		/**
-		 * 图标 URL
-		 */
-		href: string
-
-		/**
-		 * 图标尺寸
-		 */
-		sizes?: string
-
-		/**
-		 * 图标 MIME 类型
-		 */
-		type?: string
-	}>
+	icons?: Icon[]
 }

@@ -4,7 +4,7 @@
 
 ```typescript
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
-import type { BasePluginOptions, PluginFactory, OptionsNormalizer } from '@meng-xi/vite-plugin/factory'
+import type { BasePluginOptions, PluginFactory, PluginWithInstance, OptionsNormalizer } from '@meng-xi/vite-plugin/factory'
 ```
 
 ## 模块列表

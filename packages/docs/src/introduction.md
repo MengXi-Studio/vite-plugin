@@ -43,7 +43,7 @@ interface BasePluginOptions {
 
 导出常用工具函数：
 
-- **文件系统**：readFileSync、writeFileContent、copySourceToTarget、readDirRecursive 等
+- **文件系统**：readFileContent、writeFileContent、copySourceToTarget、readDirRecursive 等
 - **格式化**：formatDate、parseTemplate、generateRandomHash、padNumber 等
 - **对象处理**：deepMerge、toCamelCase、toPascalCase、stripJsonComments 等
 

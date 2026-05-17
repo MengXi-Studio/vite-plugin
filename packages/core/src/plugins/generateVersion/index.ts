@@ -1,4 +1,4 @@
-import type { Plugin, ResolvedConfig } from 'vite'
+import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateVersionOptions } from './types'
 import { generateRandomHash, getDateFormatParams, parseTemplate, writeFileContent } from '@/common'
@@ -26,7 +26,6 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 		return {
 			format: 'timestamp',
 			semverBase: '1.0.0',
-			autoIncrement: false,
 			outputType: 'file',
 			outputFile: 'version.json',
 			defineName: '__APP_VERSION__',
@@ -144,27 +143,14 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 	}
 
 	protected addPluginHooks(plugin: Plugin): void {
-		// 在配置解析完成后生成版本号
-		const originalConfigResolved = plugin.configResolved
-		plugin.configResolved = (config: ResolvedConfig) => {
-			if (this.options.enabled) {
-				this.buildTime = new Date()
-				this.version = this.generateVersion()
-				this.logger.info(`生成版本号: ${this.version}`)
-			}
-
-			// 调用原始的 configResolved
-			if (typeof originalConfigResolved === 'function') {
-				;(originalConfigResolved as (config: ResolvedConfig) => void)(config)
-			}
+		plugin.configResolved = () => {
+			this.buildTime = new Date()
+			this.version = this.generateVersion()
+			this.logger.info(`生成版本号: ${this.version}`)
 		}
 
-		// 如果需要注入 define，使用 config 钩子
 		if (this.options.outputType === 'define' || this.options.outputType === 'both') {
 			plugin.config = () => {
-				if (!this.options.enabled) return {}
-
-				// 确保版本号已生成
 				if (!this.version) {
 					this.buildTime = new Date()
 					this.version = this.generateVersion()
@@ -182,10 +168,9 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 			}
 		}
 
-		// 在构建完成后写入版本文件
 		if (this.options.outputType === 'file' || this.options.outputType === 'both') {
 			plugin.writeBundle = async () => {
-				if (!this.options.enabled || !this.viteConfig) return
+				if (!this.viteConfig) return
 
 				await this.safeExecute(async () => {
 					const outDir = this.viteConfig!.build.outDir
@@ -254,3 +239,4 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
  * - custom: 自定义格式
  */
 export const generateVersion = createPluginFactory(GenerateVersionPlugin)
+export * from './types'

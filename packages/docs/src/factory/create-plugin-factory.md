@@ -120,7 +120,7 @@ type OptionsNormalizer<T, R> = (options?: R) => T
 插件工厂函数类型。
 
 ```typescript
-type PluginFactory<T extends BasePluginOptions, R = T> = (options?: R) => Plugin
+type PluginFactory<T extends BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>
 ```
 
 **参数**
@@ -131,7 +131,7 @@ type PluginFactory<T extends BasePluginOptions, R = T> = (options?: R) => Plugin
 
 **返回值**
 
-`Plugin` - Vite 插件对象
+`PluginWithInstance<T>` - Vite 插件对象，包含 `pluginInstance` 属性
 
 ---
 

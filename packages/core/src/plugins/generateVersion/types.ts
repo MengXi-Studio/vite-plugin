@@ -64,13 +64,6 @@ export interface GenerateVersionOptions extends BasePluginOptions {
 	semverBase?: string
 
 	/**
-	 * 是否自动递增补丁版本号
-	 *
-	 * @default false
-	 */
-	autoIncrement?: boolean
-
-	/**
 	 * 输出类型
 	 *
 	 * @default 'file'

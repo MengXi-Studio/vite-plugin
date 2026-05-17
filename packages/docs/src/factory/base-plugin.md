@@ -55,31 +55,6 @@ protected getPluginName(): string {
 
 ---
 
-### getDefaultOptions
-
-返回插件默认配置。
-
-```typescript
-protected abstract getDefaultOptions(): Partial<T>
-```
-
-**返回值**
-
-`Partial<T>` - 插件特定的默认配置
-
-**示例**
-
-```typescript
-protected getDefaultOptions(): Partial<MyPluginOptions> {
-	return {
-		outputPath: 'dist/output.json',
-		format: 'json'
-	}
-}
-```
-
----
-
 ### addPluginHooks
 
 添加 Vite 插件钩子。
@@ -103,7 +78,7 @@ protected addPluginHooks(plugin: Plugin): void {
 		this.logger.info('构建开始')
 	}
 
-	plugin.closeBundle = async () => {
+	plugin.configResolved = async config => {
 		await this.safeExecute(async () => {
 			// 执行异步操作
 		}, '执行操作')
@@ -114,6 +89,35 @@ protected addPluginHooks(plugin: Plugin): void {
 ---
 
 ## 可选重写方法
+
+### getDefaultOptions
+
+返回插件默认配置。
+
+```typescript
+protected getDefaultOptions(): Partial<T>
+```
+
+**返回值**
+
+`Partial<T>` - 插件特定的默认配置
+
+**默认行为**
+
+返回空对象 `{}`，子类可重写以提供插件特定的默认配置值
+
+**示例**
+
+```typescript
+protected getDefaultOptions(): Partial<MyPluginOptions> {
+	return {
+		outputPath: 'dist/output.json',
+		format: 'json'
+	}
+}
+```
+
+---
 
 ### validateOptions
 
@@ -183,6 +187,35 @@ protected onConfigResolved(config: ResolvedConfig): void
 **默认行为**
 
 存储配置到 `this.viteConfig`
+
+---
+
+### destroy
+
+插件销毁生命周期，在 `closeBundle` 钩子中自动调用。
+
+```typescript
+protected destroy(): void
+```
+
+**默认行为**
+
+注销插件的日志配置
+
+**说明**
+
+- 基类在 `closeBundle` 钩子中自动调用此方法
+- 子类重写时应先调用 `super.destroy()`，再添加自定义清理逻辑
+- 子类中不再需要手动注册 `closeBundle` 钩子来清理资源
+
+**示例**
+
+```typescript
+protected destroy(): void {
+	super.destroy()
+	this.stopWatching()
+}
+```
 
 ---
 
@@ -335,7 +368,13 @@ public toPlugin(): Plugin
 
 **返回值**
 
-`Plugin` - Vite 插件对象
+`Plugin` - Vite 插件对象，包含 `pluginInstance` 属性指向原始插件实例
+
+**说明**
+
+- 自动组合 `configResolved` 钩子：先执行基类的 `onConfigResolved`，再执行子类钩子
+- 自动组合 `closeBundle` 钩子：先执行子类钩子，再执行基类的 `destroy`
+- 返回的插件对象上挂载了 `pluginInstance` 属性，可访问插件内部状态
 
 **示例**
 
@@ -383,13 +422,11 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 			if (!this.options.enabled) return
 			this.logger.info(`${this.options.message} x ${this.options.count}`)
 		}
+	}
 
-		plugin.closeBundle = async () => {
-			await this.safeExecute(async () => {
-				// 执行操作
-				this.logger.success('操作完成')
-			}, '执行操作')
-		}
+	protected destroy(): void {
+		super.destroy()
+		this.logger.info('插件已销毁')
 	}
 }
 ```

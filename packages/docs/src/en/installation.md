@@ -58,13 +58,11 @@ export default defineConfig({
 
 ```typescript
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
+import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
 import type { Plugin } from 'vite'
 
-interface MyPluginOptions {
+interface MyPluginOptions extends BasePluginOptions {
 	message: string
-	enabled?: boolean
-	verbose?: boolean
-	errorStrategy?: 'throw' | 'log' | 'ignore'
 }
 
 class MyPlugin extends BasePlugin<MyPluginOptions> {

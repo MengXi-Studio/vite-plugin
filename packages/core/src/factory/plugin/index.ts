@@ -1,5 +1,5 @@
 import type { ResolvedConfig, Plugin } from 'vite'
-import type { BasePluginOptions, PluginFactory, OptionsNormalizer } from './types'
+import type { BasePluginOptions, PluginFactory, OptionsNormalizer, PluginWithInstance } from './types'
 import { Logger, type PluginLogger } from '@/logger'
 import type { LoggerOptions } from '@/logger/types'
 import { deepMerge, Validator } from '@/common'
@@ -84,11 +84,12 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * 获取插件的默认配置选项
 	 *
 	 * @protected
-	 * @abstract
 	 * @returns {Partial<T>} 插件特定的默认配置
-	 * @description 子类必须实现此方法，以提供插件特定的默认配置值
+	 * @description 子类可以重写此方法，以提供插件特定的默认配置值。默认返回空对象
 	 */
-	protected abstract getDefaultOptions(): Partial<T>
+	protected getDefaultOptions(): Partial<T> {
+		return {}
+	}
 
 	/**
 	 * 合并插件配置，将用户提供的配置与默认配置合并
@@ -190,6 +191,24 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	protected onConfigResolved(config: ResolvedConfig): void {
 		this.viteConfig = config
 		this.logger.info('配置解析完成，插件已初始化')
+	}
+
+	/**
+	 * 插件销毁生命周期
+	 *
+	 * @protected
+	 * @virtual
+	 * @description 插件销毁时调用的清理方法。基类会注销日志配置，子类可重写此方法添加自定义清理逻辑
+	 * @example
+	 * ```typescript
+	 * protected destroy(): void {
+	 *   super.destroy()
+	 *   this.stopWatching()
+	 * }
+	 * ```
+	 */
+	protected destroy(): void {
+		Logger.unregister(this.getPluginName())
 	}
 
 	/**
@@ -329,19 +348,31 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * ```
 	 */
 	public toPlugin(): Plugin {
-		// 创建插件对象
 		const plugin: Plugin = {
 			name: this.getPluginName(),
-			enforce: this.getEnforce(),
-			configResolved: config => {
-				if (this.options.enabled) {
-					this.onConfigResolved(config)
+			enforce: this.getEnforce()
+		}
+
+		this.addPluginHooks(plugin)
+
+		const subclassConfigResolved = plugin.configResolved
+		plugin.configResolved = (config: ResolvedConfig) => {
+			if (this.options.enabled) {
+				this.onConfigResolved(config)
+				if (typeof subclassConfigResolved === 'function') {
+					subclassConfigResolved(config)
 				}
 			}
 		}
 
-		// 添加插件钩子
-		this.addPluginHooks(plugin)
+		const instance = this
+		const subclassCloseBundle = plugin.closeBundle
+		plugin.closeBundle = function (this: any) {
+			if (typeof subclassCloseBundle === 'function') {
+				subclassCloseBundle.call(this)
+			}
+			instance.destroy()
+		}
 
 		return plugin
 	}
@@ -375,10 +406,9 @@ export function createPluginFactory<T extends BasePluginOptions, P extends BaseP
 		const normalizedOptions = (normalizer ? normalizer(options) : options) as T
 
 		const plugin = new PluginClass(normalizedOptions)
-		const vitePlugin = plugin.toPlugin()
+		const vitePlugin = plugin.toPlugin() as PluginWithInstance<T>
 
-		// 在Vite插件对象上添加对原始插件实例的引用，方便外部访问
-		;(vitePlugin as any).pluginInstance = plugin
+		vitePlugin.pluginInstance = plugin
 
 		return vitePlugin
 	}

@@ -20,7 +20,6 @@ export default defineConfig({
 | format        | `VersionFormat`                | `'timestamp'`       | Version format          |
 | customFormat  | `string`                       | -                   | Custom format template  |
 | semverBase    | `string`                       | `'1.0.0'`           | Semantic version base   |
-| autoIncrement | `boolean`                      | `false`             | Auto-increment patch    |
 | outputType    | `OutputType`                   | `'file'`            | Output type             |
 | outputFile    | `string`                       | `'version.json'`    | Output file path        |
 | defineName    | `string`                       | `'__APP_VERSION__'` | Global variable name    |

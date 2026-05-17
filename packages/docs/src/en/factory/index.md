@@ -4,7 +4,7 @@ Plugin factory module providing `BasePlugin` base class and `createPluginFactory
 
 ```typescript
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
-import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
+import type { BasePluginOptions, PluginFactory, PluginWithInstance, OptionsNormalizer } from '@meng-xi/vite-plugin/factory'
 ```
 
 ## Modules

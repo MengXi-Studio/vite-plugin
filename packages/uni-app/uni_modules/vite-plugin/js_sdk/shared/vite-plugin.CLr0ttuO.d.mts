@@ -57,6 +57,22 @@ declare class Logger {
      */
     private registerPlugin;
     /**
+     * 注销插件日志配置
+     * @param pluginName 插件名称
+     */
+    private unregisterPlugin;
+    /**
+     * 注销指定插件的日志配置
+     * @param pluginName 插件名称
+     * @description 从单例中移除指定插件的日志配置，通常在插件销毁时调用
+     */
+    static unregister(pluginName: string): void;
+    /**
+     * 销毁单例实例，释放所有资源
+     * @description 清除所有已注册的插件配置，重置单例实例。主要用于测试场景
+     */
+    static destroy(): void;
+    /**
      * 生成日志前缀
      * @param pluginName 插件名称
      * @returns 格式化的日志前缀

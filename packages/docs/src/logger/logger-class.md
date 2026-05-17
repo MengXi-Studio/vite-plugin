@@ -11,6 +11,8 @@ import { Logger } from '@meng-xi/vite-plugin/logger'
 ```typescript
 class Logger {
 	static create(options: LoggerOptions): Logger
+	static unregister(pluginName: string): void
+	static destroy(): void
 	createPluginLogger(pluginName: string): PluginLogger
 }
 ```
@@ -46,6 +48,59 @@ static create(options: LoggerOptions): Logger
 const logger = Logger.create({
 	name: 'my-plugin',
 	enabled: true
+})
+```
+
+---
+
+## unregister
+
+注销指定插件的日志配置。
+
+```typescript
+static unregister(pluginName: string): void
+```
+
+**参数**
+
+| 参数       | 类型     | 说明             |
+| ---------- | -------- | ---------------- |
+| pluginName | `string` | 要注销的插件名称 |
+
+**说明**
+
+- 从单例中移除指定插件的日志配置
+- 通常在插件销毁时由 `BasePlugin.destroy()` 自动调用
+- 调用后该插件的日志将不再输出
+
+**示例**
+
+```typescript
+Logger.unregister('my-plugin')
+```
+
+---
+
+## destroy
+
+销毁单例实例，释放所有资源。
+
+```typescript
+static destroy(): void
+```
+
+**说明**
+
+- 清除所有已注册的插件配置
+- 重置单例实例为 `null`
+- 主要用于测试场景，在测试之间重置 Logger 状态
+
+**示例**
+
+```typescript
+// 测试结束后重置 Logger
+afterEach(() => {
+	Logger.destroy()
 })
 ```
 

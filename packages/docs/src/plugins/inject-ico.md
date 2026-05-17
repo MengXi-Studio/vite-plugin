@@ -28,7 +28,7 @@ export default defineConfig({
 | base          | `string`                       | `'/'`     | 图标基础路径              |
 | url           | `string`                       | -         | 图标完整 URL（覆盖 base） |
 | link          | `string`                       | -         | 自定义 link 标签 HTML     |
-| icons         | `IconConfig[]`                 | -         | 自定义图标数组            |
+| icons         | `Icon[]`                       | -         | 自定义图标数组            |
 | copyOptions   | `CopyOptions`                  | -         | 图标文件复制配置          |
 | enabled       | `boolean`                      | `true`    | 启用插件                  |
 | verbose       | `boolean`                      | `true`    | 显示详细日志              |
