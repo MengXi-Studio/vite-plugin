@@ -1,3 +1,4 @@
+export * from './buildProgress'
 export * from './copyFile'
 export * from './generateRouter'
 export * from './generateVersion'
