@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { copyFile, generateVersion, injectIco } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateVersion, injectIco } from '@meng-xi/vite-plugin/plugins'
 import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
 import type { GenerateVersionOptions } from '@meng-xi/vite-plugin'
 
@@ -8,32 +8,24 @@ export default defineConfig({
 	plugins: [
 		vue(),
 
+		// 构建进度条
+		buildProgress({
+			format: 'bar',
+			width: 30,
+			clearOnComplete: false,
+			showModuleName: true
+		}),
+
+		// 文件复制
 		copyFile({
 			sourceDir: 'src/static',
 			targetDir: 'dist/static',
 			overwrite: true,
 			recursive: true,
-			incremental: true,
-			enabled: true,
-			verbose: true
+			incremental: true
 		}),
 
-		// generateRouter({
-		// 	pagesJsonPath: 'src/pages.json',
-		// 	outputPath: 'src/router.config.ts',
-		// 	outputFormat: 'ts',
-		// 	nameStrategy: 'camelCase',
-		// 	includeSubPackages: true,
-		// 	watch: true,
-		// 	exportTypes: true,
-		// 	metaMapping: {
-		// 		navigationBarTitleText: 'title',
-		// 		requireAuth: 'requireAuth'
-		// 	},
-		// 	enabled: true,
-		// 	verbose: true
-		// }),
-
+		// 版本生成
 		generateVersion({
 			format: 'custom',
 			customFormat: '{YYYY}.{MM}.{DD}-{hash}',
@@ -42,18 +34,16 @@ export default defineConfig({
 			outputFile: 'version.json',
 			defineName: '__APP_VERSION__',
 			prefix: 'v',
-			enabled: true,
-			verbose: true,
 			extra: {
 				environment: 'development',
 				author: 'MengXi Studio'
 			}
 		}) as PluginWithInstance<GenerateVersionOptions>,
 
+		// 图标注入
 		injectIco({
 			base: '/assets',
 			icons: [{ rel: 'icon', href: '/assets/favicon.ico', sizes: '32x32' }],
-			enabled: true,
 			copyOptions: {
 				sourceDir: 'src/assets',
 				targetDir: 'dist/assets',

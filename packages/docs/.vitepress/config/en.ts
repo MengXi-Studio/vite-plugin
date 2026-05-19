@@ -153,6 +153,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/plugins/index.html'
 						},
 						{
+							text: 'buildProgress',
+							link: '/en/plugins/build-progress.html'
+						},
+						{
 							text: 'copyFile',
 							link: '/en/plugins/copy-file.html'
 						},

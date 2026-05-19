@@ -25,14 +25,16 @@ hero:
 features:
   - icon: 📦
     title: Ready to Use
-    details: Provides four practical plugins - copyFile, generateRouter, generateVersion, injectIco - covering file copying, router generation, version management, and icon injection.
+    details:
+      Built-in plugins - buildProgress, copyFile, generateRouter, generateVersion, injectIco - covering build progress display, file copying, router generation, version management, and icon injection. Works out of the
+      box with zero config.
   - icon: 🧱
     title: Plugin Development Framework
-    details: Exports core components like BasePlugin, Logger, Validator to quickly build standard-compliant custom Vite plugins.
+    details: Exports BasePlugin, createPluginFactory, Logger, Validator and more. Provides complete lifecycle management and automatic hook composition for building standardized custom Vite plugins.
   - icon: 🔒
     title: Type Safe
-    details: Complete TypeScript type definitions with built-in configuration validator ensuring parameter correctness and friendly development experience.
+    details: Full TypeScript type definitions. Chainable config validator catches parameter errors before build. Sub-path exports support on-demand type imports for a smooth DX.
   - icon: ⚙️
     title: Flexible Configuration
-    details: All plugins support detailed configuration options with unified enable/disable, logging control, and error handling strategies.
+    details: Unified enabled / verbose / errorStrategy base options. Built-in throw / log / ignore error handling strategies and safeExecute wrappers for fine-grained control over each plugin.
 ---

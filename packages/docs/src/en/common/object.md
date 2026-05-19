@@ -16,10 +16,20 @@ function deepMerge<T extends Record<string, any>>(...sources: Partial<T>[]): T
 
 **Features**
 
-- `undefined` values are skipped
+- `undefined` values are skipped, won't override existing values
 - Nested objects are recursively merged
 - Arrays are overwritten (not merged)
 - `null` values override existing values
+
+**Parameters**
+
+| Parameter | Type           | Description        |
+| --------- | -------------- | ------------------ |
+| sources   | `Partial<T>[]` | Source object list |
+
+**Returns**
+
+`T` - Merged object
 
 **Examples**
 
@@ -39,4 +49,12 @@ deepMerge({ a: { b: 1 } }, { a: { c: 2 } })
 // Array override
 deepMerge({ a: [1, 2] }, { a: [3, 4] })
 // { a: [3, 4] }
+
+// null overrides existing value
+deepMerge({ a: 1 }, { a: null })
+// { a: null }
+
+// Multi-object merge
+deepMerge({ enabled: true }, { verbose: true }, { enabled: false, custom: 'value' })
+// { enabled: false, verbose: true, custom: 'value' }
 ```

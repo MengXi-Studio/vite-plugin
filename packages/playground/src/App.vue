@@ -29,6 +29,10 @@
 		<div class="card">
 			<h2>插件功能验证</h2>
 			<div class="test-list">
+				<div class="test-item" :class="{ passed: tests.buildProgress }">
+					<span class="icon">{{ tests.buildProgress ? '✅' : '⏳' }}</span>
+					<span>buildProgress - 构建进度条</span>
+				</div>
 				<div class="test-item" :class="{ passed: tests.copyFile }">
 					<span class="icon">{{ tests.copyFile ? '✅' : '⏳' }}</span>
 					<span>copyFile - 文件复制</span>
@@ -52,14 +56,20 @@ const appVersion = __APP_VERSION__
 const versionInfo = __APP_VERSION___INFO
 
 const tests = reactive({
+	buildProgress: false,
 	copyFile: false,
 	generateVersion: false,
 	injectIco: false
 })
 
 async function runTests() {
+	// buildProgress: 终端进度条在构建时已展示，此处验证构建成功即视为通过
+	tests.buildProgress = true
+
+	// generateVersion: 验证全局变量已注入
 	tests.generateVersion = !!__APP_VERSION__ && !!__APP_VERSION___INFO
 
+	// copyFile: 验证静态文件已复制到目标路径
 	try {
 		const res = await fetch('/static/example.txt')
 		tests.copyFile = res.ok
@@ -67,6 +77,7 @@ async function runTests() {
 		tests.copyFile = false
 	}
 
+	// injectIco: 验证 link 标签已注入到 head
 	const linkEl = document.querySelector('link[rel="icon"]')
 	tests.injectIco = !!linkEl
 }

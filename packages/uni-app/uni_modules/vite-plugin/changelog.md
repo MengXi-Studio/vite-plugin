@@ -1,4 +1,34 @@
+## 0.0.7（2026-05-19）
+
+新增 buildProgress 构建进度条插件
+
+### buildProgress（新增）
+
+在终端实时显示 Vite 构建进度条，支持三种显示格式和自定义颜色主题。
+
+**功能特性**：
+
+- 支持三种进度显示格式：`bar`（完整进度条）、`spinner`（旋转动画）、`minimal`（精简模式）
+- 基于构建生命周期计算进度：config(5%) → resolve(10%) → transform(15%-85%) → bundle(+10%) → write(+5%) → done(100%)
+- 支持自定义进度条宽度、填充字符、颜色主题
+- 可选显示当前处理的模块名称，超长自动截断
+- 非 TTY 环境（如 CI/CD）自动降级为日志输出
+- `destroy()` 生命周期中停止动画定时器并恢复终端光标，防止终端状态异常
+
+**配置选项**：
+
+| 选项            | 类型                                  | 默认值 | 描述                     |
+| --------------- | ------------------------------------- | ------ | ------------------------ |
+| width           | number                                | 30     | 进度条宽度（字符数）     |
+| format          | `'bar'` \| `'spinner'` \| `'minimal'` | 'bar'  | 进度条显示格式           |
+| completeChar    | string                                | '█'    | 已完成部分填充字符       |
+| incompleteChar  | string                                | '░'    | 未完成部分填充字符       |
+| clearOnComplete | boolean                               | true   | 构建完成后是否清除进度条 |
+| showModuleName  | boolean                               | true   | 是否显示当前模块名称     |
+| theme           | ProgressTheme                         | -      | 自定义颜色主题           |
+
 ## 0.0.6（2026-05-18）
+
 新增插件销毁生命周期及子路径类型导出，优化日志系统
 
 ### BasePlugin
@@ -31,6 +61,7 @@
 
 - `readFileSync` 标记为已废弃，推荐使用异步版本 `readFileContent`
 - `CopyOptions` 新增 `parallelLimit`（并发限制，默认 10）和 `skipEmptyDirs`（跳过空目录）选项
+
 ## 0.0.5（2026-03-05）
 
 generateVersion 支持在构建过程中自动生成版本号，支持多种格式和输出方式

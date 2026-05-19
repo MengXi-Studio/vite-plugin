@@ -6,6 +6,7 @@
 
 | 插件                                  | 说明                                       |
 | ------------------------------------- | ------------------------------------------ |
+| [buildProgress](./build-progress)     | 在终端实时显示构建进度条                   |
 | [copyFile](./copy-file)               | 构建完成后复制文件或目录到指定位置         |
 | [generateRouter](./generate-router)   | 根据 uni-app pages.json 自动生成路由配置   |
 | [generateVersion](./generate-version) | 自动生成版本号，支持文件输出和全局变量注入 |

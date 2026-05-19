@@ -153,6 +153,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/index.html'
 						},
 						{
+							text: 'buildProgress',
+							link: '/plugins/build-progress.html'
+						},
+						{
 							text: 'copyFile',
 							link: '/plugins/copy-file.html'
 						},

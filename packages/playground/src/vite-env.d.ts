@@ -6,11 +6,13 @@ declare module '*.vue' {
 	export default component
 }
 
-declare const __APP_VERSION__: string
-declare const __APP_VERSION___INFO: {
+interface VersionInfo {
 	version: string
 	buildTime: string
 	timestamp: number
 	format: string
 	[key: string]: unknown
 }
+
+declare const __APP_VERSION__: string
+declare const __APP_VERSION___INFO: VersionInfo

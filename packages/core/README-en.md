@@ -15,8 +15,9 @@
 
 ## Features
 
-- **Ready to Use** - Provides practical plugins for file copying, router generation, version management, icon injection
-- **Plugin Development Framework** - Exports core components like BasePlugin, Logger, Validator for building custom plugins
+- **Ready to Use** - Provides five practical plugins - buildProgress, copyFile, generateRouter, generateVersion, injectIco - covering build progress display, file copying, router generation, version management, and icon
+  injection
+- **Plugin Development Framework** - Exports core components like BasePlugin, Logger, Validator for building custom Vite plugins
 - **Complete Lifecycle** - Supports initialization, config resolution, destroy lifecycle management with automatic hook composition
 - **Type Safe** - Complete TypeScript type definitions with configuration validators ensuring parameter correctness
 - **Flexible Configuration** - All plugins support detailed configuration to meet diverse scenario requirements
@@ -28,16 +29,21 @@ View full documentation: [https://mengxi-studio.github.io/vite-plugin/](https://
 
 ## Installation
 
-```bash
-# npm
+::: code-group
+
+```bash [npm]
 npm install @meng-xi/vite-plugin -D
+```
 
-# yarn
+```bash [yarn]
 yarn add @meng-xi/vite-plugin -D
+```
 
-# pnpm
+```bash [pnpm]
 pnpm add @meng-xi/vite-plugin -D
 ```
+
+:::
 
 ## Quick Start
 
@@ -45,10 +51,13 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		// Build progress bar
+		buildProgress(),
+
 		// Copy files
 		copyFile({
 			sourceDir: 'src/assets',
@@ -237,6 +246,49 @@ Log output format:
 
 ## Built-in Plugins
 
+### buildProgress
+
+Display real-time build progress bar in terminal during Vite build, supporting three display formats.
+
+| Option          | Type                                  | Default | Description                                          |
+| --------------- | ------------------------------------- | ------- | ---------------------------------------------------- |
+| width           | number                                | 30      | Progress bar width (characters)                      |
+| format          | `'bar'` \| `'spinner'` \| `'minimal'` | 'bar'   | Progress bar display format                          |
+| completeChar    | string                                | '█'     | Fill character for completed portion                 |
+| incompleteChar  | string                                | '░'     | Fill character for incomplete portion                |
+| clearOnComplete | boolean                               | true    | Whether to clear progress bar on build completion    |
+| showModuleName  | boolean                               | true    | Whether to show the currently processing module name |
+| theme           | [ProgressTheme](#progresstheme)       | -       | Custom color theme                                   |
+
+**ProgressTheme**
+
+| Property        | Type                       | Description              |
+| --------------- | -------------------------- | ------------------------ |
+| completeColor   | `(text: string) => string` | Completed portion color  |
+| incompleteColor | `(text: string) => string` | Incomplete portion color |
+| percentageColor | `(text: string) => string` | Percentage number color  |
+| phaseColor      | `(text: string) => string` | Phase label color        |
+| moduleColor     | `(text: string) => string` | Module name color        |
+
+```typescript
+// Default bar format
+buildProgress()
+
+// Spinner format
+buildProgress({ format: 'spinner' })
+
+// Minimal format
+buildProgress({ format: 'minimal' })
+
+// Custom appearance
+buildProgress({
+	width: 40,
+	completeChar: '■',
+	incompleteChar: '□',
+	clearOnComplete: false
+})
+```
+
 ### copyFile
 
 Copy files or directories to specified locations after Vite build is completed.
@@ -253,35 +305,35 @@ Copy files or directories to specified locations after Vite build is completed.
 
 Automatically generate router configuration files based on uni-app project's `pages.json`.
 
-| Option               | Type                                              | Default                | Description                                      |
-| -------------------- | ------------------------------------------------- | ---------------------- | ------------------------------------------------ |
-| pagesJsonPath        | string                                            | 'src/pages.json'       | Path to pages.json file                          |
-| outputPath           | string                                            | 'src/router.config.ts' | Output file path                                 |
-| outputFormat         | 'ts' \| 'js'                                      | 'ts'                   | Output file format                               |
-| nameStrategy         | 'path' \| 'camelCase' \| 'pascalCase' \| 'custom' | 'camelCase'            | Route name strategy                              |
-| customNameGenerator  | (path: string) => string                          | -                      | Custom route name generator function             |
-| includeSubPackages   | boolean                                           | true                   | Whether to include sub-package routes            |
-| watch                | boolean                                           | true                   | Whether to watch changes and auto-regenerate     |
-| metaMapping          | Record\<string, string\>                          | -                      | Mapping from page style fields to meta           |
-| exportTypes          | boolean                                           | true                   | Whether to export type definitions               |
-| preserveRouteChanges | boolean                                           | true                   | Whether to preserve user modifications to routes |
+| Option               | Type                                                      | Default                | Description                                      |
+| -------------------- | --------------------------------------------------------- | ---------------------- | ------------------------------------------------ |
+| pagesJsonPath        | string                                                    | 'src/pages.json'       | Path to pages.json file                          |
+| outputPath           | string                                                    | 'src/router.config.ts' | Output file path                                 |
+| outputFormat         | `'ts'` \| `'js'`                                          | 'ts'                   | Output file format                               |
+| nameStrategy         | `'path'` \| `'camelCase'` \| `'pascalCase'` \| `'custom'` | 'camelCase'            | Route name strategy                              |
+| customNameGenerator  | `(path: string) => string`                                | -                      | Custom route name generator function             |
+| includeSubPackages   | boolean                                                   | true                   | Whether to include sub-package routes            |
+| watch                | boolean                                                   | true                   | Whether to watch changes and auto-regenerate     |
+| metaMapping          | `Record<string, string>`                                  | -                      | Mapping from page style fields to meta           |
+| exportTypes          | boolean                                                   | true                   | Whether to export type definitions               |
+| preserveRouteChanges | boolean                                                   | true                   | Whether to preserve user modifications to routes |
 
 ### generateVersion
 
 Automatically generate version numbers during the Vite build process.
 
-| Option       | Type                                                                  | Default           | Description                    |
-| ------------ | --------------------------------------------------------------------- | ----------------- | ------------------------------ |
-| format       | 'timestamp' \| 'date' \| 'datetime' \| 'semver' \| 'hash' \| 'custom' | 'timestamp'       | Version format                 |
-| customFormat | string                                                                | -                 | Custom format template         |
-| semverBase   | string                                                                | '1.0.0'           | Semantic version base          |
-| outputType   | 'file' \| 'define' \| 'both'                                          | 'file'            | Output type                    |
-| outputFile   | string                                                                | 'version.json'    | Output file path               |
-| defineName   | string                                                                | '**APP_VERSION**' | Global variable name to inject |
-| hashLength   | number                                                                | 8                 | Hash length (1-32)             |
-| prefix       | string                                                                | -                 | Version number prefix          |
-| suffix       | string                                                                | -                 | Version number suffix          |
-| extra        | Record\<string, unknown\>                                             | -                 | Extra info (JSON file only)    |
+| Option       | Type                                                                              | Default           | Description                    |
+| ------------ | --------------------------------------------------------------------------------- | ----------------- | ------------------------------ |
+| format       | `'timestamp'` \| `'date'` \| `'datetime'` \| `'semver'` \| `'hash'` \| `'custom'` | 'timestamp'       | Version format                 |
+| customFormat | string                                                                            | -                 | Custom format template         |
+| semverBase   | string                                                                            | '1.0.0'           | Semantic version base          |
+| outputType   | `'file'` \| `'define'` \| `'both'`                                                | 'file'            | Output type                    |
+| outputFile   | string                                                                            | 'version.json'    | Output file path               |
+| defineName   | string                                                                            | '**APP_VERSION**' | Global variable name to inject |
+| hashLength   | number                                                                            | 8                 | Hash length (1-32)             |
+| prefix       | string                                                                            | -                 | Version number prefix          |
+| suffix       | string                                                                            | -                 | Version number suffix          |
+| extra        | `Record<string, unknown>`                                                         | -                 | Extra info (JSON file only)    |
 
 ### injectIco
 
@@ -304,23 +356,32 @@ Inject website icon links into the head of HTML files during the Vite build proc
 | sizes    | string | No       | Icon sizes         |
 | type     | string | No       | Icon MIME type     |
 
+`copyOptions` interface definition:
+
+| Property  | Type    | Required | Default | Description                 |
+| --------- | ------- | -------- | ------- | --------------------------- |
+| sourceDir | string  | Yes      | -       | Icon source directory       |
+| targetDir | string  | Yes      | -       | Icon target directory       |
+| overwrite | boolean | No       | true    | Whether to overwrite files  |
+| recursive | boolean | No       | true    | Whether to copy recursively |
+
 ## Sub-path Exports
 
 Support importing modules on demand to reduce bundle size:
 
 ```typescript
 // Full import
-import { copyFile, BasePlugin, Logger } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, BasePlugin, Logger } from '@meng-xi/vite-plugin'
 
 // Module-level import
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
 import { Logger } from '@meng-xi/vite-plugin/logger'
-import { copyFile, generateRouter } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter } from '@meng-xi/vite-plugin/plugins'
 import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plugin/common'
 
 // Type imports (on-demand type definitions from sub-paths)
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { GenerateVersionOptions, InjectIcoOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, Icon } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 

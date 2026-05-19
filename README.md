@@ -15,8 +15,8 @@
 
 ## 特性
 
-- **开箱即用** - 提供文件复制、路由生成、版本管理、图标注入等实用插件
-- **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义插件
+- **开箱即用** - 提供 buildProgress、copyFile、generateRouter、generateVersion、injectIco 五个实用插件，覆盖构建进度展示、文件复制、路由生成、版本管理、图标注入等常见场景
+- **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建符合规范的自定义 Vite 插件
 - **完整生命周期** - 支持初始化、配置解析、销毁等生命周期管理，自动组合钩子逻辑
 - **类型安全** - 完整的 TypeScript 类型定义，配置验证器确保参数正确性
 - **灵活配置** - 所有插件支持详细配置，满足多样化场景需求
@@ -28,16 +28,21 @@
 
 ## 安装
 
-```bash
-# npm
+::: code-group
+
+```bash [npm]
 npm install @meng-xi/vite-plugin -D
+```
 
-# yarn
+```bash [yarn]
 yarn add @meng-xi/vite-plugin -D
+```
 
-# pnpm
+```bash [pnpm]
 pnpm add @meng-xi/vite-plugin -D
 ```
+
+:::
 
 ## 快速开始
 
@@ -45,10 +50,13 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		// 构建进度条
+		buildProgress(),
+
 		// 复制文件
 		copyFile({
 			sourceDir: 'src/assets',
@@ -196,7 +204,7 @@ const result = await this.safeExecute(async () => {
 
 ### createPluginFactory
 
-创建插件工厂函数，支持选项标准化：
+创建插件工厂函数，支持选项标准化器：
 
 ```typescript
 // 基本使用
@@ -237,6 +245,49 @@ Logger.destroy()
 
 ## 内置插件
 
+### buildProgress
+
+在终端实时显示 Vite 构建进度条，支持三种显示格式。
+
+| 选项            | 类型                                  | 默认值 | 描述                           |
+| --------------- | ------------------------------------- | ------ | ------------------------------ |
+| width           | number                                | 30     | 进度条宽度（字符数）           |
+| format          | `'bar'` \| `'spinner'` \| `'minimal'` | 'bar'  | 进度条显示格式                 |
+| completeChar    | string                                | '█'    | 已完成部分的填充字符           |
+| incompleteChar  | string                                | '░'    | 未完成部分的填充字符           |
+| clearOnComplete | boolean                               | true   | 构建完成后是否清除进度条       |
+| showModuleName  | boolean                               | true   | 是否显示当前正在处理的模块名称 |
+| theme           | [ProgressTheme](#progresstheme)       | -      | 自定义颜色主题                 |
+
+**ProgressTheme**
+
+| 属性            | 类型                       | 描述           |
+| --------------- | -------------------------- | -------------- |
+| completeColor   | `(text: string) => string` | 已完成部分颜色 |
+| incompleteColor | `(text: string) => string` | 未完成部分颜色 |
+| percentageColor | `(text: string) => string` | 百分比数字颜色 |
+| phaseColor      | `(text: string) => string` | 阶段标签颜色   |
+| moduleColor     | `(text: string) => string` | 模块名称颜色   |
+
+```typescript
+// 默认进度条格式
+buildProgress()
+
+// 旋转动画格式
+buildProgress({ format: 'spinner' })
+
+// 精简格式
+buildProgress({ format: 'minimal' })
+
+// 自定义外观
+buildProgress({
+	width: 40,
+	completeChar: '■',
+	incompleteChar: '□',
+	clearOnComplete: false
+})
+```
+
 ### copyFile
 
 在 Vite 构建完成后复制文件或目录到指定位置。
@@ -253,35 +304,35 @@ Logger.destroy()
 
 根据 uni-app 项目的 `pages.json` 自动生成路由配置文件。
 
-| 选项                 | 类型                                              | 默认值                 | 描述                          |
-| -------------------- | ------------------------------------------------- | ---------------------- | ----------------------------- |
-| pagesJsonPath        | string                                            | 'src/pages.json'       | pages.json 文件路径           |
-| outputPath           | string                                            | 'src/router.config.ts' | 输出文件路径                  |
-| outputFormat         | 'ts' \| 'js'                                      | 'ts'                   | 输出文件格式                  |
-| nameStrategy         | 'path' \| 'camelCase' \| 'pascalCase' \| 'custom' | 'camelCase'            | 路由名称策略                  |
-| customNameGenerator  | (path: string) => string                          | -                      | 自定义路由名称生成函数        |
-| includeSubPackages   | boolean                                           | true                   | 是否包含子包路由              |
-| watch                | boolean                                           | true                   | 是否监听变化自动重新生成      |
-| metaMapping          | Record\<string, string\>                          | -                      | 页面 style 字段到 meta 的映射 |
-| exportTypes          | boolean                                           | true                   | 是否导出类型定义              |
-| preserveRouteChanges | boolean                                           | true                   | 是否保留用户对 routes 的修改  |
+| 选项                 | 类型                                                      | 默认值                 | 描述                          |
+| -------------------- | --------------------------------------------------------- | ---------------------- | ----------------------------- |
+| pagesJsonPath        | string                                                    | 'src/pages.json'       | pages.json 文件路径           |
+| outputPath           | string                                                    | 'src/router.config.ts' | 输出文件路径                  |
+| outputFormat         | `'ts'` \| `'js'`                                          | 'ts'                   | 输出文件格式                  |
+| nameStrategy         | `'path'` \| `'camelCase'` \| `'pascalCase'` \| `'custom'` | 'camelCase'            | 路由名称策略                  |
+| customNameGenerator  | `(path: string) => string`                                | -                      | 自定义路由名称生成函数        |
+| includeSubPackages   | boolean                                                   | true                   | 是否包含子包路由              |
+| watch                | boolean                                                   | true                   | 是否监听变化自动重新生成      |
+| metaMapping          | `Record<string, string>`                                  | -                      | 页面 style 字段到 meta 的映射 |
+| exportTypes          | boolean                                                   | true                   | 是否导出类型定义              |
+| preserveRouteChanges | boolean                                                   | true                   | 是否保留用户对 routes 的修改  |
 
 ### generateVersion
 
 在 Vite 构建过程中自动生成版本号。
 
-| 选项         | 类型                                                                  | 默认值            | 描述                     |
-| ------------ | --------------------------------------------------------------------- | ----------------- | ------------------------ |
-| format       | 'timestamp' \| 'date' \| 'datetime' \| 'semver' \| 'hash' \| 'custom' | 'timestamp'       | 版本号格式               |
-| customFormat | string                                                                | -                 | 自定义格式模板           |
-| semverBase   | string                                                                | '1.0.0'           | 语义化版本基础值         |
-| outputType   | 'file' \| 'define' \| 'both'                                          | 'file'            | 输出类型                 |
-| outputFile   | string                                                                | 'version.json'    | 输出文件路径             |
-| defineName   | string                                                                | '**APP_VERSION**' | 注入的全局变量名         |
-| hashLength   | number                                                                | 8                 | 哈希长度（1-32）         |
-| prefix       | string                                                                | -                 | 版本号前缀               |
-| suffix       | string                                                                | -                 | 版本号后缀               |
-| extra        | Record\<string, unknown\>                                             | -                 | 附加信息（仅 JSON 文件） |
+| 选项         | 类型                                                                              | 默认值            | 描述                     |
+| ------------ | --------------------------------------------------------------------------------- | ----------------- | ------------------------ |
+| format       | `'timestamp'` \| `'date'` \| `'datetime'` \| `'semver'` \| `'hash'` \| `'custom'` | 'timestamp'       | 版本号格式               |
+| customFormat | string                                                                            | -                 | 自定义格式模板           |
+| semverBase   | string                                                                            | '1.0.0'           | 语义化版本基础值         |
+| outputType   | `'file'` \| `'define'` \| `'both'`                                                | 'file'            | 输出类型                 |
+| outputFile   | string                                                                            | 'version.json'    | 输出文件路径             |
+| defineName   | string                                                                            | '**APP_VERSION**' | 注入的全局变量名         |
+| hashLength   | number                                                                            | 8                 | 哈希长度（1-32）         |
+| prefix       | string                                                                            | -                 | 版本号前缀               |
+| suffix       | string                                                                            | -                 | 版本号后缀               |
+| extra        | `Record<string, unknown>`                                                         | -                 | 附加信息（仅 JSON 文件） |
 
 ### injectIco
 
@@ -304,23 +355,32 @@ Logger.destroy()
 | sizes | string | 否   | 图标尺寸       |
 | type  | string | 否   | 图标 MIME 类型 |
 
+`copyOptions` 接口定义：
+
+| 属性      | 类型    | 必填 | 默认值 | 描述             |
+| --------- | ------- | ---- | ------ | ---------------- |
+| sourceDir | string  | 是   | -      | 图标源文件目录   |
+| targetDir | string  | 是   | -      | 图标目标目录     |
+| overwrite | boolean | 否   | true   | 是否覆盖同名文件 |
+| recursive | boolean | 否   | true   | 是否递归复制     |
+
 ## 子路径导出
 
 支持按需导入模块，减少打包体积：
 
 ```typescript
 // 完整导入
-import { copyFile, BasePlugin, Logger } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, BasePlugin, Logger } from '@meng-xi/vite-plugin'
 
 // 按模块导入
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
 import { Logger } from '@meng-xi/vite-plugin/logger'
-import { copyFile, generateRouter } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter } from '@meng-xi/vite-plugin/plugins'
 import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plugin/common'
 
 // 类型导入（从子路径按需导入类型定义）
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { GenerateVersionOptions, InjectIcoOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, Icon } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 

@@ -4,6 +4,36 @@
 
 ```typescript
 import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
+import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common'
+```
+
+## 类型导出
+
+### CopyOptions
+
+复制操作选项接口。
+
+```typescript
+interface CopyOptions {
+	recursive: boolean // 是否递归复制子目录
+	overwrite: boolean // 是否覆盖已存在文件
+	incremental?: boolean // 是否仅复制修改过的文件（默认 false）
+	parallelLimit?: number // 并发限制数（默认 10）
+	skipEmptyDirs?: boolean // 是否跳过空目录
+}
+```
+
+### CopyResult
+
+复制结果接口。
+
+```typescript
+interface CopyResult {
+	copiedFiles: number // 复制的文件数量
+	skippedFiles: number // 跳过的文件数量
+	copiedDirs: number // 复制的目录数量
+	executionTime: number // 执行时间（毫秒）
+}
 ```
 
 ## checkSourceExists

@@ -25,14 +25,14 @@ hero:
 features:
   - icon: 📦
     title: 开箱即用
-    details: 提供 copyFile、generateRouter、generateVersion、injectIco 四个实用插件，覆盖文件复制、路由生成、版本管理、图标注入等常见场景。
+    details: 内置 buildProgress、copyFile、generateRouter、generateVersion、injectIco 五款插件，覆盖构建进度展示、文件复制、路由生成、版本管理、图标注入等高频场景，零配置即可使用。
   - icon: 🧱
     title: 插件开发框架
-    details: 导出 BasePlugin、Logger、Validator 等核心组件，快速构建符合规范的自定义 Vite 插件。
+    details: 导出 BasePlugin、createPluginFactory、Logger、Validator 等核心组件，提供完整生命周期管理与钩子自动组合，快速构建规范化的自定义 Vite 插件。
   - icon: 🔒
     title: 类型安全
-    details: 完整的 TypeScript 类型定义，内置配置验证器确保参数正确性，开发体验友好。
+    details: 全量 TypeScript 类型定义，链式配置验证器在构建前拦截参数错误，子路径导出支持按需类型引入，开发体验流畅。
   - icon: ⚙️
     title: 灵活配置
-    details: 所有插件支持详细配置选项，提供统一的启用/禁用、日志控制、错误处理策略。
+    details: 统一的 enabled / verbose / errorStrategy 基础选项，内置 throw / log / ignore 三级错误处理策略与 safeExecute 安全执行包裹，精细控制每个插件行为。
 ---

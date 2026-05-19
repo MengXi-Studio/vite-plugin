@@ -4,10 +4,11 @@
 
 ## 内置插件
 
-开箱即用的四个插件，覆盖常见构建场景：
+开箱即用的五个插件，覆盖常见构建场景：
 
 | 插件                                         | 功能                                        |
 | -------------------------------------------- | ------------------------------------------- |
+| [buildProgress](/plugins/build-progress)     | 在终端实时显示构建进度条                    |
 | [copyFile](/plugins/copy-file)               | 构建完成后复制文件或目录到指定位置          |
 | [generateRouter](/plugins/generate-router)   | 根据 uni-app 的 pages.json 自动生成路由配置 |
 | [generateVersion](/plugins/generate-version) | 自动生成版本号，支持文件输出和全局变量注入  |
