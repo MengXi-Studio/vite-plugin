@@ -1,6 +1,6 @@
 {
 	"name": "@meng-xi/vite-plugin-docs",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"private": false,
 	"description": "@meng-xi/vite-plugin 插件使用文档",
 	"type": "module",
