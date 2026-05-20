@@ -24,10 +24,13 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		// Build progress bar
+		buildProgress(),
+
 		// Copy files
 		copyFile({
 			sourceDir: 'src/assets',
@@ -49,6 +52,12 @@ export default defineConfig({
 		// Inject website icon
 		injectIco({
 			base: '/assets'
+		}),
+
+		// Inject global Loading
+		injectLoading({
+			defaultVisible: true,
+			autoHideOn: 'DOMContentLoaded'
 		})
 	]
 })
@@ -90,7 +99,9 @@ export const myPlugin = createPluginFactory(MyPlugin)
 
 ## Next Steps
 
-- [copyFile Plugin](/en/plugins/copy-file) - File copying
-- [generateRouter Plugin](/en/plugins/generate-router) - Router generation
-- [generateVersion Plugin](/en/plugins/generate-version) - Version management
-- [injectIco Plugin](/en/plugins/inject-ico) - Icon injection
+- [buildProgress](/en/plugins/build-progress) - Build progress display
+- [copyFile](/en/plugins/copy-file) - File copying
+- [generateRouter](/en/plugins/generate-router) - Router generation
+- [generateVersion](/en/plugins/generate-version) - Version management
+- [injectIco](/en/plugins/inject-ico) - Icon injection
+- [injectLoading](/en/plugins/inject-loading) - Global Loading state management

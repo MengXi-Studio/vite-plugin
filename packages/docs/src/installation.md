@@ -24,10 +24,13 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { copyFile, generateRouter, generateVersion, injectIco } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		// 构建进度条
+		buildProgress(),
+
 		// 复制文件
 		copyFile({
 			sourceDir: 'src/assets',
@@ -49,6 +52,12 @@ export default defineConfig({
 		// 注入网站图标
 		injectIco({
 			base: '/assets'
+		}),
+
+		// 注入全局 Loading
+		injectLoading({
+			defaultVisible: true,
+			autoHideOn: 'DOMContentLoaded'
 		})
 	]
 })
@@ -90,7 +99,9 @@ export const myPlugin = createPluginFactory(MyPlugin)
 
 ## 下一步
 
-- [copyFile 插件](/plugins/copy-file) - 文件复制
-- [generateRouter 插件](/plugins/generate-router) - 路由生成
-- [generateVersion 插件](/plugins/generate-version) - 版本管理
-- [injectIco 插件](/plugins/inject-ico) - 图标注入
+- [buildProgress](/plugins/build-progress) - 构建进度展示
+- [copyFile](/plugins/copy-file) - 文件复制
+- [generateRouter](/plugins/generate-router) - 路由生成
+- [generateVersion](/plugins/generate-version) - 版本管理
+- [injectIco](/plugins/inject-ico) - 图标注入
+- [injectLoading](/plugins/inject-loading) - 全局 Loading 状态管理

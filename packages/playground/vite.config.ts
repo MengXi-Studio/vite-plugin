@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { buildProgress, copyFile, generateVersion, injectIco } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin/plugins'
 import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
-import type { GenerateVersionOptions } from '@meng-xi/vite-plugin'
+import type { GenerateVersionOptions, InjectLoadingOptions } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -50,6 +50,32 @@ export default defineConfig({
 				overwrite: true,
 				recursive: true
 			}
-		})
+		}),
+
+		// 全局 Loading 状态管理
+		injectLoading({
+			defaultVisible: true,
+			autoHideOn: 'DOMContentLoaded',
+			position: 'center',
+			spinnerType: 'spinner',
+			style: {
+				overlayColor: 'rgba(255, 255, 255, 0.85)',
+				spinnerColor: '#42b883',
+				textColor: '#333'
+			},
+			transition: {
+				enabled: true,
+				duration: 300,
+				easing: 'ease-out'
+			},
+			minDisplayTime: {
+				enabled: true,
+				duration: 500
+			},
+			autoBind: 'all',
+			requestFilter: {
+				excludeUrlPrefixes: ['/static/']
+			}
+		}) as PluginWithInstance<InjectLoadingOptions>
 	]
 })

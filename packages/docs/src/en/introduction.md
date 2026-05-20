@@ -4,15 +4,16 @@
 
 ## Built-in Plugins
 
-Five ready-to-use plugins covering common build scenarios:
+Six ready-to-use plugins covering common build scenarios:
 
-| Plugin                                          | Description                                                                  |
-| ----------------------------------------------- | ---------------------------------------------------------------------------- |
-| [buildProgress](/en/plugins/build-progress)     | Display real-time build progress bar in terminal                             |
-| [copyFile](/en/plugins/copy-file)               | Copy files or directories to specified locations after build                 |
-| [generateRouter](/en/plugins/generate-router)   | Auto-generate router configuration from uni-app's pages.json                 |
-| [generateVersion](/en/plugins/generate-version) | Auto-generate version numbers with file output and global variable injection |
-| [injectIco](/en/plugins/inject-ico)             | Inject website icon links into HTML files                                    |
+| Plugin                                          | Description                                                                               |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [buildProgress](/en/plugins/build-progress)     | Display real-time build progress bar in terminal, supporting three display formats        |
+| [copyFile](/en/plugins/copy-file)               | Copy files or directories to specified locations after build, with incremental copying    |
+| [generateRouter](/en/plugins/generate-router)   | Auto-generate router configuration from uni-app's pages.json                              |
+| [generateVersion](/en/plugins/generate-version) | Auto-generate version numbers with file output and global variable injection              |
+| [injectIco](/en/plugins/inject-ico)             | Inject website icon links into HTML files                                                 |
+| [injectLoading](/en/plugins/inject-loading)     | Inject global Loading state management with request interception and white-screen Loading |
 
 ## Plugin Development Framework
 
@@ -51,5 +52,7 @@ Exported utility functions:
 ## Next Steps
 
 - [Installation](/en/installation) - Quick start
-- [Plugin Documentation](/en/plugins/copy-file) - Learn detailed plugin configurations
+- [buildProgress](/en/plugins/build-progress) - Build progress display
+- [injectLoading](/en/plugins/inject-loading) - Global Loading state management
+- [Plugin Factory](/en/factory/index) - Develop custom plugins
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) - View source code and examples

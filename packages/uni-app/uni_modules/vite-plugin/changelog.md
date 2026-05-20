@@ -1,3 +1,49 @@
+## 0.0.8（2026-05-21）
+
+新增 injectLoading 全局 Loading 状态管理插件
+
+### injectLoading（新增）
+
+注入全局 Loading 状态管理，支持白屏 Loading、请求自动拦截、自定义样式与动画、生命周期回调。
+
+**功能特性**：
+
+- 白屏 Loading：`defaultVisible` 为 `true` 时，CSS 和 HTML 以静态标签注入到 `<head>`，HTML 解析即显示，无需等待 JS 执行
+- 自动隐藏时机：支持 `DOMContentLoaded`、`load`、`manual` 三种策略，适配 SSR/MPA 和 SPA 场景
+- 请求自动拦截：`autoBind` 支持 `fetch`、`xhr`、`all`、`none` 四种模式，自动管理 Loading 状态
+- 请求过滤：`requestFilter` 支持 URL 正则排除/包含、HTTP 方法排除、URL 前缀排除，`includeUrls` 优先级高于 `excludeUrls`
+- 四种内置图标：`spinner`（旋转圆环）、`dots`（三点跳动）、`pulse`（脉冲）、`bar`（进度条）
+- 过渡动画：可配置 CSS 过渡效果（持续时间、缓动函数），CSS 与 JS 动画协同避免冲突
+- 最小显示时间：防止 Loading 闪烁，确保至少显示指定时长
+- 延迟显示：请求在短时间内完成时不显示 Loading，避免闪烁
+- 防抖隐藏：频繁触发 hide 时延迟执行，避免闪烁
+- 自定义样式：支持遮罩层颜色、图标颜色/大小、文本颜色/大小、z-index、点击穿透、背景模糊等
+- 自定义模板：`customTemplate` 支持完全自定义 HTML 结构
+- 生命周期回调：`onBeforeShow`、`onShow`、`onBeforeHide`、`onHide`、`onDestroy`，以函数体字符串形式提供
+- 运行时 API：注入 `window.__LOADING_MANAGER__`（可通过 `globalName` 自定义），提供 `show`、`hide`、`forceHide`、`updateText`、`isVisible`、`getPendingCount`、`destroy` 方法
+- SSR 安全：注入的 JS 代码包含 `typeof window === 'undefined'` 检测，SSR 环境自动跳过
+- 销毁清理：`destroy()` 清理 DOM 元素、style 标签、定时器，并恢复原始 fetch/XHR 拦截
+
+**配置选项**：
+
+| 选项           | 类型                                       | 默认值                  | 描述                                                 |
+| -------------- | ------------------------------------------ | ----------------------- | ---------------------------------------------------- |
+| position       | `'center' \| 'top' \| 'bottom'`            | `'center'`              | Loading 显示位置                                     |
+| defaultText    | `string`                                   | `'加载中...'`           | 默认显示文本                                         |
+| spinnerType    | `'spinner' \| 'dots' \| 'pulse' \| 'bar'`  | `'spinner'`             | 旋转图标类型                                         |
+| style          | `LoadingStyle`                             | 见下方                  | 自定义样式配置                                       |
+| transition     | `TransitionConfig`                         | `{ enabled: true }`     | 过渡动画配置                                         |
+| minDisplayTime | `MinDisplayTime`                           | `{ enabled: true }`     | 最小显示时间配置                                     |
+| delayShow      | `DelayShow`                                | `{ enabled: true }`     | 延迟显示配置                                         |
+| debounceHide   | `DebounceHide`                             | `{ enabled: false }`    | 防抖隐藏配置                                         |
+| autoBind       | `'fetch' \| 'xhr' \| 'all' \| 'none'`      | `'none'`                | 自动绑定请求拦截模式                                 |
+| requestFilter  | `RequestFilter`                            | -                       | 请求过滤配置                                         |
+| globalName     | `string`                                   | `'__LOADING_MANAGER__'` | 注入到浏览器的全局变量名                             |
+| customTemplate | `string`                                   | -                       | 自定义 Loading HTML 模板                             |
+| defaultVisible | `boolean`                                  | `false`                 | DOM 初始可见状态（白屏 Loading）                     |
+| autoHideOn     | `'DOMContentLoaded' \| 'load' \| 'manual'` | `'DOMContentLoaded'`    | 自动隐藏时机（仅 `defaultVisible` 为 `true` 时生效） |
+| callbacks      | `LoadingCallbacks`                         | -                       | 生命周期回调                                         |
+
 ## 0.0.7（2026-05-19）
 
 新增 buildProgress 构建进度条插件

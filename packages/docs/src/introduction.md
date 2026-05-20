@@ -4,15 +4,16 @@
 
 ## 内置插件
 
-开箱即用的五个插件，覆盖常见构建场景：
+开箱即用的六款插件，覆盖常见构建场景：
 
-| 插件                                         | 功能                                        |
-| -------------------------------------------- | ------------------------------------------- |
-| [buildProgress](/plugins/build-progress)     | 在终端实时显示构建进度条                    |
-| [copyFile](/plugins/copy-file)               | 构建完成后复制文件或目录到指定位置          |
-| [generateRouter](/plugins/generate-router)   | 根据 uni-app 的 pages.json 自动生成路由配置 |
-| [generateVersion](/plugins/generate-version) | 自动生成版本号，支持文件输出和全局变量注入  |
-| [injectIco](/plugins/inject-ico)             | 将网站图标链接注入到 HTML 文件              |
+| 插件                                         | 功能                                                  |
+| -------------------------------------------- | ----------------------------------------------------- |
+| [buildProgress](/plugins/build-progress)     | 在终端实时显示构建进度条，支持三种显示格式            |
+| [copyFile](/plugins/copy-file)               | 构建完成后复制文件或目录到指定位置，支持增量复制      |
+| [generateRouter](/plugins/generate-router)   | 根据 uni-app 的 pages.json 自动生成路由配置           |
+| [generateVersion](/plugins/generate-version) | 自动生成版本号，支持文件输出和全局变量注入            |
+| [injectIco](/plugins/inject-ico)             | 将网站图标链接注入到 HTML 文件                        |
+| [injectLoading](/plugins/inject-loading)     | 注入全局 Loading 状态管理，支持请求拦截和白屏 Loading |
 
 ## 插件开发框架
 
@@ -51,5 +52,7 @@ interface BasePluginOptions {
 ## 下一步
 
 - [安装使用](/installation) - 快速开始
-- [插件文档](/plugins/copy-file) - 了解各插件详细配置
+- [buildProgress](/plugins/build-progress) - 构建进度展示
+- [injectLoading](/plugins/inject-loading) - 全局 Loading 状态管理
+- [插件工厂](/factory/index) - 开发自定义插件
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) - 查看源码和示例

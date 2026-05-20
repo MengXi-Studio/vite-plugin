@@ -16,3 +16,17 @@ interface VersionInfo {
 
 declare const __APP_VERSION__: string
 declare const __APP_VERSION___INFO: VersionInfo
+
+interface LoadingManager {
+	show(text?: string): void
+	hide(): void
+	forceHide(): void
+	destroy(): void
+	updateText(text: string): void
+	isVisible(): boolean
+	getPendingCount(): number
+}
+
+interface Window {
+	__LOADING_MANAGER__: LoadingManager
+}

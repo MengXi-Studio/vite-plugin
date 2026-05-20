@@ -171,6 +171,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'injectIco',
 							link: '/en/plugins/inject-ico.html'
+						},
+						{
+							text: 'injectLoading',
+							link: '/en/plugins/inject-loading.html'
 						}
 					]
 				}

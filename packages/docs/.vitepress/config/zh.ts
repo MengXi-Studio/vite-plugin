@@ -171,6 +171,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'injectIco',
 							link: '/plugins/inject-ico.html'
+						},
+						{
+							text: 'injectLoading',
+							link: '/plugins/inject-loading.html'
 						}
 					]
 				}
