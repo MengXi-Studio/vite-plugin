@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import { injectIco, copyFile, generateVersion, buildProgress } from './uni_modules/vite-plugin/js_sdk/index'
+import { injectIco, copyFile, generateVersion, buildProgress } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 import { resolve } from 'node:path'
 
 export default defineConfig(config => {
