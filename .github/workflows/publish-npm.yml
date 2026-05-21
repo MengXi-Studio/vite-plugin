@@ -1,0 +1,85 @@
+# npm 包构建与发布（手动触发，OIDC 可信发布）
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      # 勾选后仅构建，不发布到 npm
+      skip_publish:
+        description: 'Skip publish (build only)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '22.14.0'
+  PNPM_VERSION: '10.11.0'
+  NPM_REGISTRY: 'https://registry.npmjs.org'
+
+# id-token: write — OIDC 可信发布必需
+permissions:
+  id-token: write
+
+jobs:
+  publish:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+    # 关联 publish 环境，可配置审批流程
+    environment: publish
+
+    steps:
+      # 检出代码
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      # 设置 Node.js 环境，启用 pnpm 缓存
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          registry-url: ${{ env.NPM_REGISTRY }}
+
+      # 安装依赖（严格匹配 lockfile）
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 构建 @meng-xi/vite-plugin 包
+      - name: Build core package
+        run: pnpm run build:core
+
+      # 验证构建产物是否存在
+      - name: Verify build output
+        run: |
+          if [ ! -d "packages/core/dist" ]; then
+            echo "Error: packages/core/dist not found"
+            exit 1
+          fi
+
+      # 检查版本号是否与 npm 已发布版本重复
+      - name: Check version
+        if: ${{ !inputs.skip_publish }}
+        id: version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./packages/core/package.json').version")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+          PUBLISHED_VERSION=$(npm view @meng-xi/vite-plugin version --registry ${{ env.NPM_REGISTRY }} 2>/dev/null || echo "none")
+          echo "published_version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
+
+          if [ "$CURRENT_VERSION" = "$PUBLISHED_VERSION" ]; then
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+          fi
+
+      # 发布到 npm（OIDC 可信发布 + provenance 签名）
+      - name: Publish to npm
+        if: ${{ !inputs.skip_publish && steps.version.outputs.should_publish == 'true' }}
+        run: pnpm --filter @meng-xi/vite-plugin publish --no-git-checks --access public --provenance
