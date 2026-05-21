@@ -28,21 +28,16 @@
 
 ## 安装
 
-::: code-group
-
-```bash [npm]
+```bash
+# npm
 npm install @meng-xi/vite-plugin -D
-```
 
-```bash [yarn]
+# yarn
 yarn add @meng-xi/vite-plugin -D
-```
 
-```bash [pnpm]
+# pnpm
 pnpm add @meng-xi/vite-plugin -D
 ```
-
-:::
 
 ## 快速开始
 

@@ -28,21 +28,16 @@ View full documentation: [https://mengxi-studio.github.io/vite-plugin/](https://
 
 ## Installation
 
-::: code-group
-
-```bash [npm]
+```bash
+# npm
 npm install @meng-xi/vite-plugin -D
-```
 
-```bash [yarn]
+# yarn
 yarn add @meng-xi/vite-plugin -D
-```
 
-```bash [pnpm]
+# pnpm
 pnpm add @meng-xi/vite-plugin -D
 ```
-
-:::
 
 ## Quick Start
 
