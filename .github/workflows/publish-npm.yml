@@ -12,8 +12,8 @@ on:
         type: boolean
 
 env:
-  NODE_VERSION: '22.14.0'
-  PNPM_VERSION: '10.11.0'
+  NODE_VERSION: '24.14.0'
+  PNPM_VERSION: '10.30.0'
   NPM_REGISTRY: 'https://registry.npmjs.org'
 
 # id-token: write — OIDC 可信发布必需
@@ -30,17 +30,17 @@ jobs:
     steps:
       # 检出代码
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # 安装 pnpm
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
 
       # 设置 Node.js 环境，启用 pnpm 缓存
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
