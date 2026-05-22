@@ -48,7 +48,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-          registry-url: ${{ env.NPM_REGISTRY }}
+
+      # 配置 npm registry（不设置 _authToken，让 OIDC 自动接管认证）
+      - name: Configure npm registry
+        run: npm config set registry ${{ env.NPM_REGISTRY }}
 
       # 安装依赖（严格匹配 lockfile）
       - name: Install dependencies
