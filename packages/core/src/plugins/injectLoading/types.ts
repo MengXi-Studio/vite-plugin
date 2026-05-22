@@ -160,13 +160,23 @@ export interface LoadingStyle {
 	zIndex?: number
 
 	/**
-	 * 遮罩层是否允许点击穿透
+	 * 是否启用遮罩层的指针事件
 	 *
 	 * @remarks
-	 * - `false`（默认）：遮罩层拦截所有鼠标事件，防止用户在加载期间操作
-	 * - `true`：遮罩层允许点击穿透，用户可在加载期间继续交互
+	 * 对应 CSS `pointer-events` 属性，控制遮罩层是否拦截用户的点击、滚动等交互操作：
+	 * - `true`（默认）：启用指针事件（`pointer-events: auto`），遮罩层阻止所有交互
+	 * - `false`：禁用指针事件（`pointer-events: none`），遮罩层允许交互穿透
 	 *
-	 * @defaultValue `false`
+	 * @defaultValue `true`
+	 *
+	 * @example
+	 * ```typescript
+	 * // 阻止交互（默认行为）
+	 * injectLoading({ style: { pointerEvents: true } })
+	 *
+	 * // 允许交互穿透（如仅展示加载状态，不阻止操作）
+	 * injectLoading({ style: { pointerEvents: false } })
+	 * ```
 	 */
 	pointerEvents?: boolean
 
@@ -417,12 +427,57 @@ export interface LoadingManager {
 	forceHide(): void
 
 	/**
-	 * 销毁 loading 实例
+	 * 切换 loading 的显示/隐藏状态
 	 *
-	 * @remarks 清理 DOM 元素、事件监听器，并恢复原始的 fetch/XHR 拦截。
-	 * 销毁后所有其他方法调用将被安全忽略
+	 * @remarks 如果当前显示则调用 {@link hide}，如果当前隐藏则调用 {@link show}
+	 *
+	 * @param text - 可选，切换为显示时的文本内容；不传则保留默认文本
+	 *
+	 * @example
+	 * ```typescript
+	 * window.__LOADING_MANAGER__.toggle()
+	 * window.__LOADING_MANAGER__.toggle('正在加载...')
+	 * ```
 	 */
-	destroy(): void
+	toggle(text?: string): void
+
+	/**
+	 * 启用遮罩层的指针事件，拦截所有点击和滚动操作
+	 *
+	 * @remarks 设置遮罩层的 `pointer-events: auto`，恢复默认的交互拦截行为。
+	 * 适用于运行时动态启用交互阻止，例如在特定操作期间临时锁定页面
+	 *
+	 * @example
+	 * ```typescript
+	 * window.__LOADING_MANAGER__.enablePointerEvents()
+	 * ```
+	 */
+	enablePointerEvents(): void
+
+	/**
+	 * 禁用遮罩层的指针事件，允许交互穿透
+	 *
+	 * @remarks 设置遮罩层的 `pointer-events: none`，使鼠标事件穿透到下层元素。
+	 * 适用于运行时动态禁用交互阻止，例如需要用户在 loading 期间仍能操作页面
+	 *
+	 * @example
+	 * ```typescript
+	 * window.__LOADING_MANAGER__.disablePointerEvents()
+	 * ```
+	 */
+	disablePointerEvents(): void
+
+	/**
+	 * 切换遮罩层的指针事件状态
+	 *
+	 * @remarks 如果当前启用指针事件则调用 {@link disablePointerEvents}，如果当前禁用则调用 {@link enablePointerEvents}
+	 *
+	 * @example
+	 * ```typescript
+	 * window.__LOADING_MANAGER__.togglePointerEvents()
+	 * ```
+	 */
+	togglePointerEvents(): void
 
 	/**
 	 * 更新 loading 文本内容
@@ -444,11 +499,26 @@ export interface LoadingManager {
 	isVisible(): boolean
 
 	/**
+	 * 获取当前遮罩层是否启用了指针事件
+	 *
+	 * @returns `true` 表示指针事件已启用（遮罩层拦截交互），`false` 表示已禁用（允许穿透）
+	 */
+	isPointerEventsEnabled(): boolean
+
+	/**
 	 * 获取当前挂起的请求数量
 	 *
 	 * @returns 当前正在进行的、被拦截的请求数量
 	 */
 	getPendingCount(): number
+
+	/**
+	 * 销毁 loading 实例
+	 *
+	 * @remarks 清理 DOM 元素、事件监听器，并恢复原始的 fetch/XHR 拦截。
+	 * 销毁后所有其他方法调用将被安全忽略
+	 */
+	destroy(): void
 }
 
 /**

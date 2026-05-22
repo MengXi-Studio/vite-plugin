@@ -2,6 +2,16 @@ import type { LoadingPosition, LoadingStyle, SpinnerType, TransitionConfig } fro
 import { CLS_OVERLAY, CLS_HIDDEN, CLS_VISIBLE, CLS_TOP, CLS_CENTER, CLS_BOTTOM, CLS_SPINNER, CLS_TEXT, CLS_DOT, ID_ROOT, ATTR_TEXT, ANIM_SPIN, ANIM_DOTS, ANIM_PULSE, ANIM_BAR, POSITION_CLASS_MAP } from './constants'
 
 /**
+ * 转义 HTML 属性值中的特殊字符，防止 XSS 注入
+ *
+ * @param str - 需要转义的字符串
+ * @returns 转义后的安全字符串
+ */
+function escapeHtmlAttr(str: string): string {
+	return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+/**
  * 生成 Loading CSS 样式
  *
  * @remarks 根据样式配置和图标类型生成完整的 CSS 代码，
@@ -9,6 +19,7 @@ import { CLS_OVERLAY, CLS_HIDDEN, CLS_VISIBLE, CLS_TOP, CLS_CENTER, CLS_BOTTOM, 
  *
  * @param style - 样式配置对象
  * @param spinnerType - 内置图标类型，默认 `'spinner'`
+ * @param transition - 过渡动画配置
  * @returns 完整的 CSS 样式字符串
  */
 export function generateCSS(style: LoadingStyle, spinnerType: SpinnerType = 'spinner', transition?: TransitionConfig): string {
@@ -19,11 +30,14 @@ export function generateCSS(style: LoadingStyle, spinnerType: SpinnerType = 'spi
 		textColor = '#333',
 		textSize = '14px',
 		zIndex = 9999,
-		pointerEvents = false,
+		pointerEvents = true,
 		backdropBlur = false,
 		backdropBlurAmount = 4
 	} = style
 
+	// pointerEvents 对应 CSS pointer-events 属性：
+	// - true（默认）→ pointer-events: auto → 阻止交互
+	// - false → pointer-events: none → 允许穿透
 	const pointerEventsCSS = pointerEvents ? '' : 'pointer-events: none;'
 	const backdropCSS = backdropBlur ? `backdrop-filter: blur(${backdropBlurAmount}px);-webkit-backdrop-filter: blur(${backdropBlurAmount}px);` : ''
 
@@ -49,7 +63,7 @@ export function generateCSS(style: LoadingStyle, spinnerType: SpinnerType = 'spi
   z-index: ${zIndex};
   ${pointerEventsCSS}
   ${backdropCSS}
-  contain: layout style paint;
+  contain: content;
   will-change: opacity;
 }
 .${CLS_OVERLAY}.${CLS_TOP} {
@@ -76,10 +90,20 @@ ${spinnerCSS}
   visibility: hidden;
   ${transitionCSS}
 }
+.${CLS_OVERLAY}.${CLS_HIDDEN} .${CLS_SPINNER},
+.${CLS_OVERLAY}.${CLS_HIDDEN} .${CLS_DOT},
+.${CLS_OVERLAY}.${CLS_HIDDEN} .${CLS_SPINNER}::after {
+  animation-play-state: paused;
+}
 .${CLS_OVERLAY}.${CLS_VISIBLE} {
   opacity: 1;
   visibility: visible;
   ${transitionCSS}
+}
+.${CLS_OVERLAY}.${CLS_VISIBLE} .${CLS_SPINNER},
+.${CLS_OVERLAY}.${CLS_VISIBLE} .${CLS_DOT},
+.${CLS_OVERLAY}.${CLS_VISIBLE} .${CLS_SPINNER}::after {
+  animation-play-state: running;
 }`
 }
 
@@ -190,7 +214,7 @@ export function generateHTMLTemplate(options: { position?: LoadingPosition; defa
 	const spinnerType = options.spinnerType || 'spinner'
 	const positionClass = POSITION_CLASS_MAP[position]
 	const customClass = options.style?.customClass ? ` ${options.style.customClass}` : ''
-	const customStyle = options.style?.customStyle ? ` style="${options.style.customStyle}"` : ''
+	const customStyle = options.style?.customStyle ? ` style="${escapeHtmlAttr(options.style.customStyle)}"` : ''
 	const visibilityClass = options.defaultVisible ? CLS_VISIBLE : CLS_HIDDEN
 
 	if (options.customTemplate) {
@@ -201,7 +225,7 @@ export function generateHTMLTemplate(options: { position?: LoadingPosition; defa
 
 	return `<div class="${CLS_OVERLAY} ${positionClass} ${visibilityClass}${customClass}" id="${ID_ROOT}"${customStyle}>
   ${spinnerHTML}
-  <div class="${CLS_TEXT}" ${ATTR_TEXT}="">${defaultText}</div>
+  <div class="${CLS_TEXT}" ${ATTR_TEXT}>${defaultText}</div>
 </div>`
 }
 

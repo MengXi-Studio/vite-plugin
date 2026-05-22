@@ -57,19 +57,19 @@ injectLoading({ autoBind: 'fetch' })
 
 ### LoadingStyle
 
-| Option             | Type      | Default                   | Description                              |
-| ------------------ | --------- | ------------------------- | ---------------------------------------- |
-| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | Overlay background color                 |
-| spinnerColor       | `string`  | `'#4361ee'`               | Spinner color                            |
-| spinnerSize        | `string`  | `'40px'`                  | Spinner size                             |
-| textColor          | `string`  | `'#333'`                  | Text color                               |
-| textSize           | `string`  | `'14px'`                  | Text size                                |
-| customClass        | `string`  | -                         | Custom CSS class name                    |
-| customStyle        | `string`  | -                         | Custom inline style string               |
-| zIndex             | `number`  | `9999`                    | z-index value (must be non-negative)     |
-| pointerEvents      | `boolean` | `false`                   | Allow click-through                      |
-| backdropBlur       | `boolean` | `false`                   | Enable backdrop blur                     |
-| backdropBlurAmount | `number`  | `4`                       | Blur amount in px (must be non-negative) |
+| Option             | Type      | Default                   | Description                                                                |
+| ------------------ | --------- | ------------------------- | -------------------------------------------------------------------------- |
+| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | Overlay background color                                                   |
+| spinnerColor       | `string`  | `'#4361ee'`               | Spinner color                                                              |
+| spinnerSize        | `string`  | `'40px'`                  | Spinner size                                                               |
+| textColor          | `string`  | `'#333'`                  | Text color                                                                 |
+| textSize           | `string`  | `'14px'`                  | Text size                                                                  |
+| customClass        | `string`  | -                         | Custom CSS class name                                                      |
+| customStyle        | `string`  | -                         | Custom inline style string                                                 |
+| zIndex             | `number`  | `9999`                    | z-index value (must be non-negative)                                       |
+| pointerEvents      | `boolean` | `true`                    | Whether to enable pointer events on overlay (maps to CSS `pointer-events`) |
+| backdropBlur       | `boolean` | `false`                   | Enable backdrop blur                                                       |
+| backdropBlurAmount | `number`  | `4`                       | Blur amount in px (must be non-negative)                                   |
 
 ### TransitionConfig
 
@@ -125,15 +125,20 @@ Callbacks are provided as **function body strings** because the plugin injects c
 
 The plugin injects a global manager (default `window.__LOADING_MANAGER__`) to the browser, providing the following methods:
 
-| Method              | Description                                                       |
-| ------------------- | ----------------------------------------------------------------- |
-| `show(text?)`       | Show loading, optionally with text                                |
-| `hide()`            | Hide loading (subject to minDisplayTime/debounceHide constraints) |
-| `forceHide()`       | Force hide, ignoring min display time and debounce                |
-| `destroy()`         | Destroy instance, clean up DOM and restore interceptors           |
-| `updateText(t)`     | Update text content                                               |
-| `isVisible()`       | Get current visibility state                                      |
-| `getPendingCount()` | Get current pending request count                                 |
+| Method                     | Description                                                       |
+| -------------------------- | ----------------------------------------------------------------- |
+| `show(text?)`              | Show loading, optionally with text                                |
+| `hide()`                   | Hide loading (subject to minDisplayTime/debounceHide constraints) |
+| `forceHide()`              | Force hide, ignoring min display time and debounce                |
+| `toggle(text?)`            | Toggle show/hide state                                            |
+| `enablePointerEvents()`    | Enable pointer events, overlay intercepts all clicks and scrolls  |
+| `disablePointerEvents()`   | Disable pointer events, allow interaction passthrough             |
+| `togglePointerEvents()`    | Toggle pointer events state                                       |
+| `updateText(t)`            | Update text content                                               |
+| `isVisible()`              | Get current visibility state                                      |
+| `isPointerEventsEnabled()` | Get whether pointer events are currently enabled                  |
+| `getPendingCount()`        | Get current pending request count                                 |
+| `destroy()`                | Destroy instance, clean up DOM and restore interceptors           |
 
 ```typescript
 // Show loading
@@ -145,6 +150,16 @@ window.__LOADING_MANAGER__.hide()
 
 // Force hide
 window.__LOADING_MANAGER__.forceHide()
+
+// Toggle show/hide
+window.__LOADING_MANAGER__.toggle()
+window.__LOADING_MANAGER__.toggle('Loading...')
+
+// Interaction control
+window.__LOADING_MANAGER__.enablePointerEvents() // Enable pointer events (block interaction)
+window.__LOADING_MANAGER__.disablePointerEvents() // Disable pointer events (allow passthrough)
+window.__LOADING_MANAGER__.togglePointerEvents() // Toggle pointer events state
+window.__LOADING_MANAGER__.isPointerEventsEnabled() // Query pointer events state
 
 // Update text
 window.__LOADING_MANAGER__.updateText('Processing data...')
@@ -245,6 +260,25 @@ injectLoading({ globalName: '__MY_LOADING__' })
 window.__MY_LOADING__.show()
 ```
 
+### Interaction Control
+
+By default, loading blocks user interaction when visible. Use `style.pointerEvents` to control this:
+
+```typescript
+// Allow interaction passthrough (users can still operate the page during loading)
+injectLoading({ style: { pointerEvents: false } })
+```
+
+You can also dynamically toggle interaction blocking at runtime:
+
+```typescript
+// Dynamically block/allow interaction
+window.__LOADING_MANAGER__.enablePointerEvents()
+window.__LOADING_MANAGER__.disablePointerEvents()
+window.__LOADING_MANAGER__.togglePointerEvents()
+window.__LOADING_MANAGER__.isPointerEventsEnabled() // → true/false
+```
+
 ### Full Configuration
 
 ```typescript
@@ -259,7 +293,7 @@ injectLoading({
 		textColor: '#333',
 		textSize: '14px',
 		zIndex: 9999,
-		pointerEvents: false,
+		pointerEvents: true,
 		backdropBlur: false,
 		backdropBlurAmount: 4
 	},
@@ -282,6 +316,7 @@ injectLoading({
 
 - When `defaultVisible` is `true`, CSS and HTML are injected as static tags into `<head>`, ensuring loading is visible during the white-screen phase without waiting for JS execution
 - `autoHideOn` only takes effect when `defaultVisible` is `true`
+- `style.pointerEvents` defaults to `true` (pointer events enabled), blocking user interaction when loading is visible; set to `false` (`pointer-events: none`) to allow click-through
 - Callbacks are provided as function body strings and are automatically wrapped in try-catch at runtime — callback errors won't affect normal loading functionality
 - `onBeforeShow` / `onBeforeHide` can `return false` to prevent show/hide
 - `destroy()` cleans up DOM elements and restores original fetch/XHR interceptors; all method calls are safely ignored after destruction

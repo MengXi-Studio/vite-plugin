@@ -398,19 +398,19 @@ buildProgress({
 
 **LoadingStyle**
 
-| 属性               | 类型      | 默认值                    | 描述               |
-| ------------------ | --------- | ------------------------- | ------------------ |
-| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | 遮罩层背景色       |
-| spinnerColor       | `string`  | `'#4361ee'`               | 图标颜色           |
-| spinnerSize        | `string`  | `'40px'`                  | 图标大小           |
-| textColor          | `string`  | `'#333'`                  | 文本颜色           |
-| textSize           | `string`  | `'14px'`                  | 文本大小           |
-| customClass        | `string`  | -                         | 自定义 CSS 类名    |
-| customStyle        | `string`  | -                         | 自定义内联样式     |
-| zIndex             | `number`  | `9999`                    | z-index 值         |
-| pointerEvents      | `boolean` | `false`                   | 是否允许点击穿透   |
-| backdropBlur       | `boolean` | `false`                   | 是否启用背景模糊   |
-| backdropBlurAmount | `number`  | `4`                       | 背景模糊程度（px） |
+| 属性               | 类型      | 默认值                    | 描述                   |
+| ------------------ | --------- | ------------------------- | ---------------------- |
+| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | 遮罩层背景色           |
+| spinnerColor       | `string`  | `'#4361ee'`               | 图标颜色               |
+| spinnerSize        | `string`  | `'40px'`                  | 图标大小               |
+| textColor          | `string`  | `'#333'`                  | 文本颜色               |
+| textSize           | `string`  | `'14px'`                  | 文本大小               |
+| customClass        | `string`  | -                         | 自定义 CSS 类名        |
+| customStyle        | `string`  | -                         | 自定义内联样式         |
+| zIndex             | `number`  | `9999`                    | z-index 值             |
+| pointerEvents      | `boolean` | `true`                    | 是否启用遮罩层指针事件 |
+| backdropBlur       | `boolean` | `false`                   | 是否启用背景模糊       |
+| backdropBlurAmount | `number`  | `4`                       | 背景模糊程度（px）     |
 
 **TransitionConfig**
 

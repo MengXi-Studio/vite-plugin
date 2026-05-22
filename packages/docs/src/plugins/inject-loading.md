@@ -57,19 +57,19 @@ injectLoading({ autoBind: 'fetch' })
 
 ### LoadingStyle
 
-| 选项               | 类型      | 默认值                    | 说明                        |
-| ------------------ | --------- | ------------------------- | --------------------------- |
-| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | 遮罩层背景色                |
-| spinnerColor       | `string`  | `'#4361ee'`               | 图标颜色                    |
-| spinnerSize        | `string`  | `'40px'`                  | 图标大小                    |
-| textColor          | `string`  | `'#333'`                  | 文本颜色                    |
-| textSize           | `string`  | `'14px'`                  | 文本大小                    |
-| customClass        | `string`  | -                         | 自定义 CSS 类名             |
-| customStyle        | `string`  | -                         | 自定义内联样式字符串        |
-| zIndex             | `number`  | `9999`                    | z-index 值（必须为非负数）  |
-| pointerEvents      | `boolean` | `false`                   | 是否允许点击穿透            |
-| backdropBlur       | `boolean` | `false`                   | 是否启用背景模糊            |
-| backdropBlurAmount | `number`  | `4`                       | 模糊程度 px（必须为非负数） |
+| 选项               | 类型      | 默认值                    | 说明                                                |
+| ------------------ | --------- | ------------------------- | --------------------------------------------------- |
+| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | 遮罩层背景色                                        |
+| spinnerColor       | `string`  | `'#4361ee'`               | 图标颜色                                            |
+| spinnerSize        | `string`  | `'40px'`                  | 图标大小                                            |
+| textColor          | `string`  | `'#333'`                  | 文本颜色                                            |
+| textSize           | `string`  | `'14px'`                  | 文本大小                                            |
+| customClass        | `string`  | -                         | 自定义 CSS 类名                                     |
+| customStyle        | `string`  | -                         | 自定义内联样式字符串                                |
+| zIndex             | `number`  | `9999`                    | z-index 值（必须为非负数）                          |
+| pointerEvents      | `boolean` | `true`                    | 是否启用遮罩层指针事件（对应 CSS `pointer-events`） |
+| backdropBlur       | `boolean` | `false`                   | 是否启用背景模糊                                    |
+| backdropBlurAmount | `number`  | `4`                       | 模糊程度 px（必须为非负数）                         |
 
 ### TransitionConfig
 
@@ -125,15 +125,20 @@ injectLoading({ autoBind: 'fetch' })
 
 插件注入到浏览器的全局管理器（默认 `window.__LOADING_MANAGER__`），提供以下方法：
 
-| 方法                | 说明                                                |
-| ------------------- | --------------------------------------------------- |
-| `show(text?)`       | 显示 loading，可传入文本                            |
-| `hide()`            | 隐藏 loading（受 minDisplayTime/debounceHide 约束） |
-| `forceHide()`       | 强制隐藏，忽略最小显示时间和防抖                    |
-| `destroy()`         | 销毁实例，清理 DOM 和拦截器                         |
-| `updateText(t)`     | 更新文本内容                                        |
-| `isVisible()`       | 获取当前是否显示                                    |
-| `getPendingCount()` | 获取当前挂起的请求数量                              |
+| 方法                       | 说明                                                |
+| -------------------------- | --------------------------------------------------- |
+| `show(text?)`              | 显示 loading，可传入文本                            |
+| `hide()`                   | 隐藏 loading（受 minDisplayTime/debounceHide 约束） |
+| `forceHide()`              | 强制隐藏，忽略最小显示时间和防抖                    |
+| `toggle(text?)`            | 切换显示/隐藏状态                                   |
+| `enablePointerEvents()`    | 启用指针事件，遮罩层拦截所有点击和滚动              |
+| `disablePointerEvents()`   | 禁用指针事件，允许交互穿透遮罩层                    |
+| `togglePointerEvents()`    | 切换指针事件状态                                    |
+| `updateText(t)`            | 更新文本内容                                        |
+| `isVisible()`              | 获取当前是否显示                                    |
+| `isPointerEventsEnabled()` | 获取当前指针事件是否启用                            |
+| `getPendingCount()`        | 获取当前挂起的请求数量                              |
+| `destroy()`                | 销毁实例，清理 DOM 和拦截器                         |
 
 ```typescript
 // 显示 loading
@@ -145,6 +150,16 @@ window.__LOADING_MANAGER__.hide()
 
 // 强制隐藏
 window.__LOADING_MANAGER__.forceHide()
+
+// 切换显示/隐藏
+window.__LOADING_MANAGER__.toggle()
+window.__LOADING_MANAGER__.toggle('正在加载...')
+
+// 交互控制
+window.__LOADING_MANAGER__.enablePointerEvents() // 启用指针事件（阻止交互）
+window.__LOADING_MANAGER__.disablePointerEvents() // 禁用指针事件（允许穿透）
+window.__LOADING_MANAGER__.togglePointerEvents() // 切换指针事件状态
+window.__LOADING_MANAGER__.isPointerEventsEnabled() // 查询指针事件状态
 
 // 更新文本
 window.__LOADING_MANAGER__.updateText('正在处理数据...')
@@ -245,6 +260,25 @@ injectLoading({ globalName: '__MY_LOADING__' })
 window.__MY_LOADING__.show()
 ```
 
+### 交互控制
+
+默认情况下，loading 显示时会阻止用户点击页面上的其他元素。可通过 `style.pointerEvents` 选项控制：
+
+```typescript
+// 允许交互穿透（loading 期间仍可操作页面）
+injectLoading({ style: { pointerEvents: false } })
+```
+
+运行时也可动态切换交互阻止状态：
+
+```typescript
+// 动态阻止/允许交互
+window.__LOADING_MANAGER__.enablePointerEvents()
+window.__LOADING_MANAGER__.disablePointerEvents()
+window.__LOADING_MANAGER__.togglePointerEvents()
+window.__LOADING_MANAGER__.isPointerEventsEnabled() // → true/false
+```
+
 ### 完整配置
 
 ```typescript
@@ -259,7 +293,7 @@ injectLoading({
 		textColor: '#333',
 		textSize: '14px',
 		zIndex: 9999,
-		pointerEvents: false,
+		pointerEvents: true,
 		backdropBlur: false,
 		backdropBlurAmount: 4
 	},
@@ -282,6 +316,7 @@ injectLoading({
 
 - 当 `defaultVisible` 为 `true` 时，CSS 和 HTML 以静态标签形式注入到 `<head>` 中，确保白屏阶段即可显示，无需等待 JS 执行
 - `autoHideOn` 仅在 `defaultVisible` 为 `true` 时生效
+- `style.pointerEvents` 默认为 `true`（启用指针事件），loading 显示时阻止用户交互；设为 `false`（`pointer-events: none`）则允许点击穿透
 - 回调以函数体字符串形式提供，运行时自动包裹 try-catch，回调中的错误不会影响 loading 正常功能
 - `onBeforeShow` / `onBeforeHide` 中 `return false` 可阻止显示/隐藏
 - `destroy()` 会清理 DOM 元素、恢复原始 fetch/XHR 拦截器，销毁后所有方法调用将被安全忽略

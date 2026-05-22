@@ -39,7 +39,7 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 				textColor: '#333',
 				textSize: '14px',
 				zIndex: 9999,
-				pointerEvents: false,
+				pointerEvents: true,
 				backdropBlur: false,
 				backdropBlurAmount: 4
 			},
@@ -104,27 +104,34 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 			.custom(val => !val || ['DOMContentLoaded', 'load', 'manual'].includes(val), 'autoHideOn 必须是 DOMContentLoaded, load 或 manual')
 			.validate()
 
+		this.validateCustomTemplate()
+		this.validateDefaultText()
 		this.validateStyle()
 		this.validateNestedConfig('minDisplayTime', 'minDisplayTime.duration 必须是非负数')
 		this.validateNestedConfig('delayShow', 'delayShow.duration 必须是非负数')
 		this.validateNestedConfig('debounceHide', 'debounceHide.duration 必须是非负数')
 		this.validateTransition()
 		this.validateCallbacks()
+		this.validateAutoHideOn()
 	}
 
 	/**
 	 * 验证样式配置的合法性
 	 *
-	 * @remarks 检查 `style.zIndex` 和 `style.backdropBlurAmount` 是否为非负数
+	 * @remarks 检查 `style.zIndex`、`style.backdropBlurAmount` 和 `style.pointerEvents` 的合法性
 	 *
 	 * @throws 当 `style.zIndex` 为非数字或负数时抛出错误
 	 * @throws 当 `style.backdropBlurAmount` 为负数时抛出错误
+	 * @throws 当 `style.pointerEvents` 为非布尔值时抛出错误
 	 */
 	private validateStyle(): void {
 		if (!this.options.style) return
-		const { zIndex } = this.options.style
+		const { zIndex, pointerEvents } = this.options.style
 		if (zIndex !== undefined && (typeof zIndex !== 'number' || zIndex < 0)) {
 			throw new Error('style.zIndex 必须是非负数')
+		}
+		if (pointerEvents !== undefined && typeof pointerEvents !== 'boolean') {
+			throw new Error('style.pointerEvents 必须是布尔值')
 		}
 		if (this.options.style.backdropBlurAmount !== undefined && (typeof this.options.style.backdropBlurAmount !== 'number' || this.options.style.backdropBlurAmount < 0)) {
 			throw new Error('style.backdropBlurAmount 必须是非负数')
@@ -155,9 +162,12 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 	 */
 	private validateTransition(): void {
 		if (!this.options.transition) return
-		const { duration } = this.options.transition
+		const { duration, easing } = this.options.transition
 		if (duration !== undefined && (typeof duration !== 'number' || duration < 0)) {
 			throw new Error('transition.duration 必须是非负数')
+		}
+		if (easing !== undefined && typeof easing !== 'string') {
+			throw new Error('transition.easing 必须是字符串类型')
 		}
 	}
 
@@ -177,6 +187,48 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 			if (callbacks[field] !== undefined && typeof callbacks[field] !== 'string') {
 				throw new Error(`callbacks.${field} 必须是字符串类型`)
 			}
+			// 检查回调字符串是否包含明显的恶意模式
+			if (callbacks[field] && /<script\b/i.test(callbacks[field]!)) {
+				throw new Error(`callbacks.${field} 不允许包含 <script> 标签`)
+			}
+		}
+	}
+
+	/**
+	 * 验证自定义模板的安全性
+	 *
+	 * @remarks 检查 `customTemplate` 是否包含 `<script` 标签，防止脚本注入
+	 *
+	 * @throws 当 `customTemplate` 包含 `<script` 标签时抛出错误
+	 */
+	private validateCustomTemplate(): void {
+		if (!this.options.customTemplate) return
+		if (/<script\b/i.test(this.options.customTemplate)) {
+			throw new Error('customTemplate 不允许包含 <script> 标签，请使用 callbacks 配置回调逻辑')
+		}
+	}
+
+	/**
+	 * 验证默认文本的有效性
+	 *
+	 * @remarks 当 `defaultText` 为空字符串时输出警告，
+	 * 因为空字符串会导致 loading 无文本显示
+	 */
+	private validateDefaultText(): void {
+		if (this.options.defaultText === '') {
+			this.logger.warn('defaultText 为空字符串，loading 将不显示文本内容')
+		}
+	}
+
+	/**
+	 * 验证 autoHideOn 与 defaultVisible 的配置一致性
+	 *
+	 * @remarks 当 `defaultVisible` 为 `false` 且 `autoHideOn` 不为默认值时，
+	 * 输出警告提示用户 `autoHideOn` 仅在 `defaultVisible=true` 时生效
+	 */
+	private validateAutoHideOn(): void {
+		if (!this.options.defaultVisible && this.options.autoHideOn && this.options.autoHideOn !== 'DOMContentLoaded') {
+			this.logger.warn('autoHideOn 仅在 defaultVisible 为 true 时生效，当前 defaultVisible 为 false，autoHideOn 配置将被忽略')
 		}
 	}
 
@@ -307,11 +359,13 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
     if (_includeUrls.length > 0) {
       var included = false;
       for (var i = 0; i < _includeUrls.length; i++) {
+        _includeUrls[i].lastIndex = 0;
         if (_includeUrls[i].test(url)) { included = true; break; }
       }
       if (!included) return true;
     }
     for (var i = 0; i < _excludeUrls.length; i++) {
+      _excludeUrls[i].lastIndex = 0;
       if (_excludeUrls[i].test(url)) return true;
     }
     return false;
@@ -333,7 +387,12 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
   function _doShow(text) {
     if (_destroyed) return;
     _findEl();
-    if (!_loadingEl) return;
+    if (!_loadingEl) {
+      // DOM 元素尚未注入（headInjected=false 时 CSS/HTML 通过 DOMContentLoaded 注入），
+      // 延迟重试以确保 loading 能正常显示
+      setTimeout(function() { _doShow(text); }, 50);
+      return;
+    }
 
     // onBeforeShow 回调，返回 false 可阻止显示（makeCallback 已提供 try-catch 保护）
     var result = _onBeforeShow();
@@ -423,6 +482,51 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
       _clearTimers();
       _doHide(true);
     },
+    toggle: function(text) {
+      if (_destroyed) return;
+      if (_visible) {
+        this.hide();
+      } else {
+        this.show(text);
+      }
+    },
+    enablePointerEvents: function() {
+      if (_destroyed) return;
+      _findEl();
+      if (_loadingEl) _loadingEl.style.pointerEvents = '';
+    },
+    disablePointerEvents: function() {
+      if (_destroyed) return;
+      _findEl();
+      if (_loadingEl) _loadingEl.style.pointerEvents = 'none';
+    },
+    togglePointerEvents: function() {
+      if (_destroyed) return;
+      _findEl();
+      if (!_loadingEl) return;
+      if (_loadingEl.style.pointerEvents === 'none') {
+        this.enablePointerEvents();
+      } else {
+        this.disablePointerEvents();
+      }
+    },
+    updateText: function(text) {
+      if (_destroyed) return;
+      _findEl();
+      if (_textEl) _textEl.textContent = text;
+    },
+    isVisible: function() {
+      return _visible && !_destroyed;
+    },
+    isPointerEventsEnabled: function() {
+      if (_destroyed) return false;
+      _findEl();
+      if (!_loadingEl) return false;
+      return _loadingEl.style.pointerEvents !== 'none';
+    },
+    getPendingCount: function() {
+      return _pendingCount;
+    },
     destroy: function() {
       if (_destroyed) return;
       _destroyed = true;
@@ -442,17 +546,6 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
       _pendingCount = 0;
       _restoreInterceptors();
       _onDestroy();
-    },
-    updateText: function(text) {
-      if (_destroyed) return;
-      _findEl();
-      if (_textEl) _textEl.textContent = text;
-    },
-    isVisible: function() {
-      return _visible && !_destroyed;
-    },
-    getPendingCount: function() {
-      return _pendingCount;
     },
     _requestStart: function(url, method) {
       if (_destroyed) return;
@@ -578,22 +671,23 @@ ${html}
 	 * @returns 注入到 `</body>` 前的代码字符串
 	 */
 	private generateBodyInjectCode(headInjected: boolean): string {
+		const js = this.generateLoadingManager(this.options)
+
+		if (headInjected) {
+			// head 已注入 CSS+HTML，body 中只需注入 JS 管理器
+			return `<!-- inject-loading: body start -->
+<script>${js}</script>
+<!-- inject-loading: body end -->`
+		}
+
+		// 未在 head 中注入，使用原有方式：JS 动态创建 CSS+HTML
 		const style = this.options.style || {}
 		const spinnerType = this.options.spinnerType || 'spinner'
 		const transition = this.options.transition
 		const css = generateCSS(style, spinnerType, transition)
 		const html = generateHTMLTemplate(this.options)
-		const js = this.generateLoadingManager(this.options)
-
-		if (headInjected) {
-			// head 已注入 CSS+HTML，body 中只需注入 JS 管理器
-			return `/* inject-loading: body start */
-${js}
-/* inject-loading: body end */`
-		}
-
-		// 未在 head 中注入，使用原有方式：JS 动态创建 CSS+HTML
-		return `/* inject-loading: start */
+		return `<!-- inject-loading: start -->
+<script>
 (function() {
   // SSR 环境检测
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -621,7 +715,8 @@ ${js}
   }
 })();
 ${js}
-/* inject-loading: end */`
+</script>
+<!-- inject-loading: end -->`
 	}
 
 	/**

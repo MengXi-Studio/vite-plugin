@@ -398,19 +398,19 @@ Inject global Loading state management with XHR/Fetch request interception, whit
 
 **LoadingStyle**
 
-| Property           | Type      | Default                   | Description                     |
-| ------------------ | --------- | ------------------------- | ------------------------------- |
-| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | Overlay background color        |
-| spinnerColor       | `string`  | `'#4361ee'`               | Spinner color                   |
-| spinnerSize        | `string`  | `'40px'`                  | Spinner size                    |
-| textColor          | `string`  | `'#333'`                  | Text color                      |
-| textSize           | `string`  | `'14px'`                  | Text size                       |
-| customClass        | `string`  | -                         | Custom CSS class name           |
-| customStyle        | `string`  | -                         | Custom inline style string      |
-| zIndex             | `number`  | `9999`                    | z-index value                   |
-| pointerEvents      | `boolean` | `false`                   | Whether to allow click-through  |
-| backdropBlur       | `boolean` | `false`                   | Whether to enable backdrop blur |
-| backdropBlurAmount | `number`  | `4`                       | Backdrop blur amount (px)       |
+| Property           | Type      | Default                   | Description                                 |
+| ------------------ | --------- | ------------------------- | ------------------------------------------- |
+| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | Overlay background color                    |
+| spinnerColor       | `string`  | `'#4361ee'`               | Spinner color                               |
+| spinnerSize        | `string`  | `'40px'`                  | Spinner size                                |
+| textColor          | `string`  | `'#333'`                  | Text color                                  |
+| textSize           | `string`  | `'14px'`                  | Text size                                   |
+| customClass        | `string`  | -                         | Custom CSS class name                       |
+| customStyle        | `string`  | -                         | Custom inline style string                  |
+| zIndex             | `number`  | `9999`                    | z-index value                               |
+| pointerEvents      | `boolean` | `true`                    | Whether to enable pointer events on overlay |
+| backdropBlur       | `boolean` | `false`                   | Whether to enable backdrop blur             |
+| backdropBlurAmount | `number`  | `4`                       | Backdrop blur amount (px)                   |
 
 **TransitionConfig**
 
