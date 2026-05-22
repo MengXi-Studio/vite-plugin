@@ -1,7 +1,19 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import type { InjectLoadingOptions, LoadingCallbacks, AutoHideOn } from './types'
-import { generateCSS, generateHTMLTemplate, ID_ROOT, ATTR_TEXT, CLS_HIDDEN, CLS_VISIBLE } from './common'
+import type { InjectLoadingOptions } from './types'
+import {
+	generateCSS,
+	generateHTMLTemplate,
+	generateLoadingManagerCode,
+	validateStyle,
+	validateNestedConfig,
+	validateTransition,
+	validateCallbacks,
+	validateCustomTemplate,
+	validateDefaultText,
+	validateGlobalName,
+	validateAutoHideOn
+} from './common'
 
 /**
  * 注入全局 Loading 状态管理插件类
@@ -104,132 +116,18 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 			.custom(val => !val || ['DOMContentLoaded', 'load', 'manual'].includes(val), 'autoHideOn 必须是 DOMContentLoaded, load 或 manual')
 			.validate()
 
-		this.validateCustomTemplate()
-		this.validateDefaultText()
-		this.validateStyle()
-		this.validateNestedConfig('minDisplayTime', 'minDisplayTime.duration 必须是非负数')
-		this.validateNestedConfig('delayShow', 'delayShow.duration 必须是非负数')
-		this.validateNestedConfig('debounceHide', 'debounceHide.duration 必须是非负数')
-		this.validateTransition()
-		this.validateCallbacks()
-		this.validateAutoHideOn()
-	}
-
-	/**
-	 * 验证样式配置的合法性
-	 *
-	 * @remarks 检查 `style.zIndex`、`style.backdropBlurAmount` 和 `style.pointerEvents` 的合法性
-	 *
-	 * @throws 当 `style.zIndex` 为非数字或负数时抛出错误
-	 * @throws 当 `style.backdropBlurAmount` 为负数时抛出错误
-	 * @throws 当 `style.pointerEvents` 为非布尔值时抛出错误
-	 */
-	private validateStyle(): void {
-		if (!this.options.style) return
-		const { zIndex, pointerEvents } = this.options.style
-		if (zIndex !== undefined && (typeof zIndex !== 'number' || zIndex < 0)) {
-			throw new Error('style.zIndex 必须是非负数')
-		}
-		if (pointerEvents !== undefined && typeof pointerEvents !== 'boolean') {
-			throw new Error('style.pointerEvents 必须是布尔值')
-		}
-		if (this.options.style.backdropBlurAmount !== undefined && (typeof this.options.style.backdropBlurAmount !== 'number' || this.options.style.backdropBlurAmount < 0)) {
-			throw new Error('style.backdropBlurAmount 必须是非负数')
-		}
-	}
-
-	/**
-	 * 验证嵌套配置项（minDisplayTime / delayShow / debounceHide）的 duration 合法性
-	 *
-	 * @param field - 需要验证的配置项字段名
-	 * @param errorMsg - 验证失败时的错误提示信息
-	 *
-	 * @throws 当 `duration` 为非数字或负数时抛出指定错误信息
-	 */
-	private validateNestedConfig(field: 'minDisplayTime' | 'delayShow' | 'debounceHide', errorMsg: string): void {
-		const config = this.options[field]
-		if (config?.duration !== undefined && (typeof config.duration !== 'number' || config.duration < 0)) {
-			throw new Error(errorMsg)
-		}
-	}
-
-	/**
-	 * 验证过渡动画配置的合法性
-	 *
-	 * @remarks 检查 `transition.duration` 是否为非负数
-	 *
-	 * @throws 当 `transition.duration` 为非数字或负数时抛出错误
-	 */
-	private validateTransition(): void {
-		if (!this.options.transition) return
-		const { duration, easing } = this.options.transition
-		if (duration !== undefined && (typeof duration !== 'number' || duration < 0)) {
-			throw new Error('transition.duration 必须是非负数')
-		}
-		if (easing !== undefined && typeof easing !== 'string') {
-			throw new Error('transition.easing 必须是字符串类型')
-		}
-	}
-
-	/**
-	 * 验证生命周期回调配置的合法性
-	 *
-	 * @remarks 检查所有回调字段（onBeforeShow / onShow / onBeforeHide / onHide / onDestroy）
-	 * 是否为字符串类型，因为回调以函数体字符串形式提供
-	 *
-	 * @throws 当回调字段非字符串类型时抛出错误
-	 */
-	private validateCallbacks(): void {
-		if (!this.options.callbacks) return
-		const { callbacks } = this.options
-		const callbackFields: (keyof LoadingCallbacks)[] = ['onBeforeShow', 'onShow', 'onBeforeHide', 'onHide', 'onDestroy']
-		for (const field of callbackFields) {
-			if (callbacks[field] !== undefined && typeof callbacks[field] !== 'string') {
-				throw new Error(`callbacks.${field} 必须是字符串类型`)
-			}
-			// 检查回调字符串是否包含明显的恶意模式
-			if (callbacks[field] && /<script\b/i.test(callbacks[field]!)) {
-				throw new Error(`callbacks.${field} 不允许包含 <script> 标签`)
-			}
-		}
-	}
-
-	/**
-	 * 验证自定义模板的安全性
-	 *
-	 * @remarks 检查 `customTemplate` 是否包含 `<script` 标签，防止脚本注入
-	 *
-	 * @throws 当 `customTemplate` 包含 `<script` 标签时抛出错误
-	 */
-	private validateCustomTemplate(): void {
-		if (!this.options.customTemplate) return
-		if (/<script\b/i.test(this.options.customTemplate)) {
-			throw new Error('customTemplate 不允许包含 <script> 标签，请使用 callbacks 配置回调逻辑')
-		}
-	}
-
-	/**
-	 * 验证默认文本的有效性
-	 *
-	 * @remarks 当 `defaultText` 为空字符串时输出警告，
-	 * 因为空字符串会导致 loading 无文本显示
-	 */
-	private validateDefaultText(): void {
-		if (this.options.defaultText === '') {
-			this.logger.warn('defaultText 为空字符串，loading 将不显示文本内容')
-		}
-	}
-
-	/**
-	 * 验证 autoHideOn 与 defaultVisible 的配置一致性
-	 *
-	 * @remarks 当 `defaultVisible` 为 `false` 且 `autoHideOn` 不为默认值时，
-	 * 输出警告提示用户 `autoHideOn` 仅在 `defaultVisible=true` 时生效
-	 */
-	private validateAutoHideOn(): void {
-		if (!this.options.defaultVisible && this.options.autoHideOn && this.options.autoHideOn !== 'DOMContentLoaded') {
-			this.logger.warn('autoHideOn 仅在 defaultVisible 为 true 时生效，当前 defaultVisible 为 false，autoHideOn 配置将被忽略')
-		}
+		validateCustomTemplate(this.options.customTemplate)
+		const textWarning = validateDefaultText(this.options.defaultText)
+		if (textWarning) this.logger.warn(textWarning)
+		validateGlobalName(this.options.globalName)
+		validateStyle(this.options.style)
+		validateNestedConfig(this.options.minDisplayTime, 'minDisplayTime.duration 必须是非负数')
+		validateNestedConfig(this.options.delayShow, 'delayShow.duration 必须是非负数')
+		validateNestedConfig(this.options.debounceHide, 'debounceHide.duration 必须是非负数')
+		validateTransition(this.options.transition)
+		validateCallbacks(this.options.callbacks)
+		const autoHideWarning = validateAutoHideOn(this.options.defaultVisible, this.options.autoHideOn)
+		if (autoHideWarning) this.logger.warn(autoHideWarning)
 	}
 
 	/**
@@ -246,396 +144,13 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 	/**
 	 * 生成 Loading 管理器 JavaScript 代码
 	 *
-	 * @remarks 生成一个 IIFE（立即执行函数表达式），在浏览器端创建 loading 管理器实例。
-	 * 包含以下功能模块：
-	 * - DOM 元素查找与缓存
-	 * - 请求过滤（URL/方法/前缀匹配）
-	 * - 定时器管理（延迟显示、最小显示时间、防抖隐藏）
-	 * - 过渡动画应用
-	 * - 显示/隐藏/销毁核心逻辑
-	 * - fetch/XHR 请求拦截与自动管理
-	 * - defaultVisible 初始状态同步
-	 * - autoHideOn 自动隐藏事件绑定
-	 * - 全局变量暴露
+	 * @remarks 委托给 {@link generateLoadingManagerCode} 生成完整的 IIFE 代码
 	 *
 	 * @param options - 插件配置选项
 	 * @returns 完整的 JavaScript IIFE 代码字符串
 	 */
 	private generateLoadingManager(options: InjectLoadingOptions): string {
-		const globalName = options.globalName || '__LOADING_MANAGER__'
-		const minDisplayTime = options.minDisplayTime || { enabled: true, duration: 300 }
-		const delayShow = options.delayShow || { enabled: true, duration: 200 }
-		const debounceHide = options.debounceHide || { enabled: false, duration: 100 }
-		const transition = options.transition || { enabled: true, duration: 200, easing: 'ease-out' }
-		const autoBind = options.autoBind || 'none'
-		const requestFilter = options.requestFilter || {}
-		const defaultVisible = options.defaultVisible || false
-		const autoHideOn: AutoHideOn = options.autoHideOn || 'DOMContentLoaded'
-		const callbacks = options.callbacks || {}
-
-		const excludeUrls = requestFilter.excludeUrls || []
-		const includeUrls = requestFilter.includeUrls || []
-		const excludeMethods = requestFilter.excludeMethods || []
-		const excludeUrlPrefixes = requestFilter.excludeUrlPrefixes || []
-
-		/**
-		 * 将回调函数体字符串包装为安全的函数表达式
-		 *
-		 * @param body - 函数体代码字符串
-		 * @returns 安全的函数表达式字符串
-		 */
-		const makeCallback = (body?: string): string => {
-			if (!body) return 'function() {}'
-			return `function() { try { ${body} } catch(e) { console.error('[injectLoading] callback error:', e); } }`
-		}
-
-		const cbBeforeShow = makeCallback(callbacks.onBeforeShow)
-		const cbShow = makeCallback(callbacks.onShow)
-		const cbBeforeHide = makeCallback(callbacks.onBeforeHide)
-		const cbHide = makeCallback(callbacks.onHide)
-		const cbDestroy = makeCallback(callbacks.onDestroy)
-
-		return `(function() {
-  'use strict';
-
-  // SSR 环境检测
-  if (typeof window === 'undefined' || typeof document === 'undefined') return;
-
-  var _loadingEl = null;
-  var _textEl = null;
-  var _styleEl = null;
-  var _visible = false;
-  var _destroyed = false;
-  var _showTimer = null;
-  var _hideTimer = null;
-  var _debounceTimer = null;
-  var _showTime = 0;
-  var _pendingCount = 0;
-
-  // 配置
-  var _minDisplayTime = ${JSON.stringify(minDisplayTime)};
-  var _delayShow = ${JSON.stringify(delayShow)};
-  var _debounceHide = ${JSON.stringify(debounceHide)};
-  var _transition = ${JSON.stringify(transition)};
-  var _excludeUrls = ${JSON.stringify(excludeUrls.map(r => ({ source: r.source, flags: r.flags })))}.map(function(s) { return new RegExp(s.source, s.flags); });
-  var _includeUrls = ${JSON.stringify(includeUrls.map(r => ({ source: r.source, flags: r.flags })))}.map(function(s) { return new RegExp(s.source, s.flags); });
-  var _excludeMethods = ${JSON.stringify(excludeMethods)};
-  var _excludeUrlPrefixes = ${JSON.stringify(excludeUrlPrefixes)};
-
-  // 回调
-  var _onBeforeShow = ${cbBeforeShow};
-  var _onShow = ${cbShow};
-  var _onBeforeHide = ${cbBeforeHide};
-  var _onHide = ${cbHide};
-  var _onDestroy = ${cbDestroy};
-
-  // 保存原始方法引用，用于 destroy 时恢复
-  var _originalFetch = null;
-  var _originalXHROpen = null;
-  var _originalXHRSend = null;
-
-  function _findEl() {
-    if (!_loadingEl) {
-      _loadingEl = document.getElementById('${ID_ROOT}');
-    }
-    if (!_textEl && _loadingEl) {
-      _textEl = _loadingEl.querySelector('[${ATTR_TEXT}]');
-    }
-    // 查找并缓存注入的 style 元素，确保 destroy 时能正确清理
-    if (!_styleEl) {
-      _styleEl = document.querySelector('style[data-loading-id="${globalName}"]');
-    }
-  }
-
-  function _shouldFilter(url, method) {
-    if (!url) return false;
-    var upperMethod = (method || 'GET').toUpperCase();
-    for (var i = 0; i < _excludeMethods.length; i++) {
-      if (upperMethod === _excludeMethods[i].toUpperCase()) return true;
-    }
-    for (var i = 0; i < _excludeUrlPrefixes.length; i++) {
-      if (url.indexOf(_excludeUrlPrefixes[i]) === 0) return true;
-    }
-    if (_includeUrls.length > 0) {
-      var included = false;
-      for (var i = 0; i < _includeUrls.length; i++) {
-        _includeUrls[i].lastIndex = 0;
-        if (_includeUrls[i].test(url)) { included = true; break; }
-      }
-      if (!included) return true;
-    }
-    for (var i = 0; i < _excludeUrls.length; i++) {
-      _excludeUrls[i].lastIndex = 0;
-      if (_excludeUrls[i].test(url)) return true;
-    }
-    return false;
-  }
-
-  function _clearTimers() {
-    if (_showTimer) { clearTimeout(_showTimer); _showTimer = null; }
-    if (_hideTimer) { clearTimeout(_hideTimer); _hideTimer = null; }
-    if (_debounceTimer) { clearTimeout(_debounceTimer); _debounceTimer = null; }
-  }
-
-  function _applyTransition(show) {
-    if (!_transition.enabled || !_loadingEl) return;
-    var d = _transition.duration || 200;
-    var e = _transition.easing || 'ease-out';
-    _loadingEl.style.transition = 'opacity ' + d + 'ms ' + e + ', visibility ' + d + 'ms ' + e;
-  }
-
-  function _doShow(text) {
-    if (_destroyed) return;
-    _findEl();
-    if (!_loadingEl) {
-      // DOM 元素尚未注入（headInjected=false 时 CSS/HTML 通过 DOMContentLoaded 注入），
-      // 延迟重试以确保 loading 能正常显示
-      setTimeout(function() { _doShow(text); }, 50);
-      return;
-    }
-
-    // onBeforeShow 回调，返回 false 可阻止显示（makeCallback 已提供 try-catch 保护）
-    var result = _onBeforeShow();
-    if (result === false) return;
-
-    if (_textEl && text) _textEl.textContent = text;
-    _loadingEl.classList.remove('${CLS_HIDDEN}');
-    _loadingEl.classList.add('${CLS_VISIBLE}');
-    _applyTransition(true);
-    _visible = true;
-    _showTime = Date.now();
-    _onShow();
-  }
-
-  function _doHide(force) {
-    if (_destroyed) return;
-    _findEl();
-    if (!_loadingEl) return;
-
-    if (!force) {
-      // onBeforeHide 回调，返回 false 可阻止隐藏（makeCallback 已提供 try-catch 保护）
-      var result = _onBeforeHide();
-      if (result === false) return;
-    }
-
-    if (!force && _minDisplayTime.enabled && _showTime > 0) {
-      var elapsed = Date.now() - _showTime;
-      var remaining = _minDisplayTime.duration - elapsed;
-      if (remaining > 0) {
-        _hideTimer = setTimeout(function() { _doHide(true); }, remaining);
-        return;
-      }
-    }
-
-    if (_debounceHide.enabled && !force) {
-      _debounceTimer = setTimeout(function() {
-        _loadingEl.classList.remove('${CLS_VISIBLE}');
-        _loadingEl.classList.add('${CLS_HIDDEN}');
-        _applyTransition(false);
-        _visible = false;
-        _showTime = 0;
-        _onHide();
-      }, _debounceHide.duration);
-      return;
-    }
-
-    _loadingEl.classList.remove('${CLS_VISIBLE}');
-    _loadingEl.classList.add('${CLS_HIDDEN}');
-    _applyTransition(false);
-    _visible = false;
-    _showTime = 0;
-    _onHide();
-  }
-
-  function _restoreInterceptors() {
-    if (_originalFetch && typeof window !== 'undefined' && window.fetch) {
-      window.fetch = _originalFetch;
-      _originalFetch = null;
-    }
-    if (_originalXHROpen && typeof window !== 'undefined' && window.XMLHttpRequest) {
-      XMLHttpRequest.prototype.open = _originalXHROpen;
-      XMLHttpRequest.prototype.send = _originalXHRSend;
-      _originalXHROpen = null;
-      _originalXHRSend = null;
-    }
-  }
-
-  var manager = {
-    show: function(text) {
-      if (_destroyed) return;
-      _clearTimers();
-      // 重置 _showTime，确保重新 show 时最小显示时间从新显示时刻开始计算
-      _showTime = 0;
-      if (_delayShow.enabled && _delayShow.duration > 0) {
-        _showTimer = setTimeout(function() { _doShow(text); }, _delayShow.duration);
-      } else {
-        _doShow(text);
-      }
-    },
-    hide: function() {
-      if (_destroyed) return;
-      if (_showTimer) { clearTimeout(_showTimer); _showTimer = null; }
-      _doHide(false);
-    },
-    forceHide: function() {
-      if (_destroyed) return;
-      _clearTimers();
-      _doHide(true);
-    },
-    toggle: function(text) {
-      if (_destroyed) return;
-      if (_visible) {
-        this.hide();
-      } else {
-        this.show(text);
-      }
-    },
-    enablePointerEvents: function() {
-      if (_destroyed) return;
-      _findEl();
-      if (_loadingEl) _loadingEl.style.pointerEvents = '';
-    },
-    disablePointerEvents: function() {
-      if (_destroyed) return;
-      _findEl();
-      if (_loadingEl) _loadingEl.style.pointerEvents = 'none';
-    },
-    togglePointerEvents: function() {
-      if (_destroyed) return;
-      _findEl();
-      if (!_loadingEl) return;
-      if (_loadingEl.style.pointerEvents === 'none') {
-        this.enablePointerEvents();
-      } else {
-        this.disablePointerEvents();
-      }
-    },
-    updateText: function(text) {
-      if (_destroyed) return;
-      _findEl();
-      if (_textEl) _textEl.textContent = text;
-    },
-    isVisible: function() {
-      return _visible && !_destroyed;
-    },
-    isPointerEventsEnabled: function() {
-      if (_destroyed) return false;
-      _findEl();
-      if (!_loadingEl) return false;
-      return _loadingEl.style.pointerEvents !== 'none';
-    },
-    getPendingCount: function() {
-      return _pendingCount;
-    },
-    destroy: function() {
-      if (_destroyed) return;
-      _destroyed = true;
-      _clearTimers();
-      _findEl();
-      if (_loadingEl && _loadingEl.parentNode) {
-        _loadingEl.parentNode.removeChild(_loadingEl);
-      }
-      if (_styleEl && _styleEl.parentNode) {
-        _styleEl.parentNode.removeChild(_styleEl);
-      }
-      _loadingEl = null;
-      _textEl = null;
-      _styleEl = null;
-      _visible = false;
-      _showTime = 0;
-      _pendingCount = 0;
-      _restoreInterceptors();
-      _onDestroy();
-    },
-    _requestStart: function(url, method) {
-      if (_destroyed) return;
-      if (_shouldFilter(url, method)) return;
-      _pendingCount++;
-      if (_pendingCount === 1) this.show();
-    },
-    _requestEnd: function(url, method) {
-      if (_destroyed) return;
-      if (_shouldFilter(url, method)) return;
-      _pendingCount = Math.max(0, _pendingCount - 1);
-      if (_pendingCount === 0) this.hide();
-    }
-  };
-
-  // 自动拦截 fetch
-  var _autoBind = '${autoBind}';
-  if (_autoBind === 'fetch' || _autoBind === 'all') {
-    if (typeof window !== 'undefined' && window.fetch) {
-      _originalFetch = window.fetch;
-      window.fetch = function(input, init) {
-        // 支持 string / Request / URL 三种输入类型
-        var url = typeof input === 'string' ? input : (input instanceof URL ? input.href : (input && input.url ? input.url : ''));
-        var method = (init && init.method) || (input && input.method) || 'GET';
-        manager._requestStart(url, method);
-        return _originalFetch.apply(this, arguments).then(
-          function(response) { manager._requestEnd(url, method); return response; },
-          function(error) { manager._requestEnd(url, method); throw error; }
-        );
-      };
-    }
-  }
-
-  // 自动拦截 XMLHttpRequest
-  if (_autoBind === 'xhr' || _autoBind === 'all') {
-    if (typeof window !== 'undefined' && window.XMLHttpRequest) {
-      _originalXHROpen = XMLHttpRequest.prototype.open;
-      _originalXHRSend = XMLHttpRequest.prototype.send;
-      XMLHttpRequest.prototype.open = function(method, url) {
-        this.__loadingUrl = url || '';
-        this.__loadingMethod = method || 'GET';
-        return _originalXHROpen.apply(this, arguments);
-      };
-      XMLHttpRequest.prototype.send = function() {
-        var self = this;
-        manager._requestStart(self.__loadingUrl, self.__loadingMethod);
-        // 只使用 onloadend，它在所有终止场景（成功/错误/中止/超时）后都会触发，
-        // 避免同时监听 onerror/onabort/ontimeout 导致 _requestEnd 被多次调用
-        var _origLoadEnd = self.onloadend;
-        self.onloadend = function() {
-          manager._requestEnd(self.__loadingUrl, self.__loadingMethod);
-          if (_origLoadEnd) _origLoadEnd.apply(this, arguments);
-        };
-        return _originalXHRSend.apply(this, arguments);
-      };
-    }
-  }
-
-  // defaultVisible: 同步初始可见状态
-  var _defaultVisible = ${JSON.stringify(defaultVisible)};
-  if (_defaultVisible) {
-    _visible = true;
-    _showTime = Date.now();
-  }
-
-  // autoHideOn: 自动隐藏时机
-  var _autoHideOn = '${autoHideOn}';
-  if (_defaultVisible && _autoHideOn !== 'manual') {
-    function _autoHideHandler() {
-      manager.hide();
-    }
-    if (_autoHideOn === 'load') {
-      if (document.readyState === 'complete') {
-        _autoHideHandler();
-      } else {
-        window.addEventListener('load', _autoHideHandler);
-      }
-    } else {
-      // DOMContentLoaded: readyState 为 'interactive' 时表示事件已触发，需立即执行
-      if (document.readyState !== 'loading') {
-        _autoHideHandler();
-      } else {
-        document.addEventListener('DOMContentLoaded', _autoHideHandler);
-      }
-    }
-  }
-
-  // 暴露到全局
-  window['${globalName}'] = manager;
-})();`
+		return generateLoadingManagerCode(options)
 	}
 
 	/**
@@ -648,11 +163,7 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 	 * @returns 包含 CSS 样式和 HTML 结构的注入代码字符串
 	 */
 	private generateHeadInjectCode(): string {
-		const style = this.options.style || {}
-		const spinnerType = this.options.spinnerType || 'spinner'
-		const transition = this.options.transition
-		const css = generateCSS(style, spinnerType, transition)
-		const html = generateHTMLTemplate(this.options)
+		const { css, html } = this.getCachedAssets()
 
 		return `<!-- inject-loading: head start -->
 <style data-loading-style data-loading-id="${this.options.globalName || '__LOADING_MANAGER__'}">${css}</style>
@@ -674,18 +185,12 @@ ${html}
 		const js = this.generateLoadingManager(this.options)
 
 		if (headInjected) {
-			// head 已注入 CSS+HTML，body 中只需注入 JS 管理器
 			return `<!-- inject-loading: body start -->
 <script>${js}</script>
 <!-- inject-loading: body end -->`
 		}
 
-		// 未在 head 中注入，使用原有方式：JS 动态创建 CSS+HTML
-		const style = this.options.style || {}
-		const spinnerType = this.options.spinnerType || 'spinner'
-		const transition = this.options.transition
-		const css = generateCSS(style, spinnerType, transition)
-		const html = generateHTMLTemplate(this.options)
+		const { css, html } = this.getCachedAssets()
 		return `<!-- inject-loading: start -->
 <script>
 (function() {
@@ -717,6 +222,28 @@ ${html}
 ${js}
 </script>
 <!-- inject-loading: end -->`
+	}
+
+	/** 缓存的 CSS/HTML 资源 */
+	private _cachedAssets: { css: string; html: string } | null = null
+
+	/**
+	 * 获取缓存的 CSS 和 HTML 资源，避免重复生成
+	 *
+	 * @remarks 在同一次构建中，CSS 和 HTML 只生成一次并缓存，
+	 * 供 {@link generateHeadInjectCode} 和 {@link generateBodyInjectCode} 共享
+	 */
+	private getCachedAssets(): { css: string; html: string } {
+		if (!this._cachedAssets) {
+			const style = this.options.style || {}
+			const spinnerType = this.options.spinnerType || 'spinner'
+			const transition = this.options.transition
+			this._cachedAssets = {
+				css: generateCSS(style, spinnerType, transition),
+				html: generateHTMLTemplate(this.options)
+			}
+		}
+		return this._cachedAssets
 	}
 
 	/**
