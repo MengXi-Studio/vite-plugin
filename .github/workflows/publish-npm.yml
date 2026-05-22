@@ -104,6 +104,18 @@ jobs:
       #   - Settings → Environments → 新建 vite-plugin 环境
       #   - 在 vite-plugin 环境中添加 NPM_TOKEN secret
       #   - 可选：配置 Required Reviewers 增加审批环节
+      # 验证 npm 认证配置
+      - name: Verify npm auth
+        if: ${{ !inputs.skip_publish && steps.version.outputs.should_publish == 'true' }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::NPM_TOKEN secret is not configured or empty. Please add NPM_TOKEN to the 'vite-plugin' environment in GitHub Settings → Environments."
+            exit 1
+          fi
+          echo "✅ NPM_TOKEN is configured (length: ${#NODE_AUTH_TOKEN})"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish to npm
         if: ${{ !inputs.skip_publish && steps.version.outputs.should_publish == 'true' }}
         env:
