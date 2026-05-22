@@ -82,4 +82,6 @@ jobs:
       # 发布到 npm（OIDC 可信发布 + provenance 签名）
       - name: Publish to npm
         if: ${{ !inputs.skip_publish && steps.version.outputs.should_publish == 'true' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm --filter @meng-xi/vite-plugin publish --no-git-checks --access public --provenance
