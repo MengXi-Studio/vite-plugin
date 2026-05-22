@@ -42,6 +42,7 @@ export function generateVarsCode(params: {
   var _showTimer = null;
   var _hideTimer = null;
   var _debounceTimer = null;
+  var _retryTimer = null;
   var _showTime = 0;
   var _pendingCount = 0;
   var _showRetryCount = 0;
@@ -117,6 +118,7 @@ export function generateHelpersCode(globalName: string): string {
     if (_showTimer) { clearTimeout(_showTimer); _showTimer = null; }
     if (_hideTimer) { clearTimeout(_hideTimer); _hideTimer = null; }
     if (_debounceTimer) { clearTimeout(_debounceTimer); _debounceTimer = null; }
+    if (_retryTimer) { clearTimeout(_retryTimer); _retryTimer = null; }
   }
 
   function _applyTransition(show) {
@@ -134,6 +136,7 @@ export function generateHelpersCode(globalName: string): string {
  */
 export function generateCoreLogicCode(): string {
 	return `  function _applyHide() {
+    if (!_loadingEl) return;
     _loadingEl.classList.remove('${CLS_VISIBLE}');
     _loadingEl.classList.add('${CLS_HIDDEN}');
     _applyTransition(false);
@@ -147,7 +150,7 @@ export function generateCoreLogicCode(): string {
     _findEl();
     if (!_loadingEl) {
       if (++_showRetryCount > _maxShowRetries) return;
-      setTimeout(function() { _doShow(text); }, 50);
+      _retryTimer = setTimeout(function() { _retryTimer = null; _doShow(text); }, 50);
       return;
     }
     _showRetryCount = 0;
@@ -166,6 +169,7 @@ export function generateCoreLogicCode(): string {
 
   function _doHide(force) {
     if (_destroyed) return;
+    if (!_visible && !force) return;
     _findEl();
     if (!_loadingEl) return;
 
@@ -178,13 +182,15 @@ export function generateCoreLogicCode(): string {
       var elapsed = Date.now() - _showTime;
       var remaining = _minDisplayTime.duration - elapsed;
       if (remaining > 0) {
-        _hideTimer = setTimeout(function() { _doHide(true); }, remaining);
+        if (_hideTimer) clearTimeout(_hideTimer);
+        _hideTimer = setTimeout(function() { _hideTimer = null; _doHide(true); }, remaining);
         return;
       }
     }
 
     if (_debounceHide.enabled && !force) {
-      _debounceTimer = setTimeout(_applyHide, _debounceHide.duration);
+      if (_debounceTimer) clearTimeout(_debounceTimer);
+      _debounceTimer = setTimeout(function() { _debounceTimer = null; _applyHide(); }, _debounceHide.duration);
       return;
     }
 
@@ -215,8 +221,9 @@ export function generateManagerObjectCode(): string {
       if (_destroyed) return;
       _clearTimers();
       _showTime = 0;
+      _showRetryCount = 0;
       if (_delayShow.enabled && _delayShow.duration > 0) {
-        _showTimer = setTimeout(function() { _doShow(text); }, _delayShow.duration);
+        _showTimer = setTimeout(function() { _showTimer = null; _doShow(text); }, _delayShow.duration);
       } else {
         _doShow(text);
       }
@@ -349,11 +356,9 @@ export function generateInterceptorsCode(autoBind: string): string {
     XMLHttpRequest.prototype.send = function() {
       var self = this;
       manager._requestStart(self.__loadingUrl, self.__loadingMethod);
-      var _origLoadEnd = self.onloadend;
-      self.onloadend = function() {
+      self.addEventListener('loadend', function() {
         manager._requestEnd(self.__loadingUrl, self.__loadingMethod);
-        if (_origLoadEnd) _origLoadEnd.apply(this, arguments);
-      };
+      });
       return _originalXHRSend.apply(this, arguments);
     };
   }

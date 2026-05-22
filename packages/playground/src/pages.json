@@ -1,0 +1,57 @@
+{
+	"pages": [
+		{
+			"path": "pages/index",
+			"style": {
+				"navigationBarTitleText": "首页"
+			}
+		},
+		{
+			"path": "pages/about",
+			"style": {
+				"navigationBarTitleText": "关于",
+				"requireAuth": false
+			}
+		},
+		{
+			"path": "pages/profile",
+			"style": {
+				"navigationBarTitleText": "个人中心",
+				"requireAuth": true
+			}
+		}
+	],
+	"subPackages": [
+		{
+			"root": "pages/admin",
+			"pages": [
+				{
+					"path": "dashboard",
+					"style": {
+						"navigationBarTitleText": "管理面板",
+						"requireAuth": true
+					}
+				}
+			]
+		}
+	],
+	"tabBar": {
+		"list": [
+			{
+				"pagePath": "pages/index",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/about",
+				"text": "关于"
+			},
+			{
+				"pagePath": "pages/profile",
+				"text": "我的"
+			}
+		]
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black"
+	}
+}

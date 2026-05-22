@@ -81,6 +81,48 @@ await ensureTargetDir('/path/to/dir')
 
 ---
 
+## readDirRecursive
+
+Read directory contents, returning file and directory entry list.
+
+```typescript
+async function readDirRecursive(dirPath: string, recursive: boolean): Promise<FileEntry[]>
+```
+
+**Parameters**
+
+| Parameter | Type      | Description                    |
+| --------- | --------- | ------------------------------ |
+| dirPath   | `string`  | Directory path                 |
+| recursive | `boolean` | Whether to read subdirectories |
+
+**Returns**
+
+`Promise<FileEntry[]>` - File and directory entry list
+
+**FileEntry**
+
+| Property    | Type      | Description               |
+| ----------- | --------- | ------------------------- |
+| path        | `string`  | Full path                 |
+| isFile      | `boolean` | Whether it is a file      |
+| isDirectory | `boolean` | Whether it is a directory |
+
+**Example**
+
+```typescript
+const entries = await readDirRecursive('src/assets', true)
+for (const entry of entries) {
+	if (entry.isFile) {
+		console.log('File:', entry.path)
+	} else if (entry.isDirectory) {
+		console.log('Directory:', entry.path)
+	}
+}
+```
+
+---
+
 ## fileExists
 
 Check if file exists.

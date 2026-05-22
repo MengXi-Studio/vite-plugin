@@ -130,7 +130,7 @@ export function validateDefaultText(defaultText?: string): string | null {
  * @returns 当配置不一致时返回警告信息，否则返回 `null`
  */
 export function validateAutoHideOn(defaultVisible?: boolean, autoHideOn?: string): string | null {
-	if (!defaultVisible && autoHideOn && autoHideOn !== 'DOMContentLoaded') {
+	if (!defaultVisible && autoHideOn) {
 		return 'autoHideOn 仅在 defaultVisible 为 true 时生效，当前 defaultVisible 为 false，autoHideOn 配置将被忽略'
 	}
 	return null

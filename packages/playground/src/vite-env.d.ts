@@ -21,9 +21,14 @@ interface LoadingManager {
 	show(text?: string): void
 	hide(): void
 	forceHide(): void
+	toggle(text?: string): void
 	destroy(): void
 	updateText(text: string): void
 	isVisible(): boolean
+	enablePointerEvents(): void
+	disablePointerEvents(): void
+	togglePointerEvents(): void
+	isPointerEventsEnabled(): boolean
 	getPendingCount(): number
 }
 

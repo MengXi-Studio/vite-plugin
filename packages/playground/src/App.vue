@@ -35,6 +35,10 @@
 					<span class="icon">{{ tests.buildProgress ? '✅' : '⏳' }}</span>
 					<span>buildProgress - 构建进度条</span>
 				</div>
+				<div class="test-item" :class="{ passed: tests.generateRouter }">
+					<span class="icon">{{ tests.generateRouter ? '✅' : '⏳' }}</span>
+					<span>generateRouter - 路由配置生成</span>
+				</div>
 				<div class="test-item" :class="{ passed: tests.copyFile }">
 					<span class="icon">{{ tests.copyFile ? '✅' : '⏳' }}</span>
 					<span>copyFile - 文件复制</span>
@@ -59,10 +63,19 @@
 		<div class="card">
 			<h2>Loading 交互演示</h2>
 			<p class="hint">injectLoading 已配置 autoBind: 'all'，所有 fetch/xhr 请求会自动触发 Loading</p>
+			<p class="hint">已启用 delayShow (200ms)、debounceHide (100ms)、backdropBlur、callbacks</p>
 			<div class="btn-group">
 				<button @click="showLoading">手动显示</button>
 				<button @click="hideLoading">手动隐藏</button>
+				<button @click="toggleLoading">切换状态</button>
+			</div>
+			<div class="btn-group">
 				<button @click="fetchWithLoading">发起请求 (自动 Loading)</button>
+				<button @click="updateLoadingText">更新文本</button>
+			</div>
+			<div class="btn-group">
+				<button class="btn-outline" @click="togglePointerEvents">{{ pointerEventsEnabled ? '禁用' : '启用' }}指针事件</button>
+				<button class="btn-outline" @click="forceHideLoading">强制隐藏</button>
 			</div>
 			<div class="loading-status">
 				<span class="label">Loading 状态</span>
@@ -71,6 +84,10 @@
 				</span>
 				<span class="label" style="margin-left: 16px">挂起请求</span>
 				<span class="value">{{ pendingCount }}</span>
+				<span class="label" style="margin-left: 16px">指针事件</span>
+				<span class="value" :class="{ active: pointerEventsEnabled }">
+					{{ pointerEventsEnabled ? '已启用' : '已禁用' }}
+				</span>
 			</div>
 		</div>
 	</div>
@@ -84,6 +101,7 @@ const versionInfo = __APP_VERSION___INFO
 
 const tests = reactive({
 	buildProgress: false,
+	generateRouter: false,
 	copyFile: false,
 	generateVersion: false,
 	injectIco: false,
@@ -92,16 +110,22 @@ const tests = reactive({
 
 const loadingVisible = ref(false)
 const pendingCount = ref(0)
+const pointerEventsEnabled = ref(true)
 
 let statusTimer: ReturnType<typeof setInterval> | null = null
+
+function getManager(): LoadingManager | undefined {
+	return (window as any).__LOADING_MANAGER__
+}
 
 function startStatusPolling() {
 	if (statusTimer) return
 	statusTimer = setInterval(() => {
-		const manager = (window as any).__LOADING_MANAGER__
+		const manager = getManager()
 		if (manager) {
 			loadingVisible.value = manager.isVisible()
 			pendingCount.value = manager.getPendingCount()
+			pointerEventsEnabled.value = manager.isPointerEventsEnabled()
 		}
 	}, 200)
 }
@@ -125,6 +149,20 @@ async function runTests() {
 	// buildProgress: 终端进度条在构建时已展示，此处验证构建成功即视为通过
 	tests.buildProgress = true
 
+	// generateRouter: 验证路由配置文件已生成
+	try {
+		const res = await fetch('/src/router.config.ts')
+		tests.generateRouter = res.ok
+	} catch {
+		// 开发模式下通过 Vite Dev Server 可访问源文件
+		try {
+			const res = await fetch('/src/router.config.ts')
+			tests.generateRouter = res.ok
+		} catch {
+			tests.generateRouter = false
+		}
+	}
+
 	// generateVersion: 验证全局变量已注入
 	tests.generateVersion = !!__APP_VERSION__ && !!__APP_VERSION___INFO
 
@@ -141,23 +179,45 @@ async function runTests() {
 	tests.injectIco = !!linkEl
 
 	// injectLoading: 验证 LoadingManager 已注入到 window
-	const manager = (window as any).__LOADING_MANAGER__
-	tests.injectLoading = !!manager && typeof manager.show === 'function' && typeof manager.hide === 'function'
+	const manager = getManager()
+	tests.injectLoading = !!manager && typeof manager.show === 'function' && typeof manager.toggle === 'function' && typeof manager.isPointerEventsEnabled === 'function'
 }
 
 function showLoading() {
-	const manager = (window as any).__LOADING_MANAGER__
+	const manager = getManager()
 	if (manager) manager.show('手动触发的 Loading...')
 }
 
 function hideLoading() {
-	const manager = (window as any).__LOADING_MANAGER__
+	const manager = getManager()
 	if (manager) manager.hide()
+}
+
+function toggleLoading() {
+	const manager = getManager()
+	if (manager) manager.toggle('切换触发的 Loading')
+}
+
+function forceHideLoading() {
+	const manager = getManager()
+	if (manager) manager.forceHide()
+}
+
+function updateLoadingText() {
+	const manager = getManager()
+	if (manager) {
+		manager.show()
+		manager.updateText('文本已更新 - ' + new Date().toLocaleTimeString())
+	}
+}
+
+function togglePointerEvents() {
+	const manager = getManager()
+	if (manager) manager.togglePointerEvents()
 }
 
 async function fetchWithLoading() {
 	try {
-		// 请求一个可能不存在的端点，主要为了触发 Loading 的请求拦截
 		await fetch('https://httpbin.org/delay/1')
 	} catch {
 		// 请求失败不影响 Loading 验证
@@ -267,7 +327,7 @@ p {
 .btn-group {
 	display: flex;
 	gap: 8px;
-	margin-bottom: 16px;
+	margin-bottom: 12px;
 }
 
 .btn-group button {
@@ -284,6 +344,17 @@ p {
 
 .btn-group button:hover {
 	background-color: #38a373;
+}
+
+.btn-group button.btn-outline {
+	background-color: transparent;
+	border: 1px solid #42b883;
+	color: #42b883;
+}
+
+.btn-group button.btn-outline:hover {
+	background-color: #42b883;
+	color: white;
 }
 
 button {

@@ -27,8 +27,16 @@ export default defineConfig(config => {
 			generateRouter({
 				pagesJsonPath: 'pages.json',
 				outputPath: 'src/router.config.ts',
+				outputFormat: 'ts',
+				nameStrategy: 'camelCase',
 				watch: true,
-				includeSubPackages: true
+				includeSubPackages: true,
+				exportTypes: true,
+				preserveRouteChanges: true,
+				metaMapping: {
+					navigationBarTitleText: 'title',
+					requireAuth: 'requireAuth'
+				}
 			}),
 
 			// 版本号生成（仅 H5 生产环境）
@@ -78,7 +86,9 @@ export default defineConfig(config => {
 				style: {
 					overlayColor: 'rgba(255, 255, 255, 0.85)',
 					spinnerColor: '#007aff',
-					textColor: '#333'
+					textColor: '#333',
+					backdropBlur: true,
+					backdropBlurAmount: 3
 				},
 				transition: {
 					enabled: true,
@@ -89,9 +99,21 @@ export default defineConfig(config => {
 					enabled: true,
 					duration: 500
 				},
+				delayShow: {
+					enabled: true,
+					duration: 200
+				},
+				debounceHide: {
+					enabled: true,
+					duration: 100
+				},
 				autoBind: 'all',
 				requestFilter: {
 					excludeUrlPrefixes: ['/static/', '/api/health']
+				},
+				callbacks: {
+					onShow: 'console.log("[Loading] shown")',
+					onHide: 'console.log("[Loading] hidden")'
 				},
 				enabled: isH5
 			})

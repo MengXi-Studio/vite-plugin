@@ -1,6 +1,71 @@
+## 0.0.9（2026-05-23）
+
+修复 injectLoading 严重问题，新增 LoadingManager 运行时 API，优化插件开发框架
+
+### injectLoading（修复 + 增强）
+
+**修复**：
+
+- 修复 `style.pointerEvents` 默认值错误，正确默认为 `true`（启用遮罩层指针事件，拦截交互），此前版本默认为 `false` 导致遮罩层无法阻止用户操作
+- 修复 LoadingManager 运行时 API 不完整的问题，补充缺失的方法
+
+**新增运行时 API**：
+
+- `toggle(text?)` — 切换 Loading 显示/隐藏状态
+- `enablePointerEvents()` — 启用遮罩层指针事件，拦截所有点击和滚动操作
+- `disablePointerEvents()` — 禁用遮罩层指针事件，允许交互穿透
+- `togglePointerEvents()` — 切换遮罩层指针事件状态
+- `isPointerEventsEnabled()` — 获取当前是否启用了指针事件
+
+### injectIco（增强）
+
+- 新增字符串简写配置：`injectIco('/assets')` 等同于 `injectIco({ base: '/assets' })`
+- `url` 选项描述修正：明确覆盖 `base + favicon.ico` 而非仅覆盖 `base`
+
+### BasePlugin（增强）
+
+- 新增 `safeExecute(fn, context)` 异步安全执行方法，根据 `errorStrategy` 策略自动处理错误
+- 新增 `safeExecuteSync(fn, context)` 同步安全执行方法，根据 `errorStrategy` 策略自动处理错误
+- 构造函数中自动使用 `safeExecuteSync` 包裹 `validateOptions()` 调用，验证失败不再导致构建崩溃（`errorStrategy` 为 `'log'` 或 `'ignore'` 时）
+
+### createPluginFactory（增强）
+
+- 新增选项标准化器（`OptionsNormalizer`）支持，允许插件接受非对象类型的简写配置
+- 工厂函数泛型新增 `R` 参数，支持原始输入类型与标准化后类型不同
+
+### 通用工具函数（新增）
+
+- `readDirRecursive(dirPath, recursive)` — 递归读取目录内容，返回文件和目录条目信息，避免冗余 stat 调用
+- `runWithConcurrency(items, handler, concurrency)` — 带并发限制的批量执行，控制异步操作并发数
+- `shouldUpdateFile(sourceFile, targetFile)` — 检查文件是否需要更新（比较修改时间和文件大小），用于增量复制
+
+### buildProgress（增强）
+
+- 新增进度计算逻辑说明：config(5%) → resolve(10%) → transform(15%-85%) → bundle(+10%) → write(+5%) → done(100%)
+- 非 TTY 终端环境（如 CI/CD）自动降级为日志输出模式
+
+### copyFile（增强）
+
+- 明确执行时机为 `enforce: 'post'`，确保在 Vite 构建完成后执行
+
+### generateRouter（增强）
+
+- 新增 `metaMapping` 默认值说明：默认为 `{ navigationBarTitleText: 'title', requireAuth: 'requireAuth' }`
+- 新增 `nameStrategy` 为 `'custom'` 时必须提供 `customNameGenerator` 的约束说明
+
+### generateVersion（增强）
+
+- 新增 `customFormat` 占位符完整文档：`{YYYY}`、`{YY}`、`{MM}`、`{DD}`、`{HH}`、`{mm}`、`{ss}`、`{timestamp}`、`{hash}`、`{major}`、`{minor}`、`{patch}`
+
+### 子路径导出（增强）
+
+- 新增 `PluginFactory`、`OptionsNormalizer` 类型导出
+- 新增 `DateFormatOptions` 类型导出
+- 新增 `readDirRecursive`、`runWithConcurrency`、`shouldUpdateFile` 函数导出
+
 ## 0.0.8（2026-05-21）
 
-新增 injectLoading 全局 Loading 状态管理插件
+新增 injectLoading 全局 Loading 状态管理插件，**此插件存在严重问题，请尽快升级到0.0.9版本**
 
 ### injectLoading（新增）
 

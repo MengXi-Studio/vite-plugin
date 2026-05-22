@@ -81,6 +81,48 @@ await ensureTargetDir('/path/to/dir')
 
 ---
 
+## readDirRecursive
+
+读取目录内容，返回文件和目录条目列表。
+
+```typescript
+async function readDirRecursive(dirPath: string, recursive: boolean): Promise<FileEntry[]>
+```
+
+**参数**
+
+| 参数      | 类型      | 说明               |
+| --------- | --------- | ------------------ |
+| dirPath   | `string`  | 目录路径           |
+| recursive | `boolean` | 是否递归读取子目录 |
+
+**返回值**
+
+`Promise<FileEntry[]>` - 文件和目录条目列表
+
+**FileEntry**
+
+| 属性        | 类型      | 说明       |
+| ----------- | --------- | ---------- |
+| path        | `string`  | 完整路径   |
+| isFile      | `boolean` | 是否为文件 |
+| isDirectory | `boolean` | 是否为目录 |
+
+**示例**
+
+```typescript
+const entries = await readDirRecursive('src/assets', true)
+for (const entry of entries) {
+	if (entry.isFile) {
+		console.log('文件:', entry.path)
+	} else if (entry.isDirectory) {
+		console.log('目录:', entry.path)
+	}
+}
+```
+
+---
+
 ## fileExists
 
 检查文件是否存在。

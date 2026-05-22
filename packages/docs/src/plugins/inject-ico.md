@@ -23,16 +23,16 @@ export default defineConfig({
 
 ## 配置选项
 
-| 选项          | 类型                           | 默认值    | 说明                      |
-| ------------- | ------------------------------ | --------- | ------------------------- |
-| base          | `string`                       | `'/'`     | 图标基础路径              |
-| url           | `string`                       | -         | 图标完整 URL（覆盖 base） |
-| link          | `string`                       | -         | 自定义 link 标签 HTML     |
-| icons         | `Icon[]`                       | -         | 自定义图标数组            |
-| copyOptions   | `CopyOptions`                  | -         | 图标文件复制配置          |
-| enabled       | `boolean`                      | `true`    | 启用插件                  |
-| verbose       | `boolean`                      | `true`    | 显示详细日志              |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'` | 错误处理策略              |
+| 选项          | 类型                           | 默认值    | 说明                                    |
+| ------------- | ------------------------------ | --------- | --------------------------------------- |
+| base          | `string`                       | `'/'`     | 图标基础路径                            |
+| url           | `string`                       | -         | 图标完整 URL（覆盖 base + favicon.ico） |
+| link          | `string`                       | -         | 自定义 link 标签 HTML（优先级最高）     |
+| icons         | `Icon[]`                       | -         | 自定义图标数组                          |
+| copyOptions   | `CopyOptions`                  | -         | 图标文件复制配置                        |
+| enabled       | `boolean`                      | `true`    | 启用插件                                |
+| verbose       | `boolean`                      | `true`    | 显示详细日志                            |
+| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'` | 错误处理策略                            |
 
 ### copyOptions 配置
 

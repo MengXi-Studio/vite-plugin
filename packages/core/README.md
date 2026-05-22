@@ -21,6 +21,7 @@
 - **类型安全** - 完整的 TypeScript 类型定义，配置验证器确保参数正确性
 - **灵活配置** - 所有插件支持详细配置，满足多样化场景需求
 - **安全执行** - 内置错误处理策略（throw / log / ignore），统一异常管理
+- **按需导入** - 支持子路径导出，减少打包体积
 
 ## 文档
 
@@ -70,10 +71,8 @@ export default defineConfig({
 			outputType: 'both'
 		}),
 
-		// 注入网站图标
-		injectIco({
-			base: '/assets'
-		}),
+		// 注入网站图标（支持字符串简写）
+		injectIco('/assets'),
 
 		// 注入全局 Loading
 		injectLoading({
@@ -134,7 +133,12 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 	}
 }
 
+// 基本使用
 export const myPlugin = createPluginFactory(MyPlugin)
+
+// 带标准化器（支持字符串简写配置）
+export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
+// 使用时支持简写：myPluginWithNormalizer('./custom-path')
 ```
 
 ## 插件开发框架
@@ -198,9 +202,15 @@ export const myPlugin = createPluginFactory(MyPlugin)
 使用 `safeExecute` / `safeExecuteSync` 包裹可能出错的操作：
 
 ```typescript
+// 异步安全执行
 const result = await this.safeExecute(async () => {
 	return await someAsyncOperation()
 }, '执行异步操作')
+
+// 同步安全执行
+const value = this.safeExecuteSync(() => {
+	return someSyncOperation()
+}, '执行同步操作')
 ```
 
 ### createPluginFactory
@@ -217,6 +227,48 @@ const myPlugin = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ?
 // 使用时支持简写
 myPlugin('./custom-path')
 ```
+
+### Validator
+
+流畅的配置验证器，支持链式调用：
+
+```typescript
+import { Validator } from '@meng-xi/vite-plugin/common'
+
+const validator = new Validator(options)
+validator
+	.field('sourceDir')
+	.required()
+	.string()
+	.field('targetDir')
+	.required()
+	.string()
+	.field('overwrite')
+	.boolean()
+	.default(true)
+	.field('port')
+	.number()
+	.field('list')
+	.array()
+	.field('config')
+	.object()
+	.field('name')
+	.custom(val => val.length > 0, 'name 不能为空')
+	.validate()
+```
+
+| 方法         | 说明                                               |
+| ------------ | -------------------------------------------------- |
+| `field()`    | 指定要验证的字段                                   |
+| `required()` | 标记字段为必填                                     |
+| `string()`   | 验证字段值是否为字符串类型                         |
+| `boolean()`  | 验证字段值是否为布尔类型                           |
+| `number()`   | 验证字段值是否为数字类型                           |
+| `array()`    | 验证字段值是否为数组类型                           |
+| `object()`   | 验证字段值是否为对象类型                           |
+| `default()`  | 为字段设置默认值（仅当值为 undefined/null 时生效） |
+| `custom()`   | 使用自定义函数验证字段值                           |
+| `validate()` | 执行验证，失败时抛出错误                           |
 
 ### Logger
 
@@ -244,6 +296,29 @@ Logger.destroy()
 ❌ [@meng-xi/vite-plugin:my-plugin] Error message
 ```
 
+### 通用工具函数
+
+通过 `@meng-xi/vite-plugin/common` 导出，可在自定义插件中复用：
+
+```typescript
+import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from '@meng-xi/vite-plugin/common'
+import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common'
+```
+
+| 函数                   | 说明                                               |
+| ---------------------- | -------------------------------------------------- |
+| `deepMerge()`          | 深度合并对象（undefined 不覆盖，数组直接覆盖）     |
+| `formatDate()`         | 格式化日期，支持 `{YYYY}`, `{MM}`, `{DD}` 等占位符 |
+| `parseTemplate()`      | 解析模板字符串，替换占位符                         |
+| `toCamelCase()`        | 转换为驼峰命名（camelCase）                        |
+| `toPascalCase()`       | 转换为帕斯卡命名（PascalCase）                     |
+| `stripJsonComments()`  | 移除 JSON 字符串中的注释                           |
+| `generateRandomHash()` | 生成随机哈希字符串（1-64 位）                      |
+| `readFileContent()`    | 异步读取文件内容                                   |
+| `writeFileContent()`   | 异步写入文件内容                                   |
+| `fileExists()`         | 异步检查文件是否存在                               |
+| `copySourceToTarget()` | 复制文件或目录，支持增量复制和并发控制             |
+
 ## 内置插件
 
 | 插件            | 说明                                                  |
@@ -252,12 +327,17 @@ Logger.destroy()
 | copyFile        | 构建完成后复制文件或目录，支持增量复制                |
 | generateRouter  | 根据 pages.json 自动生成路由配置（uni-app）           |
 | generateVersion | 自动生成版本号，支持文件输出和全局变量注入            |
-| injectIco       | 将网站图标链接注入到 HTML 文件                        |
+| injectIco       | 将网站图标链接注入到 HTML 文件，支持字符串简写配置    |
 | injectLoading   | 注入全局 Loading 状态管理，支持请求拦截和白屏 Loading |
 
 ### buildProgress
 
 在终端实时显示 Vite 构建进度条，支持三种显示格式。
+
+**进度计算逻辑：**
+
+1. config 阶段（5%）→ resolve 阶段（10%）→ transform 阶段（15%-85%，按模块转换比例）→ bundle 阶段（+10%）→ write 阶段（+5%）→ 完成（100%）
+2. 非 TTY 终端环境（如 CI/CD）自动降级为日志输出模式
 
 | 选项            | 类型                                  | 默认值  | 描述                           |
 | --------------- | ------------------------------------- | ------- | ------------------------------ |
@@ -296,11 +376,22 @@ buildProgress({
 	incompleteChar: '□',
 	clearOnComplete: false
 })
+
+// 自定义颜色主题
+buildProgress({
+	theme: {
+		completeColor: t => `\x1b[32m${t}\x1b[39m`,
+		incompleteColor: t => `\x1b[90m${t}\x1b[39m`,
+		percentageColor: t => `\x1b[1m${t}\x1b[22m`,
+		phaseColor: t => `\x1b[36m${t}\x1b[39m`,
+		moduleColor: t => `\x1b[90m${t}\x1b[39m`
+	}
+})
 ```
 
 ### copyFile
 
-在 Vite 构建完成后复制文件或目录到指定位置。
+在 Vite 构建完成后复制文件或目录到指定位置，执行时机为 `enforce: 'post'`。
 
 | 选项        | 类型      | 默认值 | 描述                 |
 | ----------- | --------- | ------ | -------------------- |
@@ -309,6 +400,22 @@ buildProgress({
 | overwrite   | `boolean` | `true` | 是否覆盖现有文件     |
 | recursive   | `boolean` | `true` | 是否递归复制子目录   |
 | incremental | `boolean` | `true` | 是否启用增量复制     |
+
+```typescript
+// 基本使用
+copyFile({
+	sourceDir: 'src/assets',
+	targetDir: 'dist/assets'
+})
+
+// 禁用覆盖和增量复制
+copyFile({
+	sourceDir: 'src/static',
+	targetDir: 'dist/static',
+	overwrite: false,
+	incremental: false
+})
+```
 
 ### generateRouter
 
@@ -327,6 +434,37 @@ buildProgress({
 | exportTypes          | `boolean`                                                 | `true`                   | 是否导出类型定义              |
 | preserveRouteChanges | `boolean`                                                 | `true`                   | 是否保留用户对 routes 的修改  |
 
+> 默认 `metaMapping` 为 `{ navigationBarTitleText: 'title', requireAuth: 'requireAuth' }`，自动将页面样式字段映射到路由元信息。当 `nameStrategy` 为 `'custom'` 时，必须提供 `customNameGenerator`。
+
+```typescript
+// 基本使用
+generateRouter()
+
+// 自定义 pages.json 路径
+generateRouter({ pagesJsonPath: 'pages.json' })
+
+// 输出 JavaScript 文件
+generateRouter({ outputFormat: 'js', outputPath: 'src/router.config.js' })
+
+// 使用帕斯卡命名策略
+generateRouter({ nameStrategy: 'pascalCase' })
+
+// 自定义路由名称生成
+generateRouter({
+	nameStrategy: 'custom',
+	customNameGenerator: path => `route_${path.replace(/\//g, '_')}`
+})
+
+// 自定义元信息映射
+generateRouter({
+	metaMapping: {
+		navigationBarTitleText: 'title',
+		requireAuth: 'requireAuth',
+		customField: 'custom'
+	}
+})
+```
+
 ### generateVersion
 
 在 Vite 构建过程中自动生成版本号。
@@ -344,9 +482,58 @@ buildProgress({
 | suffix       | `string`                                                                          | -                   | 版本号后缀               |
 | extra        | `Record<string, unknown>`                                                         | -                   | 附加信息（仅 JSON 文件） |
 
+**customFormat 支持的占位符：**
+
+| 占位符        | 说明                        | 示例            |
+| ------------- | --------------------------- | --------------- |
+| `{YYYY}`      | 四位年份                    | `2026`          |
+| `{YY}`        | 两位年份                    | `26`            |
+| `{MM}`        | 两位月份                    | `05`            |
+| `{DD}`        | 两位日期                    | `22`            |
+| `{HH}`        | 两位小时（24h）             | `15`            |
+| `{mm}`        | 两位分钟                    | `30`            |
+| `{ss}`        | 两位秒数                    | `00`            |
+| `{SSS}`       | 三位毫秒                    | `123`           |
+| `{timestamp}` | 时间戳（毫秒）              | `1779464601000` |
+| `{hash}`      | 随机哈希                    | `a1b2c3d4`      |
+| `{major}`     | 主版本号（需 semverBase）   | `1`             |
+| `{minor}`     | 次版本号（需 semverBase）   | `0`             |
+| `{patch}`     | 补丁版本号（需 semverBase） | `0`             |
+
+> 当 `format` 为 `'custom'` 时，必须提供 `customFormat`。当 `outputType` 为 `'define'` 或 `'both'` 时，同时注入 `{defineName}_INFO` 全局变量，包含版本号、构建时间、时间戳等完整信息。
+
+```typescript
+// 时间戳格式（默认）
+generateVersion()
+
+// 日期格式
+generateVersion({ format: 'date' })
+
+// 语义化版本格式
+generateVersion({ format: 'semver', semverBase: '2.0.0', prefix: 'v' })
+
+// 自定义格式
+generateVersion({
+	format: 'custom',
+	customFormat: '{YYYY}.{MM}.{DD}-{hash}',
+	hashLength: 6
+})
+
+// 注入到代码中
+generateVersion({ outputType: 'define', defineName: '__VERSION__' })
+
+// 同时输出文件和注入代码
+generateVersion({
+	outputType: 'both',
+	outputFile: 'build-info.json',
+	defineName: '__BUILD_VERSION__',
+	extra: { environment: 'production' }
+})
+```
+
 ### injectIco
 
-在 Vite 构建过程中将网站图标链接注入到 HTML 文件的 head 中。
+在 Vite 构建过程中将网站图标链接注入到 HTML 文件的 head 中。支持字符串简写配置。
 
 | 选项        | 类型     | 默认值 | 描述                        |
 | ----------- | -------- | ------ | --------------------------- |
@@ -355,6 +542,8 @@ buildProgress({
 | link        | `string` | -      | 自定义完整的 link 标签 HTML |
 | icons       | `Icon[]` | -      | 自定义图标数组              |
 | copyOptions | `object` | -      | 图标文件复制配置            |
+
+> 优先级：`link` > `url` > `base`。当提供 `link` 时，直接注入自定义 HTML；当提供 `url` 时，使用完整 URL；否则使用 `base + '/favicon.ico'`。
 
 `Icon` 接口定义：
 
@@ -374,9 +563,46 @@ buildProgress({
 | overwrite | `boolean` | 否   | `true` | 是否覆盖同名文件 |
 | recursive | `boolean` | 否   | `true` | 是否递归复制     |
 
+```typescript
+// 使用默认配置
+injectIco()
+
+// 字符串简写（设置 base 路径）
+injectIco('/assets')
+
+// 自定义图标数组
+injectIco({
+	base: '/assets',
+	icons: [
+		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+		{ rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' }
+	]
+})
+
+// 自定义完整 link 标签
+injectIco({
+	link: '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />'
+})
+
+// 带文件复制
+injectIco({
+	base: '/assets',
+	copyOptions: {
+		sourceDir: 'src/assets/icons',
+		targetDir: 'dist/assets/icons'
+	}
+})
+```
+
 ### injectLoading
 
 注入全局 Loading 状态管理，支持 XHR/Fetch 请求拦截、白屏 Loading、自定义样式和生命周期回调。
+
+**注入策略：**
+
+- `defaultVisible: false`（默认）：所有代码（CSS + HTML + JS）通过 JS 动态注入到 `</body>` 前
+- `defaultVisible: true`：CSS + HTML 以静态标签注入到 `</head>` 前（白屏即可见），JS 注入到 `</body>` 前
 
 | 选项           | 类型                                            | 默认值                  | 描述                                         |
 | -------------- | ----------------------------------------------- | ----------------------- | -------------------------------------------- |
@@ -422,10 +648,10 @@ buildProgress({
 
 **MinDisplayTime**
 
-| 属性     | 类型      | 默认值 | 描述             |
-| -------- | --------- | ------ | ---------------- |
-| enabled  | `boolean` | `true` | 是否启用         |
-| duration | `number`  | `300`  | 最小显示时间(ms) |
+| 属性     | 类型      | 默认值 | 描述                                  |
+| -------- | --------- | ------ | ------------------------------------- |
+| enabled  | `boolean` | `true` | 是否启用                              |
+| duration | `number`  | `300`  | 最小显示时间(ms)，确保 Loading 不闪烁 |
 
 **DelayShow**
 
@@ -466,34 +692,61 @@ buildProgress({
 
 通过 `window.__LOADING_MANAGER__` 访问：
 
-| 方法                | 说明                                     |
-| ------------------- | ---------------------------------------- |
-| `show(text?)`       | 显示 Loading，可传入文本                 |
-| `hide()`            | 隐藏 Loading（受最小显示时间和防抖约束） |
-| `forceHide()`       | 强制隐藏，忽略最小显示时间和防抖         |
-| `destroy()`         | 销毁实例，恢复原始拦截器                 |
-| `updateText(t)`     | 更新文本内容                             |
-| `isVisible()`       | 获取当前是否显示                         |
-| `getPendingCount()` | 获取当前挂起的请求数量                   |
+| 方法                       | 说明                                       |
+| -------------------------- | ------------------------------------------ |
+| `show(text?)`              | 显示 Loading，可传入文本                   |
+| `hide()`                   | 隐藏 Loading（受最小显示时间和防抖约束）   |
+| `forceHide()`              | 强制隐藏，忽略最小显示时间和防抖           |
+| `toggle(text?)`            | 切换 Loading 显示/隐藏状态                 |
+| `updateText(text)`         | 更新文本内容                               |
+| `isVisible()`              | 获取当前是否显示                           |
+| `isPointerEventsEnabled()` | 获取当前是否启用了指针事件                 |
+| `enablePointerEvents()`    | 启用遮罩层指针事件，拦截所有点击和滚动操作 |
+| `disablePointerEvents()`   | 禁用遮罩层指针事件，允许交互穿透           |
+| `togglePointerEvents()`    | 切换遮罩层指针事件状态                     |
+| `getPendingCount()`        | 获取当前挂起的请求数量                     |
+| `destroy()`                | 销毁实例，清理 DOM 并恢复原始拦截器        |
 
 ```typescript
 // 白屏 Loading：页面加载即显示，DOM 就绪后自动隐藏
 injectLoading({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+
+// 白屏 Loading：所有资源加载完成后隐藏
+injectLoading({ defaultVisible: true, autoHideOn: 'load' })
+
+// Vue/React SPA：白屏即显示，框架渲染完成后手动隐藏
+injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+// 在应用入口处：window.__LOADING_MANAGER__.hide()
 
 // 自动拦截所有请求
 injectLoading({ autoBind: 'all' })
 
 // 自定义样式 + 请求过滤
 injectLoading({
-	style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#fff' },
+	style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#fff', backdropBlur: true },
 	autoBind: 'fetch',
-	requestFilter: { excludeUrls: [/\/api\/health/] }
+	requestFilter: { excludeUrls: [/\/api\/health/], excludeUrlPrefixes: ['http://localhost'] }
+})
+
+// 防抖隐藏（避免快速闪烁）
+injectLoading({ debounceHide: { enabled: true, duration: 100 } })
+
+// 生命周期回调
+injectLoading({
+	callbacks: {
+		onBeforeShow: 'if (shouldSkip) return false;',
+		onShow: 'console.log("loading shown")',
+		onBeforeHide: 'if (shouldKeepVisible) return false;',
+		onHide: 'console.log("loading hidden")'
+	}
 })
 
 // 手动控制
 injectLoading()
 window.__LOADING_MANAGER__.show('正在保存...')
 window.__LOADING_MANAGER__.hide()
+window.__LOADING_MANAGER__.toggle()
+window.__LOADING_MANAGER__.disablePointerEvents()
 ```
 
 ## 子路径导出

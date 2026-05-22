@@ -21,6 +21,7 @@
 - **Type Safe** - Complete TypeScript type definitions with configuration validators ensuring parameter correctness
 - **Flexible Configuration** - All plugins support detailed configuration to meet diverse scenario requirements
 - **Safe Execution** - Built-in error handling strategies (throw / log / ignore) for unified exception management
+- **On-demand Import** - Supports sub-path exports to reduce bundle size
 
 ## Documentation
 
@@ -70,10 +71,8 @@ export default defineConfig({
 			outputType: 'both'
 		}),
 
-		// Inject website icon
-		injectIco({
-			base: '/assets'
-		}),
+		// Inject website icon (supports string shorthand)
+		injectIco('/assets'),
 
 		// Inject global Loading
 		injectLoading({
@@ -134,7 +133,12 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 	}
 }
 
+// Basic usage
 export const myPlugin = createPluginFactory(MyPlugin)
+
+// With normalizer (supports shorthand string config)
+export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
+// Usage with shorthand: myPluginWithNormalizer('./custom-path')
 ```
 
 ## Plugin Development Framework
@@ -198,9 +202,15 @@ Control error behavior via the `errorStrategy` configuration option:
 Wrap error-prone operations with `safeExecute` / `safeExecuteSync`:
 
 ```typescript
+// Async safe execution
 const result = await this.safeExecute(async () => {
 	return await someAsyncOperation()
 }, 'Execute async operation')
+
+// Sync safe execution
+const value = this.safeExecuteSync(() => {
+	return someSyncOperation()
+}, 'Execute sync operation')
 ```
 
 ### createPluginFactory
@@ -217,6 +227,48 @@ const myPlugin = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ?
 // Usage with shorthand
 myPlugin('./custom-path')
 ```
+
+### Validator
+
+Fluent configuration validator with chainable API:
+
+```typescript
+import { Validator } from '@meng-xi/vite-plugin/common'
+
+const validator = new Validator(options)
+validator
+	.field('sourceDir')
+	.required()
+	.string()
+	.field('targetDir')
+	.required()
+	.string()
+	.field('overwrite')
+	.boolean()
+	.default(true)
+	.field('port')
+	.number()
+	.field('list')
+	.array()
+	.field('config')
+	.object()
+	.field('name')
+	.custom(val => val.length > 0, 'name cannot be empty')
+	.validate()
+```
+
+| Method       | Description                                                     |
+| ------------ | --------------------------------------------------------------- |
+| `field()`    | Specify the field to validate                                   |
+| `required()` | Mark field as required                                          |
+| `string()`   | Validate field value is a string type                           |
+| `boolean()`  | Validate field value is a boolean type                          |
+| `number()`   | Validate field value is a number type                           |
+| `array()`    | Validate field value is an array type                           |
+| `object()`   | Validate field value is an object type                          |
+| `default()`  | Set default value for field (only when value is undefined/null) |
+| `custom()`   | Validate field value with a custom function                     |
+| `validate()` | Execute validation, throws error on failure                     |
 
 ### Logger
 
@@ -244,6 +296,29 @@ Log output format:
 ❌ [@meng-xi/vite-plugin:my-plugin] Error message
 ```
 
+### Common Utilities
+
+Exported via `@meng-xi/vite-plugin/common`, reusable in custom plugins:
+
+```typescript
+import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from '@meng-xi/vite-plugin/common'
+import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common'
+```
+
+| Function               | Description                                                     |
+| ---------------------- | --------------------------------------------------------------- |
+| `deepMerge()`          | Deep merge objects (undefined skipped, arrays overwritten)      |
+| `formatDate()`         | Format date with `{YYYY}`, `{MM}`, `{DD}` etc. placeholders     |
+| `parseTemplate()`      | Parse template string, replace placeholders                     |
+| `toCamelCase()`        | Convert to camelCase                                            |
+| `toPascalCase()`       | Convert to PascalCase                                           |
+| `stripJsonComments()`  | Remove comments from JSON string                                |
+| `generateRandomHash()` | Generate random hash string (1-64 characters)                   |
+| `readFileContent()`    | Async read file content                                         |
+| `writeFileContent()`   | Async write file content                                        |
+| `fileExists()`         | Async check if file exists                                      |
+| `copySourceToTarget()` | Copy files or directories with incremental copy and concurrency |
+
 ## Built-in Plugins
 
 | Plugin          | Description                                                                               |
@@ -252,12 +327,17 @@ Log output format:
 | copyFile        | Copy files or directories after build, supports incremental copying                       |
 | generateRouter  | Auto-generate router config from pages.json (uni-app)                                     |
 | generateVersion | Auto-generate version numbers, supports file output and global variable injection         |
-| injectIco       | Inject website icon links into HTML files                                                 |
+| injectIco       | Inject website icon links into HTML files, supports string shorthand config               |
 | injectLoading   | Inject global Loading state management with request interception and white-screen Loading |
 
 ### buildProgress
 
 Display real-time build progress bar in terminal during Vite build, supporting three display formats.
+
+**Progress calculation logic:**
+
+1. config phase (5%) → resolve phase (10%) → transform phase (15%-85%, by module conversion ratio) → bundle phase (+10%) → write phase (+5%) → done (100%)
+2. Non-TTY terminal environments (e.g. CI/CD) automatically degrade to log output mode
 
 | Option          | Type                                  | Default | Description                                          |
 | --------------- | ------------------------------------- | ------- | ---------------------------------------------------- |
@@ -296,11 +376,22 @@ buildProgress({
 	incompleteChar: '□',
 	clearOnComplete: false
 })
+
+// Custom color theme
+buildProgress({
+	theme: {
+		completeColor: t => `\x1b[32m${t}\x1b[39m`,
+		incompleteColor: t => `\x1b[90m${t}\x1b[39m`,
+		percentageColor: t => `\x1b[1m${t}\x1b[22m`,
+		phaseColor: t => `\x1b[36m${t}\x1b[39m`,
+		moduleColor: t => `\x1b[90m${t}\x1b[39m`
+	}
+})
 ```
 
 ### copyFile
 
-Copy files or directories to specified locations after Vite build is completed.
+Copy files or directories to specified locations after Vite build is completed, with `enforce: 'post'`.
 
 | Option      | Type      | Default | Description                                |
 | ----------- | --------- | ------- | ------------------------------------------ |
@@ -309,6 +400,22 @@ Copy files or directories to specified locations after Vite build is completed.
 | overwrite   | `boolean` | `true`  | Whether to overwrite existing files        |
 | recursive   | `boolean` | `true`  | Whether to recursively copy subdirectories |
 | incremental | `boolean` | `true`  | Whether to enable incremental copying      |
+
+```typescript
+// Basic usage
+copyFile({
+	sourceDir: 'src/assets',
+	targetDir: 'dist/assets'
+})
+
+// Disable overwrite and incremental copy
+copyFile({
+	sourceDir: 'src/static',
+	targetDir: 'dist/static',
+	overwrite: false,
+	incremental: false
+})
+```
 
 ### generateRouter
 
@@ -327,6 +434,38 @@ Automatically generate router configuration files based on uni-app project's `pa
 | exportTypes          | `boolean`                                                 | `true`                   | Whether to export type definitions               |
 | preserveRouteChanges | `boolean`                                                 | `true`                   | Whether to preserve user modifications to routes |
 
+> Default `metaMapping` is `{ navigationBarTitleText: 'title', requireAuth: 'requireAuth' }`, automatically mapping page style fields to route meta. When `nameStrategy` is `'custom'`, `customNameGenerator` must be
+> provided.
+
+```typescript
+// Basic usage
+generateRouter()
+
+// Custom pages.json path
+generateRouter({ pagesJsonPath: 'pages.json' })
+
+// Output JavaScript file
+generateRouter({ outputFormat: 'js', outputPath: 'src/router.config.js' })
+
+// PascalCase naming strategy
+generateRouter({ nameStrategy: 'pascalCase' })
+
+// Custom route name generator
+generateRouter({
+	nameStrategy: 'custom',
+	customNameGenerator: path => `route_${path.replace(/\//g, '_')}`
+})
+
+// Custom meta mapping
+generateRouter({
+	metaMapping: {
+		navigationBarTitleText: 'title',
+		requireAuth: 'requireAuth',
+		customField: 'custom'
+	}
+})
+```
+
 ### generateVersion
 
 Automatically generate version numbers during the Vite build process.
@@ -344,9 +483,59 @@ Automatically generate version numbers during the Vite build process.
 | suffix       | `string`                                                                          | -                   | Version number suffix          |
 | extra        | `Record<string, unknown>`                                                         | -                   | Extra info (JSON file only)    |
 
+**customFormat placeholders:**
+
+| Placeholder   | Description                         | Example         |
+| ------------- | ----------------------------------- | --------------- |
+| `{YYYY}`      | Four-digit year                     | `2026`          |
+| `{YY}`        | Two-digit year                      | `26`            |
+| `{MM}`        | Two-digit month                     | `05`            |
+| `{DD}`        | Two-digit day                       | `22`            |
+| `{HH}`        | Two-digit hour (24h)                | `15`            |
+| `{mm}`        | Two-digit minute                    | `30`            |
+| `{ss}`        | Two-digit second                    | `00`            |
+| `{SSS}`       | Three-digit millisecond             | `123`           |
+| `{timestamp}` | Timestamp (milliseconds)            | `1779464601000` |
+| `{hash}`      | Random hash                         | `a1b2c3d4`      |
+| `{major}`     | Major version (requires semverBase) | `1`             |
+| `{minor}`     | Minor version (requires semverBase) | `0`             |
+| `{patch}`     | Patch version (requires semverBase) | `0`             |
+
+> When `format` is `'custom'`, `customFormat` must be provided. When `outputType` is `'define'` or `'both'`, a `{defineName}_INFO` global variable is also injected, containing complete info such as version, build time,
+> and timestamp.
+
+```typescript
+// Timestamp format (default)
+generateVersion()
+
+// Date format
+generateVersion({ format: 'date' })
+
+// Semantic version format
+generateVersion({ format: 'semver', semverBase: '2.0.0', prefix: 'v' })
+
+// Custom format
+generateVersion({
+	format: 'custom',
+	customFormat: '{YYYY}.{MM}.{DD}-{hash}',
+	hashLength: 6
+})
+
+// Inject into code
+generateVersion({ outputType: 'define', defineName: '__VERSION__' })
+
+// Both file output and code injection
+generateVersion({
+	outputType: 'both',
+	outputFile: 'build-info.json',
+	defineName: '__BUILD_VERSION__',
+	extra: { environment: 'production' }
+})
+```
+
 ### injectIco
 
-Inject website icon links into the head of HTML files during the Vite build process.
+Inject website icon links into the head of HTML files during the Vite build process. Supports string shorthand config.
 
 | Option      | Type     | Default | Description                     |
 | ----------- | -------- | ------- | ------------------------------- |
@@ -355,6 +544,8 @@ Inject website icon links into the head of HTML files during the Vite build proc
 | link        | `string` | -       | Custom complete link tag HTML   |
 | icons       | `Icon[]` | -       | Custom icon array               |
 | copyOptions | `object` | -       | Icon file copying configuration |
+
+> Priority: `link` > `url` > `base`. When `link` is provided, custom HTML is injected directly; when `url` is provided, the complete URL is used; otherwise `base + '/favicon.ico'` is used.
 
 `Icon` interface definition:
 
@@ -374,9 +565,46 @@ Inject website icon links into the head of HTML files during the Vite build proc
 | overwrite | `boolean` | No       | `true`  | Whether to overwrite files  |
 | recursive | `boolean` | No       | `true`  | Whether to copy recursively |
 
+```typescript
+// Use default config
+injectIco()
+
+// String shorthand (set base path)
+injectIco('/assets')
+
+// Custom icon array
+injectIco({
+	base: '/assets',
+	icons: [
+		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+		{ rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' }
+	]
+})
+
+// Custom complete link tag
+injectIco({
+	link: '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />'
+})
+
+// With file copying
+injectIco({
+	base: '/assets',
+	copyOptions: {
+		sourceDir: 'src/assets/icons',
+		targetDir: 'dist/assets/icons'
+	}
+})
+```
+
 ### injectLoading
 
 Inject global Loading state management with XHR/Fetch request interception, white-screen Loading, custom styles, and lifecycle callbacks.
+
+**Injection strategy:**
+
+- `defaultVisible: false` (default): All code (CSS + HTML + JS) is dynamically injected via JS before `</body>`
+- `defaultVisible: true`: CSS + HTML are injected as static tags before `</head>` (visible on white screen), JS is injected before `</body>`
 
 | Option         | Type                                            | Default                 | Description                                             |
 | -------------- | ----------------------------------------------- | ----------------------- | ------------------------------------------------------- |
@@ -398,19 +626,19 @@ Inject global Loading state management with XHR/Fetch request interception, whit
 
 **LoadingStyle**
 
-| Property           | Type      | Default                   | Description                                 |
-| ------------------ | --------- | ------------------------- | ------------------------------------------- |
-| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | Overlay background color                    |
-| spinnerColor       | `string`  | `'#4361ee'`               | Spinner color                               |
-| spinnerSize        | `string`  | `'40px'`                  | Spinner size                                |
-| textColor          | `string`  | `'#333'`                  | Text color                                  |
-| textSize           | `string`  | `'14px'`                  | Text size                                   |
-| customClass        | `string`  | -                         | Custom CSS class name                       |
-| customStyle        | `string`  | -                         | Custom inline style string                  |
-| zIndex             | `number`  | `9999`                    | z-index value                               |
-| pointerEvents      | `boolean` | `true`                    | Whether to enable pointer events on overlay |
-| backdropBlur       | `boolean` | `false`                   | Whether to enable backdrop blur             |
-| backdropBlurAmount | `number`  | `4`                       | Backdrop blur amount (px)                   |
+| Property           | Type      | Default                   | Description                              |
+| ------------------ | --------- | ------------------------- | ---------------------------------------- |
+| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | Overlay background color                 |
+| spinnerColor       | `string`  | `'#4361ee'`               | Spinner icon color                       |
+| spinnerSize        | `string`  | `'40px'`                  | Spinner icon size                        |
+| textColor          | `string`  | `'#333'`                  | Text color                               |
+| textSize           | `string`  | `'14px'`                  | Text size                                |
+| customClass        | `string`  | -                         | Custom CSS class name                    |
+| customStyle        | `string`  | -                         | Custom inline style                      |
+| zIndex             | `number`  | `9999`                    | z-index value                            |
+| pointerEvents      | `boolean` | `true`                    | Whether to enable overlay pointer events |
+| backdropBlur       | `boolean` | `false`                   | Whether to enable backdrop blur          |
+| backdropBlurAmount | `number`  | `4`                       | Backdrop blur amount (px)                |
 
 **TransitionConfig**
 
@@ -422,10 +650,10 @@ Inject global Loading state management with XHR/Fetch request interception, whit
 
 **MinDisplayTime**
 
-| Property | Type      | Default | Description               |
-| -------- | --------- | ------- | ------------------------- |
-| enabled  | `boolean` | `true`  | Whether to enable         |
-| duration | `number`  | `300`   | Minimum display time (ms) |
+| Property | Type      | Default | Description                                               |
+| -------- | --------- | ------- | --------------------------------------------------------- |
+| enabled  | `boolean` | `true`  | Whether to enable                                         |
+| duration | `number`  | `300`   | Minimum display time (ms), prevents Loading from flashing |
 
 **DelayShow**
 
@@ -466,34 +694,61 @@ Callbacks are provided as **function body strings** (injected into browser at bu
 
 Access via `window.__LOADING_MANAGER__`:
 
-| Method              | Description                                                         |
-| ------------------- | ------------------------------------------------------------------- |
-| `show(text?)`       | Show Loading, optionally pass text                                  |
-| `hide()`            | Hide Loading (subject to min display time and debounce constraints) |
-| `forceHide()`       | Force hide, ignoring min display time and debounce                  |
-| `destroy()`         | Destroy instance and restore original interceptors                  |
-| `updateText(t)`     | Update text content                                                 |
-| `isVisible()`       | Get whether Loading is currently visible                            |
-| `getPendingCount()` | Get the number of pending requests                                  |
+| Method                     | Description                                                         |
+| -------------------------- | ------------------------------------------------------------------- |
+| `show(text?)`              | Show Loading, optionally pass text                                  |
+| `hide()`                   | Hide Loading (subject to min display time and debounce constraints) |
+| `forceHide()`              | Force hide, ignoring min display time and debounce                  |
+| `toggle(text?)`            | Toggle Loading show/hide state                                      |
+| `updateText(text)`         | Update text content                                                 |
+| `isVisible()`              | Get whether Loading is currently visible                            |
+| `isPointerEventsEnabled()` | Get whether pointer events are currently enabled                    |
+| `enablePointerEvents()`    | Enable overlay pointer events, intercept all clicks and scrolls     |
+| `disablePointerEvents()`   | Disable overlay pointer events, allow interaction passthrough       |
+| `togglePointerEvents()`    | Toggle overlay pointer events state                                 |
+| `getPendingCount()`        | Get the number of pending requests                                  |
+| `destroy()`                | Destroy instance, clean up DOM and restore original interceptors    |
 
 ```typescript
 // White-screen Loading: visible on page load, auto-hide on DOMContentLoaded
 injectLoading({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+
+// White-screen Loading: auto-hide after all resources loaded
+injectLoading({ defaultVisible: true, autoHideOn: 'load' })
+
+// Vue/React SPA: visible on white screen, manually hide after framework renders
+injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+// In app entry: window.__LOADING_MANAGER__.hide()
 
 // Auto-intercept all requests
 injectLoading({ autoBind: 'all' })
 
 // Custom styles + request filtering
 injectLoading({
-	style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#fff' },
+	style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#fff', backdropBlur: true },
 	autoBind: 'fetch',
-	requestFilter: { excludeUrls: [/\/api\/health/] }
+	requestFilter: { excludeUrls: [/\/api\/health/], excludeUrlPrefixes: ['http://localhost'] }
+})
+
+// Debounced hide (prevent rapid flashing)
+injectLoading({ debounceHide: { enabled: true, duration: 100 } })
+
+// Lifecycle callbacks
+injectLoading({
+	callbacks: {
+		onBeforeShow: 'if (shouldSkip) return false;',
+		onShow: 'console.log("loading shown")',
+		onBeforeHide: 'if (shouldKeepVisible) return false;',
+		onHide: 'console.log("loading hidden")'
+	}
 })
 
 // Manual control
 injectLoading()
 window.__LOADING_MANAGER__.show('Saving...')
 window.__LOADING_MANAGER__.hide()
+window.__LOADING_MANAGER__.toggle()
+window.__LOADING_MANAGER__.disablePointerEvents()
 ```
 
 ## Sub-path Exports

@@ -231,7 +231,7 @@ injectLoading({
 
 ```typescript
 injectLoading({
-	customTemplate: '<div class="my-loader"><span data-loading-text="">加载中</span></div>'
+	customTemplate: '<div class="my-loader"><span data-loading-text>加载中</span></div>'
 })
 ```
 
