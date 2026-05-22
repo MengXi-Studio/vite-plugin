@@ -1,4 +1,4 @@
-# npm 包构建与发布（手动触发，OIDC 可信发布 + Provenance 签名）
+# npm 包构建与发布（手动触发，OIDC 受信任发布者 + Provenance 签名）
 name: Publish to npm
 
 on:
@@ -16,7 +16,7 @@ env:
   PNPM_VERSION: '10.30.0'
   NPM_REGISTRY: 'https://registry.npmjs.org'
 
-# id-token: write — OIDC 可信发布必需，用于生成 Sigstore 签名令牌
+# id-token: write — OIDC 受信任发布必需
 # contents: read  — 检出代码必需（最小权限原则）
 permissions:
   id-token: write
@@ -26,12 +26,11 @@ jobs:
   publish:
     name: Build & Publish
     runs-on: ubuntu-latest
-    # 关联 vite-plugin 环境，与 npm Granular Token 的 GitHub Actions environment 绑定
-    # 在 GitHub Settings → Environments → vite-plugin 中配置 NPM_TOKEN 和审批流程
+    # 必须与 npm Trusted Publisher 中配置的 Environment 一致
     environment: vite-plugin
 
     steps:
-      # 检出代码（固定到触发工作流的 commit，防止发布期间默认分支被篡改）
+      # 检出代码，固定到触发 commit 防止篡改
       - name: Checkout
         uses: actions/checkout@v6
         with:
@@ -44,7 +43,6 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       # 设置 Node.js 环境，启用 pnpm 缓存
-      # registry-url 会自动创建 .npmrc 文件，将 NODE_AUTH_TOKEN 作为认证令牌
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
@@ -60,14 +58,13 @@ jobs:
       - name: Build core package
         run: pnpm run build:core
 
-      # 验证构建产物是否存在
+      # 验证构建产物
       - name: Verify build output
         run: |
           if [ ! -d "packages/core/dist" ]; then
             echo "::error::Build output not found: packages/core/dist"
             exit 1
           fi
-          echo "✅ Build output verified"
 
       # 检查版本号是否与 npm 已发布版本重复
       - name: Check version
@@ -81,46 +78,18 @@ jobs:
           echo "published_version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
 
           if [ "$CURRENT_VERSION" = "$PUBLISHED_VERSION" ]; then
-            echo "⚠️ Version $CURRENT_VERSION already published, skipping"
             echo "should_publish=false" >> $GITHUB_OUTPUT
           else
-            echo "📦 Version $CURRENT_VERSION ready to publish (published: $PUBLISHED_VERSION)"
             echo "should_publish=true" >> $GITHUB_OUTPUT
           fi
 
-      # 发布到 npm（OIDC 可信发布 + Provenance 签名）
-      #
-      # OIDC 可信发布流程：
-      #   1. GitHub 生成 OIDC 令牌（需 id-token: write 权限）
-      #   2. npm CLI 将 OIDC 令牌发送至 Sigstore 进行签名
-      #   3. 签名后的 Provenance 声明随包一起发布到 npm
-      #   4. 用户可通过 npm audit signatures 验证包的来源和构建环境
-      #
-      # 前置配置（npmjs.com）：
-      #   - 创建 Granular Access Token，设置 GitHub Actions environment 为 vite-plugin
-      #   - 在包的 Publishing access 中配置 Trusted Publisher（Repository + Workflow + Environment）
-      #
-      # 前置配置（GitHub）：
-      #   - Settings → Environments → 新建 vite-plugin 环境
-      #   - 在 vite-plugin 环境中添加 NPM_TOKEN secret
-      #   - 可选：配置 Required Reviewers 增加审批环节
-      # 验证 npm 认证配置
-      - name: Verify npm auth
-        if: ${{ !inputs.skip_publish && steps.version.outputs.should_publish == 'true' }}
-        run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::error::NPM_TOKEN secret is not configured or empty. Please add NPM_TOKEN to the 'vite-plugin' environment in GitHub Settings → Environments."
-            exit 1
-          fi
-          echo "✅ NPM_TOKEN is configured (length: ${#NODE_AUTH_TOKEN})"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+      # OIDC 受信任发布者 + Provenance 签名，免 Token
+      # 前置配置：npmjs.com 包的 Settings → Publishing access → Trusted Publisher
+      #   Repository owner / name / Workflow filename / Environment 需与本工作流一致
       - name: Publish to npm
         if: ${{ !inputs.skip_publish && steps.version.outputs.should_publish == 'true' }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm --filter @meng-xi/vite-plugin publish --no-git-checks --access public --provenance
+        run: npm publish --provenance --access public
+        working-directory: packages/core
 
       # 发布结果摘要
       - name: Publish summary
@@ -129,10 +98,10 @@ jobs:
           echo "## 📦 Published @meng-xi/vite-plugin@${{ steps.version.outputs.current_version }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: \`${{ steps.version.outputs.current_version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Auth**: OIDC Trusted Publisher (tokenless)" >> $GITHUB_STEP_SUMMARY
           echo "- **Provenance**: ✅ Signed with Sigstore" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment**: \`vite-plugin\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Registry**: ${{ env.NPM_REGISTRY }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Skip publish summary
         if: ${{ inputs.skip_publish || steps.version.outputs.should_publish != 'true' }}
