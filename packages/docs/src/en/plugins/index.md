@@ -10,7 +10,7 @@ Vite plugin collection provided by @meng-xi/vite-plugin.
 | [copyFile](./copy-file)               | Copy files or directories after build                            |
 | [generateRouter](./generate-router)   | Auto-generate route config from uni-app pages.json               |
 | [generateVersion](./generate-version) | Generate version with file output or global variable             |
-| [injectIco](./inject-ico)             | Inject favicon links into HTML                                   |
+| [faviconManager](./favicon-manager)     | Manage website favicon links injection into HTML                                   |
 | [loadingManager](./loading-manager)     | Global Loading state management with request interception |
 
 ## Common Options

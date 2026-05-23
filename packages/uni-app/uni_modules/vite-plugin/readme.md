@@ -38,7 +38,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 
 export default defineConfig({
 	plugins: [
@@ -64,7 +64,7 @@ export default defineConfig({
 		}),
 
 		// 注入网站图标（支持字符串简写）
-		injectIco('/assets'),
+		faviconManager('/assets'),
 
 		// 全局 Loading 状态管理
 		loadingManager({
@@ -371,7 +371,7 @@ import { readFileContent, writeFileContent, fileExists, copySourceToTarget, read
 | copyFile        | 构建完成后复制文件或目录，支持增量复制             |
 | generateRouter  | 根据 pages.json 自动生成路由配置（uni-app）        |
 | generateVersion | 自动生成版本号，支持文件输出和全局变量注入         |
-| injectIco       | 将网站图标链接注入到 HTML 文件，支持字符串简写配置 |
+| faviconManager       | 管理网站图标（favicon）链接注入到 HTML 文件，支持字符串简写配置 |
 | loadingManager  | 全局 Loading 状态管理，支持请求拦截和白屏 Loading  |
 
 ### buildProgress
@@ -573,7 +573,7 @@ generateVersion({
 })
 ```
 
-### injectIco
+### faviconManager
 
 在 Vite 构建过程中将网站图标链接注入到 HTML 文件的 `<head>` 中，支持字符串简写配置。
 
@@ -585,7 +585,7 @@ generateVersion({
 | icons       | [Icon](#icon)[]               | -      | 自定义图标数组                            |
 | copyOptions | [CopyOptions](#copyoptions-1) | -      | 图标文件复制配置                          |
 
-> 支持字符串简写：`injectIco('/assets')` 等同于 `injectIco({ base: '/assets' })`
+> 支持字符串简写：`faviconManager('/assets')` 等同于 `faviconManager({ base: '/assets' })`
 
 **Icon**
 
@@ -607,13 +607,13 @@ generateVersion({
 
 ```typescript
 // 字符串简写
-injectIco('/assets')
+faviconManager('/assets')
 
 // 自定义 URL
-injectIco({ url: 'https://example.com/favicon.ico' })
+faviconManager({ url: 'https://example.com/favicon.ico' })
 
 // 多图标配置
-injectIco({
+faviconManager({
 	icons: [
 		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
 		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
@@ -621,7 +621,7 @@ injectIco({
 })
 
 // 带文件复制
-injectIco({
+faviconManager({
 	base: '/assets',
 	copyOptions: {
 		sourceDir: 'src/assets/icons',
@@ -776,7 +776,7 @@ import { Validator, readFileContent, writeFileContent } from './uni_modules/vite
 
 // 类型导入（从子路径按需导入类型定义）
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
-import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, LoadingManagerOptions, Icon } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
+import type { BuildProgressOptions, GenerateVersionOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
 import type { DateFormatOptions } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
 ```
 

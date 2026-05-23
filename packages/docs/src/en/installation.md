@@ -24,7 +24,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -50,7 +50,7 @@ export default defineConfig({
 		}),
 
 		// Inject website icon
-		injectIco({
+		faviconManager({
 			base: '/assets'
 		}),
 
@@ -103,5 +103,5 @@ export const myPlugin = createPluginFactory(MyPlugin)
 - [copyFile](/en/plugins/copy-file) - File copying
 - [generateRouter](/en/plugins/generate-router) - Router generation
 - [generateVersion](/en/plugins/generate-version) - Version management
-- [injectIco](/en/plugins/inject-ico) - Icon injection
+- [faviconManager](/en/plugins/favicon-manager) - Favicon management
 - [loadingManager](/en/plugins/loading-manager) - Global Loading state management

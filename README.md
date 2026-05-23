@@ -46,7 +46,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -72,7 +72,7 @@ export default defineConfig({
 		}),
 
 		// 注入网站图标（支持字符串简写）
-		injectIco('/assets'),
+		faviconManager('/assets'),
 
 		// 全局 Loading 状态管理
 		loadingManager({
@@ -327,7 +327,7 @@ import { readFileContent, writeFileContent, fileExists, copySourceToTarget } fro
 | copyFile        | 构建完成后复制文件或目录，支持增量复制                |
 | generateRouter  | 根据 pages.json 自动生成路由配置（uni-app）           |
 | generateVersion | 自动生成版本号，支持文件输出和全局变量注入            |
-| injectIco       | 将网站图标链接注入到 HTML 文件，支持字符串简写配置    |
+| faviconManager       | 管理网站图标（favicon）链接注入到 HTML 文件，支持字符串简写配置    |
 | loadingManager  | 全局 Loading 状态管理，支持请求拦截和白屏 Loading |
 
 ### buildProgress
@@ -531,7 +531,7 @@ generateVersion({
 })
 ```
 
-### injectIco
+### faviconManager
 
 在 Vite 构建过程中将网站图标链接注入到 HTML 文件的 head 中。支持字符串简写配置。
 
@@ -565,13 +565,13 @@ generateVersion({
 
 ```typescript
 // 使用默认配置
-injectIco()
+faviconManager()
 
 // 字符串简写（设置 base 路径）
-injectIco('/assets')
+faviconManager('/assets')
 
 // 自定义图标数组
-injectIco({
+faviconManager({
 	base: '/assets',
 	icons: [
 		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
@@ -581,12 +581,12 @@ injectIco({
 })
 
 // 自定义完整 link 标签
-injectIco({
+faviconManager({
 	link: '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />'
 })
 
 // 带文件复制
-injectIco({
+faviconManager({
 	base: '/assets',
 	copyOptions: {
 		sourceDir: 'src/assets/icons',
@@ -765,7 +765,7 @@ import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plug
 
 // 类型导入（从子路径按需导入类型定义）
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, GenerateVersionOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 

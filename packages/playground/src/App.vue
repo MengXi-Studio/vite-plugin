@@ -47,9 +47,9 @@
 					<span class="icon">{{ tests.generateVersion ? '✅' : '⏳' }}</span>
 					<span>generateVersion - 版本生成</span>
 				</div>
-				<div class="test-item" :class="{ passed: tests.injectIco }">
-					<span class="icon">{{ tests.injectIco ? '✅' : '⏳' }}</span>
-					<span>injectIco - 图标注入</span>
+				<div class="test-item" :class="{ passed: tests.faviconManager }">
+					<span class="icon">{{ tests.faviconManager ? '✅' : '⏳' }}</span>
+					<span>faviconManager - 网站图标管理</span>
 				</div>
 				<div class="test-item" :class="{ passed: tests.loadingManager }">
 					<span class="icon">{{ tests.loadingManager ? '✅' : '⏳' }}</span>
@@ -104,7 +104,7 @@ const tests = reactive({
 	generateRouter: false,
 	copyFile: false,
 	generateVersion: false,
-	injectIco: false,
+	faviconManager: false,
 	loadingManager: false
 })
 
@@ -174,9 +174,9 @@ async function runTests() {
 		tests.copyFile = false
 	}
 
-	// injectIco: 验证 link 标签已注入到 head
+	// faviconManager: 验证 link 标签已注入到 head
 	const linkEl = document.querySelector('link[rel="icon"]')
-	tests.injectIco = !!linkEl
+	tests.faviconManager = !!linkEl
 
 	// loadingManager: 验证 LoadingManager 已注入到 window
 	const manager = getManager()

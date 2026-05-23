@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin/plugins'
 import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
 import type { GenerateVersionOptions, LoadingManagerOptions } from '@meng-xi/vite-plugin'
 
@@ -56,8 +56,8 @@ export default defineConfig({
 			}
 		}) as PluginWithInstance<GenerateVersionOptions>,
 
-		// 图标注入
-		injectIco({
+		// 网站图标管理
+		faviconManager({
 			base: '/assets',
 			icons: [{ rel: 'icon', href: '/assets/favicon.ico', sizes: '32x32' }],
 			copyOptions: {

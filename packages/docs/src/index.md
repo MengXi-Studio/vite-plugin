@@ -31,7 +31,7 @@ features:
     details: copyFile 支持增量复制文件到构建目录，generateRouter 根据 pages.json 自动生成路由配置并监听变更，减少手动操作。
   - icon: 🔖
     title: 版本管理与图标注入
-    details: generateVersion 自动生成版本号并支持文件输出和全局变量注入，injectIco 将网站图标链接注入 HTML，一行配置即可完成。
+    details: generateVersion 自动生成版本号并支持文件输出和全局变量注入，faviconManager 管理网站图标链接注入 HTML，一行配置即可完成。
   - icon: ⏳
     title: 全局 Loading 状态管理
     details: loadingManager 全局 Loading 状态管理组件，支持 XHR/Fetch 请求自动拦截、白屏 Loading、自定义样式与动画、生命周期回调，实现从白屏到交互的无缝过渡。

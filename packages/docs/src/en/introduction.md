@@ -12,7 +12,7 @@ Six ready-to-use plugins covering common build scenarios:
 | [copyFile](/en/plugins/copy-file)               | Copy files or directories to specified locations after build, with incremental copying |
 | [generateRouter](/en/plugins/generate-router)   | Auto-generate router configuration from uni-app's pages.json                           |
 | [generateVersion](/en/plugins/generate-version) | Auto-generate version numbers with file output and global variable injection           |
-| [injectIco](/en/plugins/inject-ico)             | Inject website icon links into HTML files                                              |
+| [faviconManager](/en/plugins/favicon-manager)             | Manage website favicon links injection into HTML files                                              |
 | [loadingManager](/en/plugins/loading-manager)   | Global Loading state management with request interception and white-screen Loading     |
 
 ## Plugin Development Framework

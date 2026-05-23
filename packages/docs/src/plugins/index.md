@@ -10,7 +10,7 @@
 | [copyFile](./copy-file)               | 构建完成后复制文件或目录到指定位置         |
 | [generateRouter](./generate-router)   | 根据 uni-app pages.json 自动生成路由配置   |
 | [generateVersion](./generate-version) | 自动生成版本号，支持文件输出和全局变量注入 |
-| [injectIco](./inject-ico)             | 将网站图标链接注入到 HTML 文件             |
+| [faviconManager](./favicon-manager)     | 管理网站图标（favicon）链接注入到 HTML 文件             |
 | [loadingManager](./loading-manager)     | 全局 Loading 状态管理，支持请求拦截    |
 
 ## 通用配置

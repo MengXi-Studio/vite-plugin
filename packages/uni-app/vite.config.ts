@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import { buildProgress, copyFile, generateVersion, generateRouter, injectIco, loadingManager } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, copyFile, generateVersion, generateRouter, faviconManager, loadingManager } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 import { resolve } from 'node:path'
 
 export default defineConfig(config => {
@@ -55,8 +55,8 @@ export default defineConfig(config => {
 				}
 			}),
 
-			// 图标注入（仅 H5 生产环境）
-			injectIco({
+			// 网站图标管理（仅 H5 生产环境）
+			faviconManager({
 				base: viteEnv.VITE_BASE_URL,
 				enabled: isH5 && isProd,
 				copyOptions: {

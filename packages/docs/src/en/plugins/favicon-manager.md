@@ -1,15 +1,15 @@
-# injectIco
+# faviconManager
 
-Inject website icon links into HTML files during Vite build.
+Manage website favicon links injection into HTML files during Vite build.
 
 ## Quick Start
 
 ```typescript
 import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
+import { faviconManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [injectIco({ base: '/assets' })]
+	plugins: [faviconManager({ base: '/assets' })]
 })
 ```
 
@@ -17,7 +17,7 @@ You can also pass a string as the base path:
 
 ```typescript
 export default defineConfig({
-	plugins: [injectIco('/assets')]
+	plugins: [faviconManager('/assets')]
 })
 ```
 
@@ -52,7 +52,7 @@ export default defineConfig({
 ### Custom Icon Array
 
 ```typescript
-injectIco({
+faviconManager({
 	icons: [
 		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
 		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
@@ -64,7 +64,7 @@ injectIco({
 ### Full URL
 
 ```typescript
-injectIco({
+faviconManager({
 	url: 'https://example.com/favicon.ico'
 })
 ```
@@ -72,7 +72,7 @@ injectIco({
 ### Custom Link Tag
 
 ```typescript
-injectIco({
+faviconManager({
 	link: '<link rel="icon" href="/custom.ico" type="image/x-icon">'
 })
 ```
@@ -80,7 +80,7 @@ injectIco({
 ### With File Copy
 
 ```typescript
-injectIco({
+faviconManager({
 	base: '/assets',
 	copyOptions: {
 		sourceDir: 'src/assets/icons',
@@ -92,7 +92,7 @@ injectIco({
 ### Full Configuration
 
 ```typescript
-injectIco({
+faviconManager({
 	base: '/assets',
 	enabled: true,
 	verbose: true,

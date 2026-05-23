@@ -70,7 +70,7 @@ export default {
 				{ name: 'buildProgress - 构建进度条', passed: false },
 				{ name: 'generateRouter - 路由生成', passed: false },
 				{ name: 'generateVersion - 版本生成', passed: false },
-				{ name: 'injectIco - 图标注入', passed: false },
+				{ name: 'faviconManager - 网站图标管理', passed: false },
 				{ name: 'copyFile - 文件复制', passed: false },
 				{ name: 'loadingManager - 全局 Loading', passed: false }
 			]
@@ -111,7 +111,7 @@ export default {
 			// generateVersion: 验证全局变量已注入
 			this.testList[2].passed = !!this.appVersion && this.appVersion !== 'dev'
 
-			// injectIco: 验证 link 标签已注入
+			// faviconManager: 验证 link 标签已注入
 			// #ifdef H5
 			const linkEl = document.querySelector('link[rel="icon"]')
 			this.testList[3].passed = !!linkEl

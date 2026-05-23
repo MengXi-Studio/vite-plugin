@@ -46,7 +46,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -72,7 +72,7 @@ export default defineConfig({
 		}),
 
 		// Inject website icon (supports string shorthand)
-		injectIco('/assets'),
+		faviconManager('/assets'),
 
 		// Global Loading state management
 		loadingManager({
@@ -327,7 +327,7 @@ import { readFileContent, writeFileContent, fileExists, copySourceToTarget } fro
 | copyFile        | Copy files or directories after build, supports incremental copying                       |
 | generateRouter  | Auto-generate router config from pages.json (uni-app)                                     |
 | generateVersion | Auto-generate version numbers, supports file output and global variable injection         |
-| injectIco       | Inject website icon links into HTML files, supports string shorthand config               |
+| faviconManager       | Manage website favicon links injection into HTML files, supports string shorthand config               |
 | loadingManager  | Global Loading state management with request interception and white-screen Loading |
 
 ### buildProgress
@@ -533,7 +533,7 @@ generateVersion({
 })
 ```
 
-### injectIco
+### faviconManager
 
 Inject website icon links into the head of HTML files during the Vite build process. Supports string shorthand config.
 
@@ -567,13 +567,13 @@ Inject website icon links into the head of HTML files during the Vite build proc
 
 ```typescript
 // Use default config
-injectIco()
+faviconManager()
 
 // String shorthand (set base path)
-injectIco('/assets')
+faviconManager('/assets')
 
 // Custom icon array
-injectIco({
+faviconManager({
 	base: '/assets',
 	icons: [
 		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
@@ -583,12 +583,12 @@ injectIco({
 })
 
 // Custom complete link tag
-injectIco({
+faviconManager({
 	link: '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />'
 })
 
 // With file copying
-injectIco({
+faviconManager({
 	base: '/assets',
 	copyOptions: {
 		sourceDir: 'src/assets/icons',
@@ -767,7 +767,7 @@ import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plug
 
 // Type imports (on-demand type definitions from sub-paths)
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, GenerateVersionOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 

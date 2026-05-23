@@ -31,7 +31,7 @@ features:
     details: copyFile supports incremental file copying to build directory. generateRouter auto-generates router config from pages.json with file watching, reducing manual operations.
   - icon: 🔖
     title: Version Management & Icon Injection
-    details: generateVersion auto-generates version numbers with file output and global variable injection. injectIco injects website icon links into HTML — one line of config does it all.
+    details: generateVersion auto-generates version numbers with file output and global variable injection. faviconManager manages website favicon links injection into HTML — one line of config does it all.
   - icon: ⏳
     title: Global Loading State Management
     details:
