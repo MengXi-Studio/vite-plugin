@@ -94,8 +94,16 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/common/format.html'
 						},
 						{
+							text: 'HTML 注入',
+							link: '/common/html.html'
+						},
+						{
 							text: '对象操作',
 							link: '/common/object.html'
+						},
+						{
+							text: '脚本工具',
+							link: '/common/script.html'
 						},
 						{
 							text: '验证器',
@@ -161,6 +169,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/copy-file.html'
 						},
 						{
+							text: 'faviconManager',
+							link: '/plugins/favicon-manager.html'
+						},
+						{
 							text: 'generateRouter',
 							link: '/plugins/generate-router.html'
 						},
@@ -169,12 +181,12 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/generate-version.html'
 						},
 						{
-							text: 'injectIco',
-							link: '/plugins/inject-ico.html'
+							text: 'loadingManager',
+							link: '/plugins/loading-manager.html'
 						},
 						{
-							text: 'injectLoading',
-							link: '/plugins/inject-loading.html'
+							text: 'versionUpdateChecker',
+							link: '/plugins/version-update-checker.html'
 						}
 					]
 				}

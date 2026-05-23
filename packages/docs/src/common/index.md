@@ -1,6 +1,6 @@
 # common
 
-公共工具模块，提供文件系统操作、格式化、对象处理、参数验证等通用功能。
+公共工具模块，提供文件系统操作、格式化、HTML 注入、对象处理、脚本工具、参数验证等通用功能。
 
 ```typescript
 import { ... } from '@meng-xi/vite-plugin/common'
@@ -12,5 +12,7 @@ import { ... } from '@meng-xi/vite-plugin/common'
 | -------------------------- | ---------------- |
 | [fs](./fs)                 | 文件系统操作工具 |
 | [format](./format)         | 格式化工具       |
+| [html](./html)             | HTML 注入工具    |
 | [object](./object)         | 对象处理工具     |
+| [script](./script)         | 脚本工具         |
 | [validation](./validation) | 参数验证器       |

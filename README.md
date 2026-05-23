@@ -15,7 +15,7 @@
 
 ## 特性
 
-- **开箱即用** - 提供 6 个实用插件，覆盖构建进度展示、文件复制、路由生成、版本管理、图标注入、全局 Loading 状态管理等常见场景
+- **开箱即用** - 提供 7 个实用插件，覆盖构建进度展示、文件复制、路由生成、版本管理、版本更新检查、图标注入、全局 Loading 状态管理等常见场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建符合规范的自定义 Vite 插件
 - **完整生命周期** - 支持初始化、配置解析、销毁等生命周期管理，自动组合钩子逻辑
 - **类型安全** - 完整的 TypeScript 类型定义，配置验证器确保参数正确性
@@ -46,7 +46,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, versionUpdateChecker, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -70,6 +70,9 @@ export default defineConfig({
 			format: 'datetime',
 			outputType: 'both'
 		}),
+
+		// 版本更新检查（配合 generateVersion 使用）
+		versionUpdateChecker(),
 
 		// 注入网站图标（支持字符串简写）
 		faviconManager('/assets'),
@@ -97,238 +100,17 @@ const routerPlugin = generateRouter({ watch: true }) as PluginWithInstance<Gener
 console.log(routerPlugin.pluginInstance?.options)
 ```
 
-### 开发自定义插件
-
-```typescript
-import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
-import type { BasePluginOptions, PluginWithInstance } from '@meng-xi/vite-plugin/factory'
-import type { Plugin } from 'vite'
-
-interface MyPluginOptions extends BasePluginOptions {
-	path: string
-}
-
-class MyPlugin extends BasePlugin<MyPluginOptions> {
-	protected getDefaultOptions() {
-		return { path: './default' }
-	}
-
-	protected validateOptions(): void {
-		this.validator.field('path').required().string().validate()
-	}
-
-	protected getPluginName(): string {
-		return 'my-plugin'
-	}
-
-	protected addPluginHooks(plugin: Plugin): void {
-		plugin.buildStart = () => {
-			this.logger.info(`Plugin started with path: ${this.options.path}`)
-		}
-	}
-
-	protected destroy(): void {
-		super.destroy()
-		// 自定义清理逻辑，如关闭连接、停止监听等
-	}
-}
-
-// 基本使用
-export const myPlugin = createPluginFactory(MyPlugin)
-
-// 带标准化器（支持字符串简写配置）
-export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
-// 使用时支持简写：myPluginWithNormalizer('./custom-path')
-```
-
-## 插件开发框架
-
-### BasePlugin 核心概念
-
-`BasePlugin` 是所有插件的基类，提供了完整的生命周期管理和开发规范：
-
-#### 生命周期
-
-| 阶段     | 方法               | 说明                                   |
-| -------- | ------------------ | -------------------------------------- |
-| 初始化   | `constructor`      | 合并配置、初始化日志和验证器           |
-| 配置解析 | `onConfigResolved` | Vite 配置解析完成时调用                |
-| 钩子注册 | `addPluginHooks`   | 注册 Vite 插件钩子                     |
-| 销毁     | `destroy`          | `closeBundle` 时自动调用，用于清理资源 |
-
-#### 钩子自动组合
-
-`toPlugin()` 方法会自动组合以下钩子：
-
-- **configResolved** - 先执行基类的 `onConfigResolved`，再执行子类注册的钩子
-- **closeBundle** - 先执行子类注册的钩子，再执行基类的 `destroy`
-
-> 子类无需手动注册 `closeBundle` 钩子来清理资源，只需重写 `destroy()` 方法即可。
-
-#### 必须实现的方法
-
-| 方法                     | 说明               |
-| ------------------------ | ------------------ |
-| `getPluginName()`        | 返回插件名称       |
-| `addPluginHooks(plugin)` | 添加 Vite 插件钩子 |
-
-#### 可选重写的方法
-
-| 方法                       | 默认行为    | 说明                               |
-| -------------------------- | ----------- | ---------------------------------- |
-| `getDefaultOptions()`      | 返回 `{}`   | 提供插件默认配置                   |
-| `validateOptions()`        | 无验证      | 验证配置参数                       |
-| `getEnforce()`             | `undefined` | 插件执行时机（`'pre'` / `'post'`） |
-| `onConfigResolved(config)` | 存储配置    | 配置解析完成回调                   |
-| `destroy()`                | 注销日志    | 插件销毁时的清理逻辑               |
-
-#### 内置属性
-
-| 属性         | 类型                     | 说明              |
-| ------------ | ------------------------ | ----------------- |
-| `options`    | `Required<T>`            | 合并后的完整配置  |
-| `logger`     | `PluginLogger`           | 插件日志记录器    |
-| `validator`  | `Validator<T>`           | 配置验证器        |
-| `viteConfig` | `ResolvedConfig \| null` | Vite 解析后的配置 |
-
-#### 错误处理策略
-
-通过 `errorStrategy` 配置项控制错误行为：
-
-- `'throw'`（默认）- 记录错误并抛出异常，中断构建
-- `'log'` - 记录错误但不抛出，继续执行
-- `'ignore'` - 记录错误但不抛出，继续执行
-
-使用 `safeExecute` / `safeExecuteSync` 包裹可能出错的操作：
-
-```typescript
-// 异步安全执行
-const result = await this.safeExecute(async () => {
-	return await someAsyncOperation()
-}, '执行异步操作')
-
-// 同步安全执行
-const value = this.safeExecuteSync(() => {
-	return someSyncOperation()
-}, '执行同步操作')
-```
-
-### createPluginFactory
-
-创建插件工厂函数，支持选项标准化器：
-
-```typescript
-// 基本使用
-const myPlugin = createPluginFactory(MyPlugin)
-
-// 带标准化器（支持字符串简写配置）
-const myPlugin = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
-
-// 使用时支持简写
-myPlugin('./custom-path')
-```
-
-### Validator
-
-流畅的配置验证器，支持链式调用：
-
-```typescript
-import { Validator } from '@meng-xi/vite-plugin/common'
-
-const validator = new Validator(options)
-validator
-	.field('sourceDir')
-	.required()
-	.string()
-	.field('targetDir')
-	.required()
-	.string()
-	.field('overwrite')
-	.boolean()
-	.default(true)
-	.field('port')
-	.number()
-	.field('list')
-	.array()
-	.field('config')
-	.object()
-	.field('name')
-	.custom(val => val.length > 0, 'name 不能为空')
-	.validate()
-```
-
-| 方法         | 说明                                               |
-| ------------ | -------------------------------------------------- |
-| `field()`    | 指定要验证的字段                                   |
-| `required()` | 标记字段为必填                                     |
-| `string()`   | 验证字段值是否为字符串类型                         |
-| `boolean()`  | 验证字段值是否为布尔类型                           |
-| `number()`   | 验证字段值是否为数字类型                           |
-| `array()`    | 验证字段值是否为数组类型                           |
-| `object()`   | 验证字段值是否为对象类型                           |
-| `default()`  | 为字段设置默认值（仅当值为 undefined/null 时生效） |
-| `custom()`   | 使用自定义函数验证字段值                           |
-| `validate()` | 执行验证，失败时抛出错误                           |
-
-### Logger
-
-全局单例日志管理器，为每个插件提供独立的日志控制：
-
-```typescript
-import { Logger } from '@meng-xi/vite-plugin/logger'
-
-// 创建日志记录器（通常由 BasePlugin 自动调用）
-Logger.create({ name: 'my-plugin', enabled: true })
-
-// 注销插件日志配置（插件销毁时自动调用）
-Logger.unregister('my-plugin')
-
-// 销毁单例（测试场景使用）
-Logger.destroy()
-```
-
-日志输出格式：
-
-```
-ℹ️ [@meng-xi/vite-plugin:my-plugin] Info message
-✅ [@meng-xi/vite-plugin:my-plugin] Success message
-⚠️ [@meng-xi/vite-plugin:my-plugin] Warning message
-❌ [@meng-xi/vite-plugin:my-plugin] Error message
-```
-
-### 通用工具函数
-
-通过 `@meng-xi/vite-plugin/common` 导出，可在自定义插件中复用：
-
-```typescript
-import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from '@meng-xi/vite-plugin/common'
-import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common'
-```
-
-| 函数                   | 说明                                               |
-| ---------------------- | -------------------------------------------------- |
-| `deepMerge()`          | 深度合并对象（undefined 不覆盖，数组直接覆盖）     |
-| `formatDate()`         | 格式化日期，支持 `{YYYY}`, `{MM}`, `{DD}` 等占位符 |
-| `parseTemplate()`      | 解析模板字符串，替换占位符                         |
-| `toCamelCase()`        | 转换为驼峰命名（camelCase）                        |
-| `toPascalCase()`       | 转换为帕斯卡命名（PascalCase）                     |
-| `stripJsonComments()`  | 移除 JSON 字符串中的注释                           |
-| `generateRandomHash()` | 生成随机哈希字符串（1-64 位）                      |
-| `readFileContent()`    | 异步读取文件内容                                   |
-| `writeFileContent()`   | 异步写入文件内容                                   |
-| `fileExists()`         | 异步检查文件是否存在                               |
-| `copySourceToTarget()` | 复制文件或目录，支持增量复制和并发控制             |
-
 ## 内置插件
 
-| 插件            | 说明                                                  |
-| --------------- | ----------------------------------------------------- |
-| buildProgress   | 终端实时构建进度条，支持 bar / spinner / minimal      |
-| copyFile        | 构建完成后复制文件或目录，支持增量复制                |
-| generateRouter  | 根据 pages.json 自动生成路由配置（uni-app）           |
-| generateVersion | 自动生成版本号，支持文件输出和全局变量注入            |
-| faviconManager       | 管理网站图标（favicon）链接注入到 HTML 文件，支持字符串简写配置    |
-| loadingManager  | 全局 Loading 状态管理，支持请求拦截和白屏 Loading |
+| 插件                 | 说明                                                            |
+| -------------------- | --------------------------------------------------------------- |
+| buildProgress        | 终端实时构建进度条，支持 bar / spinner / minimal                |
+| copyFile             | 构建完成后复制文件或目录，支持增量复制                          |
+| generateRouter       | 根据 pages.json 自动生成路由配置（uni-app）                     |
+| generateVersion      | 自动生成版本号，支持文件输出和全局变量注入                      |
+| versionUpdateChecker | 运行时版本更新检查，支持多种提示样式和自定义回调                |
+| faviconManager       | 管理网站图标（favicon）链接注入到 HTML 文件，支持字符串简写配置 |
+| loadingManager       | 全局 Loading 状态管理，支持请求拦截和白屏 Loading               |
 
 ### buildProgress
 
@@ -432,7 +214,7 @@ copyFile({
 | watch                | `boolean`                                                 | `true`                   | 是否监听变化自动重新生成      |
 | metaMapping          | `Record<string, string>`                                  | -                        | 页面 style 字段到 meta 的映射 |
 | exportTypes          | `boolean`                                                 | `true`                   | 是否导出类型定义              |
-| preserveRouteChanges | `boolean`                                                 | `true`                   | 是否保留用户对 routes 的修改  |
+| preserveRouteChanges | `boolean`                                                 | `true'`                  | 是否保留用户对 routes 的修改  |
 
 > 默认 `metaMapping` 为 `{ navigationBarTitleText: 'title', requireAuth: 'requireAuth' }`，自动将页面样式字段映射到路由元信息。当 `nameStrategy` 为 `'custom'` 时，必须提供 `customNameGenerator`。
 
@@ -529,6 +311,72 @@ generateVersion({
 	defineName: '__BUILD_VERSION__',
 	extra: { environment: 'production' }
 })
+```
+
+### versionUpdateChecker
+
+在运行时定期检查版本号变更，发现新版本时提示用户刷新页面。通常与 `generateVersion` 插件配合使用。
+
+**工作原理：**
+
+1. `generateVersion` 在构建时生成版本号文件（`version.json`）或注入全局变量
+2. `versionUpdateChecker` 在运行时定期请求版本文件，与当前版本对比
+3. 发现版本不一致时，弹出提示引导用户刷新
+
+| 选项                    | 类型                                 | 默认值                                     | 描述                                 |
+| ----------------------- | ------------------------------------ | ------------------------------------------ | ------------------------------------ |
+| versionSource           | `'define'` \| `'file'` \| `'auto'`   | `'auto'`                                   | 当前版本号来源                       |
+| defineName              | `string`                             | `'__APP_VERSION__'`                        | define 模式下的全局变量名            |
+| checkUrl                | `string`                             | `'/version.json'`                          | 版本检查文件的 URL 路径              |
+| checkInterval           | `number`                             | `300000`                                   | 检查间隔时间（毫秒，默认 5 分钟）    |
+| checkOnVisibilityChange | `boolean`                            | `true`                                     | 页面可见性变化时是否立即检查         |
+| enableInDev             | `boolean`                            | `false`                                    | 是否在开发模式下启用                 |
+| promptStyle             | `'modal'` \| `'banner'` \| `'toast'` | `'modal'`                                  | 更新提示 UI 样式                     |
+| promptMessage           | `string`                             | `'发现新版本，是否立即刷新获取最新内容？'` | 提示消息文本                         |
+| refreshButtonText       | `string`                             | `'立即刷新'`                               | 刷新按钮文本                         |
+| dismissButtonText       | `string`                             | `'稍后再说'`                               | 忽略按钮文本                         |
+| customPromptTemplate    | `string`                             | -                                          | 自定义提示 UI 的 HTML 模板           |
+| customStyle             | `string`                             | -                                          | 自定义 CSS 样式字符串                |
+| onUpdateAvailable       | `string`                             | -                                          | 发现新版本时的回调（函数体字符串）   |
+| onRefresh               | `string`                             | -                                          | 用户选择刷新时的回调（函数体字符串） |
+| onDismiss               | `string`                             | -                                          | 用户选择忽略时的回调（函数体字符串） |
+
+> `versionSource` 说明：`'define'` 从全局变量读取，`'file'` 从版本文件读取，`'auto'` 优先使用 define，回退到 file。自定义模板中可使用
+> `{{message}}`、`{{currentVersion}}`、`{{newVersion}}`、`{{refreshButton}}`、`{{dismissButton}}` 占位符。回调以函数体字符串形式提供，可用变量：`currentVersion`、`newVersion`。
+
+```typescript
+// 基本使用（配合 generateVersion）
+generateVersion({ outputType: 'both' })
+versionUpdateChecker()
+
+// 仅从版本文件读取
+versionUpdateChecker({ versionSource: 'file' })
+
+// 自定义检查间隔和提示样式
+versionUpdateChecker({
+	checkInterval: 60000,
+	promptStyle: 'banner'
+})
+
+// 底部轻提示
+versionUpdateChecker({ promptStyle: 'toast' })
+
+// 自定义提示文本
+versionUpdateChecker({
+	promptMessage: '系统已更新，建议刷新体验新功能',
+	refreshButtonText: '更新',
+	dismissButtonText: '取消'
+})
+
+// 自定义回调
+versionUpdateChecker({
+	onUpdateAvailable: 'console.log("新版本:", newVersion); return true;',
+	onRefresh: 'console.log("用户选择刷新");',
+	onDismiss: 'console.log("用户选择忽略");'
+})
+
+// 开发环境也启用（调试用）
+versionUpdateChecker({ enableInDev: true })
 ```
 
 ### faviconManager
@@ -749,6 +597,235 @@ window.__LOADING_MANAGER__.toggle()
 window.__LOADING_MANAGER__.disablePointerEvents()
 ```
 
+## 通用工具函数
+
+通过 `@meng-xi/vite-plugin/common` 导出，可在自定义插件中复用：
+
+```typescript
+import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from '@meng-xi/vite-plugin/common'
+import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common'
+import { injectBeforeTag, injectHtmlByPriority } from '@meng-xi/vite-plugin/common'
+import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common'
+```
+
+| 函数                       | 说明                                                            |
+| -------------------------- | --------------------------------------------------------------- |
+| `deepMerge()`              | 深度合并对象（undefined 不覆盖，数组直接覆盖）                  |
+| `formatDate()`             | 格式化日期，支持 `{YYYY}`, `{MM}`, `{DD}` 等占位符              |
+| `parseTemplate()`          | 解析模板字符串，替换占位符                                      |
+| `toCamelCase()`            | 转换为驼峰命名（camelCase）                                     |
+| `toPascalCase()`           | 转换为帕斯卡命名（PascalCase）                                  |
+| `stripJsonComments()`      | 移除 JSON 字符串中的注释                                        |
+| `generateRandomHash()`     | 生成随机哈希字符串（1-64 位）                                   |
+| `readFileContent()`        | 异步读取文件内容                                                |
+| `writeFileContent()`       | 异步写入文件内容                                                |
+| `fileExists()`             | 异步检查文件是否存在                                            |
+| `copySourceToTarget()`     | 复制文件或目录，支持增量复制和并发控制                          |
+| `injectBeforeTag()`        | 在 HTML 指定闭合标签前注入代码                                  |
+| `injectHtmlByPriority()`   | 按优先级向 HTML 中注入代码（`</head>` → `</body>` → `</html>`） |
+| `makeCallback()`           | 将回调函数体包装为安全的函数表达式（含 try-catch）              |
+| `containsScriptTag()`      | 检测字符串是否包含 `<script>` 标签                              |
+| `validateIdentifierName()` | 验证字符串是否为合法的 JavaScript 标识符，防止原型污染          |
+
+## 插件开发框架
+
+### BasePlugin 核心概念
+
+`BasePlugin` 是所有插件的基类，提供了完整的生命周期管理和开发规范：
+
+#### 生命周期
+
+| 阶段     | 方法               | 说明                                   |
+| -------- | ------------------ | -------------------------------------- |
+| 初始化   | `constructor`      | 合并配置、初始化日志和验证器           |
+| 配置解析 | `onConfigResolved` | Vite 配置解析完成时调用                |
+| 钩子注册 | `addPluginHooks`   | 注册 Vite 插件钩子                     |
+| 销毁     | `destroy`          | `closeBundle` 时自动调用，用于清理资源 |
+
+#### 钩子自动组合
+
+`toPlugin()` 方法会自动组合以下钩子：
+
+- **configResolved** - 先执行基类的 `onConfigResolved`，再执行子类注册的钩子
+- **closeBundle** - 先执行子类注册的钩子，再执行基类的 `destroy`
+
+> 子类无需手动注册 `closeBundle` 钩子来清理资源，只需重写 `destroy()` 方法即可。
+
+#### 必须实现的方法
+
+| 方法                     | 说明               |
+| ------------------------ | ------------------ |
+| `getPluginName()`        | 返回插件名称       |
+| `addPluginHooks(plugin)` | 添加 Vite 插件钩子 |
+
+#### 可选重写的方法
+
+| 方法                       | 默认行为    | 说明                               |
+| -------------------------- | ----------- | ---------------------------------- |
+| `getDefaultOptions()`      | 返回 `{}`   | 提供插件默认配置                   |
+| `validateOptions()`        | 无验证      | 验证配置参数                       |
+| `getEnforce()`             | `undefined` | 插件执行时机（`'pre'` / `'post'`） |
+| `onConfigResolved(config)` | 存储配置    | 配置解析完成回调                   |
+| `destroy()`                | 注销日志    | 插件销毁时的清理逻辑               |
+
+#### 内置属性
+
+| 属性         | 类型                     | 说明              |
+| ------------ | ------------------------ | ----------------- |
+| `options`    | `Required<T>`            | 合并后的完整配置  |
+| `logger`     | `PluginLogger`           | 插件日志记录器    |
+| `validator`  | `Validator<T>`           | 配置验证器        |
+| `viteConfig` | `ResolvedConfig \| null` | Vite 解析后的配置 |
+
+#### 错误处理策略
+
+通过 `errorStrategy` 配置项控制错误行为：
+
+- `'throw'`（默认）- 记录错误并抛出异常，中断构建
+- `'log'` - 记录错误但不抛出，继续执行
+- `'ignore'` - 记录错误但不抛出，继续执行
+
+使用 `safeExecute` / `safeExecuteSync` 包裹可能出错的操作：
+
+```typescript
+// 异步安全执行
+const result = await this.safeExecute(async () => {
+	return await someAsyncOperation()
+}, '执行异步操作')
+
+// 同步安全执行
+const value = this.safeExecuteSync(() => {
+	return someSyncOperation()
+}, '执行同步操作')
+```
+
+### createPluginFactory
+
+创建插件工厂函数，支持选项标准化器：
+
+```typescript
+// 基本使用
+const myPlugin = createPluginFactory(MyPlugin)
+
+// 带标准化器（支持字符串简写配置）
+const myPlugin = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
+
+// 使用时支持简写
+myPlugin('./custom-path')
+```
+
+### Validator
+
+流畅的配置验证器，支持链式调用：
+
+```typescript
+import { Validator } from '@meng-xi/vite-plugin/common'
+
+const validator = new Validator(options)
+validator
+	.field('sourceDir')
+	.required()
+	.string()
+	.field('targetDir')
+	.required()
+	.string()
+	.field('overwrite')
+	.boolean()
+	.default(true)
+	.field('port')
+	.number()
+	.field('list')
+	.array()
+	.field('config')
+	.object()
+	.field('name')
+	.custom(val => val.length > 0, 'name 不能为空')
+	.validate()
+```
+
+| 方法         | 说明                                               |
+| ------------ | -------------------------------------------------- |
+| `field()`    | 指定要验证的字段                                   |
+| `required()` | 标记字段为必填                                     |
+| `string()`   | 验证字段值是否为字符串类型                         |
+| `boolean()`  | 验证字段值是否为布尔类型                           |
+| `number()`   | 验证字段值是否为数字类型                           |
+| `array()`    | 验证字段值是否为数组类型                           |
+| `object()`   | 验证字段值是否为对象类型                           |
+| `default()`  | 为字段设置默认值（仅当值为 undefined/null 时生效） |
+| `custom()`   | 使用自定义函数验证字段值                           |
+| `validate()` | 执行验证，失败时抛出错误                           |
+
+### Logger
+
+全局单例日志管理器，为每个插件提供独立的日志控制：
+
+```typescript
+import { Logger } from '@meng-xi/vite-plugin/logger'
+
+// 创建日志记录器（通常由 BasePlugin 自动调用）
+Logger.create({ name: 'my-plugin', enabled: true })
+
+// 注销插件日志配置（插件销毁时自动调用）
+Logger.unregister('my-plugin')
+
+// 销毁单例（测试场景使用）
+Logger.destroy()
+```
+
+日志输出格式：
+
+```
+ℹ️ [@meng-xi/vite-plugin:my-plugin] Info message
+✅ [@meng-xi/vite-plugin:my-plugin] Success message
+⚠️ [@meng-xi/vite-plugin:my-plugin] Warning message
+❌ [@meng-xi/vite-plugin:my-plugin] Error message
+```
+
+### 开发自定义插件示例
+
+```typescript
+import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
+import type { BasePluginOptions, PluginWithInstance } from '@meng-xi/vite-plugin/factory'
+import type { Plugin } from 'vite'
+
+interface MyPluginOptions extends BasePluginOptions {
+	path: string
+}
+
+class MyPlugin extends BasePlugin<MyPluginOptions> {
+	protected getDefaultOptions() {
+		return { path: './default' }
+	}
+
+	protected validateOptions(): void {
+		this.validator.field('path').required().string().validate()
+	}
+
+	protected getPluginName(): string {
+		return 'my-plugin'
+	}
+
+	protected addPluginHooks(plugin: Plugin): void {
+		plugin.buildStart = () => {
+			this.logger.info(`Plugin started with path: ${this.options.path}`)
+		}
+	}
+
+	protected destroy(): void {
+		super.destroy()
+		// 自定义清理逻辑，如关闭连接、停止监听等
+	}
+}
+
+// 基本使用
+export const myPlugin = createPluginFactory(MyPlugin)
+
+// 带标准化器（支持字符串简写配置）
+export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
+// 使用时支持简写：myPluginWithNormalizer('./custom-path')
+```
+
 ## 子路径导出
 
 支持按需导入模块，减少打包体积：
@@ -765,7 +842,7 @@ import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plug
 
 // 类型导入（从子路径按需导入类型定义）
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, GenerateVersionOptions, VersionUpdateCheckerOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 

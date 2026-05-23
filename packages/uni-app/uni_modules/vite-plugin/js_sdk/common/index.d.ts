@@ -286,6 +286,52 @@ declare function toPascalCase(str: string, separators?: RegExp): string;
 declare function stripJsonComments(jsonString: string): string;
 
 /**
+ * HTML 注入结果
+ */
+interface HtmlInjectResult {
+    /** 注入后的 HTML 内容 */
+    html: string;
+    /** 是否成功注入 */
+    injected: boolean;
+}
+/**
+ * 在 HTML 中指定闭合标签前注入代码
+ *
+ * @param html - 原始 HTML 内容
+ * @param tag - 目标闭合标签（如 `</head>`、`</body>`、`</html>`）
+ * @param code - 要注入的代码
+ * @returns 注入结果对象
+ *
+ * @example
+ * ```typescript
+ * // 在 </head> 前注入 CSS
+ * const result = injectBeforeTag(html, '</head>', '<style>...</style>')
+ *
+ * // 在 </body> 前注入 JS
+ * const result = injectBeforeTag(html, '</body>', '<script>...</script>')
+ * ```
+ */
+declare function injectBeforeTag(html: string, tag: string, code: string): HtmlInjectResult;
+/**
+ * 按优先级向 HTML 中注入代码
+ *
+ * @description 依次尝试在 `</head>`、`</body>`、`</html>` 前注入代码，
+ * 优先注入到靠前的标签位置。适用于需要注入到页面中但无特定位置要求的场景
+ *
+ * @param html - 原始 HTML 内容
+ * @param code - 要注入的代码
+ * @param targets - 目标标签优先级列表，默认为 `['</head>', '</body>', '</html>']`
+ * @returns 注入结果对象
+ *
+ * @example
+ * ```typescript
+ * // 优先注入到 </body> 前
+ * const result = injectHtmlByPriority(html, scriptCode, ['</body>', '</html>'])
+ * ```
+ */
+declare function injectHtmlByPriority(html: string, code: string, targets?: string[]): HtmlInjectResult;
+
+/**
  * 深度合并对象
  *
  * @description 将多个源对象深度合并到一个新对象中。
@@ -314,5 +360,58 @@ declare function stripJsonComments(jsonString: string): string;
  */
 declare function deepMerge<T extends Record<string, any>>(...sources: Partial<T>[]): T;
 
-export { checkSourceExists, copySourceToTarget, deepMerge, ensureTargetDir, fileExists, formatDate, generateRandomHash, getDateFormatParams, padNumber, parseTemplate, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, shouldUpdateFile, stripJsonComments, toCamelCase, toPascalCase, writeFileContent };
-export type { DateFormatOptions };
+/**
+ * 将回调函数体字符串包装为安全的函数表达式
+ *
+ * @param body - 函数体代码字符串
+ * @param context - 回调上下文标识，用于错误日志
+ * @param params - 函数参数列表字符串，默认为空
+ * @returns 安全的函数表达式字符串（包含 try-catch 保护）
+ *
+ * @example
+ * ```typescript
+ * makeCallback('console.log("done")')
+ * // 'function() { try { console.log("done") } catch(e) { console.error('[callback] error:', e); } }'
+ *
+ * makeCallback('console.log(a, b)', 'callback', 'a, b')
+ * // 'function(a, b) { try { console.log(a, b) } catch(e) { console.error('[callback] error:', e); } }'
+ *
+ * makeCallback('')
+ * // 'function() {}'
+ * ```
+ */
+declare function makeCallback(body?: string, context?: string, params?: string): string;
+/**
+ * 检测字符串是否包含 `<script>` 标签
+ *
+ * @param str - 待检测的字符串
+ * @returns 是否包含 script 标签
+ *
+ * @example
+ * ```typescript
+ * containsScriptTag('<div onclick="alert(1)">') // false
+ * containsScriptTag('<script>alert(1)</script>') // true
+ * ```
+ */
+declare function containsScriptTag(str: string): boolean;
+/**
+ * 验证字符串是否为合法的 JavaScript 标识符
+ *
+ * @description 检查名称是否以字母、下划线或美元符开头，
+ * 仅包含字母、数字、下划线和美元符，并排除可能导致原型污染的内置属性
+ *
+ * @param name - 待验证的标识符名称
+ * @throws 当名称不是合法标识符时抛出错误
+ * @throws 当名称为 JavaScript 内置属性时抛出错误
+ *
+ * @example
+ * ```typescript
+ * validateIdentifierName('__LOADING_MANAGER__') // 通过
+ * validateIdentifierName('123abc')              // 抛出错误
+ * validateIdentifierName('__proto__')           // 抛出错误（内置属性）
+ * ```
+ */
+declare function validateIdentifierName(name: string): void;
+
+export { checkSourceExists, containsScriptTag, copySourceToTarget, deepMerge, ensureTargetDir, fileExists, formatDate, generateRandomHash, getDateFormatParams, injectBeforeTag, injectHtmlByPriority, makeCallback, padNumber, parseTemplate, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, shouldUpdateFile, stripJsonComments, toCamelCase, toPascalCase, validateIdentifierName, writeFileContent };
+export type { DateFormatOptions, HtmlInjectResult };

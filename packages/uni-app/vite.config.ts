@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import { buildProgress, copyFile, generateVersion, generateRouter, faviconManager, loadingManager } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, copyFile, generateVersion, generateRouter, faviconManager, loadingManager, versionUpdateChecker } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 import { resolve } from 'node:path'
 
 export default defineConfig(config => {
@@ -116,6 +116,24 @@ export default defineConfig(config => {
 					onHide: 'console.log("[Loading] hidden")'
 				},
 				enabled: isH5
+			}),
+
+			// 版本更新检查（仅 H5 生产环境）
+			versionUpdateChecker({
+				versionSource: 'auto',
+				defineName: '__APP_VERSION__',
+				checkUrl: '/version.json',
+				checkInterval: 60000,
+				checkOnVisibilityChange: true,
+				enableInDev: false,
+				promptStyle: 'modal',
+				promptMessage: '发现新版本，是否立即刷新获取最新内容？',
+				refreshButtonText: '立即刷新',
+				dismissButtonText: '稍后再说',
+				onUpdateAvailable: 'console.log("[VersionUpdate] 当前:", currentVersion, "最新:", newVersion); return true;',
+				onRefresh: 'console.log("[VersionUpdate] 用户选择刷新")',
+				onDismiss: 'console.log("[VersionUpdate] 用户选择忽略")',
+				enabled: isH5 && isProd
 			})
 		]
 	}

@@ -15,7 +15,7 @@
 
 ## Features
 
-- **Ready to Use** - Provides 6 practical plugins covering build progress display, file copying, router generation, version management, icon injection, and global Loading state management
+- **Ready to Use** - Provides 7 practical plugins covering build progress display, file copying, router generation, version management, version update checking, icon injection, and global Loading state management
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, Validator for building custom Vite plugins
 - **Complete Lifecycle** - Supports initialization, config resolution, destroy lifecycle management with automatic hook composition
 - **Type Safe** - Complete TypeScript type definitions with configuration validators ensuring parameter correctness
@@ -46,7 +46,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, versionUpdateChecker, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -70,6 +70,9 @@ export default defineConfig({
 			format: 'datetime',
 			outputType: 'both'
 		}),
+
+		// Version update checker (works with generateVersion)
+		versionUpdateChecker(),
 
 		// Inject website icon (supports string shorthand)
 		faviconManager('/assets'),
@@ -97,238 +100,17 @@ const routerPlugin = generateRouter({ watch: true }) as PluginWithInstance<Gener
 console.log(routerPlugin.pluginInstance?.options)
 ```
 
-### Developing Custom Plugins
-
-```typescript
-import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
-import type { BasePluginOptions, PluginWithInstance } from '@meng-xi/vite-plugin/factory'
-import type { Plugin } from 'vite'
-
-interface MyPluginOptions extends BasePluginOptions {
-	path: string
-}
-
-class MyPlugin extends BasePlugin<MyPluginOptions> {
-	protected getDefaultOptions() {
-		return { path: './default' }
-	}
-
-	protected validateOptions(): void {
-		this.validator.field('path').required().string().validate()
-	}
-
-	protected getPluginName(): string {
-		return 'my-plugin'
-	}
-
-	protected addPluginHooks(plugin: Plugin): void {
-		plugin.buildStart = () => {
-			this.logger.info(`Plugin started with path: ${this.options.path}`)
-		}
-	}
-
-	protected destroy(): void {
-		super.destroy()
-		// Custom cleanup logic, e.g. close connections, stop watchers
-	}
-}
-
-// Basic usage
-export const myPlugin = createPluginFactory(MyPlugin)
-
-// With normalizer (supports shorthand string config)
-export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
-// Usage with shorthand: myPluginWithNormalizer('./custom-path')
-```
-
-## Plugin Development Framework
-
-### BasePlugin Core Concepts
-
-`BasePlugin` is the base class for all plugins, providing complete lifecycle management and development conventions:
-
-#### Lifecycle
-
-| Phase             | Method             | Description                                                    |
-| ----------------- | ------------------ | -------------------------------------------------------------- |
-| Initialization    | `constructor`      | Merge options, initialize logger and validator                 |
-| Config Resolution | `onConfigResolved` | Called when Vite config is resolved                            |
-| Hook Registration | `addPluginHooks`   | Register Vite plugin hooks                                     |
-| Destroy           | `destroy`          | Automatically called during `closeBundle` for resource cleanup |
-
-#### Automatic Hook Composition
-
-The `toPlugin()` method automatically composes the following hooks:
-
-- **configResolved** - Base class `onConfigResolved` runs first, then subclass hook
-- **closeBundle** - Subclass hook runs first, then base class `destroy`
-
-> Subclasses don't need to manually register `closeBundle` hooks for cleanup — just override the `destroy()` method.
-
-#### Required Methods
-
-| Method                   | Description           |
-| ------------------------ | --------------------- |
-| `getPluginName()`        | Return plugin name    |
-| `addPluginHooks(plugin)` | Add Vite plugin hooks |
-
-#### Optional Methods
-
-| Method                     | Default Behavior  | Description                                 |
-| -------------------------- | ----------------- | ------------------------------------------- |
-| `getDefaultOptions()`      | Returns `{}`      | Provide plugin default options              |
-| `validateOptions()`        | No validation     | Validate configuration parameters           |
-| `getEnforce()`             | `undefined`       | Plugin execution order (`'pre'` / `'post'`) |
-| `onConfigResolved(config)` | Store config      | Config resolved callback                    |
-| `destroy()`                | Unregister logger | Cleanup logic when plugin is destroyed      |
-
-#### Built-in Properties
-
-| Property     | Type                     | Description                   |
-| ------------ | ------------------------ | ----------------------------- |
-| `options`    | `Required<T>`            | Merged complete configuration |
-| `logger`     | `PluginLogger`           | Plugin logger                 |
-| `validator`  | `Validator<T>`           | Configuration validator       |
-| `viteConfig` | `ResolvedConfig \| null` | Resolved Vite configuration   |
-
-#### Error Handling Strategy
-
-Control error behavior via the `errorStrategy` configuration option:
-
-- `'throw'` (default) - Log error and throw exception, halting the build
-- `'log'` - Log error but don't throw, continue execution
-- `'ignore'` - Log error but don't throw, continue execution
-
-Wrap error-prone operations with `safeExecute` / `safeExecuteSync`:
-
-```typescript
-// Async safe execution
-const result = await this.safeExecute(async () => {
-	return await someAsyncOperation()
-}, 'Execute async operation')
-
-// Sync safe execution
-const value = this.safeExecuteSync(() => {
-	return someSyncOperation()
-}, 'Execute sync operation')
-```
-
-### createPluginFactory
-
-Create plugin factory functions with optional normalizer support:
-
-```typescript
-// Basic usage
-const myPlugin = createPluginFactory(MyPlugin)
-
-// With normalizer (supports shorthand string config)
-const myPlugin = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
-
-// Usage with shorthand
-myPlugin('./custom-path')
-```
-
-### Validator
-
-Fluent configuration validator with chainable API:
-
-```typescript
-import { Validator } from '@meng-xi/vite-plugin/common'
-
-const validator = new Validator(options)
-validator
-	.field('sourceDir')
-	.required()
-	.string()
-	.field('targetDir')
-	.required()
-	.string()
-	.field('overwrite')
-	.boolean()
-	.default(true)
-	.field('port')
-	.number()
-	.field('list')
-	.array()
-	.field('config')
-	.object()
-	.field('name')
-	.custom(val => val.length > 0, 'name cannot be empty')
-	.validate()
-```
-
-| Method       | Description                                                     |
-| ------------ | --------------------------------------------------------------- |
-| `field()`    | Specify the field to validate                                   |
-| `required()` | Mark field as required                                          |
-| `string()`   | Validate field value is a string type                           |
-| `boolean()`  | Validate field value is a boolean type                          |
-| `number()`   | Validate field value is a number type                           |
-| `array()`    | Validate field value is an array type                           |
-| `object()`   | Validate field value is an object type                          |
-| `default()`  | Set default value for field (only when value is undefined/null) |
-| `custom()`   | Validate field value with a custom function                     |
-| `validate()` | Execute validation, throws error on failure                     |
-
-### Logger
-
-Global singleton log manager providing independent log control for each plugin:
-
-```typescript
-import { Logger } from '@meng-xi/vite-plugin/logger'
-
-// Create logger (usually called automatically by BasePlugin)
-Logger.create({ name: 'my-plugin', enabled: true })
-
-// Unregister plugin log config (automatically called on plugin destroy)
-Logger.unregister('my-plugin')
-
-// Destroy singleton (for test scenarios)
-Logger.destroy()
-```
-
-Log output format:
-
-```
-ℹ️ [@meng-xi/vite-plugin:my-plugin] Info message
-✅ [@meng-xi/vite-plugin:my-plugin] Success message
-⚠️ [@meng-xi/vite-plugin:my-plugin] Warning message
-❌ [@meng-xi/vite-plugin:my-plugin] Error message
-```
-
-### Common Utilities
-
-Exported via `@meng-xi/vite-plugin/common`, reusable in custom plugins:
-
-```typescript
-import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from '@meng-xi/vite-plugin/common'
-import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common'
-```
-
-| Function               | Description                                                     |
-| ---------------------- | --------------------------------------------------------------- |
-| `deepMerge()`          | Deep merge objects (undefined skipped, arrays overwritten)      |
-| `formatDate()`         | Format date with `{YYYY}`, `{MM}`, `{DD}` etc. placeholders     |
-| `parseTemplate()`      | Parse template string, replace placeholders                     |
-| `toCamelCase()`        | Convert to camelCase                                            |
-| `toPascalCase()`       | Convert to PascalCase                                           |
-| `stripJsonComments()`  | Remove comments from JSON string                                |
-| `generateRandomHash()` | Generate random hash string (1-64 characters)                   |
-| `readFileContent()`    | Async read file content                                         |
-| `writeFileContent()`   | Async write file content                                        |
-| `fileExists()`         | Async check if file exists                                      |
-| `copySourceToTarget()` | Copy files or directories with incremental copy and concurrency |
-
 ## Built-in Plugins
 
-| Plugin          | Description                                                                               |
-| --------------- | ----------------------------------------------------------------------------------------- |
-| buildProgress   | Real-time build progress bar in terminal, supports bar / spinner / minimal                |
-| copyFile        | Copy files or directories after build, supports incremental copying                       |
-| generateRouter  | Auto-generate router config from pages.json (uni-app)                                     |
-| generateVersion | Auto-generate version numbers, supports file output and global variable injection         |
-| faviconManager       | Manage website favicon links injection into HTML files, supports string shorthand config               |
-| loadingManager  | Global Loading state management with request interception and white-screen Loading |
+| Plugin               | Description                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| buildProgress        | Real-time build progress bar in terminal, supports bar / spinner / minimal               |
+| copyFile             | Copy files or directories after build, supports incremental copying                      |
+| generateRouter       | Auto-generate router config from pages.json (uni-app)                                    |
+| generateVersion      | Auto-generate version numbers, supports file output and global variable injection        |
+| versionUpdateChecker | Runtime version update checking with multiple prompt styles and custom callbacks         |
+| faviconManager       | Manage website favicon links injection into HTML files, supports string shorthand config |
+| loadingManager       | Global Loading state management with request interception and white-screen Loading       |
 
 ### buildProgress
 
@@ -470,18 +252,18 @@ generateRouter({
 
 Automatically generate version numbers during the Vite build process.
 
-| Option       | Type                                                                              | Default             | Description                    |
-| ------------ | --------------------------------------------------------------------------------- | ------------------- | ------------------------------ |
-| format       | `'timestamp'` \| `'date'` \| `'datetime'` \| `'semver'` \| `'hash'` \| `'custom'` | `'timestamp'`       | Version format                 |
-| customFormat | `string`                                                                          | -                   | Custom format template         |
-| semverBase   | `string`                                                                          | `'1.0.0'`           | Semantic version base          |
-| outputType   | `'file'` \| `'define'` \| `'both'`                                                | `'file'`            | Output type                    |
-| outputFile   | `string`                                                                          | `'version.json'`    | Output file path               |
-| defineName   | `string`                                                                          | `'__APP_VERSION__'` | Global variable name to inject |
-| hashLength   | `number`                                                                          | `8`                 | Hash length (1-32)             |
-| prefix       | `string`                                                                          | -                   | Version number prefix          |
-| suffix       | `string`                                                                          | -                   | Version number suffix          |
-| extra        | `Record<string, unknown>`                                                         | -                   | Extra info (JSON file only)    |
+| Option       | Type                                                                              | Default             | Description                      |
+| ------------ | --------------------------------------------------------------------------------- | ------------------- | -------------------------------- |
+| format       | `'timestamp'` \| `'date'` \| `'datetime'` \| `'semver'` \| `'hash'` \| `'custom'` | `'timestamp'`       | Version number format            |
+| customFormat | `string`                                                                          | -                   | Custom format template           |
+| semverBase   | `string`                                                                          | `'1.0.0'`           | Semantic version base value      |
+| outputType   | `'file'` \| `'define'` \| `'both'`                                                | `'file'`            | Output type                      |
+| outputFile   | `string`                                                                          | `'version.json'`    | Output file path                 |
+| defineName   | `string`                                                                          | `'__APP_VERSION__'` | Injected global variable name    |
+| hashLength   | `number`                                                                          | `8`                 | Hash length (1-32)               |
+| prefix       | `string`                                                                          | -                   | Version number prefix            |
+| suffix       | `string`                                                                          | -                   | Version number suffix            |
+| extra        | `Record<string, unknown>`                                                         | -                   | Additional info (JSON file only) |
 
 **customFormat placeholders:**
 
@@ -531,6 +313,72 @@ generateVersion({
 	defineName: '__BUILD_VERSION__',
 	extra: { environment: 'production' }
 })
+```
+
+### versionUpdateChecker
+
+Periodically check for version changes at runtime and prompt users to refresh when a new version is detected. Typically used in conjunction with the `generateVersion` plugin.
+
+**How it works:**
+
+1. `generateVersion` generates a version file (`version.json`) or injects a global variable at build time
+2. `versionUpdateChecker` periodically requests the version file at runtime and compares it with the current version
+3. When a version mismatch is detected, a prompt is shown to guide the user to refresh
+
+| Option                  | Type                                 | Default                                                        | Description                                                  |
+| ----------------------- | ------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------ |
+| versionSource           | `'define'` \| `'file'` \| `'auto'`   | `'auto'`                                                       | Current version source                                       |
+| defineName              | `string`                             | `'__APP_VERSION__'`                                            | Global variable name in define mode                          |
+| checkUrl                | `string`                             | `'/version.json'`                                              | URL path for version check file                              |
+| checkInterval           | `number`                             | `300000`                                                       | Check interval in milliseconds (default 5 minutes)           |
+| checkOnVisibilityChange | `boolean`                            | `true`                                                         | Whether to check immediately on page visibility change       |
+| enableInDev             | `boolean`                            | `false`                                                        | Whether to enable in development mode                        |
+| promptStyle             | `'modal'` \| `'banner'` \| `'toast'` | `'modal'`                                                      | Update prompt UI style                                       |
+| promptMessage           | `string`                             | `'A new version is available. Refresh now to get the latest?'` | Prompt message text                                          |
+| refreshButtonText       | `string`                             | `'Refresh'`                                                    | Refresh button text                                          |
+| dismissButtonText       | `string`                             | `'Later'`                                                      | Dismiss button text                                          |
+| customPromptTemplate    | `string`                             | -                                                              | Custom HTML template for the prompt UI                       |
+| customStyle             | `string`                             | -                                                              | Custom CSS style string                                      |
+| onUpdateAvailable       | `string`                             | -                                                              | Callback when new version is found (function body string)    |
+| onRefresh               | `string`                             | -                                                              | Callback when user chooses to refresh (function body string) |
+| onDismiss               | `string`                             | -                                                              | Callback when user chooses to dismiss (function body string) |
+
+> `versionSource` explanation: `'define'` reads from global variable, `'file'` reads from version file, `'auto'` prefers define and falls back to file. Custom templates can use `{{message}}`, `{{currentVersion}}`,
+> `{{newVersion}}`, `{{refreshButton}}`, `{{dismissButton}}` placeholders. Callbacks are provided as function body strings with available variables: `currentVersion`, `newVersion`.
+
+```typescript
+// Basic usage (with generateVersion)
+generateVersion({ outputType: 'both' })
+versionUpdateChecker()
+
+// Read from version file only
+versionUpdateChecker({ versionSource: 'file' })
+
+// Custom check interval and prompt style
+versionUpdateChecker({
+	checkInterval: 60000,
+	promptStyle: 'banner'
+})
+
+// Toast-style prompt
+versionUpdateChecker({ promptStyle: 'toast' })
+
+// Custom prompt text
+versionUpdateChecker({
+	promptMessage: 'System updated, refresh to experience new features',
+	refreshButtonText: 'Update',
+	dismissButtonText: 'Cancel'
+})
+
+// Custom callbacks
+versionUpdateChecker({
+	onUpdateAvailable: 'console.log("New version:", newVersion); return true;',
+	onRefresh: 'console.log("User chose to refresh");',
+	onDismiss: 'console.log("User chose to dismiss");'
+})
+
+// Enable in development (for debugging)
+versionUpdateChecker({ enableInDev: true })
 ```
 
 ### faviconManager
@@ -751,6 +599,235 @@ window.__LOADING_MANAGER__.toggle()
 window.__LOADING_MANAGER__.disablePointerEvents()
 ```
 
+## Common Utilities
+
+Exported via `@meng-xi/vite-plugin/common`, reusable in custom plugins:
+
+```typescript
+import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from '@meng-xi/vite-plugin/common'
+import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common'
+import { injectBeforeTag, injectHtmlByPriority } from '@meng-xi/vite-plugin/common'
+import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common'
+```
+
+| Function                   | Description                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| `deepMerge()`              | Deep merge objects (undefined skipped, arrays overwritten)                    |
+| `formatDate()`             | Format date with `{YYYY}`, `{MM}`, `{DD}` etc. placeholders                   |
+| `parseTemplate()`          | Parse template string, replace placeholders                                   |
+| `toCamelCase()`            | Convert to camelCase                                                          |
+| `toPascalCase()`           | Convert to PascalCase                                                         |
+| `stripJsonComments()`      | Remove comments from JSON string                                              |
+| `generateRandomHash()`     | Generate random hash string (1-64 characters)                                 |
+| `readFileContent()`        | Async read file content                                                       |
+| `writeFileContent()`       | Async write file content                                                      |
+| `fileExists()`             | Async check if file exists                                                    |
+| `copySourceToTarget()`     | Copy files or directories with incremental copy and concurrency               |
+| `injectBeforeTag()`        | Inject code before a specified closing HTML tag                               |
+| `injectHtmlByPriority()`   | Inject code into HTML by priority (`</head>` → `</body>` → `</html>`)         |
+| `makeCallback()`           | Wrap callback function body as safe function expression (with try-catch)      |
+| `containsScriptTag()`      | Detect if a string contains `<script>` tags                                   |
+| `validateIdentifierName()` | Validate string as a legal JavaScript identifier, prevent prototype pollution |
+
+## Plugin Development Framework
+
+### BasePlugin Core Concepts
+
+`BasePlugin` is the base class for all plugins, providing complete lifecycle management and development conventions:
+
+#### Lifecycle
+
+| Phase             | Method             | Description                                                    |
+| ----------------- | ------------------ | -------------------------------------------------------------- |
+| Initialization    | `constructor`      | Merge options, initialize logger and validator                 |
+| Config Resolution | `onConfigResolved` | Called when Vite config is resolved                            |
+| Hook Registration | `addPluginHooks`   | Register Vite plugin hooks                                     |
+| Destroy           | `destroy`          | Automatically called during `closeBundle` for resource cleanup |
+
+#### Automatic Hook Composition
+
+The `toPlugin()` method automatically composes the following hooks:
+
+- **configResolved** - Base class `onConfigResolved` runs first, then subclass hook
+- **closeBundle** - Subclass hook runs first, then base class `destroy`
+
+> Subclasses don't need to manually register `closeBundle` hooks for cleanup — just override the `destroy()` method.
+
+#### Required Methods
+
+| Method                   | Description           |
+| ------------------------ | --------------------- |
+| `getPluginName()`        | Return plugin name    |
+| `addPluginHooks(plugin)` | Add Vite plugin hooks |
+
+#### Optional Methods
+
+| Method                     | Default Behavior  | Description                                 |
+| -------------------------- | ----------------- | ------------------------------------------- |
+| `getDefaultOptions()`      | Returns `{}`      | Provide plugin default options              |
+| `validateOptions()`        | No validation     | Validate configuration parameters           |
+| `getEnforce()`             | `undefined`       | Plugin execution order (`'pre'` / `'post'`) |
+| `onConfigResolved(config)` | Store config      | Config resolved callback                    |
+| `destroy()`                | Unregister logger | Cleanup logic when plugin is destroyed      |
+
+#### Built-in Properties
+
+| Property     | Type                     | Description                   |
+| ------------ | ------------------------ | ----------------------------- |
+| `options`    | `Required<T>`            | Merged complete configuration |
+| `logger`     | `PluginLogger`           | Plugin logger                 |
+| `validator`  | `Validator<T>`           | Configuration validator       |
+| `viteConfig` | `ResolvedConfig \| null` | Resolved Vite configuration   |
+
+#### Error Handling Strategy
+
+Control error behavior via the `errorStrategy` configuration option:
+
+- `'throw'` (default) - Log error and throw exception, halting the build
+- `'log'` - Log error but don't throw, continue execution
+- `'ignore'` - Log error but don't throw, continue execution
+
+Wrap error-prone operations with `safeExecute` / `safeExecuteSync`:
+
+```typescript
+// Async safe execution
+const result = await this.safeExecute(async () => {
+	return await someAsyncOperation()
+}, 'Execute async operation')
+
+// Sync safe execution
+const value = this.safeExecuteSync(() => {
+	return someSyncOperation()
+}, 'Execute sync operation')
+```
+
+### createPluginFactory
+
+Create plugin factory functions with optional normalizer support:
+
+```typescript
+// Basic usage
+const myPlugin = createPluginFactory(MyPlugin)
+
+// With normalizer (supports shorthand string config)
+const myPlugin = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
+
+// Usage with shorthand
+myPlugin('./custom-path')
+```
+
+### Validator
+
+Fluent configuration validator with chainable API:
+
+```typescript
+import { Validator } from '@meng-xi/vite-plugin/common'
+
+const validator = new Validator(options)
+validator
+	.field('sourceDir')
+	.required()
+	.string()
+	.field('targetDir')
+	.required()
+	.string()
+	.field('overwrite')
+	.boolean()
+	.default(true)
+	.field('port')
+	.number()
+	.field('list')
+	.array()
+	.field('config')
+	.object()
+	.field('name')
+	.custom(val => val.length > 0, 'name cannot be empty')
+	.validate()
+```
+
+| Method       | Description                                                     |
+| ------------ | --------------------------------------------------------------- |
+| `field()`    | Specify the field to validate                                   |
+| `required()` | Mark field as required                                          |
+| `string()`   | Validate field value is a string type                           |
+| `boolean()`  | Validate field value is a boolean type                          |
+| `number()`   | Validate field value is a number type                           |
+| `array()`    | Validate field value is an array type                           |
+| `object()`   | Validate field value is an object type                          |
+| `default()`  | Set default value for field (only when value is undefined/null) |
+| `custom()`   | Validate field value with a custom function                     |
+| `validate()` | Execute validation, throws error on failure                     |
+
+### Logger
+
+Global singleton log manager providing independent log control for each plugin:
+
+```typescript
+import { Logger } from '@meng-xi/vite-plugin/logger'
+
+// Create logger (usually called automatically by BasePlugin)
+Logger.create({ name: 'my-plugin', enabled: true })
+
+// Unregister plugin log config (automatically called on plugin destroy)
+Logger.unregister('my-plugin')
+
+// Destroy singleton (for test scenarios)
+Logger.destroy()
+```
+
+Log output format:
+
+```
+ℹ️ [@meng-xi/vite-plugin:my-plugin] Info message
+✅ [@meng-xi/vite-plugin:my-plugin] Success message
+⚠️ [@meng-xi/vite-plugin:my-plugin] Warning message
+❌ [@meng-xi/vite-plugin:my-plugin] Error message
+```
+
+### Custom Plugin Example
+
+```typescript
+import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
+import type { BasePluginOptions, PluginWithInstance } from '@meng-xi/vite-plugin/factory'
+import type { Plugin } from 'vite'
+
+interface MyPluginOptions extends BasePluginOptions {
+	path: string
+}
+
+class MyPlugin extends BasePlugin<MyPluginOptions> {
+	protected getDefaultOptions() {
+		return { path: './default' }
+	}
+
+	protected validateOptions(): void {
+		this.validator.field('path').required().string().validate()
+	}
+
+	protected getPluginName(): string {
+		return 'my-plugin'
+	}
+
+	protected addPluginHooks(plugin: Plugin): void {
+		plugin.buildStart = () => {
+			this.logger.info(`Plugin started with path: ${this.options.path}`)
+		}
+	}
+
+	protected destroy(): void {
+		super.destroy()
+		// Custom cleanup logic, e.g. close connections, stop watchers
+	}
+}
+
+// Basic usage
+export const myPlugin = createPluginFactory(MyPlugin)
+
+// With normalizer (supports shorthand string config)
+export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
+// Usage with shorthand: myPluginWithNormalizer('./custom-path')
+```
+
 ## Sub-path Exports
 
 Support importing modules on demand to reduce bundle size:
@@ -767,22 +844,22 @@ import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plug
 
 // Type imports (on-demand type definitions from sub-paths)
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, GenerateVersionOptions, VersionUpdateCheckerOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 
 ## Changelog
 
-See [GitHub Releases](https://github.com/MengXi-Studio/vite-plugin/releases)
+View [GitHub Releases](https://github.com/MengXi-Studio/vite-plugin/releases)
 
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
 
-1. Fork the repository
+1. Fork this project
 2. Create a feature branch: `git checkout -b feature/your-feature`
 3. Commit changes: `git commit -m "feat: your feature description"`
-4. Push to branch: `git push origin feature/your-feature`
+4. Push branch: `git push origin feature/your-feature`
 5. Create a Pull Request
 
 ## License
