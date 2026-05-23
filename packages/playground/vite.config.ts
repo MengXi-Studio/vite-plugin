@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from '@meng-xi/vite-plugin/plugins'
 import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
-import type { GenerateVersionOptions, InjectLoadingOptions } from '@meng-xi/vite-plugin'
+import type { GenerateVersionOptions, LoadingManagerOptions } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -69,7 +69,7 @@ export default defineConfig({
 		}),
 
 		// 全局 Loading 状态管理
-		injectLoading({
+		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded',
 			position: 'center',
@@ -106,6 +106,6 @@ export default defineConfig({
 				onShow: 'console.log("[Loading] shown")',
 				onHide: 'console.log("[Loading] hidden")'
 			}
-		}) as PluginWithInstance<InjectLoadingOptions>
+		}) as PluginWithInstance<LoadingManagerOptions>
 	]
 })

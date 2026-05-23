@@ -46,7 +46,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -74,8 +74,8 @@ export default defineConfig({
 		// Inject website icon (supports string shorthand)
 		injectIco('/assets'),
 
-		// Inject global Loading
-		injectLoading({
+		// Global Loading state management
+		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
 		})
@@ -328,7 +328,7 @@ import { readFileContent, writeFileContent, fileExists, copySourceToTarget } fro
 | generateRouter  | Auto-generate router config from pages.json (uni-app)                                     |
 | generateVersion | Auto-generate version numbers, supports file output and global variable injection         |
 | injectIco       | Inject website icon links into HTML files, supports string shorthand config               |
-| injectLoading   | Inject global Loading state management with request interception and white-screen Loading |
+| loadingManager  | Global Loading state management with request interception and white-screen Loading |
 
 ### buildProgress
 
@@ -597,7 +597,7 @@ injectIco({
 })
 ```
 
-### injectLoading
+### loadingManager
 
 Inject global Loading state management with XHR/Fetch request interception, white-screen Loading, custom styles, and lifecycle callbacks.
 
@@ -711,30 +711,30 @@ Access via `window.__LOADING_MANAGER__`:
 
 ```typescript
 // White-screen Loading: visible on page load, auto-hide on DOMContentLoaded
-injectLoading({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
 
 // White-screen Loading: auto-hide after all resources loaded
-injectLoading({ defaultVisible: true, autoHideOn: 'load' })
+loadingManager({ defaultVisible: true, autoHideOn: 'load' })
 
 // Vue/React SPA: visible on white screen, manually hide after framework renders
-injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
 // In app entry: window.__LOADING_MANAGER__.hide()
 
 // Auto-intercept all requests
-injectLoading({ autoBind: 'all' })
+loadingManager({ autoBind: 'all' })
 
 // Custom styles + request filtering
-injectLoading({
+loadingManager({
 	style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#fff', backdropBlur: true },
 	autoBind: 'fetch',
 	requestFilter: { excludeUrls: [/\/api\/health/], excludeUrlPrefixes: ['http://localhost'] }
 })
 
 // Debounced hide (prevent rapid flashing)
-injectLoading({ debounceHide: { enabled: true, duration: 100 } })
+loadingManager({ debounceHide: { enabled: true, duration: 100 } })
 
 // Lifecycle callbacks
-injectLoading({
+loadingManager({
 	callbacks: {
 		onBeforeShow: 'if (shouldSkip) return false;',
 		onShow: 'console.log("loading shown")',
@@ -744,7 +744,7 @@ injectLoading({
 })
 
 // Manual control
-injectLoading()
+loadingManager()
 window.__LOADING_MANAGER__.show('Saving...')
 window.__LOADING_MANAGER__.hide()
 window.__LOADING_MANAGER__.toggle()
@@ -757,17 +757,17 @@ Support importing modules on demand to reduce bundle size:
 
 ```typescript
 // Full import
-import { buildProgress, copyFile, injectLoading, BasePlugin, Logger } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, loadingManager, BasePlugin, Logger } from '@meng-xi/vite-plugin'
 
 // Module-level import
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
 import { Logger } from '@meng-xi/vite-plugin/logger'
-import { buildProgress, copyFile, generateRouter, injectLoading } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter, loadingManager } from '@meng-xi/vite-plugin/plugins'
 import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plugin/common'
 
 // Type imports (on-demand type definitions from sub-paths)
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, InjectLoadingOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 

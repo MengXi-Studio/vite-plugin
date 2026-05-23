@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import type { InjectLoadingOptions } from './types'
+import type { LoadingManagerOptions } from './types'
 import {
 	generateCSS,
 	generateHTMLTemplate,
@@ -16,26 +16,26 @@ import {
 } from './common'
 
 /**
- * 注入全局 Loading 状态管理插件类
+ * 全局 Loading 状态管理插件类
  *
- * @class InjectLoadingPlugin
- * @extends {BasePlugin<InjectLoadingOptions>}
+ * @class LoadingManagerPlugin
+ * @extends {BasePlugin<LoadingManagerOptions>}
  * @description 该插件在构建过程中将全局 Loading 状态管理代码注入到应用中，
  * 提供创建、显示、隐藏和销毁 loading 的方法，支持跨组件共享 loading 状态，
  * 并可自动拦截 fetch/XHR 请求实现 loading 的自动管理。
  */
-class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
+class LoadingManagerPlugin extends BasePlugin<LoadingManagerOptions> {
 	/**
 	 * 获取插件默认配置
 	 *
 	 * @remarks 返回所有配置项的默认值，包括位置、文本、图标类型、样式、
 	 * 过渡动画、最小显示时间、延迟显示、防抖隐藏、自动绑定等
 	 *
-	 * @returns 包含所有默认配置的 {@link InjectLoadingOptions} 部分对象
+	 * @returns 包含所有默认配置的 {@link LoadingManagerOptions} 部分对象
 	 *
 	 * @override
 	 */
-	protected getDefaultOptions(): Partial<InjectLoadingOptions> {
+	protected getDefaultOptions(): Partial<LoadingManagerOptions> {
 		return {
 			position: 'center',
 			defaultText: '加载中...',
@@ -133,12 +133,12 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 	/**
 	 * 获取插件名称
 	 *
-	 * @returns 插件名称字符串 `'inject-loading'`
+	 * @returns 插件名称字符串 `'loading-manager'`
 	 *
 	 * @override
 	 */
 	protected getPluginName(): string {
-		return 'inject-loading'
+		return 'loading-manager'
 	}
 
 	/**
@@ -149,14 +149,14 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 	 * @param options - 插件配置选项
 	 * @returns 完整的 JavaScript IIFE 代码字符串
 	 */
-	private generateLoadingManager(options: InjectLoadingOptions): string {
+	private generateLoadingManager(options: LoadingManagerOptions): string {
 		return generateLoadingManagerCode(options)
 	}
 
 	/**
 	 * 生成注入到 `</head>` 前的代码（CSS + HTML 静态标签）
 	 *
-	 * @remarks 当 {@link InjectLoadingOptions.defaultVisible} 为 `true` 时调用，
+	 * @remarks 当 {@link LoadingManagerOptions.defaultVisible} 为 `true` 时调用，
 	 * CSS 和 HTML 以静态标签形式直接注入到 `<head>` 中，
 	 * 确保 HTML 解析到 `<head>` 时 loading 即可见，无需等待 JS 执行
 	 *
@@ -165,10 +165,10 @@ class InjectLoadingPlugin extends BasePlugin<InjectLoadingOptions> {
 	private generateHeadInjectCode(): string {
 		const { css, html } = this.getCachedAssets()
 
-		return `<!-- inject-loading: head start -->
+		return `<!-- loading-manager: head start -->
 <style data-loading-style data-loading-id="${this.options.globalName || '__LOADING_MANAGER__'}">${css}</style>
 ${html}
-<!-- inject-loading: head end -->`
+<!-- loading-manager: head end -->`
 	}
 
 	/**
@@ -185,13 +185,13 @@ ${html}
 		const js = this.generateLoadingManager(this.options)
 
 		if (headInjected) {
-			return `<!-- inject-loading: body start -->
+			return `<!-- loading-manager: body start -->
 <script>${js}</script>
-<!-- inject-loading: body end -->`
+<!-- loading-manager: body end -->`
 		}
 
 		const { css, html } = this.getCachedAssets()
-		return `<!-- inject-loading: start -->
+		return `<!-- loading-manager: start -->
 <script>
 (function() {
   // SSR 环境检测
@@ -221,7 +221,7 @@ ${html}
 })();
 ${js}
 </script>
-<!-- inject-loading: end -->`
+<!-- loading-manager: end -->`
 	}
 
 	/** 缓存的 CSS/HTML 资源 */
@@ -250,7 +250,7 @@ ${js}
 	 * 注册插件钩子
 	 *
 	 * @remarks 通过 `transformIndexHtml` 钩子将 loading 代码注入到 HTML 文件中。
-	 * 注入策略取决于 {@link InjectLoadingOptions.defaultVisible}：
+	 * 注入策略取决于 {@link LoadingManagerOptions.defaultVisible}：
 	 * - **defaultVisible 为 true**：CSS+HTML 注入到 `</head>` 前（白屏即可见），JS 注入到 `</body>` 前
 	 * - **defaultVisible 为 false**：所有代码（CSS+HTML+JS）通过 JS 动态注入到 `</body>` 前
 	 *
@@ -306,29 +306,29 @@ ${js}
 }
 
 /**
- * 注入全局 Loading 状态管理插件
+ * 全局 Loading 状态管理插件
  *
- * @param options - 插件配置选项，详见 {@link InjectLoadingOptions}
+ * @param options - 插件配置选项，详见 {@link LoadingManagerOptions}
  * @returns Vite 插件实例
  *
  * @example
  * ```typescript
  * // 基本使用
- * injectLoading()
+ * loadingManager()
  *
  * // 自定义位置和文本
- * injectLoading({
+ * loadingManager({
  *   position: 'top',
  *   defaultText: '请稍候...'
  * })
  *
  * // 使用不同类型的加载图标
- * injectLoading({
+ * loadingManager({
  *   spinnerType: 'dots',  // spinner | dots | pulse | bar
  * })
  *
  * // 自动拦截 fetch 请求
- * injectLoading({
+ * loadingManager({
  *   autoBind: 'fetch',
  *   requestFilter: {
  *     excludeUrls: [/\/api\/health/],
@@ -337,7 +337,7 @@ ${js}
  * })
  *
  * // 自定义样式（含模糊背景）
- * injectLoading({
+ * loadingManager({
  *   style: {
  *     overlayColor: 'rgba(0, 0, 0, 0.5)',
  *     spinnerColor: '#ff6b6b',
@@ -348,7 +348,7 @@ ${js}
  * })
  *
  * // 自定义过渡动画
- * injectLoading({
+ * loadingManager({
  *   transition: {
  *     enabled: true,
  *     duration: 300,
@@ -357,7 +357,7 @@ ${js}
  * })
  *
  * // 防抖隐藏（避免快速闪烁）
- * injectLoading({
+ * loadingManager({
  *   debounceHide: {
  *     enabled: true,
  *     duration: 100
@@ -365,7 +365,7 @@ ${js}
  * })
  *
  * // 生命周期回调
- * injectLoading({
+ * loadingManager({
  *   callbacks: {
  *     onShow: 'console.log("loading shown")',
  *     onBeforeShow: 'return true',  // 返回 false 可阻止显示
@@ -374,24 +374,24 @@ ${js}
  * })
  *
  * // 自定义模板
- * injectLoading({
+ * loadingManager({
  *   customTemplate: '<div class="my-loader"><span data-loading-text></span></div>'
  * })
  *
  * // 白屏阶段即显示 loading，DOMContentLoaded 后自动隐藏
- * injectLoading({
+ * loadingManager({
  *   defaultVisible: true,
  *   autoHideOn: 'DOMContentLoaded'
  * })
  *
  * // 白屏阶段即显示 loading，所有资源加载完成后自动隐藏
- * injectLoading({
+ * loadingManager({
  *   defaultVisible: true,
  *   autoHideOn: 'load'
  * })
  *
  * // Vue/React SPA：白屏阶段即显示，框架渲染完成后手动隐藏
- * injectLoading({
+ * loadingManager({
  *   defaultVisible: true,
  *   autoHideOn: 'manual'
  * })
@@ -440,5 +440,5 @@ ${js}
  * window.__LOADING_MANAGER__.destroy()
  * ```
  */
-export const injectLoading = createPluginFactory(InjectLoadingPlugin)
+export const loadingManager = createPluginFactory(LoadingManagerPlugin)
 export * from './types'

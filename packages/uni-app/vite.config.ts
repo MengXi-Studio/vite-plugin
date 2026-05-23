@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import { buildProgress, copyFile, generateVersion, generateRouter, injectIco, injectLoading } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, copyFile, generateVersion, generateRouter, injectIco, loadingManager } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 import { resolve } from 'node:path'
 
 export default defineConfig(config => {
@@ -78,7 +78,7 @@ export default defineConfig(config => {
 			}),
 
 			// 全局 Loading 状态管理（仅 H5 平台）
-			injectLoading({
+			loadingManager({
 				defaultVisible: true,
 				autoHideOn: 'DOMContentLoaded',
 				position: 'center',

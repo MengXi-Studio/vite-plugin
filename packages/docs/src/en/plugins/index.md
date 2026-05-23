@@ -11,7 +11,7 @@ Vite plugin collection provided by @meng-xi/vite-plugin.
 | [generateRouter](./generate-router)   | Auto-generate route config from uni-app pages.json               |
 | [generateVersion](./generate-version) | Generate version with file output or global variable             |
 | [injectIco](./inject-ico)             | Inject favicon links into HTML                                   |
-| [injectLoading](./inject-loading)     | Inject global Loading state management with request interception |
+| [loadingManager](./loading-manager)     | Global Loading state management with request interception |
 
 ## Common Options
 

@@ -24,7 +24,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -54,8 +54,8 @@ export default defineConfig({
 			base: '/assets'
 		}),
 
-		// Inject global Loading
-		injectLoading({
+		// Global Loading state management
+		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
 		})
@@ -104,4 +104,4 @@ export const myPlugin = createPluginFactory(MyPlugin)
 - [generateRouter](/en/plugins/generate-router) - Router generation
 - [generateVersion](/en/plugins/generate-version) - Version management
 - [injectIco](/en/plugins/inject-ico) - Icon injection
-- [injectLoading](/en/plugins/inject-loading) - Global Loading state management
+- [loadingManager](/en/plugins/loading-manager) - Global Loading state management

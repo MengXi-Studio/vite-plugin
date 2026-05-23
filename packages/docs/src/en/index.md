@@ -35,7 +35,7 @@ features:
   - icon: ⏳
     title: Global Loading State Management
     details:
-      injectLoading injects a global Loading component with XHR/Fetch request interception, white-screen Loading, custom styles & animations, and lifecycle callbacks for seamless white-screen-to-interactive transitions.
+      loadingManager provides global Loading state management with XHR/Fetch request interception, white-screen Loading, custom styles & animations, and lifecycle callbacks for seamless white-screen-to-interactive transitions.
   - icon: 🧱
     title: Plugin Development Framework
     details: Exports BasePlugin, createPluginFactory, Logger, Validator and more. Provides complete lifecycle management and automatic hook composition for building standardized custom Vite plugins.

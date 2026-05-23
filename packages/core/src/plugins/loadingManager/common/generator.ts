@@ -1,4 +1,4 @@
-import type { AutoHideOn, InjectLoadingOptions } from '../types'
+import type { LoadingManagerOptions, AutoHideOn } from '../types'
 import { ID_ROOT, ATTR_TEXT, CLS_HIDDEN, CLS_VISIBLE } from './constants'
 
 /**
@@ -9,7 +9,7 @@ import { ID_ROOT, ATTR_TEXT, CLS_HIDDEN, CLS_VISIBLE } from './constants'
  */
 export function makeCallback(body?: string): string {
 	if (!body) return 'function() {}'
-	return `function() { try { ${body} } catch(e) { console.error('[injectLoading] callback error:', e); } }`
+	return `function() { try { ${body} } catch(e) { console.error('[loadingManager] callback error:', e); } }`
 }
 
 /**
@@ -426,7 +426,7 @@ export function generateInitCode(defaultVisible: boolean, autoHideOn: AutoHideOn
  * @param options - 插件配置选项
  * @returns 完整的 JavaScript IIFE 代码字符串
  */
-export function generateLoadingManagerCode(options: InjectLoadingOptions): string {
+export function generateLoadingManagerCode(options: LoadingManagerOptions): string {
 	const globalName = options.globalName || '__LOADING_MANAGER__'
 	const minDisplayTime = options.minDisplayTime || { enabled: true, duration: 300 }
 	const delayShow = options.delayShow || { enabled: true, duration: 200 }

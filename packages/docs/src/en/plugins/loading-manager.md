@@ -1,15 +1,15 @@
-# injectLoading
+# loadingManager
 
-Inject global Loading state management code during Vite build. Supports automatic fetch/XHR request interception, multiple built-in spinner types, custom styles, and lifecycle callbacks.
+Global Loading state management plugin. Injects Loading state management code during Vite build. Supports automatic fetch/XHR request interception, multiple built-in spinner types, custom styles, and lifecycle callbacks.
 
 ## Quick Start
 
 ```typescript
 import { defineConfig } from 'vite'
-import { injectLoading } from '@meng-xi/vite-plugin'
+import { loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [injectLoading()]
+	plugins: [loadingManager()]
 })
 ```
 
@@ -18,7 +18,7 @@ export default defineConfig({
 Show loading during the white-screen phase, auto-hide on DOMContentLoaded:
 
 ```typescript
-injectLoading({
+loadingManager({
 	defaultVisible: true,
 	autoHideOn: 'DOMContentLoaded'
 })
@@ -29,7 +29,7 @@ injectLoading({
 Automatically intercept fetch requests — show loading during requests, hide when complete:
 
 ```typescript
-injectLoading({ autoBind: 'fetch' })
+loadingManager({ autoBind: 'fetch' })
 ```
 
 ## Options
@@ -173,13 +173,13 @@ window.__LOADING_MANAGER__.destroy()
 ### Basic Usage
 
 ```typescript
-injectLoading()
+loadingManager()
 ```
 
 ### Custom Spinner and Style
 
 ```typescript
-injectLoading({
+loadingManager({
 	spinnerType: 'dots',
 	style: {
 		overlayColor: 'rgba(0, 0, 0, 0.5)',
@@ -194,7 +194,7 @@ injectLoading({
 ### Auto-intercept All Requests
 
 ```typescript
-injectLoading({
+loadingManager({
 	autoBind: 'all',
 	requestFilter: {
 		excludeUrls: [/\/api\/health/, /\/static\//],
@@ -208,7 +208,7 @@ injectLoading({
 
 ```typescript
 // Show during white-screen, manually hide after framework renders
-injectLoading({
+loadingManager({
 	defaultVisible: true,
 	autoHideOn: 'manual'
 })
@@ -221,7 +221,7 @@ injectLoading({
 
 ```typescript
 // Show during white-screen, auto-hide after DOM parsing
-injectLoading({
+loadingManager({
 	defaultVisible: true,
 	autoHideOn: 'DOMContentLoaded'
 })
@@ -230,7 +230,7 @@ injectLoading({
 ### Custom Template
 
 ```typescript
-injectLoading({
+loadingManager({
 	customTemplate: '<div class="my-loader"><span data-loading-text>Loading</span></div>'
 })
 ```
@@ -240,7 +240,7 @@ injectLoading({
 ### Lifecycle Callbacks
 
 ```typescript
-injectLoading({
+loadingManager({
 	callbacks: {
 		onBeforeShow: 'console.log("about to show"); return true;',
 		onShow: 'console.log("shown")',
@@ -254,7 +254,7 @@ injectLoading({
 ### Custom Global Name
 
 ```typescript
-injectLoading({ globalName: '__MY_LOADING__' })
+loadingManager({ globalName: '__MY_LOADING__' })
 
 // Usage
 window.__MY_LOADING__.show()
@@ -266,7 +266,7 @@ By default, loading blocks user interaction when visible. Use `style.pointerEven
 
 ```typescript
 // Allow interaction passthrough (users can still operate the page during loading)
-injectLoading({ style: { pointerEvents: false } })
+loadingManager({ style: { pointerEvents: false } })
 ```
 
 You can also dynamically toggle interaction blocking at runtime:
@@ -282,7 +282,7 @@ window.__LOADING_MANAGER__.isPointerEventsEnabled() // → true/false
 ### Full Configuration
 
 ```typescript
-injectLoading({
+loadingManager({
 	position: 'center',
 	defaultText: '加载中...',
 	spinnerType: 'spinner',

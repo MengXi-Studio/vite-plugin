@@ -46,7 +46,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -74,8 +74,8 @@ export default defineConfig({
 		// 注入网站图标（支持字符串简写）
 		injectIco('/assets'),
 
-		// 注入全局 Loading
-		injectLoading({
+		// 全局 Loading 状态管理
+		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
 		})
@@ -328,7 +328,7 @@ import { readFileContent, writeFileContent, fileExists, copySourceToTarget } fro
 | generateRouter  | 根据 pages.json 自动生成路由配置（uni-app）           |
 | generateVersion | 自动生成版本号，支持文件输出和全局变量注入            |
 | injectIco       | 将网站图标链接注入到 HTML 文件，支持字符串简写配置    |
-| injectLoading   | 注入全局 Loading 状态管理，支持请求拦截和白屏 Loading |
+| loadingManager  | 全局 Loading 状态管理，支持请求拦截和白屏 Loading |
 
 ### buildProgress
 
@@ -595,7 +595,7 @@ injectIco({
 })
 ```
 
-### injectLoading
+### loadingManager
 
 注入全局 Loading 状态管理，支持 XHR/Fetch 请求拦截、白屏 Loading、自定义样式和生命周期回调。
 
@@ -709,30 +709,30 @@ injectIco({
 
 ```typescript
 // 白屏 Loading：页面加载即显示，DOM 就绪后自动隐藏
-injectLoading({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
 
 // 白屏 Loading：所有资源加载完成后隐藏
-injectLoading({ defaultVisible: true, autoHideOn: 'load' })
+loadingManager({ defaultVisible: true, autoHideOn: 'load' })
 
 // Vue/React SPA：白屏即显示，框架渲染完成后手动隐藏
-injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
 // 在应用入口处：window.__LOADING_MANAGER__.hide()
 
 // 自动拦截所有请求
-injectLoading({ autoBind: 'all' })
+loadingManager({ autoBind: 'all' })
 
 // 自定义样式 + 请求过滤
-injectLoading({
+loadingManager({
 	style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#fff', backdropBlur: true },
 	autoBind: 'fetch',
 	requestFilter: { excludeUrls: [/\/api\/health/], excludeUrlPrefixes: ['http://localhost'] }
 })
 
 // 防抖隐藏（避免快速闪烁）
-injectLoading({ debounceHide: { enabled: true, duration: 100 } })
+loadingManager({ debounceHide: { enabled: true, duration: 100 } })
 
 // 生命周期回调
-injectLoading({
+loadingManager({
 	callbacks: {
 		onBeforeShow: 'if (shouldSkip) return false;',
 		onShow: 'console.log("loading shown")',
@@ -742,7 +742,7 @@ injectLoading({
 })
 
 // 手动控制
-injectLoading()
+loadingManager()
 window.__LOADING_MANAGER__.show('正在保存...')
 window.__LOADING_MANAGER__.hide()
 window.__LOADING_MANAGER__.toggle()
@@ -755,17 +755,17 @@ window.__LOADING_MANAGER__.disablePointerEvents()
 
 ```typescript
 // 完整导入
-import { buildProgress, copyFile, injectLoading, BasePlugin, Logger } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, loadingManager, BasePlugin, Logger } from '@meng-xi/vite-plugin'
 
 // 按模块导入
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
 import { Logger } from '@meng-xi/vite-plugin/logger'
-import { buildProgress, copyFile, generateRouter, injectLoading } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter, loadingManager } from '@meng-xi/vite-plugin/plugins'
 import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plugin/common'
 
 // 类型导入（从子路径按需导入类型定义）
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, InjectLoadingOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 

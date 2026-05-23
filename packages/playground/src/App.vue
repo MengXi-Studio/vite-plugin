@@ -51,9 +51,9 @@
 					<span class="icon">{{ tests.injectIco ? '✅' : '⏳' }}</span>
 					<span>injectIco - 图标注入</span>
 				</div>
-				<div class="test-item" :class="{ passed: tests.injectLoading }">
-					<span class="icon">{{ tests.injectLoading ? '✅' : '⏳' }}</span>
-					<span>injectLoading - 全局 Loading</span>
+				<div class="test-item" :class="{ passed: tests.loadingManager }">
+					<span class="icon">{{ tests.loadingManager ? '✅' : '⏳' }}</span>
+					<span>loadingManager - 全局 Loading</span>
 				</div>
 			</div>
 			<button @click="runTests">运行验证</button>
@@ -62,7 +62,7 @@
 		<!-- Loading 交互演示 -->
 		<div class="card">
 			<h2>Loading 交互演示</h2>
-			<p class="hint">injectLoading 已配置 autoBind: 'all'，所有 fetch/xhr 请求会自动触发 Loading</p>
+			<p class="hint">loadingManager 已配置 autoBind: 'all'，所有 fetch/xhr 请求会自动触发 Loading</p>
 			<p class="hint">已启用 delayShow (200ms)、debounceHide (100ms)、backdropBlur、callbacks</p>
 			<div class="btn-group">
 				<button @click="showLoading">手动显示</button>
@@ -105,7 +105,7 @@ const tests = reactive({
 	copyFile: false,
 	generateVersion: false,
 	injectIco: false,
-	injectLoading: false
+	loadingManager: false
 })
 
 const loadingVisible = ref(false)
@@ -178,9 +178,9 @@ async function runTests() {
 	const linkEl = document.querySelector('link[rel="icon"]')
 	tests.injectIco = !!linkEl
 
-	// injectLoading: 验证 LoadingManager 已注入到 window
+	// loadingManager: 验证 LoadingManager 已注入到 window
 	const manager = getManager()
-	tests.injectLoading = !!manager && typeof manager.show === 'function' && typeof manager.toggle === 'function' && typeof manager.isPointerEventsEnabled === 'function'
+	tests.loadingManager = !!manager && typeof manager.show === 'function' && typeof manager.toggle === 'function' && typeof manager.isPointerEventsEnabled === 'function'
 }
 
 function showLoading() {

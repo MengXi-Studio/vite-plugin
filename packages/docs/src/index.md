@@ -34,7 +34,7 @@ features:
     details: generateVersion 自动生成版本号并支持文件输出和全局变量注入，injectIco 将网站图标链接注入 HTML，一行配置即可完成。
   - icon: ⏳
     title: 全局 Loading 状态管理
-    details: injectLoading 注入全局 Loading 组件，支持 XHR/Fetch 请求自动拦截、白屏 Loading、自定义样式与动画、生命周期回调，实现从白屏到交互的无缝过渡。
+    details: loadingManager 全局 Loading 状态管理组件，支持 XHR/Fetch 请求自动拦截、白屏 Loading、自定义样式与动画、生命周期回调，实现从白屏到交互的无缝过渡。
   - icon: 🧱
     title: 插件开发框架
     details: 导出 BasePlugin、createPluginFactory、Logger、Validator 等核心组件，提供完整生命周期管理与钩子自动组合，快速构建规范化的自定义 Vite 插件。

@@ -72,7 +72,7 @@ export default {
 				{ name: 'generateVersion - 版本生成', passed: false },
 				{ name: 'injectIco - 图标注入', passed: false },
 				{ name: 'copyFile - 文件复制', passed: false },
-				{ name: 'injectLoading - 全局 Loading', passed: false }
+				{ name: 'loadingManager - 全局 Loading', passed: false }
 			]
 		}
 	},
@@ -128,7 +128,7 @@ export default {
 				})
 			// #endif
 
-			// injectLoading: 验证 LoadingManager 已注入
+			// loadingManager: 验证 LoadingManager 已注入
 			// #ifdef H5
 			const manager = window.__LOADING_MANAGER__
 			this.testList[5].passed = !!manager && typeof manager.show === 'function'

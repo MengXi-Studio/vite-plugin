@@ -38,7 +38,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, loadingManager } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 
 export default defineConfig({
 	plugins: [
@@ -66,8 +66,8 @@ export default defineConfig({
 		// 注入网站图标（支持字符串简写）
 		injectIco('/assets'),
 
-		// 注入全局 Loading
-		injectLoading({
+		// 全局 Loading 状态管理
+		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
 		})
@@ -91,7 +91,7 @@ console.log(routerPlugin.pluginInstance?.options)
 
 ### 运行时控制 Loading
 
-`injectLoading` 会在浏览器端注入 `window.__LOADING_MANAGER__`（可通过 `globalName` 自定义），提供运行时 API：
+`loadingManager` 会在浏览器端注入 `window.__LOADING_MANAGER__`（可通过 `globalName` 自定义），提供运行时 API：
 
 | 方法                       | 说明                                       |
 | -------------------------- | ------------------------------------------ |
@@ -365,14 +365,14 @@ import { readFileContent, writeFileContent, fileExists, copySourceToTarget, read
 
 ## 内置插件
 
-| 插件            | 说明                                                  |
-| --------------- | ----------------------------------------------------- |
-| buildProgress   | 终端实时构建进度条，支持 bar / spinner / minimal      |
-| copyFile        | 构建完成后复制文件或目录，支持增量复制                |
-| generateRouter  | 根据 pages.json 自动生成路由配置（uni-app）           |
-| generateVersion | 自动生成版本号，支持文件输出和全局变量注入            |
-| injectIco       | 将网站图标链接注入到 HTML 文件，支持字符串简写配置    |
-| injectLoading   | 注入全局 Loading 状态管理，支持请求拦截和白屏 Loading |
+| 插件            | 说明                                               |
+| --------------- | -------------------------------------------------- |
+| buildProgress   | 终端实时构建进度条，支持 bar / spinner / minimal   |
+| copyFile        | 构建完成后复制文件或目录，支持增量复制             |
+| generateRouter  | 根据 pages.json 自动生成路由配置（uni-app）        |
+| generateVersion | 自动生成版本号，支持文件输出和全局变量注入         |
+| injectIco       | 将网站图标链接注入到 HTML 文件，支持字符串简写配置 |
+| loadingManager  | 全局 Loading 状态管理，支持请求拦截和白屏 Loading  |
 
 ### buildProgress
 
@@ -630,9 +630,9 @@ injectIco({
 })
 ```
 
-### injectLoading
+### loadingManager
 
-注入全局 Loading 状态管理，支持白屏 Loading、请求自动拦截、自定义样式与动画、生命周期回调。
+全局 Loading 状态管理，支持白屏 Loading、请求自动拦截、自定义样式与动画、生命周期回调。
 
 | 选项           | 类型                                       | 默认值                  | 描述                                                 |
 | -------------- | ------------------------------------------ | ----------------------- | ---------------------------------------------------- |
@@ -720,30 +720,30 @@ injectIco({
 
 ```typescript
 // 白屏 Loading：页面加载即显示，DOM 就绪后自动隐藏
-injectLoading({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
 
 // 白屏 Loading：所有资源加载完成后隐藏
-injectLoading({ defaultVisible: true, autoHideOn: 'load' })
+loadingManager({ defaultVisible: true, autoHideOn: 'load' })
 
 // Vue/React SPA：白屏即显示，框架渲染完成后手动隐藏
-injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
 // 在应用入口处：window.__LOADING_MANAGER__.hide()
 
 // 自动拦截所有请求
-injectLoading({ autoBind: 'all' })
+loadingManager({ autoBind: 'all' })
 
 // 自定义样式 + 请求过滤
-injectLoading({
+loadingManager({
 	style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#fff', backdropBlur: true },
 	autoBind: 'fetch',
 	requestFilter: { excludeUrls: [/\/api\/health/], excludeUrlPrefixes: ['http://localhost'] }
 })
 
 // 防抖隐藏（避免快速闪烁）
-injectLoading({ debounceHide: { enabled: true, duration: 100 } })
+loadingManager({ debounceHide: { enabled: true, duration: 100 } })
 
 // 生命周期回调
-injectLoading({
+loadingManager({
 	callbacks: {
 		onBeforeShow: 'if (shouldSkip) return false;',
 		onShow: 'console.log("loading shown")',
@@ -753,7 +753,7 @@ injectLoading({
 })
 
 // 手动控制
-injectLoading()
+loadingManager()
 window.__LOADING_MANAGER__.show('正在保存...')
 window.__LOADING_MANAGER__.hide()
 window.__LOADING_MANAGER__.toggle()
@@ -766,17 +766,17 @@ window.__LOADING_MANAGER__.disablePointerEvents()
 
 ```typescript
 // 完整导入
-import { buildProgress, copyFile, injectLoading, BasePlugin, Logger } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, copyFile, loadingManager, BasePlugin, Logger } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 
 // 按模块导入
 import { BasePlugin, createPluginFactory } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
 import { Logger } from './uni_modules/vite-plugin/js_sdk/logger/index.mjs'
-import { buildProgress, copyFile, generateRouter, injectLoading } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
+import { buildProgress, copyFile, generateRouter, loadingManager } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
 import { Validator, readFileContent, writeFileContent } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
 
 // 类型导入（从子路径按需导入类型定义）
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
-import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, InjectLoadingOptions, Icon } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
+import type { BuildProgressOptions, GenerateVersionOptions, InjectIcoOptions, LoadingManagerOptions, Icon } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
 import type { DateFormatOptions } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
 ```
 
