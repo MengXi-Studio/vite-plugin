@@ -1,4 +1,6 @@
 export * from './fs'
 export * from './format'
+export * from './html'
 export * from './object'
+export * from './script'
 export * from './validation'

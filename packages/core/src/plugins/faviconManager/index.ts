@@ -2,7 +2,7 @@ import type { Plugin, HtmlTagDescriptor } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { FaviconManagerOptions } from './types'
 import { generateIconTagDescriptors } from './common'
-import { checkSourceExists, copySourceToTarget, Validator } from '@/common'
+import { checkSourceExists, copySourceToTarget, Validator, injectBeforeTag } from '@/common'
 
 /**
  * 网站图标管理插件类，用于管理 favicon 及其他图标链接的注入和文件复制
@@ -75,15 +75,11 @@ class FaviconManagerPlugin extends BasePlugin<FaviconManagerOptions> {
 
 		const linkTag = this.options.link
 
-		// 使用正则表达式匹配 </head> 标签（不区分大小写，兼容各种格式）
-		const headCloseRegex = /<\/head>/i
-		const match = html.match(headCloseRegex)
-
-		if (match && match.index !== undefined) {
-			const modifiedHtml = html.slice(0, match.index) + linkTag + '\n' + html.slice(match.index)
+		const result = injectBeforeTag(html, '</head>', linkTag)
+		if (result.injected) {
 			this.logger.success('成功注入自定义图标标签到 HTML 文件')
 			this.logger.info(`  - ${linkTag}`)
-			return modifiedHtml
+			return result.html
 		}
 
 		this.logger.warn('未找到 </head> 标签，跳过图标注入')

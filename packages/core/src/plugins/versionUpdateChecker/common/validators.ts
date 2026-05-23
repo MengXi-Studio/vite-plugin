@@ -1,11 +1,12 @@
 import type { VersionUpdateCheckerOptions } from '../types'
+import { containsScriptTag, validateIdentifierName } from '@/common'
 
 /**
  * 验证 customPromptTemplate 不包含 script 标签（XSS 防护）
  */
 export function validateCustomTemplate(options: VersionUpdateCheckerOptions): void {
 	if (!options.customPromptTemplate) return
-	if (/<script\b/i.test(options.customPromptTemplate)) {
+	if (containsScriptTag(options.customPromptTemplate)) {
 		throw new Error('customPromptTemplate 不允许包含 <script> 标签')
 	}
 }
@@ -16,7 +17,7 @@ export function validateCustomTemplate(options: VersionUpdateCheckerOptions): vo
 export function validateCallbacks(options: VersionUpdateCheckerOptions): void {
 	const callbackFields = ['onUpdateAvailable', 'onRefresh', 'onDismiss'] as const
 	for (const field of callbackFields) {
-		if (options[field] && /<script\b/i.test(options[field]!)) {
+		if (options[field] && containsScriptTag(options[field]!)) {
 			throw new Error(`callbacks.${field} 不允许包含 <script> 标签`)
 		}
 	}
@@ -38,12 +39,10 @@ export function validateCheckInterval(options: VersionUpdateCheckerOptions): voi
  */
 export function validateDefineName(options: VersionUpdateCheckerOptions): void {
 	if (!options.defineName) return
-	if (!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(options.defineName)) {
-		throw new Error(`defineName "${options.defineName}" 不是合法的 JavaScript 标识符`)
-	}
-	const dangerous = ['__proto__', 'constructor', 'prototype']
-	if (dangerous.includes(options.defineName)) {
-		throw new Error(`defineName "${options.defineName}" 是 JavaScript 内置属性，可能导致原型污染`)
+	try {
+		validateIdentifierName(options.defineName)
+	} catch (e) {
+		throw new Error(`defineName ${(e as Error).message}`)
 	}
 }
 

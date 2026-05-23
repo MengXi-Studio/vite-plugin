@@ -14,6 +14,7 @@ import {
 	validateGlobalName,
 	validateAutoHideOn
 } from './common'
+import { injectBeforeTag } from '@/common'
 
 /**
  * 全局 Loading 状态管理插件类
@@ -272,9 +273,9 @@ ${js}
 
 				// 当 defaultVisible 为 true 时，将 CSS+HTML 注入到 </head> 前
 				if (headCode) {
-					const headCloseRegex = /<\/head>/i
-					if (headCloseRegex.test(result)) {
-						result = result.replace(headCloseRegex, `${headCode}\n</head>`)
+					const headResult = injectBeforeTag(result, '</head>', headCode)
+					if (headResult.injected) {
+						result = headResult.html
 					} else {
 						// 无 </head> 标签，回退到 body 注入
 						this.logger.warn('未找到 </head> 标签，defaultVisible 的白屏 loading 将无法生效')
@@ -282,19 +283,17 @@ ${js}
 				}
 
 				// JS 管理器注入到 </body> 前
-				const bodyCloseRegex = /<\/body>/i
-				if (bodyCloseRegex.test(result)) {
-					result = result.replace(bodyCloseRegex, `${bodyCode}\n</body>`)
+				const bodyResult = injectBeforeTag(result, '</body>', bodyCode)
+				if (bodyResult.injected) {
 					this.logger.success('成功注入全局 Loading 状态管理代码到 HTML 文件')
-					return result
+					return bodyResult.html
 				}
 
 				// 如果没有 </body>，在 </html> 前注入
-				const htmlCloseRegex = /<\/html>/i
-				if (htmlCloseRegex.test(result)) {
-					result = result.replace(htmlCloseRegex, `${bodyCode}\n</html>`)
+				const htmlResult = injectBeforeTag(result, '</html>', bodyCode)
+				if (htmlResult.injected) {
 					this.logger.success('成功注入全局 Loading 状态管理代码到 HTML 文件')
-					return result
+					return htmlResult.html
 				}
 
 				// 如果既没有 </body> 也没有 </html>，追加到末尾

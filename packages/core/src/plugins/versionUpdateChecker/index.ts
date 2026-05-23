@@ -2,6 +2,7 @@ import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { VersionUpdateCheckerOptions } from './types'
 import { generateFullInjectCode, generateMetaTag, validateAll } from './common'
+import { injectBeforeTag } from '@/common'
 
 /**
  * 版本更新检查器插件类
@@ -56,26 +57,24 @@ class VersionUpdateCheckerPlugin extends BasePlugin<VersionUpdateCheckerOptions>
 
 				// file/auto 模式下，注入 meta 标签到 </head> 前
 				if (metaTag) {
-					const headCloseRegex = /<\/head>/i
-					if (headCloseRegex.test(result)) {
-						result = result.replace(headCloseRegex, `${metaTag}\n</head>`)
+					const headResult = injectBeforeTag(result, '</head>', metaTag)
+					if (headResult.injected) {
+						result = headResult.html
 					}
 				}
 
 				// 注入到 </body> 前
-				const bodyCloseRegex = /<\/body>/i
-				if (bodyCloseRegex.test(result)) {
-					result = result.replace(bodyCloseRegex, `${injectCode}\n</body>`)
+				const bodyResult = injectBeforeTag(result, '</body>', injectCode)
+				if (bodyResult.injected) {
 					this.logger.success('成功注入版本更新检查代码到 HTML 文件')
-					return result
+					return bodyResult.html
 				}
 
 				// 如果没有 </body>，在 </html> 前注入
-				const htmlCloseRegex = /<\/html>/i
-				if (htmlCloseRegex.test(result)) {
-					result = result.replace(htmlCloseRegex, `${injectCode}\n</html>`)
+				const htmlResult = injectBeforeTag(result, '</html>', injectCode)
+				if (htmlResult.injected) {
 					this.logger.success('成功注入版本更新检查代码到 HTML 文件')
-					return result
+					return htmlResult.html
 				}
 
 				// 如果既没有 </body> 也没有 </html>，追加到末尾

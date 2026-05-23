@@ -1,12 +1,5 @@
 import type { VersionUpdateCheckerOptions, PromptStyle } from '../types'
-
-/**
- * 将回调函数体字符串包装为安全的函数表达式
- */
-function makeCallback(body?: string): string {
-	if (!body) return 'function() {}'
-	return `function(currentVersion, newVersion) { try { ${body} } catch(e) { console.error('[versionUpdateChecker] callback error:', e); } }`
-}
+import { makeCallback } from '@/common'
 
 /**
  * 生成内置 CSS 样式
@@ -119,9 +112,9 @@ export function generateCheckerCode(options: VersionUpdateCheckerOptions): strin
 	const checkInterval = options.checkInterval || 300000
 	const checkOnVisibility = options.checkOnVisibilityChange !== false
 	const enableInDev = options.enableInDev || false
-	const cbUpdateAvailable = makeCallback(options.onUpdateAvailable)
-	const cbRefresh = makeCallback(options.onRefresh)
-	const cbDismiss = makeCallback(options.onDismiss)
+	const cbUpdateAvailable = makeCallback(options.onUpdateAvailable, 'versionUpdateChecker', 'currentVersion, newVersion')
+	const cbRefresh = makeCallback(options.onRefresh, 'versionUpdateChecker', 'currentVersion, newVersion')
+	const cbDismiss = makeCallback(options.onDismiss, 'versionUpdateChecker', 'currentVersion, newVersion')
 
 	// 读取当前版本号的代码
 	let getCurrentVersionCode = ''
