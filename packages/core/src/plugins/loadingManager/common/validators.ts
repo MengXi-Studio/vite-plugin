@@ -1,4 +1,5 @@
 import type { LoadingCallbacks, LoadingStyle } from '../types'
+import { containsScriptTag, validateIdentifierName } from '@/common'
 
 /**
  * 验证样式配置的合法性
@@ -69,7 +70,7 @@ export function validateCallbacks(callbacks?: LoadingCallbacks): void {
 		if (callbacks[field] !== undefined && typeof callbacks[field] !== 'string') {
 			throw new Error(`callbacks.${field} 必须是字符串类型`)
 		}
-		if (callbacks[field] && /<script\b/i.test(callbacks[field]!)) {
+		if (callbacks[field] && containsScriptTag(callbacks[field]!)) {
 			throw new Error(`callbacks.${field} 不允许包含 <script> 标签`)
 		}
 	}
@@ -83,7 +84,7 @@ export function validateCallbacks(callbacks?: LoadingCallbacks): void {
  */
 export function validateCustomTemplate(customTemplate?: string): void {
 	if (!customTemplate) return
-	if (/<script\b/i.test(customTemplate)) {
+	if (containsScriptTag(customTemplate)) {
 		throw new Error('customTemplate 不允许包含 <script> 标签，请使用 callbacks 配置回调逻辑')
 	}
 }
@@ -100,12 +101,10 @@ export function validateCustomTemplate(customTemplate?: string): void {
  */
 export function validateGlobalName(name?: string): void {
 	if (!name) return
-	if (!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name)) {
-		throw new Error(`globalName "${name}" 不是合法的 JavaScript 标识符，必须以字母、下划线或美元符开头，仅包含字母、数字、下划线和美元符`)
-	}
-	const dangerous = ['__proto__', 'constructor', 'prototype']
-	if (dangerous.includes(name)) {
-		throw new Error(`globalName "${name}" 是 JavaScript 内置属性，可能导致原型污染，请使用其他名称`)
+	try {
+		validateIdentifierName(name)
+	} catch (e) {
+		throw new Error(`globalName ${(e as Error).message}`)
 	}
 }
 

@@ -63,11 +63,11 @@ interface CopyOptions {
 }
 
 /**
- * 注入网站图标链接的配置选项接口
+ * 网站图标管理插件的配置选项接口
  *
- * @interface InjectIcoOptions
+ * @interface FaviconManagerOptions
  */
-export interface InjectIcoOptions extends BasePluginOptions {
+export interface FaviconManagerOptions extends BasePluginOptions {
 	/**
 	 * 图标文件的基础路径，默认为根路径 '/'
 	 *

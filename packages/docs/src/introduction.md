@@ -12,8 +12,8 @@
 | [copyFile](/plugins/copy-file)               | 构建完成后复制文件或目录到指定位置，支持增量复制      |
 | [generateRouter](/plugins/generate-router)   | 根据 uni-app 的 pages.json 自动生成路由配置           |
 | [generateVersion](/plugins/generate-version) | 自动生成版本号，支持文件输出和全局变量注入            |
-| [injectIco](/plugins/inject-ico)             | 将网站图标链接注入到 HTML 文件                        |
-| [injectLoading](/plugins/inject-loading)     | 注入全局 Loading 状态管理，支持请求拦截和白屏 Loading |
+| [faviconManager](/plugins/favicon-manager)             | 管理网站图标（favicon）链接注入到 HTML 文件                        |
+| [loadingManager](/plugins/loading-manager)     | 全局 Loading 状态管理，支持请求拦截和白屏 Loading |
 
 ## 插件开发框架
 
@@ -53,6 +53,6 @@ interface BasePluginOptions {
 
 - [安装使用](/installation) - 快速开始
 - [buildProgress](/plugins/build-progress) - 构建进度展示
-- [injectLoading](/plugins/inject-loading) - 全局 Loading 状态管理
+- [loadingManager](/plugins/loading-manager) - 全局 Loading 状态管理
 - [插件工厂](/factory/index) - 开发自定义插件
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) - 查看源码和示例

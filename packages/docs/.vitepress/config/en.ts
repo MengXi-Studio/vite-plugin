@@ -94,8 +94,16 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/common/format.html'
 						},
 						{
+							text: 'HTML',
+							link: '/en/common/html.html'
+						},
+						{
 							text: 'Object',
 							link: '/en/common/object.html'
+						},
+						{
+							text: 'Script',
+							link: '/en/common/script.html'
 						},
 						{
 							text: 'Validation',
@@ -161,6 +169,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/plugins/copy-file.html'
 						},
 						{
+							text: 'faviconManager',
+							link: '/en/plugins/favicon-manager.html'
+						},
+						{
 							text: 'generateRouter',
 							link: '/en/plugins/generate-router.html'
 						},
@@ -169,12 +181,12 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/plugins/generate-version.html'
 						},
 						{
-							text: 'injectIco',
-							link: '/en/plugins/inject-ico.html'
+							text: 'loadingManager',
+							link: '/en/plugins/loading-manager.html'
 						},
 						{
-							text: 'injectLoading',
-							link: '/en/plugins/inject-loading.html'
+							text: 'versionUpdateChecker',
+							link: '/en/plugins/version-update-checker.html'
 						}
 					]
 				}

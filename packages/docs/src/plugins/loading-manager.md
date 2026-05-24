@@ -1,15 +1,15 @@
-# injectLoading
+# loadingManager
 
-在 Vite 构建过程中注入全局 Loading 状态管理代码，支持自动拦截 fetch/XHR 请求、多种内置图标、自定义样式和生命周期回调。
+全局 Loading 状态管理插件，在 Vite 构建过程中注入 Loading 状态管理代码，支持自动拦截 fetch/XHR 请求、多种内置图标、自定义样式和生命周期回调。
 
 ## 快速开始
 
 ```typescript
 import { defineConfig } from 'vite'
-import { injectLoading } from '@meng-xi/vite-plugin'
+import { loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [injectLoading()]
+	plugins: [loadingManager()]
 })
 ```
 
@@ -18,7 +18,7 @@ export default defineConfig({
 在页面白屏阶段即显示 loading，DOMContentLoaded 后自动隐藏：
 
 ```typescript
-injectLoading({
+loadingManager({
 	defaultVisible: true,
 	autoHideOn: 'DOMContentLoaded'
 })
@@ -29,7 +29,7 @@ injectLoading({
 自动拦截 fetch 请求，请求期间显示 loading，请求完成后自动隐藏：
 
 ```typescript
-injectLoading({ autoBind: 'fetch' })
+loadingManager({ autoBind: 'fetch' })
 ```
 
 ## 配置选项
@@ -173,13 +173,13 @@ window.__LOADING_MANAGER__.destroy()
 ### 基础用法
 
 ```typescript
-injectLoading()
+loadingManager()
 ```
 
 ### 自定义图标和样式
 
 ```typescript
-injectLoading({
+loadingManager({
 	spinnerType: 'dots',
 	style: {
 		overlayColor: 'rgba(0, 0, 0, 0.5)',
@@ -194,7 +194,7 @@ injectLoading({
 ### 自动拦截所有请求
 
 ```typescript
-injectLoading({
+loadingManager({
 	autoBind: 'all',
 	requestFilter: {
 		excludeUrls: [/\/api\/health/, /\/static\//],
@@ -208,7 +208,7 @@ injectLoading({
 
 ```typescript
 // 白屏阶段即显示，框架渲染完成后手动隐藏
-injectLoading({
+loadingManager({
 	defaultVisible: true,
 	autoHideOn: 'manual'
 })
@@ -221,7 +221,7 @@ injectLoading({
 
 ```typescript
 // 白屏阶段即显示，DOM 解析完成后自动隐藏
-injectLoading({
+loadingManager({
 	defaultVisible: true,
 	autoHideOn: 'DOMContentLoaded'
 })
@@ -230,7 +230,7 @@ injectLoading({
 ### 自定义模板
 
 ```typescript
-injectLoading({
+loadingManager({
 	customTemplate: '<div class="my-loader"><span data-loading-text>加载中</span></div>'
 })
 ```
@@ -240,7 +240,7 @@ injectLoading({
 ### 生命周期回调
 
 ```typescript
-injectLoading({
+loadingManager({
 	callbacks: {
 		onBeforeShow: 'console.log("about to show"); return true;',
 		onShow: 'console.log("shown")',
@@ -254,7 +254,7 @@ injectLoading({
 ### 自定义全局变量名
 
 ```typescript
-injectLoading({ globalName: '__MY_LOADING__' })
+loadingManager({ globalName: '__MY_LOADING__' })
 
 // 使用
 window.__MY_LOADING__.show()
@@ -266,7 +266,7 @@ window.__MY_LOADING__.show()
 
 ```typescript
 // 允许交互穿透（loading 期间仍可操作页面）
-injectLoading({ style: { pointerEvents: false } })
+loadingManager({ style: { pointerEvents: false } })
 ```
 
 运行时也可动态切换交互阻止状态：
@@ -282,7 +282,7 @@ window.__LOADING_MANAGER__.isPointerEventsEnabled() // → true/false
 ### 完整配置
 
 ```typescript
-injectLoading({
+loadingManager({
 	position: 'center',
 	defaultText: '加载中...',
 	spinnerType: 'spinner',

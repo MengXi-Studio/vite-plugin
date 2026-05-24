@@ -9,7 +9,7 @@ import type { BasePluginOptions } from '@/factory/types'
  *
  * @example
  * ```typescript
- * injectLoading({ position: 'top' })
+ * loadingManager({ position: 'top' })
  * ```
  */
 export type LoadingPosition = 'center' | 'top' | 'bottom'
@@ -24,7 +24,7 @@ export type LoadingPosition = 'center' | 'top' | 'bottom'
  * @example
  * ```typescript
  * // 自动拦截所有 fetch 请求
- * injectLoading({ autoBind: 'fetch' })
+ * loadingManager({ autoBind: 'fetch' })
  * ```
  */
 export type AutoBindMode = 'fetch' | 'xhr' | 'all' | 'none'
@@ -38,7 +38,7 @@ export type AutoBindMode = 'fetch' | 'xhr' | 'all' | 'none'
  *
  * @example
  * ```typescript
- * injectLoading({ spinnerType: 'dots' })
+ * loadingManager({ spinnerType: 'dots' })
  * ```
  */
 export type SpinnerType = 'spinner' | 'dots' | 'pulse' | 'bar'
@@ -46,7 +46,7 @@ export type SpinnerType = 'spinner' | 'dots' | 'pulse' | 'bar'
 /**
  * 当 `defaultVisible` 为 `true` 时，loading 的自动隐藏时机
  *
- * @remarks 仅在 {@link InjectLoadingOptions.defaultVisible} 为 `true` 时生效，
+ * @remarks 仅在 {@link LoadingManagerOptions.defaultVisible} 为 `true` 时生效，
  * 决定 loading 在页面加载过程中的自动隐藏策略
  *
  * @defaultValue `'DOMContentLoaded'`
@@ -54,7 +54,7 @@ export type SpinnerType = 'spinner' | 'dots' | 'pulse' | 'bar'
  * @example
  * ```typescript
  * // Vue/React SPA：手动控制隐藏时机
- * injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+ * loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
  * // 在应用入口：window.__LOADING_MANAGER__.hide()
  * ```
  */
@@ -172,10 +172,10 @@ export interface LoadingStyle {
 	 * @example
 	 * ```typescript
 	 * // 阻止交互（默认行为）
-	 * injectLoading({ style: { pointerEvents: true } })
+	 * loadingManager({ style: { pointerEvents: true } })
 	 *
 	 * // 允许交互穿透（如仅展示加载状态，不阻止操作）
-	 * injectLoading({ style: { pointerEvents: false } })
+	 * loadingManager({ style: { pointerEvents: false } })
 	 * ```
 	 */
 	pointerEvents?: boolean
@@ -522,11 +522,11 @@ export interface LoadingManager {
 }
 
 /**
- * injectLoading 插件的配置选项
+ * loadingManager 插件的配置选项
  *
  * @remarks 继承自 {@link BasePluginOptions}，包含 loading 的所有可配置项
  */
-export interface InjectLoadingOptions extends BasePluginOptions {
+export interface LoadingManagerOptions extends BasePluginOptions {
 	/**
 	 * Loading 显示位置
 	 *
@@ -604,7 +604,7 @@ export interface InjectLoadingOptions extends BasePluginOptions {
 	 *
 	 * @example
 	 * ```typescript
-	 * injectLoading({ globalName: '__MY_LOADING__' })
+	 * loadingManager({ globalName: '__MY_LOADING__' })
 	 * // 使用：window.__MY_LOADING__.show()
 	 * ```
 	 */
@@ -619,7 +619,7 @@ export interface InjectLoadingOptions extends BasePluginOptions {
 	 *
 	 * @example
 	 * ```typescript
-	 * injectLoading({
+	 * loadingManager({
 	 *   customTemplate: '<div class="my-loader"><span data-loading-text></span></div>'
 	 * })
 	 * ```
@@ -640,13 +640,13 @@ export interface InjectLoadingOptions extends BasePluginOptions {
 	 * @example
 	 * ```typescript
 	 * // 白屏阶段即显示 loading，DOMContentLoaded 后自动隐藏
-	 * injectLoading({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+	 * loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
 	 *
 	 * // 白屏阶段即显示 loading，所有资源加载完成后自动隐藏
-	 * injectLoading({ defaultVisible: true, autoHideOn: 'load' })
+	 * loadingManager({ defaultVisible: true, autoHideOn: 'load' })
 	 *
 	 * // Vue/React SPA：白屏阶段即显示，框架渲染完成后手动隐藏
-	 * injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+	 * loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
 	 * // 在应用入口处：window.__LOADING_MANAGER__.hide()
 	 * ```
 	 */
@@ -673,7 +673,7 @@ export interface InjectLoadingOptions extends BasePluginOptions {
 	 *
 	 * @example
 	 * ```typescript
-	 * injectLoading({
+	 * loadingManager({
 	 *   callbacks: {
 	 *     onShow: 'console.log("loading shown")',
 	 *     onBeforeShow: 'return true'

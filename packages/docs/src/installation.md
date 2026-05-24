@@ -24,7 +24,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -50,12 +50,12 @@ export default defineConfig({
 		}),
 
 		// 注入网站图标
-		injectIco({
+		faviconManager({
 			base: '/assets'
 		}),
 
-		// 注入全局 Loading
-		injectLoading({
+		// 全局 Loading 状态管理
+		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
 		})
@@ -103,5 +103,5 @@ export const myPlugin = createPluginFactory(MyPlugin)
 - [copyFile](/plugins/copy-file) - 文件复制
 - [generateRouter](/plugins/generate-router) - 路由生成
 - [generateVersion](/plugins/generate-version) - 版本管理
-- [injectIco](/plugins/inject-ico) - 图标注入
-- [injectLoading](/plugins/inject-loading) - 全局 Loading 状态管理
+- [faviconManager](/plugins/favicon-manager) - 网站图标管理
+- [loadingManager](/plugins/loading-manager) - 全局 Loading 状态管理

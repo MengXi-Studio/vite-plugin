@@ -1,16 +1,6 @@
-import type { AutoHideOn, InjectLoadingOptions } from '../types'
+import type { LoadingManagerOptions, AutoHideOn } from '../types'
 import { ID_ROOT, ATTR_TEXT, CLS_HIDDEN, CLS_VISIBLE } from './constants'
-
-/**
- * 将回调函数体字符串包装为安全的函数表达式
- *
- * @param body - 函数体代码字符串
- * @returns 安全的函数表达式字符串（包含 try-catch 保护）
- */
-export function makeCallback(body?: string): string {
-	if (!body) return 'function() {}'
-	return `function() { try { ${body} } catch(e) { console.error('[injectLoading] callback error:', e); } }`
-}
+import { makeCallback } from '@/common'
 
 /**
  * 生成变量声明代码
@@ -426,7 +416,7 @@ export function generateInitCode(defaultVisible: boolean, autoHideOn: AutoHideOn
  * @param options - 插件配置选项
  * @returns 完整的 JavaScript IIFE 代码字符串
  */
-export function generateLoadingManagerCode(options: InjectLoadingOptions): string {
+export function generateLoadingManagerCode(options: LoadingManagerOptions): string {
 	const globalName = options.globalName || '__LOADING_MANAGER__'
 	const minDisplayTime = options.minDisplayTime || { enabled: true, duration: 300 }
 	const delayShow = options.delayShow || { enabled: true, duration: 200 }
@@ -443,11 +433,11 @@ export function generateLoadingManagerCode(options: InjectLoadingOptions): strin
 	const excludeMethods = requestFilter.excludeMethods || []
 	const excludeUrlPrefixes = requestFilter.excludeUrlPrefixes || []
 
-	const cbBeforeShow = makeCallback(callbacks.onBeforeShow)
-	const cbShow = makeCallback(callbacks.onShow)
-	const cbBeforeHide = makeCallback(callbacks.onBeforeHide)
-	const cbHide = makeCallback(callbacks.onHide)
-	const cbDestroy = makeCallback(callbacks.onDestroy)
+	const cbBeforeShow = makeCallback(callbacks.onBeforeShow, 'loadingManager')
+	const cbShow = makeCallback(callbacks.onShow, 'loadingManager')
+	const cbBeforeHide = makeCallback(callbacks.onBeforeHide, 'loadingManager')
+	const cbHide = makeCallback(callbacks.onHide, 'loadingManager')
+	const cbDestroy = makeCallback(callbacks.onDestroy, 'loadingManager')
 
 	const vars = generateVarsCode({
 		globalName,

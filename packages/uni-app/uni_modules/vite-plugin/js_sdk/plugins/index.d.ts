@@ -255,6 +255,142 @@ interface CopyFileOptions extends BasePluginOptions {
 declare const copyFile: PluginFactory<CopyFileOptions, CopyFileOptions>;
 
 /**
+ * 图标配置项接口
+ *
+ * @interface Icon
+ */
+interface Icon {
+    /**
+     * 图标关系类型
+     */
+    rel: string;
+    /**
+     * 图标 URL
+     */
+    href: string;
+    /**
+     * 图标尺寸
+     */
+    sizes?: string;
+    /**
+     * 图标 MIME 类型
+     */
+    type?: string;
+}
+/**
+ * 图标文件复制配置选项接口
+ *
+ * @interface CopyOptions
+ */
+interface CopyOptions {
+    /**
+     * 图标源文件目录，用于复制图标到打包目录
+     *
+     * @example 'src/assets/icons'
+     */
+    sourceDir: string;
+    /**
+     * 图标目标目录（打包目录），用于复制图标到打包目录
+     *
+     * @example 'dist/assets/icons'
+     */
+    targetDir: string;
+    /**
+     * 是否覆盖同名文件
+     *
+     * @default true
+     */
+    overwrite?: boolean;
+    /**
+     * 是否支持递归复制
+     *
+     * @default true
+     */
+    recursive?: boolean;
+}
+/**
+ * 网站图标管理插件的配置选项接口
+ *
+ * @interface FaviconManagerOptions
+ */
+interface FaviconManagerOptions extends BasePluginOptions {
+    /**
+     * 图标文件的基础路径，默认为根路径 '/'
+     *
+     * @default '/'
+     * @example '/assets'
+     */
+    base?: string;
+    /**
+     * 图标的完整 URL，如果提供则优先使用（覆盖 base + favicon.ico）
+     *
+     * @example 'https://example.com/favicon.ico'
+     */
+    url?: string;
+    /**
+     * 自定义的完整 link 标签 HTML，如果提供则优先使用（覆盖 url 和 base）
+     *
+     * @example '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />'
+     */
+    link?: string;
+    /**
+     * 自定义图标数组，支持多种图标格式和尺寸
+     *
+     * @example
+     * [
+     *   { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+     *   { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+     *   { rel: 'icon', href: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' }
+     * ]
+     */
+    icons?: Icon[];
+    /**
+     * 图标文件复制配置选项
+     *
+     * @remarks
+     * 当此对象存在时，才会开启图标文件复制功能
+     */
+    copyOptions?: CopyOptions;
+}
+
+/**
+ * 网站图标管理插件
+ *
+ * @param options - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
+ * @returns Vite 插件实例
+ *
+ * @example
+ * ```typescript
+ * // 基本使用
+ * faviconManager() // 使用默认配置
+ *
+ * // 使用字符串配置 base 路径
+ * faviconManager('/assets')
+ *
+ * // 使用完整配置
+ * faviconManager({
+ *   base: '/assets',
+ *   icons: [
+ *     { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+ *     { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+ *   ],
+ *   copyOptions: {
+ *     sourceDir: 'src/assets/icons',
+ *     targetDir: 'dist/assets/icons'
+ *   }
+ * })
+ * ```
+ *
+ * @remarks
+ * 该插件在构建过程中：
+ * 1. 将网站图标（favicon）的 link 标签注入到 HTML 文件的 `<head>` 中
+ * 2. 如果配置了 copyOptions，将图标文件复制到目标目录
+ *
+ * 支持自定义图标链接、图标数组配置以及图标文件复制功能。
+ */
+declare const faviconManager: PluginFactory<FaviconManagerOptions, string | FaviconManagerOptions>;
+
+/**
  * 路由元信息
  */
 interface RouteMeta {
@@ -622,141 +758,6 @@ interface GenerateVersionOptions extends BasePluginOptions {
 declare const generateVersion: PluginFactory<GenerateVersionOptions, GenerateVersionOptions>;
 
 /**
- * 图标配置项接口
- *
- * @interface Icon
- */
-interface Icon {
-    /**
-     * 图标关系类型
-     */
-    rel: string;
-    /**
-     * 图标 URL
-     */
-    href: string;
-    /**
-     * 图标尺寸
-     */
-    sizes?: string;
-    /**
-     * 图标 MIME 类型
-     */
-    type?: string;
-}
-/**
- * 图标文件复制配置选项接口
- *
- * @interface CopyOptions
- */
-interface CopyOptions {
-    /**
-     * 图标源文件目录，用于复制图标到打包目录
-     *
-     * @example 'src/assets/icons'
-     */
-    sourceDir: string;
-    /**
-     * 图标目标目录（打包目录），用于复制图标到打包目录
-     *
-     * @example 'dist/assets/icons'
-     */
-    targetDir: string;
-    /**
-     * 是否覆盖同名文件
-     *
-     * @default true
-     */
-    overwrite?: boolean;
-    /**
-     * 是否支持递归复制
-     *
-     * @default true
-     */
-    recursive?: boolean;
-}
-/**
- * 注入网站图标链接的配置选项接口
- *
- * @interface InjectIcoOptions
- */
-interface InjectIcoOptions extends BasePluginOptions {
-    /**
-     * 图标文件的基础路径，默认为根路径 '/'
-     *
-     * @default '/'
-     * @example '/assets'
-     */
-    base?: string;
-    /**
-     * 图标的完整 URL，如果提供则优先使用（覆盖 base + favicon.ico）
-     *
-     * @example 'https://example.com/favicon.ico'
-     */
-    url?: string;
-    /**
-     * 自定义的完整 link 标签 HTML，如果提供则优先使用（覆盖 url 和 base）
-     *
-     * @example '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />'
-     */
-    link?: string;
-    /**
-     * 自定义图标数组，支持多种图标格式和尺寸
-     *
-     * @example
-     * [
-     *   { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
-     *   { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-     *   { rel: 'icon', href: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' }
-     * ]
-     */
-    icons?: Icon[];
-    /**
-     * 图标文件复制配置选项
-     *
-     * @remarks
-     * 当此对象存在时，才会开启图标文件复制功能
-     */
-    copyOptions?: CopyOptions;
-}
-
-/**
- * 创建注入图标插件实例
- *
- * @export
- * @param {string | InjectIcoOptions} [options] - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
- * @returns {Plugin} Vite 插件实例，用于在构建过程中注入图标链接到 HTML 文件
- * @example
- * ```typescript
- * // 基本使用
- * injectIco() // 使用默认配置
- *
- * // 使用字符串配置 base 路径
- * injectIco('/assets')
- *
- * // 使用完整配置
- * injectIco({
- *   base: '/assets',
- *   icons: [
- *     { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
- *     { rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
- *   ],
- *   copyOptions: {
- *     sourceDir: 'src/assets/icons',
- *     targetDir: 'dist/assets/icons'
- *   }
- * })
- * ```
- * @remarks
- * 该函数创建并返回一个 Vite 插件实例，该实例会在构建过程中：
- * 1. 将图标链接注入到 HTML 文件的 `<head>` 标签中
- * 2. 如果配置了 copyOptions，将图标文件复制到目标目录
- *
- * 支持自定义图标链接、图标数组配置以及图标文件复制功能。
- */
-declare const injectIco: PluginFactory<InjectIcoOptions, string | InjectIcoOptions>;
-
-/**
  * Loading 组件的显示位置
  *
  * @remarks 控制加载指示器在视口中的垂直对齐方式
@@ -765,7 +766,7 @@ declare const injectIco: PluginFactory<InjectIcoOptions, string | InjectIcoOptio
  *
  * @example
  * ```typescript
- * injectLoading({ position: 'top' })
+ * loadingManager({ position: 'top' })
  * ```
  */
 type LoadingPosition = 'center' | 'top' | 'bottom';
@@ -779,7 +780,7 @@ type LoadingPosition = 'center' | 'top' | 'bottom';
  * @example
  * ```typescript
  * // 自动拦截所有 fetch 请求
- * injectLoading({ autoBind: 'fetch' })
+ * loadingManager({ autoBind: 'fetch' })
  * ```
  */
 type AutoBindMode = 'fetch' | 'xhr' | 'all' | 'none';
@@ -792,14 +793,14 @@ type AutoBindMode = 'fetch' | 'xhr' | 'all' | 'none';
  *
  * @example
  * ```typescript
- * injectLoading({ spinnerType: 'dots' })
+ * loadingManager({ spinnerType: 'dots' })
  * ```
  */
 type SpinnerType = 'spinner' | 'dots' | 'pulse' | 'bar';
 /**
  * 当 `defaultVisible` 为 `true` 时，loading 的自动隐藏时机
  *
- * @remarks 仅在 {@link InjectLoadingOptions.defaultVisible} 为 `true` 时生效，
+ * @remarks 仅在 {@link LoadingManagerOptions.defaultVisible} 为 `true` 时生效，
  * 决定 loading 在页面加载过程中的自动隐藏策略
  *
  * @defaultValue `'DOMContentLoaded'`
@@ -807,7 +808,7 @@ type SpinnerType = 'spinner' | 'dots' | 'pulse' | 'bar';
  * @example
  * ```typescript
  * // Vue/React SPA：手动控制隐藏时机
- * injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+ * loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
  * // 在应用入口：window.__LOADING_MANAGER__.hide()
  * ```
  */
@@ -913,10 +914,10 @@ interface LoadingStyle {
      * @example
      * ```typescript
      * // 阻止交互（默认行为）
-     * injectLoading({ style: { pointerEvents: true } })
+     * loadingManager({ style: { pointerEvents: true } })
      *
      * // 允许交互穿透（如仅展示加载状态，不阻止操作）
-     * injectLoading({ style: { pointerEvents: false } })
+     * loadingManager({ style: { pointerEvents: false } })
      * ```
      */
     pointerEvents?: boolean;
@@ -1233,11 +1234,11 @@ interface LoadingManager {
     destroy(): void;
 }
 /**
- * injectLoading 插件的配置选项
+ * loadingManager 插件的配置选项
  *
  * @remarks 继承自 {@link BasePluginOptions}，包含 loading 的所有可配置项
  */
-interface InjectLoadingOptions extends BasePluginOptions {
+interface LoadingManagerOptions extends BasePluginOptions {
     /**
      * Loading 显示位置
      *
@@ -1305,7 +1306,7 @@ interface InjectLoadingOptions extends BasePluginOptions {
      *
      * @example
      * ```typescript
-     * injectLoading({ globalName: '__MY_LOADING__' })
+     * loadingManager({ globalName: '__MY_LOADING__' })
      * // 使用：window.__MY_LOADING__.show()
      * ```
      */
@@ -1319,7 +1320,7 @@ interface InjectLoadingOptions extends BasePluginOptions {
      *
      * @example
      * ```typescript
-     * injectLoading({
+     * loadingManager({
      *   customTemplate: '<div class="my-loader"><span data-loading-text></span></div>'
      * })
      * ```
@@ -1339,13 +1340,13 @@ interface InjectLoadingOptions extends BasePluginOptions {
      * @example
      * ```typescript
      * // 白屏阶段即显示 loading，DOMContentLoaded 后自动隐藏
-     * injectLoading({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+     * loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
      *
      * // 白屏阶段即显示 loading，所有资源加载完成后自动隐藏
-     * injectLoading({ defaultVisible: true, autoHideOn: 'load' })
+     * loadingManager({ defaultVisible: true, autoHideOn: 'load' })
      *
      * // Vue/React SPA：白屏阶段即显示，框架渲染完成后手动隐藏
-     * injectLoading({ defaultVisible: true, autoHideOn: 'manual' })
+     * loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
      * // 在应用入口处：window.__LOADING_MANAGER__.hide()
      * ```
      */
@@ -1370,7 +1371,7 @@ interface InjectLoadingOptions extends BasePluginOptions {
      *
      * @example
      * ```typescript
-     * injectLoading({
+     * loadingManager({
      *   callbacks: {
      *     onShow: 'console.log("loading shown")',
      *     onBeforeShow: 'return true'
@@ -1382,29 +1383,29 @@ interface InjectLoadingOptions extends BasePluginOptions {
 }
 
 /**
- * 注入全局 Loading 状态管理插件
+ * 全局 Loading 状态管理插件
  *
- * @param options - 插件配置选项，详见 {@link InjectLoadingOptions}
+ * @param options - 插件配置选项，详见 {@link LoadingManagerOptions}
  * @returns Vite 插件实例
  *
  * @example
  * ```typescript
  * // 基本使用
- * injectLoading()
+ * loadingManager()
  *
  * // 自定义位置和文本
- * injectLoading({
+ * loadingManager({
  *   position: 'top',
  *   defaultText: '请稍候...'
  * })
  *
  * // 使用不同类型的加载图标
- * injectLoading({
+ * loadingManager({
  *   spinnerType: 'dots',  // spinner | dots | pulse | bar
  * })
  *
  * // 自动拦截 fetch 请求
- * injectLoading({
+ * loadingManager({
  *   autoBind: 'fetch',
  *   requestFilter: {
  *     excludeUrls: [/\/api\/health/],
@@ -1413,7 +1414,7 @@ interface InjectLoadingOptions extends BasePluginOptions {
  * })
  *
  * // 自定义样式（含模糊背景）
- * injectLoading({
+ * loadingManager({
  *   style: {
  *     overlayColor: 'rgba(0, 0, 0, 0.5)',
  *     spinnerColor: '#ff6b6b',
@@ -1424,7 +1425,7 @@ interface InjectLoadingOptions extends BasePluginOptions {
  * })
  *
  * // 自定义过渡动画
- * injectLoading({
+ * loadingManager({
  *   transition: {
  *     enabled: true,
  *     duration: 300,
@@ -1433,7 +1434,7 @@ interface InjectLoadingOptions extends BasePluginOptions {
  * })
  *
  * // 防抖隐藏（避免快速闪烁）
- * injectLoading({
+ * loadingManager({
  *   debounceHide: {
  *     enabled: true,
  *     duration: 100
@@ -1441,7 +1442,7 @@ interface InjectLoadingOptions extends BasePluginOptions {
  * })
  *
  * // 生命周期回调
- * injectLoading({
+ * loadingManager({
  *   callbacks: {
  *     onShow: 'console.log("loading shown")',
  *     onBeforeShow: 'return true',  // 返回 false 可阻止显示
@@ -1450,24 +1451,24 @@ interface InjectLoadingOptions extends BasePluginOptions {
  * })
  *
  * // 自定义模板
- * injectLoading({
+ * loadingManager({
  *   customTemplate: '<div class="my-loader"><span data-loading-text></span></div>'
  * })
  *
  * // 白屏阶段即显示 loading，DOMContentLoaded 后自动隐藏
- * injectLoading({
+ * loadingManager({
  *   defaultVisible: true,
  *   autoHideOn: 'DOMContentLoaded'
  * })
  *
  * // 白屏阶段即显示 loading，所有资源加载完成后自动隐藏
- * injectLoading({
+ * loadingManager({
  *   defaultVisible: true,
  *   autoHideOn: 'load'
  * })
  *
  * // Vue/React SPA：白屏阶段即显示，框架渲染完成后手动隐藏
- * injectLoading({
+ * loadingManager({
  *   defaultVisible: true,
  *   autoHideOn: 'manual'
  * })
@@ -1516,7 +1517,200 @@ interface InjectLoadingOptions extends BasePluginOptions {
  * window.__LOADING_MANAGER__.destroy()
  * ```
  */
-declare const injectLoading: PluginFactory<InjectLoadingOptions, InjectLoadingOptions>;
+declare const loadingManager: PluginFactory<LoadingManagerOptions, LoadingManagerOptions>;
 
-export { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading };
-export type { AutoBindMode, AutoHideOn, BuildPhase, BuildProgressOptions, CopyFileOptions, DebounceHide, DelayShow, GenerateRouterOptions, GenerateVersionOptions, Icon, InjectIcoOptions, InjectLoadingOptions, LoadingCallbacks, LoadingManager, LoadingPosition, LoadingStyle, MinDisplayTime, NameStrategy, OutputFormat, OutputType, ProgressFormat, ProgressTheme, RequestFilter, RouteConfig, RouteMeta, SpinnerType, TransitionConfig, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, VersionFormat };
+/**
+ * 版本来源类型
+ *
+ * @description
+ * - 'define': 从 Vite define 注入的全局变量中读取（如 __APP_VERSION__）
+ * - 'file': 从版本文件（如 version.json）中读取
+ * - 'auto': 自动检测，优先使用 define，回退到 file
+ */
+type VersionSource = 'define' | 'file' | 'auto';
+/**
+ * 更新提示 UI 样式
+ *
+ * @description
+ * - 'modal': 居中弹窗，需用户手动操作
+ * - 'banner': 顶部横幅，可自动消失或手动关闭
+ * - 'toast': 底部轻提示，自动消失
+ */
+type PromptStyle = 'modal' | 'banner' | 'toast';
+/**
+ * 版本更新检查器的配置选项接口
+ *
+ * @interface VersionUpdateCheckerOptions
+ */
+interface VersionUpdateCheckerOptions extends BasePluginOptions {
+    /**
+     * 当前版本号的来源
+     *
+     * @default 'auto'
+     */
+    versionSource?: VersionSource;
+    /**
+     * define 模式下的全局变量名
+     *
+     * @description 当 versionSource 为 'define' 或 'auto' 时，
+     * 从此全局变量读取当前构建版本号
+     *
+     * @default '__APP_VERSION__'
+     */
+    defineName?: string;
+    /**
+     * 版本检查文件的 URL 路径
+     *
+     * @description 客户端将定期请求此 URL 获取最新版本号，
+     * 并与当前版本号对比判断是否有更新
+     *
+     * @default '/version.json'
+     */
+    checkUrl?: string;
+    /**
+     * 版本检查间隔时间（毫秒）
+     *
+     * @default 300000（5 分钟）
+     */
+    checkInterval?: number;
+    /**
+     * 页面可见性变化时是否立即检查
+     *
+     * @description 当用户从其他标签页切回时，立即检查版本更新，
+     * 而不是等待下一个定时周期
+     *
+     * @default true
+     */
+    checkOnVisibilityChange?: boolean;
+    /**
+     * 是否在开发模式下启用版本检查
+     *
+     * @default false
+     */
+    enableInDev?: boolean;
+    /**
+     * 更新提示 UI 样式
+     *
+     * @default 'modal'
+     */
+    promptStyle?: PromptStyle;
+    /**
+     * 更新提示消息文本
+     *
+     * @default '发现新版本，是否立即刷新获取最新内容？'
+     */
+    promptMessage?: string;
+    /**
+     * 刷新按钮文本
+     *
+     * @default '立即刷新'
+     */
+    refreshButtonText?: string;
+    /**
+     * 忽略按钮文本
+     *
+     * @default '稍后再说'
+     */
+    dismissButtonText?: string;
+    /**
+     * 自定义提示 UI 的 HTML 模板
+     *
+     * @description 替换内置的提示 UI，模板中可使用以下占位符：
+     * - {{message}}: 提示消息
+     * - {{currentVersion}}: 当前版本号
+     * - {{newVersion}}: 新版本号
+     * - {{refreshButton}}: 刷新按钮
+     * - {{dismissButton}}: 忽略按钮
+     *
+     * 模板中不允许包含 <script> 标签
+     */
+    customPromptTemplate?: string;
+    /**
+     * 自定义样式字符串
+     *
+     * @description 追加到内置样式之后的自定义 CSS
+     */
+    customStyle?: string;
+    /**
+     * 发现新版本时的回调（函数体字符串）
+     *
+     * @description 回调以函数体字符串形式提供，因为需要注入到客户端代码中。
+     * 可用变量：currentVersion、newVersion
+     *
+     * @example 'console.log("新版本:", newVersion); return true;'
+     */
+    onUpdateAvailable?: string;
+    /**
+     * 用户选择刷新时的回调（函数体字符串）
+     *
+     * @example 'console.log("用户选择刷新");'
+     */
+    onRefresh?: string;
+    /**
+     * 用户选择忽略时的回调（函数体字符串）
+     *
+     * @example 'console.log("用户选择忽略");'
+     */
+    onDismiss?: string;
+}
+
+/**
+ * 版本更新检查器插件
+ *
+ * @param options - 插件配置选项，详见 {@link VersionUpdateCheckerOptions}
+ * @returns Vite 插件实例
+ *
+ * @example
+ * ```typescript
+ * // 基本使用 — 配合 generateVersion 插件
+ * generateVersion({
+ *   format: 'datetime',
+ *   outputType: 'both',
+ *   defineName: '__APP_VERSION__'
+ * }),
+ * versionUpdateChecker()
+ *
+ * // 自定义检查间隔和提示样式
+ * versionUpdateChecker({
+ *   checkInterval: 60000,    // 1 分钟检查一次
+ *   promptStyle: 'banner'    // 顶部横幅提示
+ * })
+ *
+ * // 自定义提示消息和回调
+ * versionUpdateChecker({
+ *   promptMessage: '系统已更新，请刷新页面',
+ *   onUpdateAvailable: 'console.log("新版本:", newVersion); return true;',
+ *   onRefresh: 'console.log("用户选择刷新");',
+ *   onDismiss: 'console.log("用户选择忽略");'
+ * })
+ *
+ * // 开发模式也启用
+ * versionUpdateChecker({
+ *   enableInDev: true,
+ *   checkInterval: 10000
+ * })
+ *
+ * // 自定义 UI 模板
+ * versionUpdateChecker({
+ *   customPromptTemplate: '<div class="my-update-prompt">{{message}} {{refreshButton}}</div>',
+ *   customStyle: '.my-update-prompt { background: #333; color: #fff; }'
+ * })
+ * ```
+ *
+ * @remarks
+ * 该插件通常与 `generateVersion` 插件配合使用：
+ * - `generateVersion` 负责在构建时生成版本号并输出到 `version.json` 文件和全局变量
+ * - `versionUpdateChecker` 负责在运行时定期检查版本号变更并提示用户刷新
+ *
+ * 工作原理：
+ * 1. 页面加载时，从全局变量（如 `__APP_VERSION__`）读取当前版本号
+ * 2. 定期请求 `version.json` 获取最新版本号
+ * 3. 当版本号不一致时，显示更新提示 UI
+ * 4. 用户点击"立即刷新"后执行 `location.reload()`
+ * 5. 用户点击"稍后再说"后隐藏提示，本次会话不再提醒
+ * 6. 页面可见性变化时（如从其他标签页切回）立即检查更新
+ */
+declare const versionUpdateChecker: PluginFactory<VersionUpdateCheckerOptions, VersionUpdateCheckerOptions>;
+
+export { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, loadingManager, versionUpdateChecker };
+export type { AutoBindMode, AutoHideOn, BuildPhase, BuildProgressOptions, CopyFileOptions, DebounceHide, DelayShow, FaviconManagerOptions, GenerateRouterOptions, GenerateVersionOptions, Icon, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, NameStrategy, OutputFormat, OutputType, ProgressFormat, ProgressTheme, PromptStyle, RequestFilter, RouteConfig, RouteMeta, SpinnerType, TransitionConfig, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, VersionFormat, VersionSource, VersionUpdateCheckerOptions };

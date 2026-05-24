@@ -1,18 +1,19 @@
 import type { Plugin, HtmlTagDescriptor } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import type { InjectIcoOptions } from './types'
+import type { FaviconManagerOptions } from './types'
 import { generateIconTagDescriptors } from './common'
-import { checkSourceExists, copySourceToTarget, Validator } from '@/common'
+import { checkSourceExists, copySourceToTarget, Validator, injectBeforeTag } from '@/common'
 
 /**
- * 注入图标插件类，用于在构建过程中注入图标链接到 HTML 文件
+ * 网站图标管理插件类，用于管理 favicon 及其他图标链接的注入和文件复制
  *
- * @class InjectIcoPlugin
- * @extends {BasePlugin<InjectIcoOptions>}
- * @description 该插件会在 Vite 构建完成后执行，将指定图标文件的链接注入到 HTML 文件的 `<head>` 标签中。
+ * @class FaviconManagerPlugin
+ * @extends {BasePlugin<FaviconManagerOptions>}
+ * @description 该插件会在 Vite 构建过程中，将网站图标（favicon）的 link 标签注入到 HTML 文件的 `<head>` 中，
+ * 并可选地将图标文件复制到构建输出目录。
  */
-class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
-	protected getDefaultOptions(): Partial<InjectIcoOptions> {
+class FaviconManagerPlugin extends BasePlugin<FaviconManagerOptions> {
+	protected getDefaultOptions(): Partial<FaviconManagerOptions> {
 		return {
 			base: '/'
 		}
@@ -33,7 +34,7 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 	}
 
 	protected getPluginName(): string {
-		return 'inject-ico'
+		return 'favicon-manager'
 	}
 
 	/**
@@ -74,15 +75,11 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 
 		const linkTag = this.options.link
 
-		// 使用正则表达式匹配 </head> 标签（不区分大小写，兼容各种格式）
-		const headCloseRegex = /<\/head>/i
-		const match = html.match(headCloseRegex)
-
-		if (match && match.index !== undefined) {
-			const modifiedHtml = html.slice(0, match.index) + linkTag + '\n' + html.slice(match.index)
+		const result = injectBeforeTag(html, '</head>', linkTag)
+		if (result.injected) {
 			this.logger.success('成功注入自定义图标标签到 HTML 文件')
 			this.logger.info(`  - ${linkTag}`)
-			return modifiedHtml
+			return result.html
 		}
 
 		this.logger.warn('未找到 </head> 标签，跳过图标注入')
@@ -158,21 +155,21 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
 }
 
 /**
- * 创建注入图标插件实例
+ * 网站图标管理插件
  *
- * @export
- * @param {string | InjectIcoOptions} [options] - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
- * @returns {Plugin} Vite 插件实例，用于在构建过程中注入图标链接到 HTML 文件
+ * @param options - 插件配置选项，可以是字符串形式的 base 路径或完整的配置对象
+ * @returns Vite 插件实例
+ *
  * @example
  * ```typescript
  * // 基本使用
- * injectIco() // 使用默认配置
+ * faviconManager() // 使用默认配置
  *
  * // 使用字符串配置 base 路径
- * injectIco('/assets')
+ * faviconManager('/assets')
  *
  * // 使用完整配置
- * injectIco({
+ * faviconManager({
  *   base: '/assets',
  *   icons: [
  *     { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
@@ -184,12 +181,15 @@ class InjectIcoPlugin extends BasePlugin<InjectIcoOptions> {
  *   }
  * })
  * ```
+ *
  * @remarks
- * 该函数创建并返回一个 Vite 插件实例，该实例会在构建过程中：
- * 1. 将图标链接注入到 HTML 文件的 `<head>` 标签中
+ * 该插件在构建过程中：
+ * 1. 将网站图标（favicon）的 link 标签注入到 HTML 文件的 `<head>` 中
  * 2. 如果配置了 copyOptions，将图标文件复制到目标目录
  *
  * 支持自定义图标链接、图标数组配置以及图标文件复制功能。
  */
-export const injectIco = createPluginFactory<InjectIcoOptions, InjectIcoPlugin, string | InjectIcoOptions>(InjectIcoPlugin, options => (typeof options === 'string' ? { base: options } : options || {}))
+export const faviconManager = createPluginFactory<FaviconManagerOptions, FaviconManagerPlugin, string | FaviconManagerOptions>(FaviconManagerPlugin, options =>
+	typeof options === 'string' ? { base: options } : options || {}
+)
 export * from './types'

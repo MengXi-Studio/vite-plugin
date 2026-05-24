@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { buildProgress, copyFile, generateRouter, generateVersion, injectIco, injectLoading } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
 import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
-import type { GenerateVersionOptions, InjectLoadingOptions } from '@meng-xi/vite-plugin'
+import type { GenerateVersionOptions, LoadingManagerOptions, VersionUpdateCheckerOptions } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -56,8 +56,25 @@ export default defineConfig({
 			}
 		}) as PluginWithInstance<GenerateVersionOptions>,
 
-		// 图标注入
-		injectIco({
+		// 版本更新检查器
+		versionUpdateChecker({
+			versionSource: 'auto',
+			defineName: '__APP_VERSION__',
+			checkUrl: '/version.json',
+			checkInterval: 60000,
+			checkOnVisibilityChange: true,
+			enableInDev: true,
+			promptStyle: 'modal',
+			promptMessage: '发现新版本，是否立即刷新获取最新内容？',
+			refreshButtonText: '立即刷新',
+			dismissButtonText: '稍后再说',
+			onUpdateAvailable: 'console.log("[VersionUpdate] 当前:", currentVersion, "最新:", newVersion); return true;',
+			onRefresh: 'console.log("[VersionUpdate] 用户选择刷新");',
+			onDismiss: 'console.log("[VersionUpdate] 用户选择忽略");'
+		}) as PluginWithInstance<VersionUpdateCheckerOptions>,
+
+		// 网站图标管理
+		faviconManager({
 			base: '/assets',
 			icons: [{ rel: 'icon', href: '/assets/favicon.ico', sizes: '32x32' }],
 			copyOptions: {
@@ -69,7 +86,7 @@ export default defineConfig({
 		}),
 
 		// 全局 Loading 状态管理
-		injectLoading({
+		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded',
 			position: 'center',
@@ -106,6 +123,6 @@ export default defineConfig({
 				onShow: 'console.log("[Loading] shown")',
 				onHide: 'console.log("[Loading] hidden")'
 			}
-		}) as PluginWithInstance<InjectLoadingOptions>
+		}) as PluginWithInstance<LoadingManagerOptions>
 	]
 })

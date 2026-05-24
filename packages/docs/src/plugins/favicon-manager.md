@@ -1,15 +1,15 @@
-# injectIco
+# faviconManager
 
-在 Vite 构建过程中将网站图标链接注入到 HTML 文件。
+管理网站图标（favicon）链接注入到 HTML 文件。
 
 ## 快速开始
 
 ```typescript
 import { defineConfig } from 'vite'
-import { injectIco } from '@meng-xi/vite-plugin'
+import { faviconManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [injectIco({ base: '/assets' })]
+	plugins: [faviconManager({ base: '/assets' })]
 })
 ```
 
@@ -17,7 +17,7 @@ export default defineConfig({
 
 ```typescript
 export default defineConfig({
-	plugins: [injectIco('/assets')]
+	plugins: [faviconManager('/assets')]
 })
 ```
 
@@ -52,7 +52,7 @@ export default defineConfig({
 ### 自定义图标数组
 
 ```typescript
-injectIco({
+faviconManager({
 	icons: [
 		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
 		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
@@ -64,7 +64,7 @@ injectIco({
 ### 完整 URL
 
 ```typescript
-injectIco({
+faviconManager({
 	url: 'https://example.com/favicon.ico'
 })
 ```
@@ -72,7 +72,7 @@ injectIco({
 ### 自定义 link 标签
 
 ```typescript
-injectIco({
+faviconManager({
 	link: '<link rel="icon" href="/custom.ico" type="image/x-icon">'
 })
 ```
@@ -80,7 +80,7 @@ injectIco({
 ### 带文件复制
 
 ```typescript
-injectIco({
+faviconManager({
 	base: '/assets',
 	copyOptions: {
 		sourceDir: 'src/assets/icons',
@@ -92,7 +92,7 @@ injectIco({
 ### 完整配置
 
 ```typescript
-injectIco({
+faviconManager({
 	base: '/assets',
 	enabled: true,
 	verbose: true,

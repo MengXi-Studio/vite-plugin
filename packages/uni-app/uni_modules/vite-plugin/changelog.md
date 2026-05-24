@@ -1,3 +1,84 @@
+## 0.1.0（2026-05-24）
+
+新增 versionUpdateChecker 版本更新检查插件，插件重命名（injectIco → faviconManager，injectLoading → loadingManager），新增通用工具模块
+
+### versionUpdateChecker（新增）
+
+运行时版本更新检查器，定期检查版本号变更并向用户显示刷新提示，通常与 `generateVersion` 插件配合使用。
+
+**功能特性**：
+
+- 三种版本来源：`define`（全局变量）、`file`（version.json）、`auto`（自动检测，优先 define 回退 file）
+- 三种提示 UI 样式：`modal`（居中弹窗）、`banner`（顶部横幅）、`toast`（底部轻提示）
+- 自定义提示模板：`customPromptTemplate` 支持占位符 `{{message}}`、`{{currentVersion}}`、`{{newVersion}}`、`{{refreshButton}}`、`{{dismissButton}}`
+- 自定义样式：`customStyle` 追加到内置样式之后
+- 页面可见性变化时立即检查：`checkOnVisibilityChange`，用户从其他标签页切回时触发
+- 开发模式控制：`enableInDev` 可选是否在开发环境启用
+- 生命周期回调：`onUpdateAvailable`、`onRefresh`、`onDismiss`，以函数体字符串形式提供
+- XSS 防护：`customPromptTemplate` 和回调字符串不允许包含 `<script>` 标签
+- 标识符安全：`defineName` 通过 `validateIdentifierName` 验证，防止原型污染
+- SSR 安全：注入的 JS 代码包含 `typeof window === 'undefined'` 检测
+- 销毁清理：清理定时器、DOM 元素、全局函数
+
+**配置选项**：
+
+| 选项                    | 类型                             | 默认值                                     | 描述                         |
+| ----------------------- | -------------------------------- | ------------------------------------------ | ---------------------------- |
+| versionSource           | `'define' \| 'file' \| 'auto'`   | `'auto'`                                   | 当前版本号的来源             |
+| defineName              | `string`                         | `'__APP_VERSION__'`                        | define 模式下的全局变量名    |
+| checkUrl                | `string`                         | `'/version.json'`                          | 版本检查文件的 URL 路径      |
+| checkInterval           | `number`                         | `300000`（5 分钟）                         | 版本检查间隔时间（毫秒）     |
+| checkOnVisibilityChange | `boolean`                        | `true`                                     | 页面可见性变化时是否立即检查 |
+| enableInDev             | `boolean`                        | `false`                                    | 是否在开发模式下启用         |
+| promptStyle             | `'modal' \| 'banner' \| 'toast'` | `'modal'`                                  | 更新提示 UI 样式             |
+| promptMessage           | `string`                         | `'发现新版本，是否立即刷新获取最新内容？'` | 更新提示消息文本             |
+| refreshButtonText       | `string`                         | `'立即刷新'`                               | 刷新按钮文本                 |
+| dismissButtonText       | `string`                         | `'稍后再说'`                               | 忽略按钮文本                 |
+| customPromptTemplate    | `string`                         | -                                          | 自定义提示 UI 的 HTML 模板   |
+| customStyle             | `string`                         | -                                          | 自定义样式字符串             |
+| onUpdateAvailable       | `string`                         | -                                          | 发现新版本时的回调           |
+| onRefresh               | `string`                         | -                                          | 用户选择刷新时的回调         |
+| onDismiss               | `string`                         | -                                          | 用户选择忽略时的回调         |
+
+### 插件重命名（Breaking Change）
+
+- `injectIco` → `faviconManager`：网站图标管理插件，功能不变，名称更准确地反映职责
+- `injectLoading` → `loadingManager`：全局 Loading 状态管理插件，功能不变，名称更准确地反映职责
+
+### faviconManager（增强）
+
+- 新增字符串简写配置：`faviconManager('/assets')` 等同于 `faviconManager({ base: '/assets' })`
+- `url` 选项描述修正：明确覆盖 `base + favicon.ico` 而非仅覆盖 `base`
+
+### loadingManager（增强）
+
+- 新增运行时 API：
+  - `toggle(text?)` — 切换 Loading 显示/隐藏状态
+  - `enablePointerEvents()` — 启用遮罩层指针事件，拦截所有点击和滚动操作
+  - `disablePointerEvents()` — 禁用遮罩层指针事件，允许交互穿透
+  - `togglePointerEvents()` — 切换遮罩层指针事件状态
+  - `isPointerEventsEnabled()` — 获取当前是否启用了指针事件
+
+### 通用工具函数（新增模块）
+
+**html 模块**（`@meng-xi/vite-plugin/common`）：
+
+- `injectBeforeTag(html, tag, code)` — 在 HTML 中指定闭合标签前注入代码，返回 `{ html, injected }` 结果对象
+- `injectHtmlByPriority(html, code, targets?)` — 按优先级向 HTML 中注入代码，默认依次尝试 `</head>`、`</body>`、`</html>`
+- `HtmlInjectResult` 类型 — 注入结果接口，包含 `html` 和 `injected` 字段
+
+**script 模块**（`@meng-xi/vite-plugin/common`）：
+
+- `makeCallback(body?, context?, params?)` — 将回调函数体字符串包装为安全的函数表达式（包含 try-catch 保护）
+- `containsScriptTag(str)` — 检测字符串是否包含 `<script>` 标签（XSS 防护）
+- `validateIdentifierName(name)` — 验证字符串是否为合法的 JavaScript 标识符，排除可能导致原型污染的内置属性
+
+### 子路径导出（增强）
+
+- `@meng-xi/vite-plugin/plugins` 新增导出类型：`VersionUpdateCheckerOptions`、`VersionSource`、`PromptStyle`、`FaviconManagerOptions`、`LoadingManagerOptions`、`LoadingManager`
+- `@meng-xi/vite-plugin/common` 新增导出类型：`HtmlInjectResult`
+- `@meng-xi/vite-plugin/common` 新增导出函数：`injectBeforeTag`、`injectHtmlByPriority`、`makeCallback`、`containsScriptTag`、`validateIdentifierName`
+
 ## 0.0.9（2026-05-23）
 
 修复 injectLoading 严重问题，新增 LoadingManager 运行时 API，优化插件开发框架

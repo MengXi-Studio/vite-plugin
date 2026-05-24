@@ -34,4 +34,6 @@ interface LoadingManager {
 
 interface Window {
 	__LOADING_MANAGER__: LoadingManager
+	__VUC_REFRESH__: () => void
+	__VUC_DISMISS__: () => void
 }
