@@ -1,5 +1,5 @@
 import type { HtmlInjectOptions, InjectRule, SecurityConfig } from '../types'
-import { containsScriptTag } from '@/common'
+import { containsScriptTag } from '@/common/script'
 
 /**
  * 默认阻止的 HTML 标签列表

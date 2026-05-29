@@ -2,7 +2,7 @@ import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { VersionUpdateCheckerOptions } from './types'
 import { generateFullInjectCode, generateMetaTag, validateAll } from './common'
-import { injectHeadAndBody } from '@/common'
+import { injectHeadAndBody } from '@/common/html'
 
 /**
  * 版本更新检查器插件类

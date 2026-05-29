@@ -1,6 +1,6 @@
 import type { LoadingManagerOptions, AutoHideOn } from '../types'
 import { ID_ROOT, ATTR_TEXT, CLS_HIDDEN, CLS_VISIBLE } from './constants'
-import { makeCallback } from '@/common'
+import { makeCallback } from '@/common/script'
 
 /**
  * 生成变量声明代码

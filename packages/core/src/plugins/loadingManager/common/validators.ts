@@ -1,5 +1,5 @@
 import type { LoadingCallbacks, LoadingStyle } from '../types'
-import { validateNonNegativeNumber, validateCallbackFields } from '@/common'
+import { validateNonNegativeNumber, validateCallbackFields } from '@/common/validation'
 
 /**
  * 验证样式配置的合法性

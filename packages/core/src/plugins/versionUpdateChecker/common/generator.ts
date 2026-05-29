@@ -1,5 +1,5 @@
 import type { VersionUpdateCheckerOptions, PromptStyle } from '../types'
-import { makeCallback } from '@/common'
+import { makeCallback } from '@/common/script'
 
 /**
  * 生成内置 CSS 样式

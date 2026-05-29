@@ -1,5 +1,5 @@
 import type { VersionUpdateCheckerOptions } from '../types'
-import { validateNoScriptInTemplate, validateCallbackFields, validateGlobalName } from '@/common'
+import { validateNoScriptInTemplate, validateCallbackFields, validateGlobalName } from '@/common/validation'
 
 /**
  * 验证回调字符串不包含 script 标签

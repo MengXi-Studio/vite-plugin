@@ -1,7 +1,8 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateVersionOptions } from './types'
-import { generateRandomHash, getDateFormatParams, parseTemplate, writeFileContent } from '@/common'
+import { generateRandomHash, getDateFormatParams, parseTemplate } from '@/common/format'
+import { writeFileContent } from '@/common/fs'
 import { join } from 'path'
 
 /**

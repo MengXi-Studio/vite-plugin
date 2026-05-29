@@ -25,6 +25,36 @@
 			"import": "./dist/common/index.mjs",
 			"types": "./dist/common/index.d.ts"
 		},
+		"./common/format": {
+			"require": "./dist/common/format/index.cjs",
+			"import": "./dist/common/format/index.mjs",
+			"types": "./dist/common/format/index.d.ts"
+		},
+		"./common/fs": {
+			"require": "./dist/common/fs/index.cjs",
+			"import": "./dist/common/fs/index.mjs",
+			"types": "./dist/common/fs/index.d.ts"
+		},
+		"./common/html": {
+			"require": "./dist/common/html/index.cjs",
+			"import": "./dist/common/html/index.mjs",
+			"types": "./dist/common/html/index.d.ts"
+		},
+		"./common/object": {
+			"require": "./dist/common/object/index.cjs",
+			"import": "./dist/common/object/index.mjs",
+			"types": "./dist/common/object/index.d.ts"
+		},
+		"./common/script": {
+			"require": "./dist/common/script/index.cjs",
+			"import": "./dist/common/script/index.mjs",
+			"types": "./dist/common/script/index.d.ts"
+		},
+		"./common/validation": {
+			"require": "./dist/common/validation/index.cjs",
+			"import": "./dist/common/validation/index.mjs",
+			"types": "./dist/common/validation/index.d.ts"
+		},
 		"./factory": {
 			"require": "./dist/factory/index.cjs",
 			"import": "./dist/factory/index.mjs",
@@ -39,6 +69,46 @@
 			"require": "./dist/plugins/index.cjs",
 			"import": "./dist/plugins/index.mjs",
 			"types": "./dist/plugins/index.d.ts"
+		},
+		"./plugins/build-progress": {
+			"require": "./dist/plugins/buildProgress/index.cjs",
+			"import": "./dist/plugins/buildProgress/index.mjs",
+			"types": "./dist/plugins/buildProgress/index.d.ts"
+		},
+		"./plugins/copy-file": {
+			"require": "./dist/plugins/copyFile/index.cjs",
+			"import": "./dist/plugins/copyFile/index.mjs",
+			"types": "./dist/plugins/copyFile/index.d.ts"
+		},
+		"./plugins/favicon-manager": {
+			"require": "./dist/plugins/faviconManager/index.cjs",
+			"import": "./dist/plugins/faviconManager/index.mjs",
+			"types": "./dist/plugins/faviconManager/index.d.ts"
+		},
+		"./plugins/generate-router": {
+			"require": "./dist/plugins/generateRouter/index.cjs",
+			"import": "./dist/plugins/generateRouter/index.mjs",
+			"types": "./dist/plugins/generateRouter/index.d.ts"
+		},
+		"./plugins/generate-version": {
+			"require": "./dist/plugins/generateVersion/index.cjs",
+			"import": "./dist/plugins/generateVersion/index.mjs",
+			"types": "./dist/plugins/generateVersion/index.d.ts"
+		},
+		"./plugins/html-inject": {
+			"require": "./dist/plugins/htmlInject/index.cjs",
+			"import": "./dist/plugins/htmlInject/index.mjs",
+			"types": "./dist/plugins/htmlInject/index.d.ts"
+		},
+		"./plugins/loading-manager": {
+			"require": "./dist/plugins/loadingManager/index.cjs",
+			"import": "./dist/plugins/loadingManager/index.mjs",
+			"types": "./dist/plugins/loadingManager/index.d.ts"
+		},
+		"./plugins/version-update-checker": {
+			"require": "./dist/plugins/versionUpdateChecker/index.cjs",
+			"import": "./dist/plugins/versionUpdateChecker/index.mjs",
+			"types": "./dist/plugins/versionUpdateChecker/index.d.ts"
 		}
 	},
 	"files": [

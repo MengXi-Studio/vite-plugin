@@ -1,4 +1,4 @@
-import { containsScriptTag, validateIdentifierName } from './script'
+import { containsScriptTag, validateIdentifierName } from '../script'
 
 /**
  * 验证全局变量名的合法性（包装 validateIdentifierName，附加字段上下文信息）

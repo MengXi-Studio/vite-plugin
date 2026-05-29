@@ -2,6 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import type { CopyOptions, CopyResult } from './type'
 
+export type { CopyOptions, CopyResult } from './type'
+
 /**
  * 默认并发限制数
  */

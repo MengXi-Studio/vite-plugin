@@ -2,7 +2,8 @@ import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { LoadingManagerOptions } from './types'
 import { generateCSS, generateHTMLTemplate, generateLoadingManagerCode, validateStyle, validateTransition, validateCallbacks, validateDefaultText, validateAutoHideOn } from './common'
-import { injectHeadAndBody, validateNoScriptInTemplate, validateGlobalName, validateNestedDuration } from '@/common'
+import { injectHeadAndBody } from '@/common/html'
+import { validateNoScriptInTemplate, validateGlobalName, validateNestedDuration } from '@/common/validation'
 
 /**
  * 全局 Loading 状态管理插件类

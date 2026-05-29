@@ -2,7 +2,9 @@ import type { Plugin, HtmlTagDescriptor } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { FaviconManagerOptions } from './types'
 import { generateIconTagDescriptors } from './common'
-import { checkSourceExists, copySourceToTarget, Validator, injectBeforeTag } from '@/common'
+import { checkSourceExists, copySourceToTarget } from '@/common/fs'
+import { Validator } from '@/common/validation'
+import { injectBeforeTag } from '@/common/html'
 
 /**
  * 网站图标管理插件类，用于管理 favicon 及其他图标链接的注入和文件复制

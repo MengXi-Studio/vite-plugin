@@ -2,7 +2,8 @@ import type { ResolvedConfig, Plugin } from 'vite'
 import type { BasePluginOptions, PluginFactory, OptionsNormalizer, PluginWithInstance } from './types'
 import { Logger, type PluginLogger } from '@/logger'
 import type { LoggerOptions } from '@/logger/types'
-import { deepMerge, Validator } from '@/common'
+import { deepMerge } from '@/common/object'
+import { Validator } from '@/common/validation'
 
 /**
  * 基础插件抽象类，提供插件开发的核心功能和生命周期管理

@@ -1,6 +1,6 @@
 import type { LoadingPosition, LoadingStyle, SpinnerType, TransitionConfig } from '../types'
 import { CLS_OVERLAY, CLS_HIDDEN, CLS_VISIBLE, CLS_TOP, CLS_CENTER, CLS_BOTTOM, CLS_SPINNER, CLS_TEXT, CLS_DOT, ID_ROOT, ATTR_TEXT, ANIM_SPIN, ANIM_DOTS, ANIM_PULSE, ANIM_BAR, POSITION_CLASS_MAP } from './constants'
-import { escapeHtmlAttr } from '@/common'
+import { escapeHtmlAttr } from '@/common/format'
 
 /**
  * 生成 Loading CSS 样式

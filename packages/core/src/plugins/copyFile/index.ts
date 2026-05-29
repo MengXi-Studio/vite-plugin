@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { CopyFileOptions } from './types'
-import { checkSourceExists, copySourceToTarget } from '@/common'
+import { checkSourceExists, copySourceToTarget } from '@/common/fs'
 
 /**
  * 复制文件插件类，用于在构建过程中复制文件

@@ -1,7 +1,8 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig, UniAppPageConfig, RouteMeta } from './types'
-import { writeFileContent, readFileContent, toCamelCase, toPascalCase, stripJsonComments } from '@/common'
+import { writeFileContent, readFileContent } from '@/common/fs'
+import { toCamelCase, toPascalCase, stripJsonComments } from '@/common/format'
 import { resolve } from 'path'
 import { existsSync, watch as fsWatch } from 'fs'
 
