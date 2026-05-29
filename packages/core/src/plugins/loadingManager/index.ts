@@ -1,20 +1,8 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { LoadingManagerOptions } from './types'
-import {
-	generateCSS,
-	generateHTMLTemplate,
-	generateLoadingManagerCode,
-	validateStyle,
-	validateNestedConfig,
-	validateTransition,
-	validateCallbacks,
-	validateCustomTemplate,
-	validateDefaultText,
-	validateGlobalName,
-	validateAutoHideOn
-} from './common'
-import { injectBeforeTag } from '@/common'
+import { generateCSS, generateHTMLTemplate, generateLoadingManagerCode, validateStyle, validateTransition, validateCallbacks, validateDefaultText, validateAutoHideOn } from './common'
+import { injectHeadAndBody, validateNoScriptInTemplate, validateGlobalName, validateNestedDuration } from '@/common'
 
 /**
  * 全局 Loading 状态管理插件类
@@ -89,7 +77,7 @@ class LoadingManagerPlugin extends BasePlugin<LoadingManagerOptions> {
 	 * - `defaultVisible` — 必须为布尔值
 	 * - `autoHideOn` — 必须为 `'DOMContentLoaded'` | `'load'` | `'manual'`
 	 * - `style` — 通过 {@link validateStyle} 验证
-	 * - `minDisplayTime` / `delayShow` / `debounceHide` — 通过 {@link validateNestedConfig} 验证
+	 * - `minDisplayTime` / `delayShow` / `debounceHide` — 通过 {@link validateNestedDuration} 验证
 	 * - `transition` — 通过 {@link validateTransition} 验证
 	 * - `callbacks` — 通过 {@link validateCallbacks} 验证
 	 *
@@ -100,13 +88,13 @@ class LoadingManagerPlugin extends BasePlugin<LoadingManagerOptions> {
 	protected validateOptions(): void {
 		this.validator
 			.field('position')
-			.custom(val => !val || ['center', 'top', 'bottom'].includes(val), 'position 必须是 center, top 或 bottom')
+			.enum(['center', 'top', 'bottom'])
 			.field('defaultText')
 			.string()
 			.field('spinnerType')
-			.custom(val => !val || ['spinner', 'dots', 'pulse', 'bar'].includes(val), 'spinnerType 必须是 spinner, dots, pulse 或 bar')
+			.enum(['spinner', 'dots', 'pulse', 'bar'])
 			.field('autoBind')
-			.custom(val => !val || ['fetch', 'xhr', 'all', 'none'].includes(val), 'autoBind 必须是 fetch, xhr, all 或 none')
+			.enum(['fetch', 'xhr', 'all', 'none'])
 			.field('globalName')
 			.string()
 			.field('customTemplate')
@@ -114,17 +102,17 @@ class LoadingManagerPlugin extends BasePlugin<LoadingManagerOptions> {
 			.field('defaultVisible')
 			.boolean()
 			.field('autoHideOn')
-			.custom(val => !val || ['DOMContentLoaded', 'load', 'manual'].includes(val), 'autoHideOn 必须是 DOMContentLoaded, load 或 manual')
+			.enum(['DOMContentLoaded', 'load', 'manual'])
 			.validate()
 
-		validateCustomTemplate(this.options.customTemplate)
+		validateNoScriptInTemplate(this.options.customTemplate, 'customTemplate')
 		const textWarning = validateDefaultText(this.options.defaultText)
 		if (textWarning) this.logger.warn(textWarning)
-		validateGlobalName(this.options.globalName)
+		validateGlobalName(this.options.globalName, 'globalName')
 		validateStyle(this.options.style)
-		validateNestedConfig(this.options.minDisplayTime, 'minDisplayTime.duration 必须是非负数')
-		validateNestedConfig(this.options.delayShow, 'delayShow.duration 必须是非负数')
-		validateNestedConfig(this.options.debounceHide, 'debounceHide.duration 必须是非负数')
+		validateNestedDuration(this.options.minDisplayTime, 'minDisplayTime.duration 必须是非负数')
+		validateNestedDuration(this.options.delayShow, 'delayShow.duration 必须是非负数')
+		validateNestedDuration(this.options.debounceHide, 'debounceHide.duration 必须是非负数')
 		validateTransition(this.options.transition)
 		validateCallbacks(this.options.callbacks)
 		const autoHideWarning = validateAutoHideOn(this.options.defaultVisible, this.options.autoHideOn)
@@ -263,42 +251,24 @@ ${js}
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		const defaultVisible = this.options.defaultVisible || false
-		const headCode = defaultVisible ? this.generateHeadInjectCode() : ''
+		const headCode = defaultVisible ? this.generateHeadInjectCode() : undefined
 		const bodyCode = this.generateBodyInjectCode(defaultVisible)
 
 		plugin.transformIndexHtml = {
 			order: 'post',
 			handler: (html: string) => {
-				let result = html
+				const result = injectHeadAndBody(html, headCode, bodyCode)
 
-				// 当 defaultVisible 为 true 时，将 CSS+HTML 注入到 </head> 前
-				if (headCode) {
-					const headResult = injectBeforeTag(result, '</head>', headCode)
-					if (headResult.injected) {
-						result = headResult.html
-					} else {
-						// 无 </head> 标签，回退到 body 注入
-						this.logger.warn('未找到 </head> 标签，defaultVisible 的白屏 loading 将无法生效')
-					}
+				if (headCode && !result.headInjected) {
+					this.logger.warn('未找到 </head> 标签，defaultVisible 的白屏 loading 将无法生效')
 				}
-
-				// JS 管理器注入到 </body> 前
-				const bodyResult = injectBeforeTag(result, '</body>', bodyCode)
-				if (bodyResult.injected) {
+				if (result.usedFallback) {
+					this.logger.warn('未找到 </body> 或 </html> 标签，Loading 代码追加到文件末尾')
+				}
+				if (result.bodyInjected) {
 					this.logger.success('成功注入全局 Loading 状态管理代码到 HTML 文件')
-					return bodyResult.html
 				}
-
-				// 如果没有 </body>，在 </html> 前注入
-				const htmlResult = injectBeforeTag(result, '</html>', bodyCode)
-				if (htmlResult.injected) {
-					this.logger.success('成功注入全局 Loading 状态管理代码到 HTML 文件')
-					return htmlResult.html
-				}
-
-				// 如果既没有 </body> 也没有 </html>，追加到末尾
-				this.logger.warn('未找到 </body> 或 </html> 标签，Loading 代码追加到文件末尾')
-				return result + bodyCode
+				return result.html
 			}
 		}
 	}

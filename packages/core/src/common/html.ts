@@ -63,3 +63,96 @@ export function injectHtmlByPriority(html: string, code: string, targets: string
 	// 所有标签均未找到，追加到末尾
 	return { html: html + code, injected: true }
 }
+
+/**
+ * 带回退策略的 HTML 注入
+ *
+ * @description 依次尝试在 `</body>`、`</html>` 前注入代码，
+ * 如果均未找到目标标签，则将代码追加到 HTML 末尾。
+ * 适用于需要注入到页面底部但不确定 HTML 结构是否完整的场景。
+ *
+ * @param html - 原始 HTML 内容
+ * @param code - 要注入的代码
+ * @param fallbackMessage - 回退到末尾时的警告信息，为空则不输出警告
+ * @returns 注入结果对象，包含注入后的 HTML、是否成功标志和是否使用了回退策略
+ *
+ * @example
+ * ```typescript
+ * // 注入 JS 脚本到页面底部
+ * const result = injectBeforeTagWithFallback(html, '<script>...</script>')
+ *
+ * // 带自定义警告信息
+ * const result = injectBeforeTagWithFallback(html, scriptCode, '未找到 </body> 标签，代码追加到文件末尾')
+ * ```
+ */
+export function injectBeforeTagWithFallback(html: string, code: string, _fallbackMessage?: string): HtmlInjectResult & { usedFallback: boolean } {
+	const bodyResult = injectBeforeTag(html, '</body>', code)
+	if (bodyResult.injected) {
+		return { ...bodyResult, usedFallback: false }
+	}
+
+	const htmlResult = injectBeforeTag(html, '</html>', code)
+	if (htmlResult.injected) {
+		return { ...htmlResult, usedFallback: false }
+	}
+
+	return { html: html + code, injected: true, usedFallback: true }
+}
+
+/**
+ * 双区域 HTML 注入结果
+ */
+export interface DualInjectResult {
+	/** 注入后的 HTML 内容 */
+	html: string
+	/** head 区域是否成功注入 */
+	headInjected: boolean
+	/** body 区域是否成功注入 */
+	bodyInjected: boolean
+	/** body 注入是否使用了回退策略（追加到末尾） */
+	usedFallback: boolean
+}
+
+/**
+ * 双区域 HTML 注入（head + body）
+ *
+ * @description 将代码分别注入到 HTML 的 `</head>` 前和 `</body>` 前（带回退策略）。
+ * 这是插件中常见的注入模式：CSS/HTML 注入到 head，JS 注入到 body。
+ *
+ * @param html - 原始 HTML 内容
+ * @param headCode - 注入到 `</head>` 前的代码（如 CSS、meta 标签），不提供则跳过 head 注入
+ * @param bodyCode - 注入到 `</body>` 前的代码（如 JS 脚本），回退到 `</html>` 前或末尾
+ * @returns 双区域注入结果对象
+ *
+ * @example
+ * ```typescript
+ * // CSS 注入到 head，JS 注入到 body
+ * const result = injectHeadAndBody(html, '<style>...</style>', '<script>...</script>')
+ * if (!result.headInjected) logger.warn('未找到 </head> 标签')
+ * if (result.usedFallback) logger.warn('代码追加到文件末尾')
+ *
+ * // 仅注入到 body
+ * const result = injectHeadAndBody(html, undefined, '<script>...</script>')
+ * ```
+ */
+export function injectHeadAndBody(html: string, headCode: string | undefined, bodyCode: string): DualInjectResult {
+	let result = html
+	let headInjected = false
+
+	if (headCode) {
+		const headResult = injectBeforeTag(result, '</head>', headCode)
+		if (headResult.injected) {
+			result = headResult.html
+			headInjected = true
+		}
+	}
+
+	const bodyResult = injectBeforeTagWithFallback(result, bodyCode)
+
+	return {
+		html: bodyResult.html,
+		headInjected,
+		bodyInjected: bodyResult.injected,
+		usedFallback: bodyResult.usedFallback
+	}
+}

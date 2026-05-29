@@ -109,9 +109,9 @@ class BuildProgressPlugin extends BasePlugin<BuildProgressOptions> {
 		this.validator
 			.field('width')
 			.number()
-			.custom(val => !val || val > 0, 'width 必须大于 0')
+			.minValue(1)
 			.field('format')
-			.custom(val => !val || ['bar', 'spinner', 'minimal'].includes(val), 'format 必须是 bar, spinner 或 minimal')
+			.enum(['bar', 'spinner', 'minimal'])
 			.field('completeChar')
 			.string()
 			.field('incompleteChar')

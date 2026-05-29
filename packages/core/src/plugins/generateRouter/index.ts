@@ -46,16 +46,7 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	}
 
 	protected validateOptions(): void {
-		this.validator
-			.field('pagesJsonPath')
-			.string()
-			.field('outputPath')
-			.string()
-			.field('outputFormat')
-			.custom(val => !val || ['ts', 'js'].includes(val), 'outputFormat 必须是 ts 或 js')
-			.field('nameStrategy')
-			.custom(val => !val || ['path', 'camelCase', 'pascalCase', 'custom'].includes(val), 'nameStrategy 必须是 path, camelCase, pascalCase 或 custom')
-			.validate()
+		this.validator.field('pagesJsonPath').string().field('outputPath').string().field('outputFormat').enum(['ts', 'js']).field('nameStrategy').enum(['path', 'camelCase', 'pascalCase', 'custom']).validate()
 
 		// 如果使用自定义策略，必须提供生成函数
 		if (this.options.nameStrategy === 'custom' && !this.options.customNameGenerator) {

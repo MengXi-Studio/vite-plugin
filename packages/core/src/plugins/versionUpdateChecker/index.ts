@@ -2,7 +2,7 @@ import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { VersionUpdateCheckerOptions } from './types'
 import { generateFullInjectCode, generateMetaTag, validateAll } from './common'
-import { injectBeforeTag } from '@/common'
+import { injectHeadAndBody } from '@/common'
 
 /**
  * 版本更新检查器插件类
@@ -29,14 +29,7 @@ class VersionUpdateCheckerPlugin extends BasePlugin<VersionUpdateCheckerOptions>
 	}
 
 	protected validateOptions(): void {
-		this.validator
-			.field('versionSource')
-			.custom(val => !val || ['define', 'file', 'auto'].includes(val), 'versionSource 必须是 define, file 或 auto')
-			.field('promptStyle')
-			.custom(val => !val || ['modal', 'banner', 'toast'].includes(val), 'promptStyle 必须是 modal, banner 或 toast')
-			.field('checkInterval')
-			.custom(val => !val || (typeof val === 'number' && val >= 5000), 'checkInterval 必须是大于等于 5000 的数字（毫秒）')
-			.validate()
+		this.validator.field('versionSource').enum(['define', 'file', 'auto']).field('promptStyle').enum(['modal', 'banner', 'toast']).field('checkInterval').number().minValue(5000).validate()
 
 		// 执行安全验证
 		validateAll(this.options)
@@ -53,33 +46,15 @@ class VersionUpdateCheckerPlugin extends BasePlugin<VersionUpdateCheckerOptions>
 		plugin.transformIndexHtml = {
 			order: 'post',
 			handler: (html: string) => {
-				let result = html
+				const result = injectHeadAndBody(html, metaTag, injectCode)
 
-				// file/auto 模式下，注入 meta 标签到 </head> 前
-				if (metaTag) {
-					const headResult = injectBeforeTag(result, '</head>', metaTag)
-					if (headResult.injected) {
-						result = headResult.html
-					}
+				if (result.usedFallback) {
+					this.logger.warn('未找到 </body> 或 </html> 标签，版本更新检查代码追加到文件末尾')
 				}
-
-				// 注入到 </body> 前
-				const bodyResult = injectBeforeTag(result, '</body>', injectCode)
-				if (bodyResult.injected) {
+				if (result.bodyInjected) {
 					this.logger.success('成功注入版本更新检查代码到 HTML 文件')
-					return bodyResult.html
 				}
-
-				// 如果没有 </body>，在 </html> 前注入
-				const htmlResult = injectBeforeTag(result, '</html>', injectCode)
-				if (htmlResult.injected) {
-					this.logger.success('成功注入版本更新检查代码到 HTML 文件')
-					return htmlResult.html
-				}
-
-				// 如果既没有 </body> 也没有 </html>，追加到末尾
-				this.logger.warn('未找到 </body> 或 </html> 标签，版本更新检查代码追加到文件末尾')
-				return result + injectCode
+				return result.html
 			}
 		}
 	}

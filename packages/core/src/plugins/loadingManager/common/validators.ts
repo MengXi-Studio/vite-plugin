@@ -1,5 +1,5 @@
 import type { LoadingCallbacks, LoadingStyle } from '../types'
-import { containsScriptTag, validateIdentifierName } from '@/common'
+import { validateNonNegativeNumber, validateCallbackFields } from '@/common'
 
 /**
  * 验证样式配置的合法性
@@ -12,28 +12,11 @@ import { containsScriptTag, validateIdentifierName } from '@/common'
 export function validateStyle(style?: LoadingStyle): void {
 	if (!style) return
 	const { zIndex, pointerEvents, backdropBlurAmount } = style
-	if (zIndex !== undefined && (typeof zIndex !== 'number' || zIndex < 0)) {
-		throw new Error('style.zIndex 必须是非负数')
-	}
+	validateNonNegativeNumber(zIndex, 'style.zIndex')
 	if (pointerEvents !== undefined && typeof pointerEvents !== 'boolean') {
 		throw new Error('style.pointerEvents 必须是布尔值')
 	}
-	if (backdropBlurAmount !== undefined && (typeof backdropBlurAmount !== 'number' || backdropBlurAmount < 0)) {
-		throw new Error('style.backdropBlurAmount 必须是非负数')
-	}
-}
-
-/**
- * 验证嵌套配置项的 duration 合法性
- *
- * @param config - 嵌套配置对象（minDisplayTime / delayShow / debounceHide）
- * @param errorMsg - 验证失败时的错误提示信息
- * @throws 当 `duration` 为非数字或负数时抛出指定错误信息
- */
-export function validateNestedConfig(config: { enabled?: boolean; duration?: number } | undefined, errorMsg: string): void {
-	if (config?.duration !== undefined && (typeof config.duration !== 'number' || config.duration < 0)) {
-		throw new Error(errorMsg)
-	}
+	validateNonNegativeNumber(backdropBlurAmount, 'style.backdropBlurAmount')
 }
 
 /**
@@ -46,9 +29,7 @@ export function validateNestedConfig(config: { enabled?: boolean; duration?: num
 export function validateTransition(transition?: { enabled?: boolean; duration?: number; easing?: string }): void {
 	if (!transition) return
 	const { duration, easing } = transition
-	if (duration !== undefined && (typeof duration !== 'number' || duration < 0)) {
-		throw new Error('transition.duration 必须是非负数')
-	}
+	validateNonNegativeNumber(duration, 'transition.duration')
 	if (easing !== undefined && typeof easing !== 'string') {
 		throw new Error('transition.easing 必须是字符串类型')
 	}
@@ -66,46 +47,7 @@ export function validateTransition(transition?: { enabled?: boolean; duration?: 
 export function validateCallbacks(callbacks?: LoadingCallbacks): void {
 	if (!callbacks) return
 	const callbackFields: (keyof LoadingCallbacks)[] = ['onBeforeShow', 'onShow', 'onBeforeHide', 'onHide', 'onDestroy']
-	for (const field of callbackFields) {
-		if (callbacks[field] !== undefined && typeof callbacks[field] !== 'string') {
-			throw new Error(`callbacks.${field} 必须是字符串类型`)
-		}
-		if (callbacks[field] && containsScriptTag(callbacks[field]!)) {
-			throw new Error(`callbacks.${field} 不允许包含 <script> 标签`)
-		}
-	}
-}
-
-/**
- * 验证自定义模板的安全性
- *
- * @param customTemplate - 自定义 HTML 模板字符串
- * @throws 当模板包含 `<script>` 标签时抛出错误
- */
-export function validateCustomTemplate(customTemplate?: string): void {
-	if (!customTemplate) return
-	if (containsScriptTag(customTemplate)) {
-		throw new Error('customTemplate 不允许包含 <script> 标签，请使用 callbacks 配置回调逻辑')
-	}
-}
-
-/**
- * 验证 globalName 的合法性
- *
- * @remarks globalName 将作为 `window[globalName]` 的属性名，
- * 必须是合法的 JavaScript 标识符，防止原型污染（如 `__proto__`、`constructor`）
- *
- * @param name - 全局变量名
- * @throws 当名称不是合法标识符时抛出错误
- * @throws 当名称为 JavaScript 内置属性时抛出错误
- */
-export function validateGlobalName(name?: string): void {
-	if (!name) return
-	try {
-		validateIdentifierName(name)
-	} catch (e) {
-		throw new Error(`globalName ${(e as Error).message}`)
-	}
+	validateCallbackFields(callbacks, callbackFields as string[], 'callbacks')
 }
 
 /**

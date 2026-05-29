@@ -199,3 +199,22 @@ export function toPascalCase(str: string, separators: RegExp = /[/-]/): string {
 export function stripJsonComments(jsonString: string): string {
 	return jsonString.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '')
 }
+
+/**
+ * 转义 HTML 属性值中的特殊字符，防止 XSS 注入
+ *
+ * @param str - 需要转义的字符串
+ * @returns 转义后的安全字符串
+ *
+ * @example
+ * ```typescript
+ * escapeHtmlAttr('hello "world"')
+ * // 'hello &quot;world&quot;'
+ *
+ * escapeHtmlAttr('<script>alert(1)</script>')
+ * // '&lt;script&gt;alert(1)&lt;/script&gt;'
+ * ```
+ */
+export function escapeHtmlAttr(str: string): string {
+	return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}

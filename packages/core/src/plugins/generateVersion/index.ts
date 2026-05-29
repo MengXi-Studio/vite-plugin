@@ -36,15 +36,7 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 	}
 
 	protected validateOptions(): void {
-		this.validator
-			.field('format')
-			.custom(val => !val || ['timestamp', 'date', 'datetime', 'semver', 'hash', 'custom'].includes(val), 'format 必须是 timestamp, date, datetime, semver, hash 或 custom')
-			.field('outputType')
-			.custom(val => !val || ['file', 'define', 'both'].includes(val), 'outputType 必须是 file, define 或 both')
-			.field('hashLength')
-			.number()
-			.custom(val => !val || (val > 0 && val <= 32), 'hashLength 必须在 1-32 之间')
-			.validate()
+		this.validator.field('format').enum(['timestamp', 'date', 'datetime', 'semver', 'hash', 'custom']).field('outputType').enum(['file', 'define', 'both']).field('hashLength').number().minValue(1).maxValue(32).validate()
 
 		// 如果使用自定义格式，必须提供模板
 		if (this.options.format === 'custom' && !this.options.customFormat) {
