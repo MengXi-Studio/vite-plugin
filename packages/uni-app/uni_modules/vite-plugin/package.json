@@ -1,7 +1,7 @@
 {
 	"id": "vite-plugin",
 	"displayName": "vite-plugin",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "一个为 Vite 提供实用插件的工具包，同时也是一个完整的插件开发框架",
 	"keywords": [
         "@meng-xi/vite-plugin",
@@ -13,8 +13,8 @@
 	"repository": "https://github.com/MengXi-Studio/vite-plugin",
 	"engines": {
 		"HBuilderX": "^3.1.0",
-		"uni-app": "^3.7.7",
-		"uni-app-x": "^3.7.7"
+		"uni-app": "^3.7.8",
+		"uni-app-x": "^3.7.8"
 	},
 	"dcloudext": {
 		"type": "sdk-js",
