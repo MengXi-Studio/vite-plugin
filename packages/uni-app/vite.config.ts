@@ -1,21 +1,23 @@
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import { buildProgress, copyFile, generateVersion, generateRouter, faviconManager, loadingManager, versionUpdateChecker } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, copyFile, generateVersion, generateRouter, faviconManager, loadingManager, versionUpdateChecker, htmlInject } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import type { PluginWithInstance } from './uni_modules/vite-plugin/js_sdk/factory/index.js'
+import type { GenerateVersionOptions } from './uni_modules/vite-plugin/js_sdk/plugins/generateVersion/index.js'
+import type { LoadingManagerOptions } from './uni_modules/vite-plugin/js_sdk/plugins/loadingManager/index.js'
+import type { VersionUpdateCheckerOptions } from './uni_modules/vite-plugin/js_sdk/plugins/versionUpdateChecker/index.js'
+import type { HtmlInjectOptions } from './uni_modules/vite-plugin/js_sdk/plugins/htmlInject/index.js'
 import { resolve } from 'node:path'
 
 export default defineConfig(config => {
 	const viteEnv = loadEnv(config.mode, process.cwd())
 
-	/** 是否为 H5 平台 */
 	const isH5 = process.env.UNI_PLATFORM === 'h5'
-	/** 是否为生产环境 */
 	const isProd = viteEnv.VITE_USER_NODE_ENV === 'production'
 
 	return {
 		plugins: [
 			uni(),
 
-			// 构建进度条
 			buildProgress({
 				format: 'bar',
 				width: 30,
@@ -23,10 +25,9 @@ export default defineConfig(config => {
 				showModuleName: true
 			}),
 
-			// 根据 pages.json 自动生成路由配置
 			generateRouter({
 				pagesJsonPath: 'pages.json',
-				outputPath: 'src/router.config.ts',
+				outputPath: 'router.config.ts',
 				outputFormat: 'ts',
 				nameStrategy: 'camelCase',
 				watch: true,
@@ -39,7 +40,6 @@ export default defineConfig(config => {
 				}
 			}),
 
-			// 版本号生成（仅 H5 生产环境）
 			generateVersion({
 				format: 'custom',
 				customFormat: '{YYYY}.{MM}.{DD}-{hash}',
@@ -53,9 +53,44 @@ export default defineConfig(config => {
 					environment: isProd ? 'production' : 'development',
 					author: 'MengXi Studio'
 				}
-			}),
+			}) as PluginWithInstance<GenerateVersionOptions>,
 
-			// 网站图标管理（仅 H5 生产环境）
+			htmlInject({
+				rules: [
+					{
+						id: 'meta-description',
+						content: '<meta name="description" content="{{appName}} - 基于 Vite 的 uni-app 插件功能验证项目">',
+						position: 'head-end',
+						priority: 10,
+						templateVars: { appName: 'MengXi Studio' }
+					},
+					{
+						id: 'meta-keywords',
+						content: '<meta name="keywords" content="uni-app, vite-plugin, mengxi-studio">',
+						position: 'head-end',
+						priority: 20
+					},
+					{
+						id: 'theme-color',
+						content: '<meta name="theme-color" content="#007aff">',
+						position: 'head-end',
+						priority: 30
+					},
+					{
+						id: 'apple-mobile-web-app',
+						content: '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">',
+						position: 'head-end',
+						priority: 40
+					}
+				],
+				security: {
+					blockDangerousTags: true,
+					blockDangerousAttributes: true
+				},
+				logInjection: true,
+				enabled: isH5
+			}) as PluginWithInstance<HtmlInjectOptions>,
+
 			faviconManager({
 				base: viteEnv.VITE_BASE_URL,
 				enabled: isH5 && isProd,
@@ -67,7 +102,6 @@ export default defineConfig(config => {
 				}
 			}),
 
-			// 文件复制（仅 H5 生产环境）
 			copyFile({
 				sourceDir: resolve('public'),
 				targetDir: resolve('dist/build/h5'),
@@ -77,7 +111,6 @@ export default defineConfig(config => {
 				enabled: isH5 && isProd
 			}),
 
-			// 全局 Loading 状态管理（仅 H5 平台）
 			loadingManager({
 				defaultVisible: true,
 				autoHideOn: 'DOMContentLoaded',
@@ -116,9 +149,8 @@ export default defineConfig(config => {
 					onHide: 'console.log("[Loading] hidden")'
 				},
 				enabled: isH5
-			}),
+			}) as PluginWithInstance<LoadingManagerOptions>,
 
-			// 版本更新检查（仅 H5 生产环境）
 			versionUpdateChecker({
 				versionSource: 'auto',
 				defineName: '__APP_VERSION__',
@@ -134,7 +166,7 @@ export default defineConfig(config => {
 				onRefresh: 'console.log("[VersionUpdate] 用户选择刷新")',
 				onDismiss: 'console.log("[VersionUpdate] 用户选择忽略")',
 				enabled: isH5 && isProd
-			})
+			}) as PluginWithInstance<VersionUpdateCheckerOptions>
 		]
 	}
 })

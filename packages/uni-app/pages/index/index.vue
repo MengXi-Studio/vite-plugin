@@ -70,9 +70,11 @@ export default {
 				{ name: 'buildProgress - 构建进度条', passed: false },
 				{ name: 'generateRouter - 路由生成', passed: false },
 				{ name: 'generateVersion - 版本生成', passed: false },
+				{ name: 'htmlInject - HTML 注入', passed: false },
 				{ name: 'faviconManager - 网站图标管理', passed: false },
 				{ name: 'copyFile - 文件复制', passed: false },
-				{ name: 'loadingManager - 全局 Loading', passed: false }
+				{ name: 'loadingManager - 全局 Loading', passed: false },
+				{ name: 'versionUpdateChecker - 版本更新检查', passed: false }
 			]
 		}
 	},
@@ -100,38 +102,33 @@ export default {
 			}
 		},
 		runTests() {
-			// buildProgress: 构建成功即通过
 			this.testList[0].passed = true
 
-			// generateRouter: 检查路由配置文件是否存在
 			// #ifdef H5
 			this.testList[1].passed = true
 			// #endif
 
-			// generateVersion: 验证全局变量已注入
 			this.testList[2].passed = !!this.appVersion && this.appVersion !== 'dev'
 
-			// faviconManager: 验证 link 标签已注入
 			// #ifdef H5
-			const linkEl = document.querySelector('link[rel="icon"]')
-			this.testList[3].passed = !!linkEl
-			// #endif
+			const metaDesc = document.querySelector('meta[name="description"]')
+			this.testList[3].passed = !!metaDesc
 
-			// copyFile: 验证静态文件已复制
-			// #ifdef H5
+			const linkEl = document.querySelector('link[rel="icon"]')
+			this.testList[4].passed = !!linkEl
+
 			fetch('/static/logo.png', { method: 'HEAD' })
 				.then(res => {
-					this.testList[4].passed = res.ok
+					this.testList[5].passed = res.ok
 				})
 				.catch(() => {
-					this.testList[4].passed = false
+					this.testList[5].passed = false
 				})
-			// #endif
 
-			// loadingManager: 验证 LoadingManager 已注入
-			// #ifdef H5
 			const manager = window.__LOADING_MANAGER__
-			this.testList[5].passed = !!manager && typeof manager.show === 'function'
+			this.testList[6].passed = !!manager && typeof manager.show === 'function'
+
+			this.testList[7].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
 			// #endif
 		},
 		showLoading() {
