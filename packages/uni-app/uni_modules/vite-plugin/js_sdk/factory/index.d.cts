@@ -1,6 +1,6 @@
 import { Plugin, ResolvedConfig } from 'vite';
 import { P as PluginLogger, a as LoggerOptions } from '../shared/vite-plugin.CLr0ttuO.cjs';
-import { V as Validator } from '../shared/vite-plugin.CiHfwMiN.cjs';
+import { V as Validator } from '../shared/vite-plugin.DRRlWY8P.cjs';
 
 /**
  * 带插件实例引用的 Vite 插件类型

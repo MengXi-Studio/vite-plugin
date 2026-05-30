@@ -15,7 +15,8 @@
 
 ## Features
 
-- **Ready to Use** - Provides 7 practical plugins covering build progress display, file copying, router generation, version management, version update checking, icon injection, and global Loading state management
+- **Ready to Use** - Provides 8 practical plugins covering build progress display, file copying, router generation, version management, version update checking, HTML injection, icon injection, and global Loading state
+  management
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, Validator for building custom Vite plugins
 - **Complete Lifecycle** - Supports initialization, config resolution, destroy lifecycle management with automatic hook composition
 - **Type Safe** - Complete TypeScript type definitions with configuration validators ensuring parameter correctness
@@ -46,7 +47,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, versionUpdateChecker, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -73,6 +74,17 @@ export default defineConfig({
 
 		// Version update checker (works with generateVersion)
 		versionUpdateChecker(),
+
+		// HTML content injection
+		htmlInject({
+			rules: [
+				{
+					id: 'meta-description',
+					content: '<meta name="description" content="My App">',
+					position: 'head-end'
+				}
+			]
+		}),
 
 		// Inject website icon (supports string shorthand)
 		faviconManager('/assets'),
@@ -102,15 +114,16 @@ console.log(routerPlugin.pluginInstance?.options)
 
 ## Built-in Plugins
 
-| Plugin               | Description                                                                              |
-| -------------------- | ---------------------------------------------------------------------------------------- |
-| buildProgress        | Real-time build progress bar in terminal, supports bar / spinner / minimal               |
-| copyFile             | Copy files or directories after build, supports incremental copying                      |
-| generateRouter       | Auto-generate router config from pages.json (uni-app)                                    |
-| generateVersion      | Auto-generate version numbers, supports file output and global variable injection        |
-| versionUpdateChecker | Runtime version update checking with multiple prompt styles and custom callbacks         |
-| faviconManager       | Manage website favicon links injection into HTML files, supports string shorthand config |
-| loadingManager       | Global Loading state management with request interception and white-screen Loading       |
+| Plugin               | Description                                                                                                       |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| buildProgress        | Real-time build progress bar in terminal, supports bar / spinner / minimal                                        |
+| copyFile             | Copy files or directories after build, supports incremental copying                                               |
+| generateRouter       | Auto-generate router config from pages.json (uni-app)                                                             |
+| generateVersion      | Auto-generate version numbers, supports file output and global variable injection                                 |
+| versionUpdateChecker | Runtime version update checking with multiple prompt styles and custom callbacks                                  |
+| htmlInject           | HTML content injection with multiple positions, conditional injection, template variables, and security filtering |
+| faviconManager       | Manage website favicon links injection into HTML files, supports string shorthand config                          |
+| loadingManager       | Global Loading state management with request interception and white-screen Loading                                |
 
 ### buildProgress
 
@@ -381,6 +394,99 @@ versionUpdateChecker({
 versionUpdateChecker({ enableInDev: true })
 ```
 
+### htmlInject
+
+Inject HTML content into target files during Vite build based on configured rules, supporting multiple injection positions, conditional injection, template variable replacement, and security filtering.
+
+**Injection positions:**
+
+| Position           | Description                                |
+| ------------------ | ------------------------------------------ |
+| `head-start`       | Inject after the `<head>` tag              |
+| `head-end`         | Inject before the `</head>` tag            |
+| `body-start`       | Inject after the `<body>` tag              |
+| `body-end`         | Inject before the `</body>` tag            |
+| `before-selector`  | Inject before the selector-matched content |
+| `after-selector`   | Inject after the selector-matched content  |
+| `replace-selector` | Replace the selector-matched content       |
+
+| Option       | Type                     | Default        | Description                       |
+| ------------ | ------------------------ | -------------- | --------------------------------- |
+| targetFile   | `string`                 | `'index.html'` | Target HTML file path or filename |
+| rules        | `InjectRule[]`           | -              | Injection rules array (required)  |
+| security     | `SecurityConfig`         | -              | Security filtering configuration  |
+| templateVars | `Record<string, string>` | -              | Global template variables         |
+| logInjection | `boolean`                | `true`         | Whether to output injection logs  |
+
+**InjectRule**
+
+| Property             | Type                     | Default    | Description                                              |
+| -------------------- | ------------------------ | ---------- | -------------------------------------------------------- |
+| id                   | `string`                 | -          | Unique rule identifier for logging and debugging         |
+| content              | `string`                 | -          | HTML content to inject (required)                        |
+| position             | `InjectPosition`         | -          | Injection position (required)                            |
+| selector             | `string`                 | -          | Selector string (required for selector positions)        |
+| selectorMatch        | `'string'` \| `'regex'`  | `'string'` | Selector match mode                                      |
+| priority             | `number`                 | `100`      | Priority, lower values execute first                     |
+| condition            | `InjectCondition`        | -          | Injection condition                                      |
+| templateVars         | `Record<string, string>` | -          | Rule-level template variables (override global)          |
+| allowScriptInjection | `boolean`                | `false`    | Whether to allow injecting scripts and dangerous content |
+
+**InjectCondition**
+
+| Property | Type                                        | Default | Description                            |
+| -------- | ------------------------------------------- | ------- | -------------------------------------- |
+| type     | `'env'` \| `'file-contains'` \| `'custom'`  | -       | Condition type (required)              |
+| value    | `string` \| `((...args: any[]) => boolean)` | -       | Condition value (required)             |
+| negate   | `boolean`                                   | `false` | Whether to negate the condition result |
+
+**SecurityConfig**
+
+| Property                 | Type       | Default | Description                           |
+| ------------------------ | ---------- | ------- | ------------------------------------- |
+| blockDangerousTags       | `boolean`  | `true`  | Whether to block dangerous tags       |
+| blockDangerousAttributes | `boolean`  | `true`  | Whether to block dangerous attributes |
+| allowedTags              | `string[]` | -       | Whitelist of allowed tags             |
+| blockedTags              | `string[]` | -       | Custom blocked tags list              |
+| blockedAttributes        | `string[]` | -       | Custom blocked attributes list        |
+
+```typescript
+// Basic usage
+htmlInject({
+	rules: [{ id: 'meta-desc', content: '<meta name="description" content="My App">', position: 'head-end' }]
+})
+
+// Conditional injection (production only)
+htmlInject({
+	rules: [
+		{
+			id: 'analytics',
+			content: '<script src="/analytics.js"></script>',
+			position: 'body-end',
+			condition: { type: 'env', value: 'PRODUCTION' },
+			allowScriptInjection: true
+		}
+	]
+})
+
+// Template variable replacement
+htmlInject({
+	templateVars: { appName: 'My App', version: '1.0.0' },
+	rules: [{ id: 'meta', content: '<meta name="description" content="{{appName}}">', position: 'head-end' }]
+})
+
+// Selector injection
+htmlInject({
+	rules: [{ id: 'replace-title', content: '<title>New Title</title>', position: 'replace-selector', selector: '<title>.*</title>', selectorMatch: 'regex' }]
+})
+
+// Security configuration
+htmlInject({
+	security: { blockDangerousTags: true, allowedTags: ['iframe'] },
+	rules: [{ id: 'embed', content: '<iframe src="https://example.com"></iframe>', position: 'body-end' }]
+})
+```
+
 ### faviconManager
 
 Inject website icon links into the head of HTML files during the Vite build process. Supports string shorthand config.
@@ -604,30 +710,40 @@ window.__LOADING_MANAGER__.disablePointerEvents()
 Exported via `@meng-xi/vite-plugin/common`, reusable in custom plugins:
 
 ```typescript
-import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from '@meng-xi/vite-plugin/common'
-import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common'
-import { injectBeforeTag, injectHtmlByPriority } from '@meng-xi/vite-plugin/common'
-import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common'
+import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, escapeHtmlAttr, Validator } from '@meng-xi/vite-plugin/common'
+import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common/fs'
+import { injectBeforeTag, injectHtmlByPriority, injectBeforeTagWithFallback, injectHeadAndBody } from '@meng-xi/vite-plugin/common/html'
+import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common/script'
+import { validateGlobalName, validateNoScriptInTemplate, validateCallbackFields, validateNonNegativeNumber, validateNestedDuration, validateEnumValue } from '@meng-xi/vite-plugin/common/validation'
 ```
 
-| Function                   | Description                                                                   |
-| -------------------------- | ----------------------------------------------------------------------------- |
-| `deepMerge()`              | Deep merge objects (undefined skipped, arrays overwritten)                    |
-| `formatDate()`             | Format date with `{YYYY}`, `{MM}`, `{DD}` etc. placeholders                   |
-| `parseTemplate()`          | Parse template string, replace placeholders                                   |
-| `toCamelCase()`            | Convert to camelCase                                                          |
-| `toPascalCase()`           | Convert to PascalCase                                                         |
-| `stripJsonComments()`      | Remove comments from JSON string                                              |
-| `generateRandomHash()`     | Generate random hash string (1-64 characters)                                 |
-| `readFileContent()`        | Async read file content                                                       |
-| `writeFileContent()`       | Async write file content                                                      |
-| `fileExists()`             | Async check if file exists                                                    |
-| `copySourceToTarget()`     | Copy files or directories with incremental copy and concurrency               |
-| `injectBeforeTag()`        | Inject code before a specified closing HTML tag                               |
-| `injectHtmlByPriority()`   | Inject code into HTML by priority (`</head>` → `</body>` → `</html>`)         |
-| `makeCallback()`           | Wrap callback function body as safe function expression (with try-catch)      |
-| `containsScriptTag()`      | Detect if a string contains `<script>` tags                                   |
-| `validateIdentifierName()` | Validate string as a legal JavaScript identifier, prevent prototype pollution |
+| Function                        | Description                                                                   | Sub-path            |
+| ------------------------------- | ----------------------------------------------------------------------------- | ------------------- |
+| `deepMerge()`                   | Deep merge objects (undefined skipped, arrays overwritten)                    | `common/object`     |
+| `formatDate()`                  | Format date with `{YYYY}`, `{MM}`, `{DD}` etc. placeholders                   | `common/format`     |
+| `parseTemplate()`               | Parse template string, replace placeholders                                   | `common/format`     |
+| `toCamelCase()`                 | Convert to camelCase                                                          | `common/format`     |
+| `toPascalCase()`                | Convert to PascalCase                                                         | `common/format`     |
+| `stripJsonComments()`           | Remove comments from JSON string                                              | `common/format`     |
+| `generateRandomHash()`          | Generate random hash string (1-64 characters)                                 | `common/format`     |
+| `escapeHtmlAttr()`              | Escape special characters in HTML attribute values, prevent XSS injection     | `common/format`     |
+| `readFileContent()`             | Async read file content                                                       | `common/fs`         |
+| `writeFileContent()`            | Async write file content                                                      | `common/fs`         |
+| `fileExists()`                  | Async check if file exists                                                    | `common/fs`         |
+| `copySourceToTarget()`          | Copy files or directories with incremental copy and concurrency               | `common/fs`         |
+| `injectBeforeTag()`             | Inject code before a specified closing HTML tag                               | `common/html`       |
+| `injectHtmlByPriority()`        | Inject code into HTML by priority (`</head>` → `</body>` → `</html>`)         | `common/html`       |
+| `injectBeforeTagWithFallback()` | Inject with fallback strategy (`</body>` → `</html>` → append)                | `common/html`       |
+| `injectHeadAndBody()`           | Dual-zone HTML injection (head + body)                                        | `common/html`       |
+| `makeCallback()`                | Wrap callback function body as safe function expression (with try-catch)      | `common/script`     |
+| `containsScriptTag()`           | Detect if a string contains `<script>` tags                                   | `common/script`     |
+| `validateIdentifierName()`      | Validate string as a legal JavaScript identifier, prevent prototype pollution | `common/script`     |
+| `validateGlobalName()`          | Validate global variable name legality                                        | `common/validation` |
+| `validateNoScriptInTemplate()`  | Validate template string does not contain script tags (XSS protection)        | `common/validation` |
+| `validateCallbackFields()`      | Validate callback fields do not contain script tags                           | `common/validation` |
+| `validateNonNegativeNumber()`   | Validate number is non-negative                                               | `common/validation` |
+| `validateNestedDuration()`      | Validate nested config duration legality                                      | `common/validation` |
+| `validateEnumValue()`           | Validate string value is in allowed enum list                                 | `common/validation` |
 
 ## Plugin Development Framework
 
@@ -745,18 +861,21 @@ validator
 	.validate()
 ```
 
-| Method       | Description                                                     |
-| ------------ | --------------------------------------------------------------- |
-| `field()`    | Specify the field to validate                                   |
-| `required()` | Mark field as required                                          |
-| `string()`   | Validate field value is a string type                           |
-| `boolean()`  | Validate field value is a boolean type                          |
-| `number()`   | Validate field value is a number type                           |
-| `array()`    | Validate field value is an array type                           |
-| `object()`   | Validate field value is an object type                          |
-| `default()`  | Set default value for field (only when value is undefined/null) |
-| `custom()`   | Validate field value with a custom function                     |
-| `validate()` | Execute validation, throws error on failure                     |
+| Method       | Description                                                       |
+| ------------ | ----------------------------------------------------------------- |
+| `field()`    | Specify the field to validate                                     |
+| `required()` | Mark field as required                                            |
+| `string()`   | Validate field value is a string type                             |
+| `boolean()`  | Validate field value is a boolean type                            |
+| `number()`   | Validate field value is a number type                             |
+| `array()`    | Validate field value is an array type                             |
+| `object()`   | Validate field value is an object type                            |
+| `enum()`     | Validate field value is in allowed enum list                      |
+| `minValue()` | Validate number field value is not less than specified minimum    |
+| `maxValue()` | Validate number field value is not greater than specified maximum |
+| `default()`  | Set default value for field (only when value is undefined/null)   |
+| `custom()`   | Validate field value with a custom function                       |
+| `validate()` | Execute validation, throws error on failure                       |
 
 ### Logger
 
@@ -834,18 +953,20 @@ Support importing modules on demand to reduce bundle size:
 
 ```typescript
 // Full import
-import { buildProgress, copyFile, loadingManager, BasePlugin, Logger } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, htmlInject, loadingManager, BasePlugin, Logger } from '@meng-xi/vite-plugin'
 
 // Module-level import
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
 import { Logger } from '@meng-xi/vite-plugin/logger'
-import { buildProgress, copyFile, generateRouter, loadingManager } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter, htmlInject, loadingManager } from '@meng-xi/vite-plugin/plugins'
 import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plugin/common'
 
 // Type imports (on-demand type definitions from sub-paths)
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, VersionUpdateCheckerOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
-import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
+import type { BuildProgressOptions, GenerateVersionOptions, VersionUpdateCheckerOptions, HtmlInjectOptions, InjectRule, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
+import type { HtmlInjectResult, DualInjectResult } from '@meng-xi/vite-plugin/common/html'
+import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common/fs'
 ```
 
 ## Changelog

@@ -1,3 +1,95 @@
+## 0.1.1（2026-05-30）
+
+新增 htmlInject HTML 内容注入插件，新增通用工具函数和类型，Validator 新增枚举和数值范围验证
+
+### htmlInject（新增）
+
+HTML 内容注入插件，根据配置规则将自定义 HTML 内容注入到目标 HTML 文件中，支持多种注入位置、条件注入、模板变量替换和安全过滤。
+
+**功能特性**：
+
+- 7 种注入位置：`head-start`、`head-end`、`body-start`、`body-end`、`before-selector`、`after-selector`、`replace-selector`
+- 条件注入：支持 `env`（环境变量）、`file-contains`（文件内容检测）、`custom`（自定义函数）三种条件类型，支持 `negate` 取反
+- 选择器匹配：支持 `string`（字符串精确匹配）和 `regex`（正则表达式匹配）两种模式
+- 模板变量替换：全局 `templateVars` + 规则级 `templateVars`，使用 `{{变量名}}` 语法，规则级变量优先级高于全局
+- 规则优先级：`priority` 数值越小越先执行，默认 100
+- 安全过滤：`SecurityConfig` 支持阻止危险标签（script、iframe、object 等）和危险属性（onclick、onerror 等事件处理器），支持白名单 `allowedTags` 和自定义阻止列表
+- 脚本注入控制：`allowScriptInjection` 允许跳过安全检查，但输出警告日志
+- 注入日志：`logInjection` 记录每条规则的执行结果，`getInjectionLogs()` 可获取日志副本
+- 目标文件匹配：`targetFile` 支持文件名和相对路径匹配，默认匹配 `index.html`
+- 注入时机：`transformIndexHtml` 钩子 `order: 'post'`，确保在其他插件之后执行
+
+**配置选项**：
+
+| 选项         | 类型                     | 默认值         | 描述                       |
+| ------------ | ------------------------ | -------------- | -------------------------- |
+| targetFile   | `string`                 | `'index.html'` | 目标 HTML 文件路径或文件名 |
+| rules        | `InjectRule[]`           | -（必填）      | 注入规则数组               |
+| security     | `SecurityConfig`         | -              | 安全配置                   |
+| templateVars | `Record<string, string>` | -              | 全局模板变量               |
+| logInjection | `boolean`                | `true`         | 是否在控制台输出注入日志   |
+
+**InjectRule 接口**：
+
+| 字段                 | 类型                     | 默认值     | 描述                              |
+| -------------------- | ------------------------ | ---------- | --------------------------------- |
+| id                   | `string`                 | -          | 规则唯一标识符                    |
+| content              | `string`                 | -（必填）  | 要注入的 HTML 内容                |
+| position             | `InjectPosition`         | -（必填）  | 注入位置                          |
+| selector             | `string`                 | -          | 选择器（selector 相关位置时必填） |
+| selectorMatch        | `'string' \| 'regex'`    | `'string'` | 选择器匹配模式                    |
+| priority             | `number`                 | `100`      | 规则优先级，数值越小越先执行      |
+| condition            | `InjectCondition`        | -          | 注入条件                          |
+| templateVars         | `Record<string, string>` | -          | 规则级模板变量（覆盖全局）        |
+| allowScriptInjection | `boolean`                | `false`    | 是否允许注入脚本等危险内容        |
+
+**SecurityConfig 接口**：
+
+| 字段                     | 类型       | 默认值 | 描述                 |
+| ------------------------ | ---------- | ------ | -------------------- |
+| blockDangerousTags       | `boolean`  | `true` | 是否阻止危险标签     |
+| blockDangerousAttributes | `boolean`  | `true` | 是否阻止危险属性     |
+| allowedTags              | `string[]` | -      | 允许通过的标签白名单 |
+| blockedTags              | `string[]` | -      | 自定义阻止标签列表   |
+| blockedAttributes        | `string[]` | -      | 自定义阻止属性列表   |
+
+### 通用工具函数（新增）
+
+**format 模块**（`@meng-xi/vite-plugin/common`）：
+
+- `escapeHtmlAttr(str)` — 转义 HTML 属性值中的特殊字符（`&`、`"`、`<`、`>`），防止 XSS 注入
+- `padNumber(num, length)` — 数字补零格式化（如 `padNumber(5, 2)` → `'05'`）
+- `getDateFormatParams(date)` — 获取日期格式化参数对象，新增 `{SSS}` 三位毫秒占位符
+
+**html 模块**（`@meng-xi/vite-plugin/common`）：
+
+- `injectBeforeTagWithFallback(html, code, fallbackMessage?)` — 带回退策略的 HTML 注入，依次尝试 `</body>` → `</html>` → 末尾追加，返回 `HtmlInjectResult & { usedFallback: boolean }`
+- `injectHeadAndBody(html, headCode, bodyCode)` — 双区域 HTML 注入（head + body），返回 `DualInjectResult`
+- `DualInjectResult` 类型 — 双区域注入结果接口，包含 `html`、`headInjected`、`bodyInjected`、`usedFallback` 字段
+
+**validation 模块**（`@meng-xi/vite-plugin/common`，新增模块）：
+
+- `validateGlobalName(name, fieldName)` — 验证全局变量名的合法性（包装 `validateIdentifierName`，附加字段上下文信息）
+- `validateNoScriptInTemplate(template, fieldName)` — 验证模板字符串不包含 script 标签（XSS 防护）
+- `validateCallbackFields(callbacks, fields, objectName)` — 验证回调字段不包含 script 标签
+- `validateNonNegativeNumber(value, fieldName)` — 验证数值为非负数
+- `validateNestedDuration(config, errorMsg)` — 验证嵌套配置项的 duration 合法性
+- `validateEnumValue(value, allowedValues, fieldName)` — 验证字符串值是否在允许的枚举列表中
+
+### Validator（增强）
+
+- 新增 `enum(allowedValues)` 方法 — 验证字段值是否在允许的枚举列表中
+- 新增 `minValue(min)` 方法 — 验证数字字段值是否不小于指定最小值
+- 新增 `maxValue(max)` 方法 — 验证数字字段值是否不大于指定最大值
+
+### 子路径导出（增强）
+
+- `@meng-xi/vite-plugin/plugins` 新增导出类型：`HtmlInjectOptions`、`InjectRule`、`InjectPosition`、`InjectCondition`、`ConditionType`、`SecurityConfig`、`InjectionLogEntry`、`SelectorMatch`
+- `@meng-xi/vite-plugin/plugins` 新增导出函数：`htmlInject`
+- `@meng-xi/vite-plugin/common` 新增导出类型：`DualInjectResult`
+- `@meng-xi/vite-plugin/common`
+  新增导出函数：`injectBeforeTagWithFallback`、`injectHeadAndBody`、`escapeHtmlAttr`、`padNumber`、`getDateFormatParams`、`validateGlobalName`、`validateNoScriptInTemplate`、`validateCallbackFields`、`validateNonNegativeNumber`、`validateNestedDuration`、`validateEnumValue`
+
 ## 0.1.0（2026-05-24）
 
 新增 versionUpdateChecker 版本更新检查插件，插件重命名（injectIco → faviconManager，injectLoading → loadingManager），新增通用工具模块

@@ -24,7 +24,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -54,10 +54,26 @@ export default defineConfig({
 			base: '/assets'
 		}),
 
+		// HTML content injection
+		htmlInject({
+			rules: [
+				{
+					id: 'meta-description',
+					content: '<meta name="description" content="My App">',
+					position: 'head-end'
+				}
+			]
+		}),
+
 		// Global Loading state management
 		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
+		}),
+
+		// Version update checker
+		versionUpdateChecker({
+			checkInterval: 300000
 		})
 	]
 })
@@ -101,7 +117,9 @@ export const myPlugin = createPluginFactory(MyPlugin)
 
 - [buildProgress](/en/plugins/build-progress) - Build progress display
 - [copyFile](/en/plugins/copy-file) - File copying
+- [faviconManager](/en/plugins/favicon-manager) - Favicon management
 - [generateRouter](/en/plugins/generate-router) - Router generation
 - [generateVersion](/en/plugins/generate-version) - Version management
-- [faviconManager](/en/plugins/favicon-manager) - Favicon management
+- [htmlInject](/en/plugins/html-inject) - HTML content injection
 - [loadingManager](/en/plugins/loading-manager) - Global Loading state management
+- [versionUpdateChecker](/en/plugins/version-update-checker) - Version update detection

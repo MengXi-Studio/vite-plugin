@@ -24,7 +24,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -54,10 +54,26 @@ export default defineConfig({
 			base: '/assets'
 		}),
 
+		// HTML 内容注入
+		htmlInject({
+			rules: [
+				{
+					id: 'meta-description',
+					content: '<meta name="description" content="My App">',
+					position: 'head-end'
+				}
+			]
+		}),
+
 		// 全局 Loading 状态管理
 		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
+		}),
+
+		// 版本更新检测
+		versionUpdateChecker({
+			checkInterval: 300000
 		})
 	]
 })
@@ -101,7 +117,9 @@ export const myPlugin = createPluginFactory(MyPlugin)
 
 - [buildProgress](/plugins/build-progress) - 构建进度展示
 - [copyFile](/plugins/copy-file) - 文件复制
+- [faviconManager](/plugins/favicon-manager) - 网站图标管理
 - [generateRouter](/plugins/generate-router) - 路由生成
 - [generateVersion](/plugins/generate-version) - 版本管理
-- [faviconManager](/plugins/favicon-manager) - 网站图标管理
+- [htmlInject](/plugins/html-inject) - HTML 内容注入
 - [loadingManager](/plugins/loading-manager) - 全局 Loading 状态管理
+- [versionUpdateChecker](/plugins/version-update-checker) - 版本更新检测

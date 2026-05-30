@@ -2,6 +2,17 @@
 
 在 Vite 构建完成后复制文件或目录到指定位置。
 
+## 导入方式
+
+```typescript
+// 子模块独立导入（推荐）
+import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
+import type { CopyFileOptions } from '@meng-xi/vite-plugin/plugins/copy-file'
+
+// barrel 导入
+import { copyFile } from '@meng-xi/vite-plugin'
+```
+
 ## 快速开始
 
 ```typescript

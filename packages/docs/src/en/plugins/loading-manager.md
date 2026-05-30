@@ -2,6 +2,16 @@
 
 Global Loading state management plugin. Injects Loading state management code during Vite build. Supports automatic fetch/XHR request interception, multiple built-in spinner types, custom styles, and lifecycle callbacks.
 
+## Import Methods
+
+```typescript
+// Submodule import (recommended)
+import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
+
+// Barrel import
+import { loadingManager } from '@meng-xi/vite-plugin'
+```
+
 ## Quick Start
 
 ```typescript

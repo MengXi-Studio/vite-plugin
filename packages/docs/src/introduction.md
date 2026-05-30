@@ -4,16 +4,18 @@
 
 ## 内置插件
 
-开箱即用的六款插件，覆盖常见构建场景：
+开箱即用的八款插件，覆盖常见构建场景：
 
-| 插件                                         | 功能                                                  |
-| -------------------------------------------- | ----------------------------------------------------- |
-| [buildProgress](/plugins/build-progress)     | 在终端实时显示构建进度条，支持三种显示格式            |
-| [copyFile](/plugins/copy-file)               | 构建完成后复制文件或目录到指定位置，支持增量复制      |
-| [generateRouter](/plugins/generate-router)   | 根据 uni-app 的 pages.json 自动生成路由配置           |
-| [generateVersion](/plugins/generate-version) | 自动生成版本号，支持文件输出和全局变量注入            |
-| [faviconManager](/plugins/favicon-manager)             | 管理网站图标（favicon）链接注入到 HTML 文件                        |
-| [loadingManager](/plugins/loading-manager)     | 全局 Loading 状态管理，支持请求拦截和白屏 Loading |
+| 插件                                                    | 功能                                              |
+| ------------------------------------------------------- | ------------------------------------------------- |
+| [buildProgress](/plugins/build-progress)                | 在终端实时显示构建进度条，支持三种显示格式        |
+| [copyFile](/plugins/copy-file)                          | 构建完成后复制文件或目录到指定位置，支持增量复制  |
+| [faviconManager](/plugins/favicon-manager)              | 管理网站图标（favicon）链接注入到 HTML 文件       |
+| [generateRouter](/plugins/generate-router)              | 根据 uni-app 的 pages.json 自动生成路由配置       |
+| [generateVersion](/plugins/generate-version)            | 自动生成版本号，支持文件输出和全局变量注入        |
+| [htmlInject](/plugins/html-inject)                      | HTML 内容注入，支持多种位置和条件注入             |
+| [loadingManager](/plugins/loading-manager)              | 全局 Loading 状态管理，支持请求拦截和白屏 Loading |
+| [versionUpdateChecker](/plugins/version-update-checker) | 运行时版本更新检查，发现新版本时提示用户刷新      |
 
 ## 插件开发框架
 
@@ -47,12 +49,14 @@ interface BasePluginOptions {
 
 - **文件系统**：readFileContent、writeFileContent、copySourceToTarget、readDirRecursive 等
 - **格式化**：formatDate、parseTemplate、generateRandomHash、padNumber 等
-- **对象处理**：deepMerge、toCamelCase、toPascalCase、stripJsonComments 等
+- **对象处理**：deepMerge、toCamelCase、toPascalCase、stripJsonComments、escapeHtmlAttr 等
 
 ## 下一步
 
 - [安装使用](/installation) - 快速开始
 - [buildProgress](/plugins/build-progress) - 构建进度展示
+- [htmlInject](/plugins/html-inject) - HTML 内容注入
 - [loadingManager](/plugins/loading-manager) - 全局 Loading 状态管理
+- [versionUpdateChecker](/plugins/version-update-checker) - 版本更新检测
 - [插件工厂](/factory/index) - 开发自定义插件
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) - 查看源码和示例

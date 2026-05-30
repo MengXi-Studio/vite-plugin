@@ -2,9 +2,17 @@
 
 Object handling utilities.
 
+## Import Methods
+
 ```typescript
+// Submodule import (recommended)
+import { deepMerge } from '@meng-xi/vite-plugin/common/object'
+
+// Barrel import
 import { deepMerge } from '@meng-xi/vite-plugin/common'
 ```
+
+---
 
 ## deepMerge
 

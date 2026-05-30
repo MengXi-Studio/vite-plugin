@@ -3,23 +3,38 @@
 [![license](https://img.shields.io/github/license/MengXi-Studio/vite-plugin.svg)](LICENSE) [![npm](https://img.shields.io/npm/v/@meng-xi/vite-plugin?color=blue)](https://www.npmjs.com/package/@meng-xi/vite-plugin)
 ![npm](https://img.shields.io/npm/dt/@meng-xi/vite-plugin?color=green)
 
-为 Vite 提供实用插件与插件开发框架的工具包。
+为 Vite 提供实用插件与插件开发框架的工具包（uni-app 版本）。
 
 ## 特性
 
-- **开箱即用** - 提供 7 个实用插件，覆盖构建进度展示、文件复制、路由生成、版本管理、图标注入、全局 Loading 状态管理、版本更新检查等常见场景
+- **开箱即用** - 提供 8 个实用插件，覆盖构建进度展示、文件复制、路由生成、版本管理、版本更新检查、HTML 注入、图标注入、全局 Loading 状态管理等常见场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建符合规范的自定义 Vite 插件
 - **完整生命周期** - 支持初始化、配置解析、销毁等生命周期管理，自动组合钩子逻辑
 - **类型安全** - 完整的 TypeScript 类型定义，配置验证器确保参数正确性
 - **灵活配置** - 所有插件支持详细配置，满足多样化场景需求
 - **安全执行** - 内置错误处理策略（throw / log / ignore），统一异常管理
 - **按需导入** - 支持子路径导出，减少打包体积
+- **uni-app 适配** - 通过 uni_modules 方式集成，兼容 HBuilderX 和 CLI 两种开发模式
 
 ## 文档
 
 完整文档：[https://mengxi-studio.github.io/vite-plugin/](https://mengxi-studio.github.io/vite-plugin/)
 
 ## 安装
+
+### 方式一：uni_modules（推荐）
+
+将 `vite-plugin` 目录复制到项目的 `uni_modules` 目录下即可：
+
+```
+src/
+  └── uni_modules/
+        └── vite-plugin/
+              └── js_sdk/
+                    └── index.mjs
+```
+
+### 方式二：npm
 
 ```bash
 # npm
@@ -32,13 +47,15 @@ yarn add @meng-xi/vite-plugin -D
 pnpm add @meng-xi/vite-plugin -D
 ```
 
+> 使用 npm 方式安装时，需自行调整导入路径为 `@meng-xi/vite-plugin`。
+
 ## 快速开始
 
 ### 使用内置插件
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, loadingManager, versionUpdateChecker } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 
 export default defineConfig({
 	plugins: [
@@ -63,6 +80,20 @@ export default defineConfig({
 			outputType: 'both'
 		}),
 
+		// 版本更新检查（配合 generateVersion 使用）
+		versionUpdateChecker(),
+
+		// HTML 内容注入
+		htmlInject({
+			rules: [
+				{
+					id: 'meta-description',
+					content: '<meta name="description" content="My App">',
+					position: 'head-end'
+				}
+			]
+		}),
+
 		// 注入网站图标（支持字符串简写）
 		faviconManager('/assets'),
 
@@ -70,12 +101,6 @@ export default defineConfig({
 		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
-		}),
-
-		// 版本更新检查
-		versionUpdateChecker({
-			versionSource: 'auto',
-			checkUrl: '/version.json'
 		})
 	]
 })
@@ -95,61 +120,18 @@ const routerPlugin = generateRouter({ watch: true }) as PluginWithInstance<Gener
 console.log(routerPlugin.pluginInstance?.options)
 ```
 
-### 开发自定义插件
-
-```typescript
-import { BasePlugin, createPluginFactory } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
-import type { BasePluginOptions, PluginWithInstance } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
-import type { Plugin } from 'vite'
-
-interface MyPluginOptions extends BasePluginOptions {
-	path: string
-}
-
-class MyPlugin extends BasePlugin<MyPluginOptions> {
-	protected getDefaultOptions() {
-		return { path: './default' }
-	}
-
-	protected validateOptions(): void {
-		this.validator.field('path').required().string().validate()
-	}
-
-	protected getPluginName(): string {
-		return 'my-plugin'
-	}
-
-	protected addPluginHooks(plugin: Plugin): void {
-		plugin.buildStart = () => {
-			this.logger.info(`Plugin started with path: ${this.options.path}`)
-		}
-	}
-
-	protected destroy(): void {
-		super.destroy()
-		// 自定义清理逻辑，如关闭连接、停止监听等
-	}
-}
-
-// 基本使用
-export const myPlugin = createPluginFactory(MyPlugin)
-
-// 带标准化器（支持字符串简写配置）
-export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
-// 使用时支持简写：myPluginWithNormalizer('./custom-path')
-```
-
 ## 内置插件
 
 | 插件                 | 说明                                                            |
 | -------------------- | --------------------------------------------------------------- |
 | buildProgress        | 终端实时构建进度条，支持 bar / spinner / minimal                |
 | copyFile             | 构建完成后复制文件或目录，支持增量复制                          |
-| faviconManager       | 管理网站图标（favicon）链接注入到 HTML 文件，支持字符串简写配置 |
 | generateRouter       | 根据 pages.json 自动生成路由配置（uni-app）                     |
 | generateVersion      | 自动生成版本号，支持文件输出和全局变量注入                      |
+| versionUpdateChecker | 运行时版本更新检查，支持多种提示样式和自定义回调                |
+| htmlInject           | HTML 内容注入，支持多种位置、条件注入、模板变量替换和安全过滤   |
+| faviconManager       | 管理网站图标（favicon）链接注入到 HTML 文件，支持字符串简写配置 |
 | loadingManager       | 全局 Loading 状态管理，支持请求拦截和白屏 Loading               |
-| versionUpdateChecker | 检测版本更新并提示用户刷新，支持定时检查和可见性变化检测        |
 
 ### buildProgress
 
@@ -238,63 +220,6 @@ copyFile({
 })
 ```
 
-### faviconManager
-
-在 Vite 构建过程中将网站图标链接注入到 HTML 文件的 `<head>` 中，支持字符串简写配置。
-
-| 选项        | 类型                        | 默认值 | 描述                                      |
-| ----------- | --------------------------- | ------ | ----------------------------------------- |
-| base        | `string`                    | `'/'`  | 图标文件的基础路径                        |
-| url         | `string`                    | -      | 图标的完整 URL（覆盖 base + favicon.ico） |
-| link        | `string`                    | -      | 自定义完整的 `<link>` 标签 HTML           |
-| icons       | [Icon](#icon)[]             | -      | 自定义图标数组                            |
-| copyOptions | [CopyOptions](#copyoptions) | -      | 图标文件复制配置                          |
-
-> 支持字符串简写：`faviconManager('/assets')` 等同于 `faviconManager({ base: '/assets' })`
-
-**Icon**
-
-| 属性  | 类型     | 必填 | 描述           |
-| ----- | -------- | ---- | -------------- |
-| rel   | `string` | 是   | 图标关系类型   |
-| href  | `string` | 是   | 图标 URL       |
-| sizes | `string` | 否   | 图标尺寸       |
-| type  | `string` | 否   | 图标 MIME 类型 |
-
-**CopyOptions**
-
-| 属性      | 类型      | 必填 | 默认值 | 描述             |
-| --------- | --------- | ---- | ------ | ---------------- |
-| sourceDir | `string`  | 是   | -      | 图标源文件目录   |
-| targetDir | `string`  | 是   | -      | 图标目标目录     |
-| overwrite | `boolean` | 否   | `true` | 是否覆盖同名文件 |
-| recursive | `boolean` | 否   | `true` | 是否递归复制     |
-
-```typescript
-// 字符串简写
-faviconManager('/assets')
-
-// 自定义 URL
-faviconManager({ url: 'https://example.com/favicon.ico' })
-
-// 多图标配置
-faviconManager({
-	icons: [
-		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
-		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
-	]
-})
-
-// 带文件复制
-faviconManager({
-	base: '/assets',
-	copyOptions: {
-		sourceDir: 'src/assets/icons',
-		targetDir: 'dist/assets/icons'
-	}
-})
-```
-
 ### generateRouter
 
 根据 uni-app 项目的 `pages.json` 自动生成路由配置文件。
@@ -368,14 +293,17 @@ generateRouter({
 | `{YY}`        | 两位年份                        | `26`            |
 | `{MM}`        | 两位月份                        | `05`            |
 | `{DD}`        | 两位日期                        | `23`            |
-| `{HH}`        | 两位小时                        | `14`            |
+| `{HH}`        | 两位小时（24h）                 | `14`            |
 | `{mm}`        | 两位分钟                        | `30`            |
 | `{ss}`        | 两位秒数                        | `00`            |
-| `{timestamp}` | 时间戳                          | `1748000000000` |
+| `{SSS}`       | 三位毫秒                        | `123`           |
+| `{timestamp}` | 时间戳（毫秒）                  | `1748000000000` |
 | `{hash}`      | 随机哈希                        | `a1b2c3d4`      |
 | `{major}`     | 主版本号（需配合 semverBase）   | `1`             |
 | `{minor}`     | 次版本号（需配合 semverBase）   | `0`             |
 | `{patch}`     | 补丁版本号（需配合 semverBase） | `0`             |
+
+> 当 `format` 为 `'custom'` 时，必须提供 `customFormat`。当 `outputType` 为 `'define'` 或 `'both'` 时，同时注入 `{defineName}_INFO` 全局变量，包含版本号、构建时间、时间戳等完整信息。
 
 ```typescript
 // 时间戳格式（默认）
@@ -384,6 +312,9 @@ generateVersion()
 // 日期格式
 generateVersion({ format: 'date' })
 
+// 语义化版本格式
+generateVersion({ format: 'semver', semverBase: '2.0.0', prefix: 'v' })
+
 // 自定义格式
 generateVersion({
 	format: 'custom',
@@ -391,29 +322,343 @@ generateVersion({
 	hashLength: 6
 })
 
-// 同时输出文件和全局变量
+// 注入到代码中
+generateVersion({ outputType: 'define', defineName: '__VERSION__' })
+
+// 同时输出文件和注入代码
 generateVersion({
-	format: 'datetime',
 	outputType: 'both',
-	defineName: '__APP_VERSION__'
+	outputFile: 'build-info.json',
+	defineName: '__BUILD_VERSION__',
+	extra: { environment: 'production' }
+})
+```
+
+### versionUpdateChecker
+
+在运行时定期检查版本号变更，发现新版本时提示用户刷新页面。通常与 `generateVersion` 插件配合使用。
+
+**工作原理：**
+
+1. `generateVersion` 在构建时生成版本号文件（`version.json`）或注入全局变量
+2. `versionUpdateChecker` 在运行时定期请求版本文件，与当前版本对比
+3. 发现版本不一致时，弹出提示引导用户刷新
+
+| 选项                    | 类型                                 | 默认值                                     | 描述                                 |
+| ----------------------- | ------------------------------------ | ------------------------------------------ | ------------------------------------ |
+| versionSource           | `'define'` \| `'file'` \| `'auto'`   | `'auto'`                                   | 当前版本号来源                       |
+| defineName              | `string`                             | `'__APP_VERSION__'`                        | define 模式下的全局变量名            |
+| checkUrl                | `string`                             | `'/version.json'`                          | 版本检查文件的 URL 路径              |
+| checkInterval           | `number`                             | `300000`                                   | 检查间隔时间（毫秒，默认 5 分钟）    |
+| checkOnVisibilityChange | `boolean`                            | `true`                                     | 页面可见性变化时是否立即检查         |
+| enableInDev             | `boolean`                            | `false`                                    | 是否在开发模式下启用                 |
+| promptStyle             | `'modal'` \| `'banner'` \| `'toast'` | `'modal'`                                  | 更新提示 UI 样式                     |
+| promptMessage           | `string`                             | `'发现新版本，是否立即刷新获取最新内容？'` | 提示消息文本                         |
+| refreshButtonText       | `string`                             | `'立即刷新'`                               | 刷新按钮文本                         |
+| dismissButtonText       | `string`                             | `'稍后再说'`                               | 忽略按钮文本                         |
+| customPromptTemplate    | `string`                             | -                                          | 自定义提示 UI 的 HTML 模板           |
+| customStyle             | `string`                             | -                                          | 自定义 CSS 样式字符串                |
+| onUpdateAvailable       | `string`                             | -                                          | 发现新版本时的回调（函数体字符串）   |
+| onRefresh               | `string`                             | -                                          | 用户选择刷新时的回调（函数体字符串） |
+| onDismiss               | `string`                             | -                                          | 用户选择忽略时的回调（函数体字符串） |
+
+> `versionSource` 说明：`'define'` 从全局变量读取，`'file'` 从版本文件读取，`'auto'` 优先使用 define，回退到 file。自定义模板中可使用
+> `{{message}}`、`{{currentVersion}}`、`{{newVersion}}`、`{{refreshButton}}`、`{{dismissButton}}` 占位符。回调以函数体字符串形式提供，可用变量：`currentVersion`、`newVersion`。
+
+```typescript
+// 基本使用（配合 generateVersion）
+generateVersion({ outputType: 'both' })
+versionUpdateChecker()
+
+// 仅从版本文件读取
+versionUpdateChecker({ versionSource: 'file' })
+
+// 自定义检查间隔和提示样式
+versionUpdateChecker({
+	checkInterval: 60000,
+	promptStyle: 'banner'
 })
 
-// 带前缀和附加信息
-generateVersion({
-	format: 'semver',
-	semverBase: '2.0.0',
-	prefix: 'v',
-	extra: { environment: 'production' }
+// 底部轻提示
+versionUpdateChecker({ promptStyle: 'toast' })
+
+// 自定义提示文本
+versionUpdateChecker({
+	promptMessage: '系统已更新，建议刷新体验新功能',
+	refreshButtonText: '更新',
+	dismissButtonText: '取消'
+})
+
+// 自定义回调
+versionUpdateChecker({
+	onUpdateAvailable: 'console.log("新版本:", newVersion); return true;',
+	onRefresh: 'console.log("用户选择刷新");',
+	onDismiss: 'console.log("用户选择忽略");'
+})
+
+// 开发环境也启用（调试用）
+versionUpdateChecker({ enableInDev: true })
+```
+
+### htmlInject
+
+在 Vite 构建过程中根据配置规则将 HTML 内容注入到目标文件中，支持多种注入位置、条件注入、模板变量替换和安全过滤。
+
+**注入位置：**
+
+| 位置               | 说明                       |
+| ------------------ | -------------------------- |
+| `head-start`       | 注入到 `<head>` 标签开始后 |
+| `head-end`         | 注入到 `</head>` 标签前    |
+| `body-start`       | 注入到 `<body>` 标签开始后 |
+| `body-end`         | 注入到 `</body>` 标签前    |
+| `before-selector`  | 注入到选择器匹配内容前     |
+| `after-selector`   | 注入到选择器匹配内容后     |
+| `replace-selector` | 替换选择器匹配的内容       |
+
+| 选项         | 类型                     | 默认值         | 描述                       |
+| ------------ | ------------------------ | -------------- | -------------------------- |
+| targetFile   | `string`                 | `'index.html'` | 目标 HTML 文件路径或文件名 |
+| rules        | `InjectRule[]`           | -              | 注入规则数组（必填）       |
+| security     | `SecurityConfig`         | -              | 安全过滤配置               |
+| templateVars | `Record<string, string>` | -              | 全局模板变量               |
+| logInjection | `boolean`                | `true`         | 是否输出注入日志           |
+
+**InjectRule**
+
+| 属性                 | 类型                     | 默认值     | 描述                                    |
+| -------------------- | ------------------------ | ---------- | --------------------------------------- |
+| id                   | `string`                 | -          | 规则唯一标识符，用于日志记录和调试      |
+| content              | `string`                 | -          | 要注入的 HTML 内容（必填）              |
+| position             | `InjectPosition`         | -          | 注入位置（必填）                        |
+| selector             | `string`                 | -          | 选择器字符串（selector 相关位置时必填） |
+| selectorMatch        | `'string'` \| `'regex'`  | `'string'` | 选择器匹配模式                          |
+| priority             | `number`                 | `100`      | 规则优先级，数值越小越先执行            |
+| condition            | `InjectCondition`        | -          | 注入条件，满足条件时才执行              |
+| templateVars         | `Record<string, string>` | -          | 规则级模板变量，覆盖全局变量            |
+| allowScriptInjection | `boolean`                | `false`    | 是否允许注入脚本等危险内容              |
+
+**InjectCondition**
+
+| 属性   | 类型                                       | 默认值  | 描述               |
+| ------ | ------------------------------------------ | ------- | ------------------ |
+| type   | `'env'` \| `'file-contains'` \| `'custom'` | -       | 条件类型（必填）   |
+| value  | `string` \| `(...args: any[]) => boolean`  | -       | 条件值（必填）     |
+| negate | `boolean`                                  | `false` | 是否对条件结果取反 |
+
+**SecurityConfig**
+
+| 属性                     | 类型       | 默认值 | 描述                 |
+| ------------------------ | ---------- | ------ | -------------------- |
+| blockDangerousTags       | `boolean`  | `true` | 是否阻止危险标签     |
+| blockDangerousAttributes | `boolean`  | `true` | 是否阻止危险属性     |
+| allowedTags              | `string[]` | -      | 允许通过的标签白名单 |
+| blockedTags              | `string[]` | -      | 自定义阻止标签列表   |
+| blockedAttributes        | `string[]` | -      | 自定义阻止属性列表   |
+
+```typescript
+// 基本注入
+htmlInject({
+	rules: [
+		{
+			id: 'meta-description',
+			content: '<meta name="description" content="My App">',
+			position: 'head-end'
+		}
+	]
+})
+
+// 条件注入（仅生产环境）
+htmlInject({
+	rules: [
+		{
+			id: 'analytics',
+			content: '<script src="/analytics.js"></script>',
+			position: 'head-end',
+			condition: { type: 'env', value: 'production' },
+			allowScriptInjection: true
+		}
+	]
+})
+
+// 模板变量替换
+htmlInject({
+	templateVars: { appName: 'My App', version: '1.0.0' },
+	rules: [
+		{
+			id: 'app-name',
+			content: '<meta name="application-name" content="{{appName}}">',
+			position: 'head-end'
+		}
+	]
+})
+
+// 选择器注入
+htmlInject({
+	rules: [
+		{
+			id: 'replace-app',
+			content: '<div id="app" data-vite="true">',
+			position: 'replace-selector',
+			selector: '<div id="app">'
+		}
+	]
+})
+```
+
+### faviconManager
+
+在 Vite 构建过程中将网站图标链接注入到 HTML 文件的 `<head>` 中，支持字符串简写配置。
+
+| 选项        | 类型                        | 默认值 | 描述                                      |
+| ----------- | --------------------------- | ------ | ----------------------------------------- |
+| base        | `string`                    | `'/'`  | 图标文件的基础路径                        |
+| url         | `string`                    | -      | 图标的完整 URL（覆盖 base + favicon.ico） |
+| link        | `string`                    | -      | 自定义完整的 `<link>` 标签 HTML           |
+| icons       | [Icon](#icon)[]             | -      | 自定义图标数组                            |
+| copyOptions | [CopyOptions](#copyoptions) | -      | 图标文件复制配置                          |
+
+> 支持字符串简写：`faviconManager('/assets')` 等同于 `faviconManager({ base: '/assets' })`
+
+**Icon**
+
+| 属性  | 类型     | 必填 | 描述           |
+| ----- | -------- | ---- | -------------- |
+| rel   | `string` | 是   | 图标关系类型   |
+| href  | `string` | 是   | 图标 URL       |
+| sizes | `string` | 否   | 图标尺寸       |
+| type  | `string` | 否   | 图标 MIME 类型 |
+
+**CopyOptions**
+
+| 属性      | 类型      | 必填 | 默认值 | 描述             |
+| --------- | --------- | ---- | ------ | ---------------- |
+| sourceDir | `string`  | 是   | -      | 图标源文件目录   |
+| targetDir | `string`  | 是   | -      | 图标目标目录     |
+| overwrite | `boolean` | 否   | `true` | 是否覆盖同名文件 |
+| recursive | `boolean` | 否   | `true` | 是否递归复制     |
+
+```typescript
+// 字符串简写
+faviconManager('/assets')
+
+// 自定义 URL
+faviconManager({ url: 'https://example.com/favicon.ico' })
+
+// 多图标配置
+faviconManager({
+	icons: [
+		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+	]
+})
+
+// 带文件复制
+faviconManager({
+	base: '/assets',
+	copyOptions: {
+		sourceDir: 'src/assets/icons',
+		targetDir: 'dist/assets/icons'
+	}
 })
 ```
 
 ### loadingManager
 
-全局 Loading 状态管理，支持白屏 Loading、请求自动拦截、自定义样式与动画、生命周期回调。
+注入全局 Loading 状态管理，支持 XHR/Fetch 请求拦截、白屏 Loading、自定义样式和生命周期回调。
 
-`loadingManager` 会在浏览器端注入 `window.__LOADING_MANAGER__`（可通过 `globalName` 自定义），提供运行时 API。
+**注入策略：**
 
-**运行时 API：**
+- `defaultVisible: false`（默认）：所有代码（CSS + HTML + JS）通过 JS 动态注入到 `</body>` 前
+- `defaultVisible: true`：CSS + HTML 以静态标签注入到 `</head>` 前（白屏即可见），JS 注入到 `</body>` 前
+
+| 选项           | 类型                                            | 默认值                  | 描述                                         |
+| -------------- | ----------------------------------------------- | ----------------------- | -------------------------------------------- |
+| position       | `'center'` \| `'top'` \| `'bottom'`             | `'center'`              | Loading 显示位置                             |
+| defaultText    | `string`                                        | `'加载中...'`           | 默认显示文本                                 |
+| spinnerType    | `'spinner'` \| `'dots'` \| `'pulse'` \| `'bar'` | `'spinner'`             | 旋转图标类型                                 |
+| style          | `LoadingStyle`                                  | -                       | 自定义样式配置                               |
+| transition     | `TransitionConfig`                              | `{ enabled: true }`     | 过渡动画配置                                 |
+| minDisplayTime | `MinDisplayTime`                                | `{ enabled: true }`     | 最小显示时间配置                             |
+| delayShow      | `DelayShow`                                     | `{ enabled: true }`     | 延迟显示配置                                 |
+| debounceHide   | `DebounceHide`                                  | `{ enabled: false }`    | 防抖隐藏配置                                 |
+| autoBind       | `'fetch'` \| `'xhr'` \| `'all'` \| `'none'`     | `'none'`                | 自动绑定请求拦截模式                         |
+| requestFilter  | `RequestFilter`                                 | -                       | 请求过滤配置                                 |
+| globalName     | `string`                                        | `'__LOADING_MANAGER__'` | 注入到浏览器的全局变量名                     |
+| customTemplate | `string`                                        | -                       | 自定义 HTML 模板（需含 `data-loading-text`） |
+| defaultVisible | `boolean`                                       | `false`                 | 初始是否可见（白屏 Loading）                 |
+| autoHideOn     | `'DOMContentLoaded'` \| `'load'` \| `'manual'`  | `'DOMContentLoaded'`    | 自动隐藏时机（需 `defaultVisible: true`）    |
+| callbacks      | `LoadingCallbacks`                              | -                       | 生命周期回调                                 |
+
+**LoadingStyle**
+
+| 属性               | 类型      | 默认值                    | 描述                   |
+| ------------------ | --------- | ------------------------- | ---------------------- |
+| overlayColor       | `string`  | `'rgba(255,255,255,0.7)'` | 遮罩层背景色           |
+| spinnerColor       | `string`  | `'#4361ee'`               | 图标颜色               |
+| spinnerSize        | `string`  | `'40px'`                  | 图标大小               |
+| textColor          | `string`  | `'#333'`                  | 文本颜色               |
+| textSize           | `string`  | `'14px'`                  | 文本大小               |
+| customClass        | `string`  | -                         | 自定义 CSS 类名        |
+| customStyle        | `string`  | -                         | 自定义内联样式         |
+| zIndex             | `number`  | `9999`                    | z-index 值             |
+| pointerEvents      | `boolean` | `true`                    | 是否启用遮罩层指针事件 |
+| backdropBlur       | `boolean` | `false`                   | 是否启用背景模糊       |
+| backdropBlurAmount | `number`  | `4`                       | 背景模糊程度（px）     |
+
+**TransitionConfig**
+
+| 属性     | 类型      | 默认值       | 描述             |
+| -------- | --------- | ------------ | ---------------- |
+| enabled  | `boolean` | `true`       | 是否启用过渡     |
+| duration | `number`  | `200`        | 过渡持续时间(ms) |
+| easing   | `string`  | `'ease-out'` | 缓动函数         |
+
+**MinDisplayTime**
+
+| 属性     | 类型      | 默认值 | 描述                                  |
+| -------- | --------- | ------ | ------------------------------------- |
+| enabled  | `boolean` | `true` | 是否启用                              |
+| duration | `number`  | `300`  | 最小显示时间(ms)，确保 Loading 不闪烁 |
+
+**DelayShow**
+
+| 属性     | 类型      | 默认值 | 描述                                     |
+| -------- | --------- | ------ | ---------------------------------------- |
+| enabled  | `boolean` | `true` | 是否启用                                 |
+| duration | `number`  | `200`  | 延迟时间(ms)，请求在此时间内完成则不显示 |
+
+**DebounceHide**
+
+| 属性     | 类型      | 默认值  | 描述             |
+| -------- | --------- | ------- | ---------------- |
+| enabled  | `boolean` | `false` | 是否启用         |
+| duration | `number`  | `100`   | 防抖等待时间(ms) |
+
+**RequestFilter**
+
+| 属性               | 类型       | 描述                                      |
+| ------------------ | ---------- | ----------------------------------------- |
+| excludeUrls        | `RegExp[]` | 排除的 URL 正则数组                       |
+| includeUrls        | `RegExp[]` | 包含的 URL 正则数组（优先级高于 exclude） |
+| excludeMethods     | `string[]` | 排除的 HTTP 方法数组                      |
+| excludeUrlPrefixes | `string[]` | 排除的 URL 前缀数组（前缀匹配，更高效）   |
+
+**LoadingCallbacks**
+
+回调以**函数体字符串**形式提供（构建时注入到浏览器端，无法传递函数引用）。
+
+| 属性         | 类型     | 描述                              |
+| ------------ | -------- | --------------------------------- |
+| onBeforeShow | `string` | 显示前回调，`return false` 可阻止 |
+| onShow       | `string` | 显示后回调                        |
+| onBeforeHide | `string` | 隐藏前回调，`return false` 可阻止 |
+| onHide       | `string` | 隐藏后回调                        |
+| onDestroy    | `string` | 销毁时回调                        |
+
+**LoadingManager API**
+
+通过 `window.__LOADING_MANAGER__` 访问：
 
 | 方法                       | 说明                                       |
 | -------------------------- | ------------------------------------------ |
@@ -429,92 +674,6 @@ generateVersion({
 | `togglePointerEvents()`    | 切换遮罩层指针事件状态                     |
 | `getPendingCount()`        | 获取当前挂起的请求数量                     |
 | `destroy()`                | 销毁实例，清理 DOM 并恢复原始拦截器        |
-
-**配置选项：**
-
-| 选项           | 类型                                       | 默认值                  | 描述                                                 |
-| -------------- | ------------------------------------------ | ----------------------- | ---------------------------------------------------- |
-| position       | `'center' \| 'top' \| 'bottom'`            | `'center'`              | Loading 显示位置                                     |
-| defaultText    | `string`                                   | `'加载中...'`           | 默认显示文本                                         |
-| spinnerType    | `'spinner' \| 'dots' \| 'pulse' \| 'bar'`  | `'spinner'`             | 旋转图标类型                                         |
-| style          | [LoadingStyle](#loadingstyle)              | 见下方                  | 自定义样式配置                                       |
-| transition     | [TransitionConfig](#transitionconfig)      | `{ enabled: true }`     | 过渡动画配置                                         |
-| minDisplayTime | [MinDisplayTime](#mindisplaytime)          | `{ enabled: true }`     | 最小显示时间配置                                     |
-| delayShow      | [DelayShow](#delayshow)                    | `{ enabled: true }`     | 延迟显示配置                                         |
-| debounceHide   | [DebounceHide](#debouncehide)              | `{ enabled: false }`    | 防抖隐藏配置                                         |
-| autoBind       | `'fetch' \| 'xhr' \| 'all' \| 'none'`      | `'none'`                | 自动绑定请求拦截模式                                 |
-| requestFilter  | [RequestFilter](#requestfilter)            | -                       | 请求过滤配置                                         |
-| globalName     | `string`                                   | `'__LOADING_MANAGER__'` | 注入到浏览器的全局变量名                             |
-| customTemplate | `string`                                   | -                       | 自定义 Loading HTML 模板                             |
-| defaultVisible | `boolean`                                  | `false`                 | DOM 初始可见状态（白屏 Loading）                     |
-| autoHideOn     | `'DOMContentLoaded' \| 'load' \| 'manual'` | `'DOMContentLoaded'`    | 自动隐藏时机（仅 `defaultVisible` 为 `true` 时生效） |
-| callbacks      | [LoadingCallbacks](#loadingcallbacks)      | -                       | 生命周期回调                                         |
-
-**LoadingStyle**
-
-| 属性               | 类型      | 默认值                       | 描述                                                        |
-| ------------------ | --------- | ---------------------------- | ----------------------------------------------------------- |
-| overlayColor       | `string`  | `'rgba(255, 255, 255, 0.7)'` | 遮罩层背景色                                                |
-| spinnerColor       | `string`  | `'#4361ee'`                  | Loading 图标颜色                                            |
-| spinnerSize        | `string`  | `'40px'`                     | Loading 图标大小                                            |
-| textColor          | `string`  | `'#333'`                     | 文本颜色                                                    |
-| textSize           | `string`  | `'14px'`                     | 文本大小                                                    |
-| customClass        | `string`  | -                            | 自定义 CSS 类名                                             |
-| customStyle        | `string`  | -                            | 自定义内联样式字符串                                        |
-| zIndex             | `number`  | `9999`                       | 遮罩层 z-index                                              |
-| pointerEvents      | `boolean` | `true`                       | 是否启用遮罩层指针事件（`true` 拦截交互，`false` 允许穿透） |
-| backdropBlur       | `boolean` | `false`                      | 是否启用背景模糊                                            |
-| backdropBlurAmount | `number`  | `4`                          | 背景模糊程度（px）                                          |
-
-**TransitionConfig**
-
-| 属性     | 类型      | 默认值       | 描述               |
-| -------- | --------- | ------------ | ------------------ |
-| enabled  | `boolean` | `true`       | 是否启用过渡动画   |
-| duration | `number`  | `200`        | 过渡持续时间（ms） |
-| easing   | `string`  | `'ease-out'` | CSS 缓动函数       |
-
-**MinDisplayTime**
-
-| 属性     | 类型      | 默认值 | 描述                 |
-| -------- | --------- | ------ | -------------------- |
-| enabled  | `boolean` | `true` | 是否启用最小显示时间 |
-| duration | `number`  | `300`  | 最小显示时间（ms）   |
-
-**DelayShow**
-
-| 属性     | 类型      | 默认值 | 描述                         |
-| -------- | --------- | ------ | ---------------------------- |
-| enabled  | `boolean` | `true` | 是否启用延迟显示             |
-| duration | `number`  | `200`  | 延迟时间（ms），超时后才显示 |
-
-**DebounceHide**
-
-| 属性     | 类型      | 默认值  | 描述               |
-| -------- | --------- | ------- | ------------------ |
-| enabled  | `boolean` | `false` | 是否启用防抖隐藏   |
-| duration | `number`  | `100`   | 防抖等待时间（ms） |
-
-**RequestFilter**
-
-| 属性               | 类型       | 描述                                                    |
-| ------------------ | ---------- | ------------------------------------------------------- |
-| excludeUrls        | `RegExp[]` | 需要排除的 URL 正则表达式数组                           |
-| includeUrls        | `RegExp[]` | 需要包含的 URL 正则表达式数组（优先级高于 excludeUrls） |
-| excludeMethods     | `string[]` | 需要排除的 HTTP 方法数组                                |
-| excludeUrlPrefixes | `string[]` | 需要排除的 URL 前缀数组                                 |
-
-**LoadingCallbacks**
-
-回调以**函数体字符串**形式提供（构建时注入到浏览器端，无法传递函数引用）。
-
-| 属性         | 类型     | 描述                                  |
-| ------------ | -------- | ------------------------------------- |
-| onBeforeShow | `string` | 显示前回调，`return false` 可阻止显示 |
-| onShow       | `string` | 显示后回调                            |
-| onBeforeHide | `string` | 隐藏前回调，`return false` 可阻止隐藏 |
-| onHide       | `string` | 隐藏后回调                            |
-| onDestroy    | `string` | 销毁时回调                            |
 
 ```typescript
 // 白屏 Loading：页面加载即显示，DOM 就绪后自动隐藏
@@ -558,77 +717,84 @@ window.__LOADING_MANAGER__.toggle()
 window.__LOADING_MANAGER__.disablePointerEvents()
 ```
 
-### versionUpdateChecker
+## 通用工具函数
 
-检测 Web 应用是否有新版本部署，并提示用户刷新页面获取最新内容。通常与 `generateVersion` 配合使用。
-
-**工作原理：**
-
-1. 构建时：将当前版本号注入到 HTML（`<meta name="app-version">` 标签），并将版本更新检查脚本注入到页面
-2. 运行时：客户端定期请求 `checkUrl` 指定的版本文件，将返回的版本号与当前版本对比
-3. 发现新版本时：根据 `promptStyle` 配置显示更新提示（弹窗 / 横幅 / 轻提示），用户可选择刷新或忽略
-
-**配置选项：**
-
-| 选项                    | 类型                                 | 默认值                                     | 描述                                 |
-| ----------------------- | ------------------------------------ | ------------------------------------------ | ------------------------------------ |
-| versionSource           | `'define'` \| `'file'` \| `'auto'`   | `'auto'`                                   | 当前版本号来源                       |
-| defineName              | `string`                             | `'__APP_VERSION__'`                        | define 模式下的全局变量名            |
-| checkUrl                | `string`                             | `'/version.json'`                          | 版本检查文件的 URL 路径              |
-| checkInterval           | `number`                             | `300000`（5 分钟）                         | 版本检查间隔时间（毫秒）             |
-| checkOnVisibilityChange | `boolean`                            | `true`                                     | 页面可见性变化时是否立即检查         |
-| enableInDev             | `boolean`                            | `false`                                    | 是否在开发模式下启用版本检查         |
-| promptStyle             | `'modal'` \| `'banner'` \| `'toast'` | `'modal'`                                  | 更新提示 UI 样式                     |
-| promptMessage           | `string`                             | `'发现新版本，是否立即刷新获取最新内容？'` | 更新提示消息文本                     |
-| refreshButtonText       | `string`                             | `'立即刷新'`                               | 刷新按钮文本                         |
-| dismissButtonText       | `string`                             | `'稍后再说'`                               | 忽略按钮文本                         |
-| customPromptTemplate    | `string`                             | -                                          | 自定义提示 UI 的 HTML 模板           |
-| customStyle             | `string`                             | -                                          | 自定义样式字符串                     |
-| onUpdateAvailable       | `string`                             | -                                          | 发现新版本时的回调（函数体字符串）   |
-| onRefresh               | `string`                             | -                                          | 用户选择刷新时的回调（函数体字符串） |
-| onDismiss               | `string`                             | -                                          | 用户选择忽略时的回调（函数体字符串） |
-
-> `versionSource` 说明：`'define'` 从 Vite define 注入的全局变量读取；`'file'` 从版本文件读取；`'auto'` 优先使用 define，回退到 file。`customPromptTemplate` 中可使用
-> `{{message}}`、`{{currentVersion}}`、`{{newVersion}}`、`{{refreshButton}}`、`{{dismissButton}}` 占位符，不允许包含 `<script>` 标签。
+通过 `./uni_modules/vite-plugin/js_sdk/common/index.mjs` 导出，可在自定义插件中复用：
 
 ```typescript
-// 基本使用（配合 generateVersion）
-generateVersion({ outputType: 'both', outputFile: 'version.json' })
-versionUpdateChecker()
-
-// 自定义检查间隔和提示样式
-versionUpdateChecker({
-	checkInterval: 60000,
-	promptStyle: 'banner'
-})
-
-// 开发环境启用（调试用）
-versionUpdateChecker({
-	enableInDev: true,
-	checkInterval: 30000
-})
-
-// 自定义回调
-versionUpdateChecker({
-	onUpdateAvailable: 'console.log("新版本:", newVersion); return true;',
-	onRefresh: 'console.log("用户选择刷新")',
-	onDismiss: 'console.log("用户选择忽略")'
-})
-
-// 自定义提示模板
-versionUpdateChecker({
-	promptStyle: 'modal',
-	customPromptTemplate: '<div class="update-tip">{{message}}</div><button onclick="window.__VUC_REFRESH__()">{{refreshButton}}</button>',
-	customStyle: '.update-tip { color: #333; font-size: 16px; }'
-})
-
-// uni-app 中仅 H5 生产环境启用
-versionUpdateChecker({
-	versionSource: 'auto',
-	checkUrl: '/version.json',
-	enabled: process.env.UNI_PLATFORM === 'h5' && isProd
-})
+import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, escapeHtmlAttr, Validator } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
+import {
+	readFileContent,
+	writeFileContent,
+	fileExists,
+	copySourceToTarget,
+	readDirRecursive,
+	runWithConcurrency,
+	shouldUpdateFile,
+	checkSourceExists,
+	ensureTargetDir
+} from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
+import { injectBeforeTag, injectHtmlByPriority, injectBeforeTagWithFallback, injectHeadAndBody } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
+import { makeCallback, containsScriptTag, validateIdentifierName } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
+import { validateGlobalName, validateNoScriptInTemplate, validateCallbackFields, validateNonNegativeNumber, validateNestedDuration, validateEnumValue } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
 ```
+
+**格式化工具**
+
+| 函数                    | 说明                                               |
+| ----------------------- | -------------------------------------------------- |
+| `deepMerge()`           | 深度合并对象（undefined 不覆盖，数组直接覆盖）     |
+| `formatDate()`          | 格式化日期，支持 `{YYYY}`, `{MM}`, `{DD}` 等占位符 |
+| `parseTemplate()`       | 解析模板字符串，替换占位符                         |
+| `toCamelCase()`         | 转换为驼峰命名（camelCase）                        |
+| `toPascalCase()`        | 转换为帕斯卡命名（PascalCase）                     |
+| `stripJsonComments()`   | 移除 JSON 字符串中的注释                           |
+| `generateRandomHash()`  | 生成随机哈希字符串（1-64 位）                      |
+| `escapeHtmlAttr()`      | 转义 HTML 属性值中的特殊字符，防止 XSS 注入        |
+| `padNumber()`           | 数字补零格式化                                     |
+| `getDateFormatParams()` | 获取日期格式化参数对象                             |
+
+**文件系统工具**
+
+| 函数                   | 说明                                       |
+| ---------------------- | ------------------------------------------ |
+| `readFileContent()`    | 异步读取文件内容                           |
+| `writeFileContent()`   | 异步写入文件内容                           |
+| `fileExists()`         | 异步检查文件是否存在                       |
+| `copySourceToTarget()` | 复制文件或目录，支持增量复制和并发控制     |
+| `readDirRecursive()`   | 递归读取目录内容，返回文件和目录条目信息   |
+| `runWithConcurrency()` | 带并发限制的批量执行                       |
+| `shouldUpdateFile()`   | 检查文件是否需要更新（比较修改时间和大小） |
+| `checkSourceExists()`  | 检查源文件是否存在，不存在时抛出异常       |
+| `ensureTargetDir()`    | 创建目标目录，无法创建时抛出异常           |
+
+**HTML 注入工具**
+
+| 函数                            | 说明                                                            |
+| ------------------------------- | --------------------------------------------------------------- |
+| `injectBeforeTag()`             | 在 HTML 指定闭合标签前注入代码                                  |
+| `injectHtmlByPriority()`        | 按优先级向 HTML 中注入代码（`</head>` → `</body>` → `</html>`） |
+| `injectBeforeTagWithFallback()` | 带回退策略的 HTML 注入（`</body>` → `</html>` → 末尾）          |
+| `injectHeadAndBody()`           | 双区域 HTML 注入（head + body）                                 |
+
+**脚本安全工具**
+
+| 函数                       | 说明                                                   |
+| -------------------------- | ------------------------------------------------------ |
+| `makeCallback()`           | 将回调函数体包装为安全的函数表达式（含 try-catch）     |
+| `containsScriptTag()`      | 检测字符串是否包含 `<script>` 标签                     |
+| `validateIdentifierName()` | 验证字符串是否为合法的 JavaScript 标识符，防止原型污染 |
+
+**验证工具**
+
+| 函数                           | 说明                                         |
+| ------------------------------ | -------------------------------------------- |
+| `validateGlobalName()`         | 验证全局变量名的合法性                       |
+| `validateNoScriptInTemplate()` | 验证模板字符串不包含 script 标签（XSS 防护） |
+| `validateCallbackFields()`     | 验证回调字段不包含 script 标签               |
+| `validateNonNegativeNumber()`  | 验证数值为非负数                             |
+| `validateNestedDuration()`     | 验证嵌套配置项的 duration 合法性             |
+| `validateEnumValue()`          | 验证字符串值是否在允许的枚举列表中           |
 
 ## 插件开发框架
 
@@ -741,6 +907,15 @@ validator
 	.array()
 	.field('config')
 	.object()
+	.field('position')
+	.enum(['center', 'top', 'bottom'])
+	.field('checkInterval')
+	.number()
+	.minValue(5000)
+	.field('hashLength')
+	.number()
+	.minValue(1)
+	.maxValue(32)
 	.field('name')
 	.custom(val => val.length > 0, 'name 不能为空')
 	.validate()
@@ -755,6 +930,9 @@ validator
 | `number()`   | 验证字段值是否为数字类型                           |
 | `array()`    | 验证字段值是否为数组类型                           |
 | `object()`   | 验证字段值是否为对象类型                           |
+| `enum()`     | 验证字段值是否在允许的枚举列表中                   |
+| `minValue()` | 验证数字字段值是否不小于指定最小值                 |
+| `maxValue()` | 验证数字字段值是否不大于指定最大值                 |
 | `default()`  | 为字段设置默认值（仅当值为 undefined/null 时生效） |
 | `custom()`   | 使用自定义函数验证字段值                           |
 | `validate()` | 执行验证，失败时抛出错误                           |
@@ -785,31 +963,49 @@ Logger.destroy()
 ❌ [@meng-xi/vite-plugin:my-plugin] Error message
 ```
 
-### 通用工具函数
-
-通过 `./uni_modules/vite-plugin/js_sdk/common/index.mjs` 导出，可在自定义插件中复用：
+### 开发自定义插件示例
 
 ```typescript
-import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
-import { readFileContent, writeFileContent, fileExists, copySourceToTarget, readDirRecursive, runWithConcurrency, shouldUpdateFile } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
-```
+import { BasePlugin, createPluginFactory } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
+import type { BasePluginOptions, PluginWithInstance } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
+import type { Plugin } from 'vite'
 
-| 函数                   | 说明                                               |
-| ---------------------- | -------------------------------------------------- |
-| `deepMerge()`          | 深度合并对象（undefined 不覆盖，数组直接覆盖）     |
-| `formatDate()`         | 格式化日期，支持 `{YYYY}`, `{MM}`, `{DD}` 等占位符 |
-| `parseTemplate()`      | 解析模板字符串，替换占位符                         |
-| `toCamelCase()`        | 转换为驼峰命名（camelCase）                        |
-| `toPascalCase()`       | 转换为帕斯卡命名（PascalCase）                     |
-| `stripJsonComments()`  | 移除 JSON 字符串中的注释                           |
-| `generateRandomHash()` | 生成随机哈希字符串（1-64 位）                      |
-| `readFileContent()`    | 异步读取文件内容                                   |
-| `writeFileContent()`   | 异步写入文件内容                                   |
-| `fileExists()`         | 异步检查文件是否存在                               |
-| `copySourceToTarget()` | 复制文件或目录，支持增量复制和并发控制             |
-| `readDirRecursive()`   | 递归读取目录内容，返回文件和目录条目信息           |
-| `runWithConcurrency()` | 带并发限制的批量执行                               |
-| `shouldUpdateFile()`   | 检查文件是否需要更新（比较修改时间和大小）         |
+interface MyPluginOptions extends BasePluginOptions {
+	path: string
+}
+
+class MyPlugin extends BasePlugin<MyPluginOptions> {
+	protected getDefaultOptions() {
+		return { path: './default' }
+	}
+
+	protected validateOptions(): void {
+		this.validator.field('path').required().string().validate()
+	}
+
+	protected getPluginName(): string {
+		return 'my-plugin'
+	}
+
+	protected addPluginHooks(plugin: Plugin): void {
+		plugin.buildStart = () => {
+			this.logger.info(`Plugin started with path: ${this.options.path}`)
+		}
+	}
+
+	protected destroy(): void {
+		super.destroy()
+		// 自定义清理逻辑，如关闭连接、停止监听等
+	}
+}
+
+// 基本使用
+export const myPlugin = createPluginFactory(MyPlugin)
+
+// 带标准化器（支持字符串简写配置）
+export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
+// 使用时支持简写：myPluginWithNormalizer('./custom-path')
+```
 
 ## 子路径导出
 
@@ -822,22 +1018,27 @@ import { buildProgress, copyFile, loadingManager, BasePlugin, Logger } from './u
 // 按模块导入
 import { BasePlugin, createPluginFactory } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
 import { Logger } from './uni_modules/vite-plugin/js_sdk/logger/index.mjs'
-import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, loadingManager, versionUpdateChecker } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
-import { Validator, readFileContent, writeFileContent } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
+import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
+import { Validator, readFileContent, writeFileContent, injectBeforeTag, injectHtmlByPriority, makeCallback, containsScriptTag, validateIdentifierName } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
 
 // 类型导入（从子路径按需导入类型定义）
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from './uni_modules/vite-plugin/js_sdk/factory/index.mjs'
+import type { PluginLogger } from './uni_modules/vite-plugin/js_sdk/logger/index.mjs'
 import type {
 	BuildProgressOptions,
 	CopyFileOptions,
 	FaviconManagerOptions,
 	GenerateRouterOptions,
 	GenerateVersionOptions,
+	HtmlInjectOptions,
 	LoadingManagerOptions,
 	VersionUpdateCheckerOptions,
-	Icon
+	Icon,
+	RouteConfig,
+	RouteMeta,
+	ProgressTheme
 } from './uni_modules/vite-plugin/js_sdk/plugins/index.mjs'
-import type { DateFormatOptions } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
+import type { DateFormatOptions, HtmlInjectResult, CopyOptions, CopyResult } from './uni_modules/vite-plugin/js_sdk/common/index.mjs'
 ```
 
 ## 更新日志

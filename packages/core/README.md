@@ -15,7 +15,7 @@
 
 ## 特性
 
-- **开箱即用** - 提供 7 个实用插件，覆盖构建进度展示、文件复制、路由生成、版本管理、版本更新检查、图标注入、全局 Loading 状态管理等常见场景
+- **开箱即用** - 提供 8 个实用插件，覆盖构建进度展示、文件复制、路由生成、版本管理、版本更新检查、HTML 注入、图标注入、全局 Loading 状态管理等常见场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建符合规范的自定义 Vite 插件
 - **完整生命周期** - 支持初始化、配置解析、销毁等生命周期管理，自动组合钩子逻辑
 - **类型安全** - 完整的 TypeScript 类型定义，配置验证器确保参数正确性
@@ -46,7 +46,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, versionUpdateChecker, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -73,6 +73,17 @@ export default defineConfig({
 
 		// 版本更新检查（配合 generateVersion 使用）
 		versionUpdateChecker(),
+
+		// HTML 内容注入
+		htmlInject({
+			rules: [
+				{
+					id: 'meta-description',
+					content: '<meta name="description" content="My App">',
+					position: 'head-end'
+				}
+			]
+		}),
 
 		// 注入网站图标（支持字符串简写）
 		faviconManager('/assets'),
@@ -109,6 +120,7 @@ console.log(routerPlugin.pluginInstance?.options)
 | generateRouter       | 根据 pages.json 自动生成路由配置（uni-app）                     |
 | generateVersion      | 自动生成版本号，支持文件输出和全局变量注入                      |
 | versionUpdateChecker | 运行时版本更新检查，支持多种提示样式和自定义回调                |
+| htmlInject           | HTML 内容注入，支持多种位置、条件注入、模板变量替换和安全过滤   |
 | faviconManager       | 管理网站图标（favicon）链接注入到 HTML 文件，支持字符串简写配置 |
 | loadingManager       | 全局 Loading 状态管理，支持请求拦截和白屏 Loading               |
 
@@ -214,7 +226,7 @@ copyFile({
 | watch                | `boolean`                                                 | `true`                   | 是否监听变化自动重新生成      |
 | metaMapping          | `Record<string, string>`                                  | -                        | 页面 style 字段到 meta 的映射 |
 | exportTypes          | `boolean`                                                 | `true`                   | 是否导出类型定义              |
-| preserveRouteChanges | `boolean`                                                 | `true'`                  | 是否保留用户对 routes 的修改  |
+| preserveRouteChanges | `boolean`                                                 | `true`                   | 是否保留用户对 routes 的修改  |
 
 > 默认 `metaMapping` 为 `{ navigationBarTitleText: 'title', requireAuth: 'requireAuth' }`，自动将页面样式字段映射到路由元信息。当 `nameStrategy` 为 `'custom'` 时，必须提供 `customNameGenerator`。
 
@@ -377,6 +389,99 @@ versionUpdateChecker({
 
 // 开发环境也启用（调试用）
 versionUpdateChecker({ enableInDev: true })
+```
+
+### htmlInject
+
+在 Vite 构建过程中根据配置规则将 HTML 内容注入到目标文件中，支持多种注入位置、条件注入、模板变量替换和安全过滤。
+
+**注入位置：**
+
+| 位置               | 说明                       |
+| ------------------ | -------------------------- |
+| `head-start`       | 注入到 `<head>` 标签开始后 |
+| `head-end`         | 注入到 `</head>` 标签前    |
+| `body-start`       | 注入到 `<body>` 标签开始后 |
+| `body-end`         | 注入到 `</body>` 标签前    |
+| `before-selector`  | 注入到选择器匹配内容前     |
+| `after-selector`   | 注入到选择器匹配内容后     |
+| `replace-selector` | 替换选择器匹配的内容       |
+
+| 选项         | 类型                     | 默认值         | 描述                       |
+| ------------ | ------------------------ | -------------- | -------------------------- |
+| targetFile   | `string`                 | `'index.html'` | 目标 HTML 文件路径或文件名 |
+| rules        | `InjectRule[]`           | -              | 注入规则数组（必填）       |
+| security     | `SecurityConfig`         | -              | 安全过滤配置               |
+| templateVars | `Record<string, string>` | -              | 全局模板变量               |
+| logInjection | `boolean`                | `true`         | 是否输出注入日志           |
+
+**InjectRule**
+
+| 属性                 | 类型                     | 默认值     | 描述                                |
+| -------------------- | ------------------------ | ---------- | ----------------------------------- |
+| id                   | `string`                 | -          | 规则唯一标识，用于日志和调试        |
+| content              | `string`                 | -          | 要注入的 HTML 内容（必填）          |
+| position             | `InjectPosition`         | -          | 注入位置（必填）                    |
+| selector             | `string`                 | -          | 选择器字符串（selector 位置时必填） |
+| selectorMatch        | `'string'` \| `'regex'`  | `'string'` | 选择器匹配模式                      |
+| priority             | `number`                 | `100`      | 优先级，数值越小越先执行            |
+| condition            | `InjectCondition`        | -          | 注入条件                            |
+| templateVars         | `Record<string, string>` | -          | 规则级模板变量（覆盖全局）          |
+| allowScriptInjection | `boolean`                | `false`    | 是否允许注入脚本等危险内容          |
+
+**InjectCondition**
+
+| 属性   | 类型                                        | 默认值  | 描述               |
+| ------ | ------------------------------------------- | ------- | ------------------ |
+| type   | `'env'` \| `'file-contains'` \| `'custom'`  | -       | 条件类型（必填）   |
+| value  | `string` \| `((...args: any[]) => boolean)` | -       | 条件值（必填）     |
+| negate | `boolean`                                   | `false` | 是否对条件结果取反 |
+
+**SecurityConfig**
+
+| 属性                     | 类型       | 默认值 | 描述                 |
+| ------------------------ | ---------- | ------ | -------------------- |
+| blockDangerousTags       | `boolean`  | `true` | 是否阻止危险标签     |
+| blockDangerousAttributes | `boolean`  | `true` | 是否阻止危险属性     |
+| allowedTags              | `string[]` | -      | 允许通过的标签白名单 |
+| blockedTags              | `string[]` | -      | 自定义阻止标签列表   |
+| blockedAttributes        | `string[]` | -      | 自定义阻止属性列表   |
+
+```typescript
+// 基本使用
+htmlInject({
+	rules: [{ id: 'meta-desc', content: '<meta name="description" content="My App">', position: 'head-end' }]
+})
+
+// 条件注入（仅生产环境）
+htmlInject({
+	rules: [
+		{
+			id: 'analytics',
+			content: '<script src="/analytics.js"></script>',
+			position: 'body-end',
+			condition: { type: 'env', value: 'PRODUCTION' },
+			allowScriptInjection: true
+		}
+	]
+})
+
+// 模板变量替换
+htmlInject({
+	templateVars: { appName: 'My App', version: '1.0.0' },
+	rules: [{ id: 'meta', content: '<meta name="description" content="{{appName}}">', position: 'head-end' }]
+})
+
+// 选择器注入
+htmlInject({
+	rules: [{ id: 'replace-title', content: '<title>New Title</title>', position: 'replace-selector', selector: '<title>.*</title>', selectorMatch: 'regex' }]
+})
+
+// 安全配置
+htmlInject({
+	security: { blockDangerousTags: true, allowedTags: ['iframe'] },
+	rules: [{ id: 'embed', content: '<iframe src="https://example.com"></iframe>', position: 'body-end' }]
+})
 ```
 
 ### faviconManager
@@ -602,30 +707,40 @@ window.__LOADING_MANAGER__.disablePointerEvents()
 通过 `@meng-xi/vite-plugin/common` 导出，可在自定义插件中复用：
 
 ```typescript
-import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, Validator } from '@meng-xi/vite-plugin/common'
-import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common'
-import { injectBeforeTag, injectHtmlByPriority } from '@meng-xi/vite-plugin/common'
-import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common'
+import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, escapeHtmlAttr, Validator } from '@meng-xi/vite-plugin/common'
+import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common/fs'
+import { injectBeforeTag, injectHtmlByPriority, injectBeforeTagWithFallback, injectHeadAndBody } from '@meng-xi/vite-plugin/common/html'
+import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common/script'
+import { validateGlobalName, validateNoScriptInTemplate, validateCallbackFields, validateNonNegativeNumber, validateNestedDuration, validateEnumValue } from '@meng-xi/vite-plugin/common/validation'
 ```
 
-| 函数                       | 说明                                                            |
-| -------------------------- | --------------------------------------------------------------- |
-| `deepMerge()`              | 深度合并对象（undefined 不覆盖，数组直接覆盖）                  |
-| `formatDate()`             | 格式化日期，支持 `{YYYY}`, `{MM}`, `{DD}` 等占位符              |
-| `parseTemplate()`          | 解析模板字符串，替换占位符                                      |
-| `toCamelCase()`            | 转换为驼峰命名（camelCase）                                     |
-| `toPascalCase()`           | 转换为帕斯卡命名（PascalCase）                                  |
-| `stripJsonComments()`      | 移除 JSON 字符串中的注释                                        |
-| `generateRandomHash()`     | 生成随机哈希字符串（1-64 位）                                   |
-| `readFileContent()`        | 异步读取文件内容                                                |
-| `writeFileContent()`       | 异步写入文件内容                                                |
-| `fileExists()`             | 异步检查文件是否存在                                            |
-| `copySourceToTarget()`     | 复制文件或目录，支持增量复制和并发控制                          |
-| `injectBeforeTag()`        | 在 HTML 指定闭合标签前注入代码                                  |
-| `injectHtmlByPriority()`   | 按优先级向 HTML 中注入代码（`</head>` → `</body>` → `</html>`） |
-| `makeCallback()`           | 将回调函数体包装为安全的函数表达式（含 try-catch）              |
-| `containsScriptTag()`      | 检测字符串是否包含 `<script>` 标签                              |
-| `validateIdentifierName()` | 验证字符串是否为合法的 JavaScript 标识符，防止原型污染          |
+| 函数                            | 说明                                                            | 子路径              |
+| ------------------------------- | --------------------------------------------------------------- | ------------------- |
+| `deepMerge()`                   | 深度合并对象（undefined 不覆盖，数组直接覆盖）                  | `common/object`     |
+| `formatDate()`                  | 格式化日期，支持 `{YYYY}`, `{MM}`, `{DD}` 等占位符              | `common/format`     |
+| `parseTemplate()`               | 解析模板字符串，替换占位符                                      | `common/format`     |
+| `toCamelCase()`                 | 转换为驼峰命名（camelCase）                                     | `common/format`     |
+| `toPascalCase()`                | 转换为帕斯卡命名（PascalCase）                                  | `common/format`     |
+| `stripJsonComments()`           | 移除 JSON 字符串中的注释                                        | `common/format`     |
+| `generateRandomHash()`          | 生成随机哈希字符串（1-64 位）                                   | `common/format`     |
+| `escapeHtmlAttr()`              | 转义 HTML 属性值中的特殊字符，防止 XSS 注入                     | `common/format`     |
+| `readFileContent()`             | 异步读取文件内容                                                | `common/fs`         |
+| `writeFileContent()`            | 异步写入文件内容                                                | `common/fs`         |
+| `fileExists()`                  | 异步检查文件是否存在                                            | `common/fs`         |
+| `copySourceToTarget()`          | 复制文件或目录，支持增量复制和并发控制                          | `common/fs`         |
+| `injectBeforeTag()`             | 在 HTML 指定闭合标签前注入代码                                  | `common/html`       |
+| `injectHtmlByPriority()`        | 按优先级向 HTML 中注入代码（`</head>` → `</body>` → `</html>`） | `common/html`       |
+| `injectBeforeTagWithFallback()` | 带回退策略的 HTML 注入（`</body>` → `</html>` → 末尾）          | `common/html`       |
+| `injectHeadAndBody()`           | 双区域 HTML 注入（head + body）                                 | `common/html`       |
+| `makeCallback()`                | 将回调函数体包装为安全的函数表达式（含 try-catch）              | `common/script`     |
+| `containsScriptTag()`           | 检测字符串是否包含 `<script>` 标签                              | `common/script`     |
+| `validateIdentifierName()`      | 验证字符串是否为合法的 JavaScript 标识符，防止原型污染          | `common/script`     |
+| `validateGlobalName()`          | 验证全局变量名的合法性                                          | `common/validation` |
+| `validateNoScriptInTemplate()`  | 验证模板字符串不包含 script 标签（XSS 防护）                    | `common/validation` |
+| `validateCallbackFields()`      | 验证回调字段不包含 script 标签                                  | `common/validation` |
+| `validateNonNegativeNumber()`   | 验证数值为非负数                                                | `common/validation` |
+| `validateNestedDuration()`      | 验证嵌套配置项的 duration 合法性                                | `common/validation` |
+| `validateEnumValue()`           | 验证字符串值是否在允许的枚举列表中                              | `common/validation` |
 
 ## 插件开发框架
 
@@ -752,6 +867,9 @@ validator
 | `number()`   | 验证字段值是否为数字类型                           |
 | `array()`    | 验证字段值是否为数组类型                           |
 | `object()`   | 验证字段值是否为对象类型                           |
+| `enum()`     | 验证字段值是否在允许的枚举列表中                   |
+| `minValue()` | 验证数字字段值是否不小于指定最小值                 |
+| `maxValue()` | 验证数字字段值是否不大于指定最大值                 |
 | `default()`  | 为字段设置默认值（仅当值为 undefined/null 时生效） |
 | `custom()`   | 使用自定义函数验证字段值                           |
 | `validate()` | 执行验证，失败时抛出错误                           |
@@ -832,18 +950,20 @@ export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (type
 
 ```typescript
 // 完整导入
-import { buildProgress, copyFile, loadingManager, BasePlugin, Logger } from '@meng-xi/vite-plugin'
+import { buildProgress, copyFile, htmlInject, loadingManager, BasePlugin, Logger } from '@meng-xi/vite-plugin'
 
 // 按模块导入
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
 import { Logger } from '@meng-xi/vite-plugin/logger'
-import { buildProgress, copyFile, generateRouter, loadingManager } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, copyFile, generateRouter, htmlInject, loadingManager } from '@meng-xi/vite-plugin/plugins'
 import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plugin/common'
 
 // 类型导入（从子路径按需导入类型定义）
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, VersionUpdateCheckerOptions, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
-import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
+import type { BuildProgressOptions, GenerateVersionOptions, VersionUpdateCheckerOptions, HtmlInjectOptions, InjectRule, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
+import type { HtmlInjectResult, DualInjectResult } from '@meng-xi/vite-plugin/common/html'
+import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common/fs'
 ```
 
 ## 更新日志

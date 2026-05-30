@@ -2,9 +2,17 @@
 
 脚本工具，提供回调函数包装和安全性验证功能。
 
+## 导入方式
+
 ```typescript
+// 子模块独立导入（推荐）
+import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common/script'
+
+// barrel 导入
 import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common'
 ```
+
+---
 
 ## makeCallback
 

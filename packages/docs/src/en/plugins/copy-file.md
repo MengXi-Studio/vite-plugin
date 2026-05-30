@@ -2,6 +2,16 @@
 
 Copy files or directories to specified locations after Vite build is completed.
 
+## Import Methods
+
+```typescript
+// Submodule import (recommended)
+import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
+
+// Barrel import
+import { copyFile } from '@meng-xi/vite-plugin'
+```
+
 ## Quick Start
 
 ```typescript

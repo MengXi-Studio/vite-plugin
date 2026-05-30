@@ -2,6 +2,17 @@
 
 全局 Loading 状态管理插件，在 Vite 构建过程中注入 Loading 状态管理代码，支持自动拦截 fetch/XHR 请求、多种内置图标、自定义样式和生命周期回调。
 
+## 导入方式
+
+```typescript
+// 子模块独立导入（推荐）
+import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
+import type { LoadingManagerOptions, LoadingManager, LoadingStyle, TransitionConfig, LoadingCallbacks, RequestFilter } from '@meng-xi/vite-plugin/plugins/loading-manager'
+
+// barrel 导入
+import { loadingManager } from '@meng-xi/vite-plugin'
+```
+
 ## 快速开始
 
 ```typescript

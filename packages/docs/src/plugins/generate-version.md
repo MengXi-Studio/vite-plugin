@@ -2,6 +2,17 @@
 
 在 Vite 构建过程中自动生成版本号，支持文件输出和全局变量注入。
 
+## 导入方式
+
+```typescript
+// 子模块独立导入（推荐）
+import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
+import type { GenerateVersionOptions, VersionFormat, OutputType } from '@meng-xi/vite-plugin/plugins/generate-version'
+
+// barrel 导入
+import { generateVersion } from '@meng-xi/vite-plugin'
+```
+
 ## 快速开始
 
 ```typescript

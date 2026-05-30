@@ -181,6 +181,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/generate-version.html'
 						},
 						{
+							text: 'htmlInject',
+							link: '/plugins/html-inject.html'
+						},
+						{
 							text: 'loadingManager',
 							link: '/plugins/loading-manager.html'
 						},

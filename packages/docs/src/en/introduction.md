@@ -4,16 +4,18 @@
 
 ## Built-in Plugins
 
-Six ready-to-use plugins covering common build scenarios:
+Eight ready-to-use plugins covering common build scenarios:
 
-| Plugin                                          | Description                                                                            |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [buildProgress](/en/plugins/build-progress)     | Display real-time build progress bar in terminal, supporting three display formats     |
-| [copyFile](/en/plugins/copy-file)               | Copy files or directories to specified locations after build, with incremental copying |
-| [generateRouter](/en/plugins/generate-router)   | Auto-generate router configuration from uni-app's pages.json                           |
-| [generateVersion](/en/plugins/generate-version) | Auto-generate version numbers with file output and global variable injection           |
-| [faviconManager](/en/plugins/favicon-manager)             | Manage website favicon links injection into HTML files                                              |
-| [loadingManager](/en/plugins/loading-manager)   | Global Loading state management with request interception and white-screen Loading     |
+| Plugin                                                     | Description                                                                            |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [buildProgress](/en/plugins/build-progress)                | Display real-time build progress bar in terminal, supporting three display formats     |
+| [copyFile](/en/plugins/copy-file)                          | Copy files or directories to specified locations after build, with incremental copying |
+| [faviconManager](/en/plugins/favicon-manager)              | Manage website favicon links injection into HTML files                                 |
+| [generateRouter](/en/plugins/generate-router)              | Auto-generate router configuration from uni-app's pages.json                           |
+| [generateVersion](/en/plugins/generate-version)            | Auto-generate version numbers with file output and global variable injection           |
+| [htmlInject](/en/plugins/html-inject)                      | HTML content injection with multiple positions and conditions                          |
+| [loadingManager](/en/plugins/loading-manager)              | Global Loading state management with request interception and white-screen Loading     |
+| [versionUpdateChecker](/en/plugins/version-update-checker) | Runtime version update check with refresh prompt                                       |
 
 ## Plugin Development Framework
 
@@ -47,12 +49,14 @@ Exported utility functions:
 
 - **File System**: readFileContent, writeFileContent, copySourceToTarget, readDirRecursive, etc.
 - **Formatting**: formatDate, parseTemplate, generateRandomHash, padNumber, etc.
-- **Object Utils**: deepMerge, toCamelCase, toPascalCase, stripJsonComments, etc.
+- **Object Utils**: deepMerge, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr, etc.
 
 ## Next Steps
 
 - [Installation](/en/installation) - Quick start
 - [buildProgress](/en/plugins/build-progress) - Build progress display
+- [htmlInject](/en/plugins/html-inject) - HTML content injection
 - [loadingManager](/en/plugins/loading-manager) - Global Loading state management
+- [versionUpdateChecker](/en/plugins/version-update-checker) - Version update detection
 - [Plugin Factory](/en/factory/index) - Develop custom plugins
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) - View source code and examples

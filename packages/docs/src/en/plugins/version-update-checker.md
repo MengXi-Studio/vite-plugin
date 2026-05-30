@@ -5,6 +5,16 @@ detected.
 
 Typically used with the `generateVersion` plugin: `generateVersion` generates the version number at build time, while `versionUpdateChecker` checks for version changes at runtime and prompts users to refresh.
 
+## Import Methods
+
+```typescript
+// Submodule import (recommended)
+import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
+
+// Barrel import
+import { versionUpdateChecker } from '@meng-xi/vite-plugin'
+```
+
 ## Quick Start
 
 ```typescript

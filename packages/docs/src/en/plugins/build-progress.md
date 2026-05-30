@@ -2,6 +2,16 @@
 
 Display a real-time build progress bar in the terminal during Vite builds, with multiple display formats and custom themes.
 
+## Import Methods
+
+```typescript
+// Submodule import (recommended)
+import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+
+// Barrel import
+import { buildProgress } from '@meng-xi/vite-plugin'
+```
+
 ## Quick Start
 
 ```typescript

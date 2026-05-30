@@ -4,6 +4,17 @@
 
 通常与 `generateVersion` 插件配合使用：`generateVersion` 负责在构建时生成版本号，`versionUpdateChecker` 负责在运行时检查版本号变更并提示用户刷新。
 
+## 导入方式
+
+```typescript
+// 子模块独立导入（推荐）
+import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
+import type { VersionUpdateCheckerOptions, VersionSource, PromptStyle } from '@meng-xi/vite-plugin/plugins/version-update-checker'
+
+// barrel 导入
+import { versionUpdateChecker } from '@meng-xi/vite-plugin'
+```
+
 ## 快速开始
 
 ```typescript

@@ -2,8 +2,14 @@
 
 Formatting utilities.
 
+## Import Methods
+
 ```typescript
-import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments } from '@meng-xi/vite-plugin/common'
+// Submodule import (recommended)
+import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/format'
+
+// Barrel import
+import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr } from '@meng-xi/vite-plugin/common'
 ```
 
 ## padNumber
@@ -247,4 +253,49 @@ function stripJsonComments(jsonString: string): string
 ```typescript
 stripJsonComments('{\n  // comment\n  "name": "test"\n}')
 // '{\n  "name": "test"\n}'
+```
+
+---
+
+## escapeHtmlAttr
+
+Escape special characters in HTML attribute values to prevent XSS injection.
+
+```typescript
+function escapeHtmlAttr(str: string): string
+```
+
+**Parameters**
+
+| Parameter | Type     | Description      |
+| --------- | -------- | ---------------- |
+| str       | `string` | String to escape |
+
+**Returns**
+
+`string` - Escaped safe string
+
+**Escape Rules**
+
+| Original | Escaped  |
+| -------- | -------- |
+| `&`      | `&amp;`  |
+| `"`      | `&quot;` |
+| `<`      | `&lt;`   |
+| `>`      | `&gt;`   |
+
+**Examples**
+
+```typescript
+escapeHtmlAttr('hello "world"')
+// 'hello &quot;world&quot;'
+
+escapeHtmlAttr('<script>alert("xss")</script>')
+// '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
+
+escapeHtmlAttr('a & b')
+// 'a &amp; b'
+
+escapeHtmlAttr('hello world')
+// 'hello world' (unchanged when no special characters)
 ```

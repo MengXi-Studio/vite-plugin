@@ -2,9 +2,17 @@
 
 对象处理工具。
 
+## 导入方式
+
 ```typescript
+// 子模块独立导入（推荐）
+import { deepMerge } from '@meng-xi/vite-plugin/common/object'
+
+// barrel 导入
 import { deepMerge } from '@meng-xi/vite-plugin/common'
 ```
+
+---
 
 ## deepMerge
 

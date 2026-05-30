@@ -2,6 +2,16 @@
 
 Auto-generate version numbers during Vite build with file output and global variable injection.
 
+## Import Methods
+
+```typescript
+// Submodule import (recommended)
+import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
+
+// Barrel import
+import { generateVersion } from '@meng-xi/vite-plugin'
+```
+
 ## Quick Start
 
 ```typescript

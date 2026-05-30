@@ -2,7 +2,14 @@
 
 File system utilities.
 
+## Import Methods
+
 ```typescript
+// Submodule import (recommended)
+import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common/fs'
+import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common/fs'
+
+// Barrel import
 import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common'
 ```

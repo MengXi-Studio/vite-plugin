@@ -2,6 +2,17 @@
 
 根据 uni-app 的 `pages.json` 自动生成路由配置文件。
 
+## 导入方式
+
+```typescript
+// 子模块独立导入（推荐）
+import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
+import type { GenerateRouterOptions, RouteConfig, RouteMeta, NameStrategy, OutputFormat } from '@meng-xi/vite-plugin/plugins/generate-router'
+
+// barrel 导入
+import { generateRouter } from '@meng-xi/vite-plugin'
+```
+
 ## 快速开始
 
 ```typescript

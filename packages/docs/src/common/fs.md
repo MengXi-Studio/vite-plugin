@@ -2,7 +2,14 @@
 
 文件系统操作工具。
 
+## 导入方式
+
 ```typescript
+// 子模块独立导入（推荐）
+import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common/fs'
+import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common/fs'
+
+// barrel 导入
 import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common'
 ```

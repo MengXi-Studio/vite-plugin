@@ -2,8 +2,14 @@
 
 格式化工具。
 
+## 导入方式
+
 ```typescript
-import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments } from '@meng-xi/vite-plugin/common'
+// 子模块独立导入（推荐）
+import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/format'
+
+// barrel 导入
+import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr } from '@meng-xi/vite-plugin/common'
 ```
 
 ## padNumber
@@ -247,4 +253,49 @@ function stripJsonComments(jsonString: string): string
 ```typescript
 stripJsonComments('{\n  // comment\n  "name": "test"\n}')
 // '{\n  "name": "test"\n}'
+```
+
+---
+
+## escapeHtmlAttr
+
+转义 HTML 属性值中的特殊字符，防止 XSS 注入。
+
+```typescript
+function escapeHtmlAttr(str: string): string
+```
+
+**参数**
+
+| 参数 | 类型     | 说明             |
+| ---- | -------- | ---------------- |
+| str  | `string` | 需要转义的字符串 |
+
+**返回值**
+
+`string` - 转义后的安全字符串
+
+**转义规则**
+
+| 原字符 | 转义后   |
+| ------ | -------- |
+| `&`    | `&amp;`  |
+| `"`    | `&quot;` |
+| `<`    | `&lt;`   |
+| `>`    | `&gt;`   |
+
+**示例**
+
+```typescript
+escapeHtmlAttr('hello "world"')
+// 'hello &quot;world&quot;'
+
+escapeHtmlAttr('<script>alert("xss")</script>')
+// '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
+
+escapeHtmlAttr('a & b')
+// 'a &amp; b'
+
+escapeHtmlAttr('hello world')
+// 'hello world'（无特殊字符不变）
 ```

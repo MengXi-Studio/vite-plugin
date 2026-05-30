@@ -181,6 +181,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/plugins/generate-version.html'
 						},
 						{
+							text: 'htmlInject',
+							link: '/en/plugins/html-inject.html'
+						},
+						{
 							text: 'loadingManager',
 							link: '/en/plugins/loading-manager.html'
 						},

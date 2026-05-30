@@ -2,6 +2,16 @@
 
 Auto-generate router configuration from uni-app's `pages.json`.
 
+## Import Methods
+
+```typescript
+// Submodule import (recommended)
+import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
+
+// Barrel import
+import { generateRouter } from '@meng-xi/vite-plugin'
+```
+
 ## Quick Start
 
 ```typescript

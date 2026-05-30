@@ -2,6 +2,17 @@
 
 在 Vite 构建过程中实时显示终端构建进度条，支持多种显示格式和自定义主题。
 
+## 导入方式
+
+```typescript
+// 子模块独立导入（推荐）
+import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+import type { BuildProgressOptions, ProgressFormat, ProgressTheme, BuildPhase } from '@meng-xi/vite-plugin/plugins/build-progress'
+
+// barrel 导入
+import { buildProgress } from '@meng-xi/vite-plugin'
+```
+
 ## 快速开始
 
 ```typescript

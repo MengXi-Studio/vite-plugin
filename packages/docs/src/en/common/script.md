@@ -2,9 +2,17 @@
 
 Script utilities providing callback wrapping and security validation.
 
+## Import Methods
+
 ```typescript
+// Submodule import (recommended)
+import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common/script'
+
+// Barrel import
 import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common'
 ```
+
+---
 
 ## makeCallback
 

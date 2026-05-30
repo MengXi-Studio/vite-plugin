@@ -2,6 +2,17 @@
 
 管理网站图标（favicon）链接注入到 HTML 文件。
 
+## 导入方式
+
+```typescript
+// 子模块独立导入（推荐）
+import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
+import type { FaviconManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins/favicon-manager'
+
+// barrel 导入
+import { faviconManager } from '@meng-xi/vite-plugin'
+```
+
 ## 快速开始
 
 ```typescript
