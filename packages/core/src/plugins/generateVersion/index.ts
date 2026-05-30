@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import type { GenerateVersionOptions } from './types'
+import type { GenerateVersionOptions, VersionInfo } from './types'
 import { generateRandomHash, getDateFormatParams, parseTemplate } from '@/common/format'
 import { writeFileContent } from '@/common/fs'
 import { join } from 'path'
@@ -114,7 +114,7 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 	/**
 	 * 生成版本信息对象
 	 */
-	private generateVersionInfo(): Record<string, any> {
+	private generateVersionInfo(): VersionInfo {
 		return {
 			version: this.version,
 			buildTime: this.buildTime.toISOString(),

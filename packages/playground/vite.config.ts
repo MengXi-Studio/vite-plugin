@@ -2,7 +2,9 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
 import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
-import type { GenerateVersionOptions, LoadingManagerOptions, VersionUpdateCheckerOptions } from '@meng-xi/vite-plugin'
+import type { GenerateVersionOptions } from '@meng-xi/vite-plugin/plugins/generate-version'
+import type { LoadingManagerOptions } from '@meng-xi/vite-plugin/plugins/loading-manager'
+import type { VersionUpdateCheckerOptions } from '@meng-xi/vite-plugin/plugins/version-update-checker'
 
 export default defineConfig({
 	plugins: [

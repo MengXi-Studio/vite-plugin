@@ -116,6 +116,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted, onUnmounted } from 'vue'
+import type { LoadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
 
 const appVersion = __APP_VERSION__
 const versionInfo = __APP_VERSION___INFO
@@ -138,7 +139,7 @@ const metaVersion = ref('')
 let statusTimer: ReturnType<typeof setInterval> | null = null
 
 function getManager(): LoadingManager | undefined {
-	return (window as any).__LOADING_MANAGER__
+	return window.__LOADING_MANAGER__
 }
 
 function startStatusPolling() {

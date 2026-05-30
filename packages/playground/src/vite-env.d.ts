@@ -6,34 +6,16 @@ declare module '*.vue' {
 	export default component
 }
 
-interface VersionInfo {
-	version: string
-	buildTime: string
-	timestamp: number
-	format: string
-	[key: string]: unknown
-}
+import type { LoadingManager } from '@meng-xi/vite-plugin/plugins/loadingManager'
+import type { VersionInfo } from '@meng-xi/vite-plugin/plugins/generate-version'
 
-declare const __APP_VERSION__: string
-declare const __APP_VERSION___INFO: VersionInfo
+declare global {
+	const __APP_VERSION__: string
+	const __APP_VERSION___INFO: VersionInfo
 
-interface LoadingManager {
-	show(text?: string): void
-	hide(): void
-	forceHide(): void
-	toggle(text?: string): void
-	destroy(): void
-	updateText(text: string): void
-	isVisible(): boolean
-	enablePointerEvents(): void
-	disablePointerEvents(): void
-	togglePointerEvents(): void
-	isPointerEventsEnabled(): boolean
-	getPendingCount(): number
-}
-
-interface Window {
-	__LOADING_MANAGER__: LoadingManager
-	__VUC_REFRESH__: () => void
-	__VUC_DISMISS__: () => void
+	interface Window {
+		__LOADING_MANAGER__?: LoadingManager
+		__VUC_REFRESH__?: () => void
+		__VUC_DISMISS__?: () => void
+	}
 }
