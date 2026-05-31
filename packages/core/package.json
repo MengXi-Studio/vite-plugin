@@ -123,13 +123,15 @@
 	],
 	"scripts": {
 		"dev": "unbuild --watch",
-		"build": "unbuild"
+		"build": "tsx scripts/generate-exports.ts && unbuild",
+		"generate-exports": "tsx scripts/generate-exports.ts"
 	},
 	"peerDependencies": {
 		"vite": "^5.0.0 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "^22.0.0",
+		"tsx": "^4.22.3",
 		"unbuild": "^3.6.0",
 		"typescript": "^5.9.3"
 	},
