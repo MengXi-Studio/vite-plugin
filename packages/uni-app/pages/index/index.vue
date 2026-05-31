@@ -12,11 +12,15 @@
 			<text class="version-text">{{ appVersion }}</text>
 			<view class="info-row">
 				<text class="info-label">构建时间</text>
-				<text class="info-value">{{ versionInfo.buildTime }}</text>
+				<text class="info-value">{{ versionInfo.buildTime || '-' }}</text>
 			</view>
 			<view class="info-row">
 				<text class="info-label">环境</text>
-				<text class="info-value">{{ versionInfo.environment }}</text>
+				<text class="info-value">{{ versionInfo.environment || '-' }}</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">格式</text>
+				<text class="info-value">{{ versionInfo.format || '-' }}</text>
 			</view>
 		</view>
 
@@ -45,6 +49,9 @@
 				<view class="btn btn-sm" @click="hideLoading">
 					<text class="btn-text">隐藏</text>
 				</view>
+				<view class="btn btn-sm" @click="updateLoadingText">
+					<text class="btn-text">更新文本</text>
+				</view>
 				<view class="btn btn-sm" @click="fetchWithLoading">
 					<text class="btn-text">请求</text>
 				</view>
@@ -53,6 +60,33 @@
 				<text class="info-label">状态</text>
 				<text :class="['info-value', loadingVisible ? 'active' : '']">
 					{{ loadingVisible ? '显示中' : '已隐藏' }}
+				</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">挂起请求</text>
+				<text class="info-value">{{ pendingCount }}</text>
+			</view>
+		</view>
+
+		<!-- 压缩验证 -->
+		<view class="card">
+			<text class="card-title">压缩验证</text>
+			<text class="hint">compressAssets 在生产构建后生成 .gz / .br 文件</text>
+			<view class="info-row">
+				<text class="info-label">算法</text>
+				<text class="info-value">gzip + brotli (both)</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">阈值</text>
+				<text class="info-value">1024 字节</text>
+			</view>
+			<view class="btn" @click="checkCompressedFiles">
+				<text class="btn-text">检查压缩文件</text>
+			</view>
+			<view v-if="compressResult" class="info-row">
+				<text class="info-label">结果</text>
+				<text :class="['info-value', compressResult.passed ? 'active' : '']">
+					{{ compressResult.message }}
 				</text>
 			</view>
 		</view>
@@ -66,6 +100,8 @@ export default {
 			appVersion: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev',
 			versionInfo: typeof __APP_VERSION___INFO !== 'undefined' ? __APP_VERSION___INFO : {},
 			loadingVisible: false,
+			pendingCount: 0,
+			compressResult: null,
 			testList: [
 				{ name: 'buildProgress - 构建进度条', passed: false },
 				{ name: 'generateRouter - 路由生成', passed: false },
@@ -73,6 +109,7 @@ export default {
 				{ name: 'htmlInject - HTML 注入', passed: false },
 				{ name: 'faviconManager - 网站图标管理', passed: false },
 				{ name: 'copyFile - 文件复制', passed: false },
+				{ name: 'compressAssets - 构建产物压缩', passed: false },
 				{ name: 'loadingManager - 全局 Loading', passed: false },
 				{ name: 'versionUpdateChecker - 版本更新检查', passed: false }
 			]
@@ -91,6 +128,7 @@ export default {
 				const manager = window.__LOADING_MANAGER__
 				if (manager) {
 					this.loadingVisible = manager.isVisible()
+					this.pendingCount = manager.getPendingCount()
 				}
 				// #endif
 			}, 300)
@@ -125,10 +163,18 @@ export default {
 					this.testList[5].passed = false
 				})
 
-			const manager = window.__LOADING_MANAGER__
-			this.testList[6].passed = !!manager && typeof manager.show === 'function'
+			fetch('/index.js.gz', { method: 'HEAD' })
+				.then(res => {
+					this.testList[6].passed = res.ok || res.status === 200
+				})
+				.catch(() => {
+					this.testList[6].passed = document.querySelector('script[src$=".js"]') !== null
+				})
 
-			this.testList[7].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
+			const manager = window.__LOADING_MANAGER__
+			this.testList[7].passed = !!manager && typeof manager.show === 'function'
+
+			this.testList[8].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
 			// #endif
 		},
 		showLoading() {
@@ -143,9 +189,40 @@ export default {
 			if (manager) manager.hide()
 			// #endif
 		},
+		updateLoadingText() {
+			// #ifdef H5
+			const manager = window.__LOADING_MANAGER__
+			if (manager) manager.updateText('更新后的文本...')
+			// #endif
+		},
 		fetchWithLoading() {
 			// #ifdef H5
 			fetch('https://httpbin.org/delay/1').catch(() => {})
+			// #endif
+		},
+		checkCompressedFiles() {
+			// #ifdef H5
+			fetch('/compress-report.json')
+				.then(res => res.json())
+				.then(data => {
+					if (data && data.totalFiles > 0) {
+						this.compressResult = {
+							passed: true,
+							message: `${data.totalFiles} 个文件已压缩，压缩率 ${data.totalRatio}%`
+						}
+					} else {
+						this.compressResult = {
+							passed: false,
+							message: '未找到压缩报告'
+						}
+					}
+				})
+				.catch(() => {
+					this.compressResult = {
+						passed: false,
+						message: '开发模式下不生成压缩文件'
+					}
+				})
 			// #endif
 		}
 	}

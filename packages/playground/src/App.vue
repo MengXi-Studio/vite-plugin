@@ -35,17 +35,25 @@
 					<span class="icon">{{ tests.buildProgress ? '✅' : '⏳' }}</span>
 					<span>buildProgress - 构建进度条</span>
 				</div>
-				<div class="test-item" :class="{ passed: tests.generateRouter }">
-					<span class="icon">{{ tests.generateRouter ? '✅' : '⏳' }}</span>
-					<span>generateRouter - 路由配置生成</span>
+				<div class="test-item" :class="{ passed: tests.compressAssets }">
+					<span class="icon">{{ tests.compressAssets ? '✅' : '⏳' }}</span>
+					<span>compressAssets - 构建产物压缩</span>
 				</div>
 				<div class="test-item" :class="{ passed: tests.copyFile }">
 					<span class="icon">{{ tests.copyFile ? '✅' : '⏳' }}</span>
 					<span>copyFile - 文件复制</span>
 				</div>
+				<div class="test-item" :class="{ passed: tests.generateRouter }">
+					<span class="icon">{{ tests.generateRouter ? '✅' : '⏳' }}</span>
+					<span>generateRouter - 路由配置生成</span>
+				</div>
 				<div class="test-item" :class="{ passed: tests.generateVersion }">
 					<span class="icon">{{ tests.generateVersion ? '✅' : '⏳' }}</span>
 					<span>generateVersion - 版本生成</span>
+				</div>
+				<div class="test-item" :class="{ passed: tests.htmlInject }">
+					<span class="icon">{{ tests.htmlInject ? '✅' : '⏳' }}</span>
+					<span>htmlInject - HTML 内容注入</span>
 				</div>
 				<div class="test-item" :class="{ passed: tests.versionUpdateChecker }">
 					<span class="icon">{{ tests.versionUpdateChecker ? '✅' : '⏳' }}</span>
@@ -123,9 +131,11 @@ const versionInfo = __APP_VERSION___INFO
 
 const tests = reactive({
 	buildProgress: false,
-	generateRouter: false,
+	compressAssets: false,
 	copyFile: false,
+	generateRouter: false,
 	generateVersion: false,
+	htmlInject: false,
 	versionUpdateChecker: false,
 	faviconManager: false,
 	loadingManager: false
@@ -163,7 +173,6 @@ function stopStatusPolling() {
 
 onMounted(() => {
 	startStatusPolling()
-	// 读取 meta 标签中的版本号（versionUpdateChecker file/auto 模式注入）
 	const metaEl = document.querySelector('meta[name="app-version"]')
 	if (metaEl) {
 		metaVersion.value = metaEl.getAttribute('content') || ''
@@ -177,6 +186,19 @@ onUnmounted(() => {
 async function runTests() {
 	// buildProgress: 终端进度条在构建时已展示，此处验证构建成功即视为通过
 	tests.buildProgress = true
+
+	// compressAssets: 验证压缩文件已生成（检查 .gz 文件是否存在）
+	try {
+		const res = await fetch('/compress-report.json')
+		if (res.ok) {
+			const report = await res.json()
+			tests.compressAssets = report && report.totalFiles > 0
+		} else {
+			tests.compressAssets = false
+		}
+	} catch {
+		tests.compressAssets = false
+	}
 
 	// generateRouter: 验证路由配置文件已生成
 	try {
@@ -197,6 +219,11 @@ async function runTests() {
 		tests.copyFile = false
 	}
 
+	// htmlInject: 验证注入的 meta 标签已存在于 head 中
+	const keywordsMeta = document.querySelector('meta[name="keywords"]')
+	const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+	tests.htmlInject = !!(keywordsMeta && themeColorMeta)
+
 	// versionUpdateChecker: 验证检查器代码已注入到页面
 	const vucRoot = document.getElementById('__vuc-root__')
 	const vucStyle = document.querySelector('style[data-vuc-style]')
@@ -212,7 +239,6 @@ async function runTests() {
 	tests.loadingManager = !!manager && typeof manager.show === 'function' && typeof manager.toggle === 'function' && typeof manager.isPointerEventsEnabled === 'function'
 }
 
-/** 手动检查版本：请求 /version.json 并与当前版本对比 */
 async function checkVersion() {
 	try {
 		const res = await fetch('/version.json?_t=' + Date.now())
@@ -233,7 +259,6 @@ async function checkVersion() {
 	}
 }
 
-/** 模拟版本更新：提示用户 versionUpdateChecker 的自动检测机制 */
 function simulateUpdate() {
 	console.log('[VersionCheck] 模拟版本更新提示')
 	console.log('[VersionCheck] 实际场景中，当重新构建部署后 version.json 版本号变更，')

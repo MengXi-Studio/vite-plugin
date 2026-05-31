@@ -1,10 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { buildProgress, copyFile, generateRouter, generateVersion, faviconManager, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
-import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
-import type { GenerateVersionOptions } from '@meng-xi/vite-plugin/plugins/generate-version'
-import type { LoadingManagerOptions } from '@meng-xi/vite-plugin/plugins/loading-manager'
-import type { VersionUpdateCheckerOptions } from '@meng-xi/vite-plugin/plugins/version-update-checker'
+import { buildProgress, compressAssets, copyFile, generateRouter, generateVersion, faviconManager, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
 
 export default defineConfig({
 	plugins: [
@@ -16,6 +12,20 @@ export default defineConfig({
 			width: 30,
 			clearOnComplete: false,
 			showModuleName: true
+		}),
+
+		// 构建产物压缩
+		compressAssets({
+			algorithm: 'both',
+			threshold: 1024,
+			deleteOriginalFile: false,
+			includeExtensions: ['.js', '.css', '.html', '.svg', '.json', '.xml', '.txt'],
+			excludeExtensions: [],
+			excludePaths: [],
+			compressionLevel: 9,
+			brotliQuality: 11,
+			reportOutput: 'compress-report.json',
+			parallelLimit: 10
 		}),
 
 		// 路由配置生成（基于 pages.json）
@@ -56,7 +66,32 @@ export default defineConfig({
 				environment: 'development',
 				author: 'MengXi Studio'
 			}
-		}) as PluginWithInstance<GenerateVersionOptions>,
+		}),
+
+		// HTML 内容注入
+		htmlInject({
+			rules: [
+				{
+					id: 'meta-keywords',
+					content: '<meta name="keywords" content="Vite, Plugin, MengXi">',
+					position: 'head-end'
+				},
+				{
+					id: 'theme-color',
+					content: '<meta name="theme-color" content="#42b883">',
+					position: 'head-end'
+				},
+				{
+					id: 'preload-font',
+					content: '<link rel="preload" href="/assets/fonts/main.woff2" as="font" type="font/woff2" crossorigin>',
+					position: 'head-end'
+				}
+			],
+			templateVars: {
+				appName: 'Vite Plugin Playground'
+			},
+			logInjection: true
+		}),
 
 		// 版本更新检查器
 		versionUpdateChecker({
@@ -73,7 +108,7 @@ export default defineConfig({
 			onUpdateAvailable: 'console.log("[VersionUpdate] 当前:", currentVersion, "最新:", newVersion); return true;',
 			onRefresh: 'console.log("[VersionUpdate] 用户选择刷新");',
 			onDismiss: 'console.log("[VersionUpdate] 用户选择忽略");'
-		}) as PluginWithInstance<VersionUpdateCheckerOptions>,
+		}),
 
 		// 网站图标管理
 		faviconManager({
@@ -125,6 +160,6 @@ export default defineConfig({
 				onShow: 'console.log("[Loading] shown")',
 				onHide: 'console.log("[Loading] hidden")'
 			}
-		}) as PluginWithInstance<LoadingManagerOptions>
+		})
 	]
 })

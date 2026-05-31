@@ -8,10 +8,11 @@ export { validateCallbackFields, validateEnumValue, validateGlobalName, validate
 export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.cjs';
 export { L as Logger, P as PluginLogger } from './shared/vite-plugin.CLr0ttuO.cjs';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './plugins/buildProgress/index.cjs';
+export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './plugins/compressAssets/index.cjs';
 export { CopyFileOptions, copyFile } from './plugins/copyFile/index.cjs';
 export { FaviconManagerOptions, Icon, faviconManager } from './plugins/faviconManager/index.cjs';
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './plugins/generateRouter/index.cjs';
-export { GenerateVersionOptions, OutputType, VersionFormat, generateVersion } from './plugins/generateVersion/index.cjs';
+export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './plugins/generateVersion/index.cjs';
 export { ConditionType, HtmlInjectOptions, InjectCondition, InjectPosition, InjectRule, InjectionLogEntry, SecurityConfig, SelectorMatch, htmlInject } from './plugins/htmlInject/index.cjs';
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './plugins/loadingManager/index.cjs';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './plugins/versionUpdateChecker/index.cjs';

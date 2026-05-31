@@ -1,8 +1,9 @@
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './buildProgress/index.cjs';
+export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './compressAssets/index.cjs';
 export { CopyFileOptions, copyFile } from './copyFile/index.cjs';
 export { FaviconManagerOptions, Icon, faviconManager } from './faviconManager/index.cjs';
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './generateRouter/index.cjs';
-export { GenerateVersionOptions, OutputType, VersionFormat, generateVersion } from './generateVersion/index.cjs';
+export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './generateVersion/index.cjs';
 export { ConditionType, HtmlInjectOptions, InjectCondition, InjectPosition, InjectRule, InjectionLogEntry, SecurityConfig, SelectorMatch, htmlInject } from './htmlInject/index.cjs';
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './loadingManager/index.cjs';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './versionUpdateChecker/index.cjs';

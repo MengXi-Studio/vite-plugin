@@ -74,23 +74,23 @@ export interface CompressSummary {
  */
 export interface CompressAssetsOptions extends BasePluginOptions {
 	/** 压缩算法，支持 gzip、brotli 或同时使用两者 */
-	algorithm: CompressAlgorithm
+	algorithm?: CompressAlgorithm
 	/** 最小压缩阈值（字节），小于此大小的文件将被跳过 */
-	threshold: number
+	threshold?: number
 	/** 是否在压缩后删除原始文件，仅保留压缩版本 */
-	deleteOriginalFile: boolean
+	deleteOriginalFile?: boolean
 	/** 需要压缩的文件扩展名列表，如 ['.js', '.css', '.html'] */
-	includeExtensions: string[]
+	includeExtensions?: string[]
 	/** 需要排除的文件扩展名列表，优先级高于 includeExtensions */
-	excludeExtensions: string[]
+	excludeExtensions?: string[]
 	/** 需要排除的路径前缀列表，匹配到的路径下的文件将跳过压缩 */
-	excludePaths: string[]
+	excludePaths?: string[]
 	/** gzip 压缩级别，范围 1-9，1 最快压缩率最低，9 最慢压缩率最高 */
-	compressionLevel: number
+	compressionLevel?: number
 	/** brotli 崩质量参数，范围 1-11，1 最快质量最低，11 最慢质量最高 */
-	brotliQuality: number
+	brotliQuality?: number
 	/** 压缩报告输出路径，设为 false 则不生成报告 */
-	reportOutput: string | false
+	reportOutput?: string | false
 	/** 并发压缩的最大文件数，控制同时进行压缩操作的文件数量 */
-	parallelLimit: number
+	parallelLimit?: number
 }

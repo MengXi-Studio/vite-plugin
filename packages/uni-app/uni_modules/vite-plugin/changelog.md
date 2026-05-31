@@ -1,3 +1,126 @@
+## 0.1.2（2026-05-31）
+
+新增 compressAssets 构建产物压缩插件，所有插件参数可选化，新增 @common/object 和 @common/fs 完整工具函数
+
+### compressAssets（新增）
+
+构建产物压缩插件，在 Vite 构建（writeBundle）完成后自动扫描输出目录中的文件，使用 gzip 和/或 brotli 算法进行压缩，生成对应的 `.gz` / `.br` 文件。
+
+**功能特性**：
+
+- 三种压缩算法：`gzip`（输出 `.gz`）、`brotli`（输出 `.br`）、`both`（同时生成两种）
+- 文件过滤：`includeExtensions` 包含扩展名、`excludeExtensions` 排除扩展名（优先级高于 include）、`excludePaths` 排除路径前缀
+- 压缩阈值：`threshold` 小于指定字节的文件跳过压缩
+- 并发压缩：`parallelLimit` 控制同时压缩的最大文件数
+- 压缩报告：`reportOutput` 生成 JSON 格式的压缩统计报告，设为 `false` 不生成
+- 原始文件删除：`deleteOriginalFile` 压缩后删除原始文件，仅保留压缩版本
+- 压缩率 Top 5 日志：构建完成后输出压缩率最高的 5 个文件详情
+- 执行时机：`enforce: 'post'`，确保在 Vite 构建完成后执行
+- 路径跨平台兼容：路径比较时统一将反斜杠转换为正斜杠
+
+**配置选项**：
+
+| 选项               | 类型                               | 默认值                                                      | 描述                                     |
+| ------------------ | ---------------------------------- | ----------------------------------------------------------- | ---------------------------------------- |
+| algorithm          | `'gzip'` \| `'brotli'` \| `'both'` | `'gzip'`                                                    | 压缩算法                                 |
+| threshold          | `number`                           | `1024`                                                      | 最小压缩阈值（字节），小于此大小跳过     |
+| deleteOriginalFile | `boolean`                          | `false`                                                     | 压缩后是否删除原始文件                   |
+| includeExtensions  | `string[]`                         | `['.js', '.css', '.html', '.svg', '.json', '.xml', '.txt']` | 需要压缩的文件扩展名列表                 |
+| excludeExtensions  | `string[]`                         | `[]`                                                        | 排除的文件扩展名列表，优先级高于 include |
+| excludePaths       | `string[]`                         | `[]`                                                        | 排除的路径前缀列表                       |
+| compressionLevel   | `number`                           | `9`                                                         | gzip 压缩级别（1-9）                     |
+| brotliQuality      | `number`                           | `11`                                                        | brotli 质量参数（1-11）                  |
+| reportOutput       | `string` \| `false`                | `'compress-report.json'`                                    | 压缩报告输出路径，`false` 不生成         |
+| parallelLimit      | `number`                           | `10`                                                        | 并发压缩的最大文件数                     |
+
+**CompressStats 类型**：
+
+| 属性           | 类型                   | 描述                  |
+| -------------- | ---------------------- | --------------------- |
+| file           | `string`               | 原始文件路径          |
+| originalSize   | `number`               | 原始大小（字节）      |
+| compressedSize | `number`               | 压缩后大小（字节）    |
+| ratio          | `number`               | 压缩率百分比（0-100） |
+| algorithm      | `'gzip'` \| `'brotli'` | 使用的压缩算法        |
+
+**CompressSummary 类型**：
+
+| 属性                | 类型              | 描述                   |
+| ------------------- | ----------------- | ---------------------- |
+| totalFiles          | `number`          | 压缩文件总数           |
+| totalOriginalSize   | `number`          | 原始大小总和（字节）   |
+| totalCompressedSize | `number`          | 压缩后大小总和（字节） |
+| totalRatio          | `number`          | 总体压缩率百分比       |
+| gzipFiles           | `number`          | gzip 压缩文件数        |
+| brotliFiles         | `number`          | brotli 压缩文件数      |
+| executionTime       | `number`          | 总耗时（毫秒）         |
+| stats               | `CompressStats[]` | 每个文件的详细统计     |
+
+### 所有插件参数可选化（增强）
+
+所有插件的配置选项中，存在默认值的参数均改为**选填**（添加 `?`），用户只需传入需要覆盖的参数，零配置即可使用。
+
+**受影响的插件类型**：
+
+| 插件                          | 变更说明                                                                                                     |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `BuildProgressOptions`        | `width`、`format`、`completeChar`、`incompleteChar`、`clearOnComplete`、`showModuleName`、`theme` 均改为选填 |
+| `CompressAssetsOptions`       | 所有业务属性均改为选填，插件提供完整默认值                                                                   |
+| `CopyFileOptions`             | `overwrite`、`recursive`、`incremental` 改为选填（`sourceDir`、`targetDir` 仍为必填）                        |
+| `FaviconManagerOptions`       | `base`、`url`、`link`、`icons`、`copyOptions` 均改为选填                                                     |
+| `GenerateRouterOptions`       | 所有属性均改为选填，插件提供完整默认值                                                                       |
+| `GenerateVersionOptions`      | 所有属性均改为选填，插件提供完整默认值                                                                       |
+| `VersionUpdateCheckerOptions` | 所有属性均改为选填，插件提供完整默认值                                                                       |
+| `HtmlInjectOptions`           | `targetFile`、`security`、`templateVars`、`logInjection` 改为选填（`rules` 仍为必填）                        |
+| `LoadingManagerOptions`       | 所有属性均改为选填，插件提供完整默认值                                                                       |
+
+### @common/object（新增模块）
+
+- `deepMerge(...sources)` — 深度合并对象，undefined 值不覆盖已有值，嵌套对象递归合并，数组直接覆盖。用于 BasePlugin 合并默认配置与用户配置
+
+### @common/fs（增强）
+
+新增以下工具函数：
+
+- `checkSourceExists(sourcePath)` — 检查源文件是否存在，不存在时抛出含路径信息的错误
+- `ensureTargetDir(targetPath)` — 确保目标目录存在，递归创建
+- `fileExists(filePath)` — 异步检查文件是否存在，返回 `boolean`
+- `copySourceToTarget(sourcePath, targetPath, options)` — 复制文件或目录，支持递归、覆盖、增量复制和并发控制
+- `writeFileContent(filePath, content)` — 写入文件内容，权限错误时抛出含路径信息的错误
+- `readFileContent(filePath)` — 异步读取文件内容，权限错误时抛出含路径信息的错误
+- `readFileSync(filePath)` — 同步读取文件内容（已废弃，请使用异步版本）
+- `CopyOptions` 类型 — 复制操作选项接口（`recursive`、`overwrite`、`incremental`、`parallelLimit`、`skipEmptyDirs`）
+- `CopyResult` 类型 — 复制结果接口（`copiedFiles`、`skippedFiles`、`copiedDirs`、`executionTime`）
+
+### @common/format（增强）
+
+新增以下工具函数：
+
+- `generateRandomHash(length)` — 生成随机哈希字符串，范围 1-64，用于版本号生成
+- `formatDate(date, format)` — 格式化日期，支持 `{YYYY}`、`{MM}`、`{DD}` 等占位符
+- `parseTemplate(template, values)` — 解析模板字符串，替换占位符
+- `toCamelCase(str)` — 将字符串转换为 camelCase（如 `pages/user/profile` → `pagesUserProfile`）
+- `toPascalCase(str)` — 将字符串转换为 PascalCase（如 `user-profile` → `UserProfile`）
+- `stripJsonComments(jsonString)` — 移除 JSON 字符串中的单行和多行注释
+- `DateFormatOptions` 类型 — 日期格式化参数接口
+
+### BasePlugin（增强）
+
+- `mergeOptions` 方法改用 `deepMerge` 合并基础默认值、插件默认值和用户配置，确保 undefined 不覆盖默认值
+- 新增 `validator` 属性 — `Validator<T>` 实例，子类可在 `validateOptions` 中使用流式验证
+- 新增 `getEnforce()` 方法 — 子类可覆盖以指定插件执行时机（如 `'post'`），默认 `undefined`
+- 新增 `onConfigResolved(config)` 生命周期方法 — Vite 配置解析完成后调用，存储 `viteConfig`
+- 新增 `handleError(error, context)` 方法 — 根据 `errorStrategy` 统一处理错误
+- `toPlugin` 方法增强 — 自动注册 `configResolved` 和 `closeBundle` 钩子，`closeBundle` 时自动调用 `destroy`
+
+### 子路径导出（增强）
+
+- `@meng-xi/vite-plugin/plugins` 新增导出类型：`CompressAssetsOptions`、`CompressAlgorithm`、`CompressStats`、`CompressSummary`
+- `@meng-xi/vite-plugin/plugins` 新增导出函数：`compressAssets`
+- `@meng-xi/vite-plugin/common` 新增导出类型：`CopyOptions`、`CopyResult`、`DateFormatOptions`
+- `@meng-xi/vite-plugin/common`
+  新增导出函数：`deepMerge`、`checkSourceExists`、`ensureTargetDir`、`fileExists`、`copySourceToTarget`、`writeFileContent`、`readFileContent`、`generateRandomHash`、`formatDate`、`parseTemplate`、`toCamelCase`、`toPascalCase`、`stripJsonComments`
+
 ## 0.1.1（2026-05-30）
 
 新增 htmlInject HTML 内容注入插件，新增通用工具函数和类型，Validator 新增枚举和数值范围验证

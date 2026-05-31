@@ -25,6 +25,24 @@ type VersionFormat = 'timestamp' | 'date' | 'datetime' | 'semver' | 'hash' | 'cu
  */
 type OutputType = 'file' | 'define' | 'both';
 /**
+ * 版本信息接口
+ *
+ * @description generateVersion 插件生成的版本信息对象类型，
+ * 通过 define 注入到代码中后可通过 `__APP_VERSION___INFO` 全局变量访问
+ */
+interface VersionInfo {
+    /** 版本号字符串 */
+    version: string;
+    /** 构建时间（ISO 8601 格式） */
+    buildTime: string;
+    /** 构建时间戳（毫秒） */
+    timestamp: number;
+    /** 版本号格式 */
+    format: VersionFormat;
+    /** 通过 extra 选项附加的自定义字段 */
+    [key: string]: unknown;
+}
+/**
  * 自动生成版本号插件的配置选项接口
  *
  * @interface GenerateVersionOptions
@@ -163,4 +181,4 @@ interface GenerateVersionOptions extends BasePluginOptions {
 declare const generateVersion: PluginFactory<GenerateVersionOptions, GenerateVersionOptions>;
 
 export { generateVersion };
-export type { GenerateVersionOptions, OutputType, VersionFormat };
+export type { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo };
