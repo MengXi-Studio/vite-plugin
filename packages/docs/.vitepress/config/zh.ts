@@ -165,6 +165,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/build-progress.html'
 						},
 						{
+							text: 'compressAssets',
+							link: '/plugins/compress-assets.html'
+						},
+						{
 							text: 'copyFile',
 							link: '/plugins/copy-file.html'
 						},

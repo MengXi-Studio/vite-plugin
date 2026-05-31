@@ -15,8 +15,8 @@
 
 ## Features
 
-- **Ready to Use** - Provides 8 practical plugins covering build progress display, file copying, router generation, version management, version update checking, HTML injection, icon injection, and global Loading state
-  management
+- **Ready to Use** - Provides 9 practical plugins covering build progress display, build artifact compression, file copying, router generation, version management, version update checking, HTML injection, icon injection,
+  and global Loading state management
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, Validator for building custom Vite plugins
 - **Complete Lifecycle** - Supports initialization, config resolution, destroy lifecycle management with automatic hook composition
 - **Type Safe** - Complete TypeScript type definitions with configuration validators ensuring parameter correctness
@@ -47,53 +47,21 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, compressAssets, copyFile, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
-		// Build progress bar
 		buildProgress(),
-
-		// Copy files
-		copyFile({
-			sourceDir: 'src/assets',
-			targetDir: 'dist/assets'
-		}),
-
-		// Generate router config (uni-app)
-		generateRouter({
-			pagesJsonPath: 'src/pages.json',
-			outputPath: 'src/router.config.ts'
-		}),
-
-		// Generate version
-		generateVersion({
-			format: 'datetime',
-			outputType: 'both'
-		}),
-
-		// Version update checker (works with generateVersion)
+		compressAssets({ algorithm: 'gzip' }),
+		copyFile({ sourceDir: 'src/assets', targetDir: 'dist/assets' }),
+		generateRouter({ pagesJsonPath: 'src/pages.json', outputPath: 'src/router.config.ts' }),
+		generateVersion({ format: 'datetime', outputType: 'both' }),
 		versionUpdateChecker(),
-
-		// HTML content injection
 		htmlInject({
-			rules: [
-				{
-					id: 'meta-description',
-					content: '<meta name="description" content="My App">',
-					position: 'head-end'
-				}
-			]
+			rules: [{ id: 'meta-description', content: '<meta name="description" content="My App">', position: 'head-end' }]
 		}),
-
-		// Inject website icon (supports string shorthand)
 		faviconManager('/assets'),
-
-		// Global Loading state management
-		loadingManager({
-			defaultVisible: true,
-			autoHideOn: 'DOMContentLoaded'
-		})
+		loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
 	]
 })
 ```
@@ -107,8 +75,6 @@ import type { PluginWithInstance } from '@meng-xi/vite-plugin/factory'
 import type { GenerateRouterOptions } from '@meng-xi/vite-plugin'
 
 const routerPlugin = generateRouter({ watch: true }) as PluginWithInstance<GenerateRouterOptions>
-
-// Access plugin internals via pluginInstance
 console.log(routerPlugin.pluginInstance?.options)
 ```
 
@@ -117,6 +83,7 @@ console.log(routerPlugin.pluginInstance?.options)
 | Plugin               | Description                                                                                                       |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | buildProgress        | Real-time build progress bar in terminal, supports bar / spinner / minimal                                        |
+| compressAssets       | Compress build artifacts with gzip / brotli / both, concurrent compression and statistics report                  |
 | copyFile             | Copy files or directories after build, supports incremental copying                                               |
 | generateRouter       | Auto-generate router config from pages.json (uni-app)                                                             |
 | generateVersion      | Auto-generate version numbers, supports file output and global variable injection                                 |
@@ -124,6 +91,8 @@ console.log(routerPlugin.pluginInstance?.options)
 | htmlInject           | HTML content injection with multiple positions, conditional injection, template variables, and security filtering |
 | faviconManager       | Manage website favicon links injection into HTML files, supports string shorthand config                          |
 | loadingManager       | Global Loading state management with request interception and white-screen Loading                                |
+
+---
 
 ### buildProgress
 
@@ -155,24 +124,10 @@ Display real-time build progress bar in terminal during Vite build, supporting t
 | moduleColor     | `(text: string) => string` | Module name color        |
 
 ```typescript
-// Default bar format
 buildProgress()
-
-// Spinner format
 buildProgress({ format: 'spinner' })
-
-// Minimal format
 buildProgress({ format: 'minimal' })
-
-// Custom appearance
-buildProgress({
-	width: 40,
-	completeChar: '■',
-	incompleteChar: '□',
-	clearOnComplete: false
-})
-
-// Custom color theme
+buildProgress({ width: 40, completeChar: '■', incompleteChar: '□', clearOnComplete: false })
 buildProgress({
 	theme: {
 		completeColor: t => `\x1b[32m${t}\x1b[39m`,
@@ -183,6 +138,35 @@ buildProgress({
 	}
 })
 ```
+
+---
+
+### compressAssets
+
+Automatically compress files in the output directory after Vite build, supporting both gzip and brotli compression algorithms.
+
+| Option             | Type                               | Default                                                     | Description                                        |
+| ------------------ | ---------------------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
+| algorithm          | `'gzip'` \| `'brotli'` \| `'both'` | `'gzip'`                                                    | Compression algorithm                              |
+| threshold          | `number`                           | `1024`                                                      | Minimum compression threshold (bytes)              |
+| deleteOriginalFile | `boolean`                          | `false`                                                     | Whether to delete original files after compression |
+| includeExtensions  | `string[]`                         | `['.js', '.css', '.html', '.svg', '.json', '.xml', '.txt']` | File extensions to compress                        |
+| excludeExtensions  | `string[]`                         | `[]`                                                        | File extensions to exclude                         |
+| excludePaths       | `string[]`                         | `[]`                                                        | Path prefixes to exclude                           |
+| compressionLevel   | `number`                           | `9`                                                         | Gzip compression level (1-9)                       |
+| brotliQuality      | `number`                           | `11`                                                        | Brotli compression quality (1-11)                  |
+| reportOutput       | `string` \| `false`                | `'compress-report.json'`                                    | Compression report output path, false to skip      |
+| parallelLimit      | `number`                           | `10`                                                        | Maximum concurrent file compression count          |
+
+```typescript
+compressAssets()
+compressAssets({ algorithm: 'brotli' })
+compressAssets({ algorithm: 'both', threshold: 2048, compressionLevel: 9, brotliQuality: 11 })
+compressAssets({ deleteOriginalFile: true, reportOutput: 'compress-report.json' })
+compressAssets({ includeExtensions: ['.js', '.css'], excludePaths: ['assets/images'], parallelLimit: 5 })
+```
+
+---
 
 ### copyFile
 
@@ -197,20 +181,11 @@ Copy files or directories to specified locations after Vite build is completed, 
 | incremental | `boolean` | `true`  | Whether to enable incremental copying      |
 
 ```typescript
-// Basic usage
-copyFile({
-	sourceDir: 'src/assets',
-	targetDir: 'dist/assets'
-})
-
-// Disable overwrite and incremental copy
-copyFile({
-	sourceDir: 'src/static',
-	targetDir: 'dist/static',
-	overwrite: false,
-	incremental: false
-})
+copyFile({ sourceDir: 'src/assets', targetDir: 'dist/assets' })
+copyFile({ sourceDir: 'src/static', targetDir: 'dist/static', overwrite: false, incremental: false })
 ```
+
+---
 
 ### generateRouter
 
@@ -229,37 +204,18 @@ Automatically generate router configuration files based on uni-app project's `pa
 | exportTypes          | `boolean`                                                 | `true`                   | Whether to export type definitions               |
 | preserveRouteChanges | `boolean`                                                 | `true`                   | Whether to preserve user modifications to routes |
 
-> Default `metaMapping` is `{ navigationBarTitleText: 'title', requireAuth: 'requireAuth' }`, automatically mapping page style fields to route meta. When `nameStrategy` is `'custom'`, `customNameGenerator` must be
-> provided.
+> Default `metaMapping` is `{ navigationBarTitleText: 'title', requireAuth: 'requireAuth' }`. When `nameStrategy` is `'custom'`, `customNameGenerator` must be provided.
 
 ```typescript
-// Basic usage
 generateRouter()
-
-// Custom pages.json path
 generateRouter({ pagesJsonPath: 'pages.json' })
-
-// Output JavaScript file
 generateRouter({ outputFormat: 'js', outputPath: 'src/router.config.js' })
-
-// PascalCase naming strategy
 generateRouter({ nameStrategy: 'pascalCase' })
-
-// Custom route name generator
-generateRouter({
-	nameStrategy: 'custom',
-	customNameGenerator: path => `route_${path.replace(/\//g, '_')}`
-})
-
-// Custom meta mapping
-generateRouter({
-	metaMapping: {
-		navigationBarTitleText: 'title',
-		requireAuth: 'requireAuth',
-		customField: 'custom'
-	}
-})
+generateRouter({ nameStrategy: 'custom', customNameGenerator: path => `route_${path.replace(/\//g, '_')}` })
+generateRouter({ metaMapping: { navigationBarTitleText: 'title', requireAuth: 'requireAuth', customField: 'custom' } })
 ```
+
+---
 
 ### generateVersion
 
@@ -300,33 +256,15 @@ Automatically generate version numbers during the Vite build process.
 > and timestamp.
 
 ```typescript
-// Timestamp format (default)
 generateVersion()
-
-// Date format
 generateVersion({ format: 'date' })
-
-// Semantic version format
 generateVersion({ format: 'semver', semverBase: '2.0.0', prefix: 'v' })
-
-// Custom format
-generateVersion({
-	format: 'custom',
-	customFormat: '{YYYY}.{MM}.{DD}-{hash}',
-	hashLength: 6
-})
-
-// Inject into code
+generateVersion({ format: 'custom', customFormat: '{YYYY}.{MM}.{DD}-{hash}', hashLength: 6 })
 generateVersion({ outputType: 'define', defineName: '__VERSION__' })
-
-// Both file output and code injection
-generateVersion({
-	outputType: 'both',
-	outputFile: 'build-info.json',
-	defineName: '__BUILD_VERSION__',
-	extra: { environment: 'production' }
-})
+generateVersion({ outputType: 'both', outputFile: 'build-info.json', defineName: '__BUILD_VERSION__', extra: { environment: 'production' } })
 ```
+
+---
 
 ### versionUpdateChecker
 
@@ -360,223 +298,135 @@ Periodically check for version changes at runtime and prompt users to refresh wh
 > `{{newVersion}}`, `{{refreshButton}}`, `{{dismissButton}}` placeholders. Callbacks are provided as function body strings with available variables: `currentVersion`, `newVersion`.
 
 ```typescript
-// Basic usage (with generateVersion)
 generateVersion({ outputType: 'both' })
 versionUpdateChecker()
-
-// Read from version file only
 versionUpdateChecker({ versionSource: 'file' })
-
-// Custom check interval and prompt style
-versionUpdateChecker({
-	checkInterval: 60000,
-	promptStyle: 'banner'
-})
-
-// Toast-style prompt
+versionUpdateChecker({ checkInterval: 60000, promptStyle: 'banner' })
 versionUpdateChecker({ promptStyle: 'toast' })
-
-// Custom prompt text
-versionUpdateChecker({
-	promptMessage: 'System updated, refresh to experience new features',
-	refreshButtonText: 'Update',
-	dismissButtonText: 'Cancel'
-})
-
-// Custom callbacks
-versionUpdateChecker({
-	onUpdateAvailable: 'console.log("New version:", newVersion); return true;',
-	onRefresh: 'console.log("User chose to refresh");',
-	onDismiss: 'console.log("User chose to dismiss");'
-})
-
-// Enable in development (for debugging)
+versionUpdateChecker({ promptMessage: 'System updated, refresh to experience new features', refreshButtonText: 'Update', dismissButtonText: 'Cancel' })
+versionUpdateChecker({ onUpdateAvailable: 'console.log("New version:", newVersion); return true;', onRefresh: 'console.log("User chose to refresh");', onDismiss: 'console.log("User chose to dismiss");' })
 versionUpdateChecker({ enableInDev: true })
 ```
 
+---
+
 ### htmlInject
 
-Inject HTML content into target files during Vite build based on configured rules, supporting multiple injection positions, conditional injection, template variable replacement, and security filtering.
+Inject HTML content into target files during Vite build based on configurable rules, supporting multiple injection positions, conditional injection, template variable substitution, and security filtering.
 
 **Injection positions:**
 
 | Position           | Description                                |
 | ------------------ | ------------------------------------------ |
-| `head-start`       | Inject after the `<head>` tag              |
-| `head-end`         | Inject before the `</head>` tag            |
-| `body-start`       | Inject after the `<body>` tag              |
-| `body-end`         | Inject before the `</body>` tag            |
+| `head-start`       | Inject after the `<head>` tag opening      |
+| `head-end`         | Inject before the `</head>` closing tag    |
+| `body-start`       | Inject after the `<body>` tag opening      |
+| `body-end`         | Inject before the `</body>` closing tag    |
 | `before-selector`  | Inject before the selector-matched content |
 | `after-selector`   | Inject after the selector-matched content  |
 | `replace-selector` | Replace the selector-matched content       |
 
-| Option       | Type                     | Default        | Description                       |
-| ------------ | ------------------------ | -------------- | --------------------------------- |
-| targetFile   | `string`                 | `'index.html'` | Target HTML file path or filename |
-| rules        | `InjectRule[]`           | -              | Injection rules array (required)  |
-| security     | `SecurityConfig`         | -              | Security filtering configuration  |
-| templateVars | `Record<string, string>` | -              | Global template variables         |
-| logInjection | `boolean`                | `true`         | Whether to output injection logs  |
+| Option       | Type                     | Default        | Description                         |
+| ------------ | ------------------------ | -------------- | ----------------------------------- |
+| targetFile   | `string`                 | `'index.html'` | Target HTML file path or filename   |
+| rules        | `InjectRule[]`           | -              | Array of injection rules (required) |
+| security     | `SecurityConfig`         | -              | Security filtering configuration    |
+| templateVars | `Record<string, string>` | -              | Global template variables           |
+| logInjection | `boolean`                | `true`         | Whether to output injection logs    |
 
 **InjectRule**
 
-| Property             | Type                     | Default    | Description                                              |
-| -------------------- | ------------------------ | ---------- | -------------------------------------------------------- |
-| id                   | `string`                 | -          | Unique rule identifier for logging and debugging         |
-| content              | `string`                 | -          | HTML content to inject (required)                        |
-| position             | `InjectPosition`         | -          | Injection position (required)                            |
-| selector             | `string`                 | -          | Selector string (required for selector positions)        |
-| selectorMatch        | `'string'` \| `'regex'`  | `'string'` | Selector match mode                                      |
-| priority             | `number`                 | `100`      | Priority, lower values execute first                     |
-| condition            | `InjectCondition`        | -          | Injection condition                                      |
-| templateVars         | `Record<string, string>` | -          | Rule-level template variables (override global)          |
-| allowScriptInjection | `boolean`                | `false`    | Whether to allow injecting scripts and dangerous content |
-
-**InjectCondition**
-
-| Property | Type                                        | Default | Description                            |
-| -------- | ------------------------------------------- | ------- | -------------------------------------- |
-| type     | `'env'` \| `'file-contains'` \| `'custom'`  | -       | Condition type (required)              |
-| value    | `string` \| `((...args: any[]) => boolean)` | -       | Condition value (required)             |
-| negate   | `boolean`                                   | `false` | Whether to negate the condition result |
+| Property             | Type                     | Default    | Description                                               |
+| -------------------- | ------------------------ | ---------- | --------------------------------------------------------- |
+| id                   | `string`                 | -          | Unique rule identifier                                    |
+| content              | `string`                 | -          | HTML content to inject                                    |
+| position             | `InjectPosition`         | -          | Injection position                                        |
+| selector             | `string`                 | -          | Selector (required for selector-related positions)        |
+| selectorMatch        | `'string'` \| `'regex'`  | `'string'` | Selector matching mode                                    |
+| priority             | `number`                 | `100`      | Rule priority, lower values execute first                 |
+| condition            | `InjectCondition`        | -          | Injection condition                                       |
+| templateVars         | `Record<string, string>` | -          | Rule-level template variables, override global vars       |
+| allowScriptInjection | `boolean`                | `false`    | Whether to allow injecting dangerous content like scripts |
 
 **SecurityConfig**
 
-| Property                 | Type       | Default | Description                           |
-| ------------------------ | ---------- | ------- | ------------------------------------- |
-| blockDangerousTags       | `boolean`  | `true`  | Whether to block dangerous tags       |
-| blockDangerousAttributes | `boolean`  | `true`  | Whether to block dangerous attributes |
-| allowedTags              | `string[]` | -       | Whitelist of allowed tags             |
-| blockedTags              | `string[]` | -       | Custom blocked tags list              |
-| blockedAttributes        | `string[]` | -       | Custom blocked attributes list        |
+| Property                 | Type       | Default | Description                       |
+| ------------------------ | ---------- | ------- | --------------------------------- |
+| blockDangerousTags       | `boolean`  | `true`  | Block dangerous tags              |
+| blockDangerousAttributes | `boolean`  | `true`  | Block dangerous attributes        |
+| allowedTags              | `string[]` | -       | Whitelist of allowed tags         |
+| blockedTags              | `string[]` | -       | Custom list of blocked tags       |
+| blockedAttributes        | `string[]` | -       | Custom list of blocked attributes |
 
 ```typescript
-// Basic usage
-htmlInject({
-	rules: [{ id: 'meta-desc', content: '<meta name="description" content="My App">', position: 'head-end' }]
-})
-
-// Conditional injection (production only)
 htmlInject({
 	rules: [
-		{
-			id: 'analytics',
-			content: '<script src="/analytics.js"></script>',
-			position: 'body-end',
-			condition: { type: 'env', value: 'PRODUCTION' },
-			allowScriptInjection: true
-		}
+		{ id: 'meta-description', content: '<meta name="description" content="{{appName}}">', position: 'head-end', templateVars: { appName: 'My Application' } },
+		{ id: 'analytics', content: '<script src="/analytics.js"></script>', position: 'body-end', condition: { type: 'env', value: 'PRODUCTION' }, allowScriptInjection: true }
 	]
-})
-
-// Template variable replacement
-htmlInject({
-	templateVars: { appName: 'My App', version: '1.0.0' },
-	rules: [{ id: 'meta', content: '<meta name="description" content="{{appName}}">', position: 'head-end' }]
-})
-
-// Selector injection
-htmlInject({
-	rules: [{ id: 'replace-title', content: '<title>New Title</title>', position: 'replace-selector', selector: '<title>.*</title>', selectorMatch: 'regex' }]
-})
-
-// Security configuration
-htmlInject({
-	security: { blockDangerousTags: true, allowedTags: ['iframe'] },
-	rules: [{ id: 'embed', content: '<iframe src="https://example.com"></iframe>', position: 'body-end' }]
 })
 ```
 
+---
+
 ### faviconManager
 
-Inject website icon links into the head of HTML files during the Vite build process. Supports string shorthand config.
+Manage website favicon links injection into HTML files, supporting string shorthand config and icon file copying.
 
-| Option      | Type     | Default | Description                     |
-| ----------- | -------- | ------- | ------------------------------- |
-| base        | `string` | `'/'`   | Base path for icon files        |
-| url         | `string` | -       | Complete URL for the icon       |
-| link        | `string` | -       | Custom complete link tag HTML   |
-| icons       | `Icon[]` | -       | Custom icon array               |
-| copyOptions | `object` | -       | Icon file copying configuration |
+| Option      | Type     | Default | Description                                            |
+| ----------- | -------- | ------- | ------------------------------------------------------ |
+| base        | `string` | `'/'`   | Base path for icon files                               |
+| url         | `string` | -       | Complete icon URL, takes precedence over base          |
+| link        | `string` | -       | Custom complete link tag HTML, highest priority        |
+| icons       | `Icon[]` | -       | Custom icon array, supports multiple formats and sizes |
+| copyOptions | `object` | -       | Icon file copy config (sourceDir, targetDir)           |
 
-> Priority: `link` > `url` > `base`. When `link` is provided, custom HTML is injected directly; when `url` is provided, the complete URL is used; otherwise `base + '/favicon.ico'` is used.
+**Icon**
 
-`Icon` interface definition:
-
-| Property | Type     | Required | Description        |
-| -------- | -------- | -------- | ------------------ |
-| rel      | `string` | Yes      | Icon relation type |
-| href     | `string` | Yes      | Icon URL           |
-| sizes    | `string` | No       | Icon sizes         |
-| type     | `string` | No       | Icon MIME type     |
-
-`copyOptions` interface definition:
-
-| Property  | Type      | Required | Default | Description                 |
-| --------- | --------- | -------- | ------- | --------------------------- |
-| sourceDir | `string`  | Yes      | -       | Icon source directory       |
-| targetDir | `string`  | Yes      | -       | Icon target directory       |
-| overwrite | `boolean` | No       | `true`  | Whether to overwrite files  |
-| recursive | `boolean` | No       | `true`  | Whether to copy recursively |
+| Property | Type     | Description        |
+| -------- | -------- | ------------------ |
+| rel      | `string` | Icon relation type |
+| href     | `string` | Icon URL           |
+| sizes    | `string` | Icon size          |
+| type     | `string` | Icon MIME type     |
 
 ```typescript
-// Use default config
 faviconManager()
-
-// String shorthand (set base path)
 faviconManager('/assets')
-
-// Custom icon array
 faviconManager({
 	base: '/assets',
 	icons: [
 		{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
-		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-		{ rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' }
+		{ rel: 'icon', href: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
 	]
 })
-
-// Custom complete link tag
-faviconManager({
-	link: '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />'
-})
-
-// With file copying
-faviconManager({
-	base: '/assets',
-	copyOptions: {
-		sourceDir: 'src/assets/icons',
-		targetDir: 'dist/assets/icons'
-	}
-})
+faviconManager({ link: '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />' })
+faviconManager({ base: '/assets', copyOptions: { sourceDir: 'src/assets/icons', targetDir: 'dist/assets/icons' } })
 ```
+
+---
 
 ### loadingManager
 
-Inject global Loading state management with XHR/Fetch request interception, white-screen Loading, custom styles, and lifecycle callbacks.
+Global Loading state management with request interception and white-screen Loading support.
 
-**Injection strategy:**
-
-- `defaultVisible: false` (default): All code (CSS + HTML + JS) is dynamically injected via JS before `</body>`
-- `defaultVisible: true`: CSS + HTML are injected as static tags before `</head>` (visible on white screen), JS is injected before `</body>`
-
-| Option         | Type                                            | Default                 | Description                                             |
-| -------------- | ----------------------------------------------- | ----------------------- | ------------------------------------------------------- |
-| position       | `'center'` \| `'top'` \| `'bottom'`             | `'center'`              | Loading display position                                |
-| defaultText    | `string`                                        | `'Loading...'`          | Default display text                                    |
-| spinnerType    | `'spinner'` \| `'dots'` \| `'pulse'` \| `'bar'` | `'spinner'`             | Spinner icon type                                       |
-| style          | `LoadingStyle`                                  | -                       | Custom style configuration                              |
-| transition     | `TransitionConfig`                              | `{ enabled: true }`     | Transition animation configuration                      |
-| minDisplayTime | `MinDisplayTime`                                | `{ enabled: true }`     | Minimum display time configuration                      |
-| delayShow      | `DelayShow`                                     | `{ enabled: true }`     | Delayed show configuration                              |
-| debounceHide   | `DebounceHide`                                  | `{ enabled: false }`    | Debounced hide configuration                            |
-| autoBind       | `'fetch'` \| `'xhr'` \| `'all'` \| `'none'`     | `'none'`                | Auto-bind request interception mode                     |
-| requestFilter  | `RequestFilter`                                 | -                       | Request filter configuration                            |
-| globalName     | `string`                                        | `'__LOADING_MANAGER__'` | Global variable name injected into browser              |
-| customTemplate | `string`                                        | -                       | Custom HTML template (must include `data-loading-text`) |
-| defaultVisible | `boolean`                                       | `false`                 | Whether initially visible (white-screen Loading)        |
-| autoHideOn     | `'DOMContentLoaded'` \| `'load'` \| `'manual'`  | `'DOMContentLoaded'`    | Auto-hide timing (requires `defaultVisible: true`)      |
-| callbacks      | `LoadingCallbacks`                              | -                       | Lifecycle callbacks                                     |
+| Option         | Type                                            | Default                 | Description                                |
+| -------------- | ----------------------------------------------- | ----------------------- | ------------------------------------------ |
+| position       | `'center'` \| `'top'` \| `'bottom'`             | `'center'`              | Loading display position                   |
+| defaultText    | `string`                                        | `'Loading...'`          | Default display text                       |
+| spinnerType    | `'spinner'` \| `'dots'` \| `'pulse'` \| `'bar'` | `'spinner'`             | Spinner icon type                          |
+| autoBind       | `'fetch'` \| `'xhr'` \| `'all'` \| `'none'`     | `'none'`                | Auto-bind request interception mode        |
+| globalName     | `string`                                        | `'__LOADING_MANAGER__'` | Global variable name injected into browser |
+| defaultVisible | `boolean`                                       | `false`                 | Loading DOM initial visibility state       |
+| autoHideOn     | `'DOMContentLoaded'` \| `'load'` \| `'manual'`  | `'DOMContentLoaded'`    | Auto-hide timing                           |
+| style          | `LoadingStyle`                                  | -                       | Custom style configuration                 |
+| transition     | `TransitionConfig`                              | -                       | Transition animation configuration         |
+| minDisplayTime | `MinDisplayTime`                                | -                       | Minimum display time configuration         |
+| delayShow      | `DelayShow`                                     | -                       | Delay show configuration                   |
+| debounceHide   | `DebounceHide`                                  | -                       | Debounce hide configuration                |
+| requestFilter  | `RequestFilter`                                 | -                       | Request filter configuration               |
+| customTemplate | `string`                                        | -                       | Custom HTML template                       |
+| callbacks      | `LoadingCallbacks`                              | -                       | Lifecycle callbacks                        |
 
 **LoadingStyle**
 
@@ -587,386 +437,146 @@ Inject global Loading state management with XHR/Fetch request interception, whit
 | spinnerSize        | `string`  | `'40px'`                  | Spinner icon size                        |
 | textColor          | `string`  | `'#333'`                  | Text color                               |
 | textSize           | `string`  | `'14px'`                  | Text size                                |
-| customClass        | `string`  | -                         | Custom CSS class name                    |
-| customStyle        | `string`  | -                         | Custom inline style                      |
 | zIndex             | `number`  | `9999`                    | z-index value                            |
 | pointerEvents      | `boolean` | `true`                    | Whether to enable overlay pointer events |
-| backdropBlur       | `boolean` | `false`                   | Whether to enable backdrop blur          |
-| backdropBlurAmount | `number`  | `4`                       | Backdrop blur amount (px)                |
+| backdropBlur       | `boolean` | `false`                   | Whether to enable background blur        |
+| backdropBlurAmount | `number`  | `4`                       | Background blur amount (px)              |
+| customClass        | `string`  | -                         | Custom CSS class name                    |
+| customStyle        | `string`  | -                         | Custom inline style string               |
 
-**TransitionConfig**
-
-| Property | Type      | Default      | Description                  |
-| -------- | --------- | ------------ | ---------------------------- |
-| enabled  | `boolean` | `true`       | Whether to enable transition |
-| duration | `number`  | `200`        | Transition duration (ms)     |
-| easing   | `string`  | `'ease-out'` | Easing function              |
-
-**MinDisplayTime**
-
-| Property | Type      | Default | Description                                               |
-| -------- | --------- | ------- | --------------------------------------------------------- |
-| enabled  | `boolean` | `true`  | Whether to enable                                         |
-| duration | `number`  | `300`   | Minimum display time (ms), prevents Loading from flashing |
-
-**DelayShow**
-
-| Property | Type      | Default | Description                                                                    |
-| -------- | --------- | ------- | ------------------------------------------------------------------------------ |
-| enabled  | `boolean` | `true`  | Whether to enable                                                              |
-| duration | `number`  | `200`   | Delay duration (ms); if request completes within this time, Loading won't show |
-
-**DebounceHide**
-
-| Property | Type      | Default | Description             |
-| -------- | --------- | ------- | ----------------------- |
-| enabled  | `boolean` | `false` | Whether to enable       |
-| duration | `number`  | `100`   | Debounce wait time (ms) |
-
-**RequestFilter**
-
-| Property           | Type       | Description                                                           |
-| ------------------ | ---------- | --------------------------------------------------------------------- |
-| excludeUrls        | `RegExp[]` | Array of URL regex patterns to exclude                                |
-| includeUrls        | `RegExp[]` | Array of URL regex patterns to include (higher priority than exclude) |
-| excludeMethods     | `string[]` | Array of HTTP methods to exclude                                      |
-| excludeUrlPrefixes | `string[]` | Array of URL prefixes to exclude (prefix matching, more efficient)    |
-
-**LoadingCallbacks**
-
-Callbacks are provided as **function body strings** (injected into browser at build time, function references cannot be passed).
-
-| Property     | Type     | Description                                     |
-| ------------ | -------- | ----------------------------------------------- |
-| onBeforeShow | `string` | Before show callback, `return false` to prevent |
-| onShow       | `string` | After show callback                             |
-| onBeforeHide | `string` | Before hide callback, `return false` to prevent |
-| onHide       | `string` | After hide callback                             |
-| onDestroy    | `string` | On destroy callback                             |
-
-**LoadingManager API**
-
-Access via `window.__LOADING_MANAGER__`:
-
-| Method                     | Description                                                         |
-| -------------------------- | ------------------------------------------------------------------- |
-| `show(text?)`              | Show Loading, optionally pass text                                  |
-| `hide()`                   | Hide Loading (subject to min display time and debounce constraints) |
-| `forceHide()`              | Force hide, ignoring min display time and debounce                  |
-| `toggle(text?)`            | Toggle Loading show/hide state                                      |
-| `updateText(text)`         | Update text content                                                 |
-| `isVisible()`              | Get whether Loading is currently visible                            |
-| `isPointerEventsEnabled()` | Get whether pointer events are currently enabled                    |
-| `enablePointerEvents()`    | Enable overlay pointer events, intercept all clicks and scrolls     |
-| `disablePointerEvents()`   | Disable overlay pointer events, allow interaction passthrough       |
-| `togglePointerEvents()`    | Toggle overlay pointer events state                                 |
-| `getPendingCount()`        | Get the number of pending requests                                  |
-| `destroy()`                | Destroy instance, clean up DOM and restore original interceptors    |
+**Runtime API:**
 
 ```typescript
-// White-screen Loading: visible on page load, auto-hide on DOMContentLoaded
-loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
-
-// White-screen Loading: auto-hide after all resources loaded
-loadingManager({ defaultVisible: true, autoHideOn: 'load' })
-
-// Vue/React SPA: visible on white screen, manually hide after framework renders
-loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
-// In app entry: window.__LOADING_MANAGER__.hide()
-
-// Auto-intercept all requests
-loadingManager({ autoBind: 'all' })
-
-// Custom styles + request filtering
-loadingManager({
-	style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#fff', backdropBlur: true },
-	autoBind: 'fetch',
-	requestFilter: { excludeUrls: [/\/api\/health/], excludeUrlPrefixes: ['http://localhost'] }
-})
-
-// Debounced hide (prevent rapid flashing)
-loadingManager({ debounceHide: { enabled: true, duration: 100 } })
-
-// Lifecycle callbacks
-loadingManager({
-	callbacks: {
-		onBeforeShow: 'if (shouldSkip) return false;',
-		onShow: 'console.log("loading shown")',
-		onBeforeHide: 'if (shouldKeepVisible) return false;',
-		onHide: 'console.log("loading hidden")'
-	}
-})
-
-// Manual control
-loadingManager()
-window.__LOADING_MANAGER__.show('Saving...')
+window.__LOADING_MANAGER__.show('Loading...')
 window.__LOADING_MANAGER__.hide()
+window.__LOADING_MANAGER__.forceHide()
 window.__LOADING_MANAGER__.toggle()
+window.__LOADING_MANAGER__.updateText('Processing...')
+window.__LOADING_MANAGER__.isVisible()
+window.__LOADING_MANAGER__.getPendingCount()
+window.__LOADING_MANAGER__.destroy()
+window.__LOADING_MANAGER__.enablePointerEvents()
 window.__LOADING_MANAGER__.disablePointerEvents()
+window.__LOADING_MANAGER__.togglePointerEvents()
+window.__LOADING_MANAGER__.isPointerEventsEnabled()
 ```
-
-## Common Utilities
-
-Exported via `@meng-xi/vite-plugin/common`, reusable in custom plugins:
 
 ```typescript
-import { deepMerge, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, generateRandomHash, escapeHtmlAttr, Validator } from '@meng-xi/vite-plugin/common'
-import { readFileContent, writeFileContent, fileExists, copySourceToTarget } from '@meng-xi/vite-plugin/common/fs'
-import { injectBeforeTag, injectHtmlByPriority, injectBeforeTagWithFallback, injectHeadAndBody } from '@meng-xi/vite-plugin/common/html'
-import { makeCallback, containsScriptTag, validateIdentifierName } from '@meng-xi/vite-plugin/common/script'
-import { validateGlobalName, validateNoScriptInTemplate, validateCallbackFields, validateNonNegativeNumber, validateNestedDuration, validateEnumValue } from '@meng-xi/vite-plugin/common/validation'
+loadingManager()
+loadingManager({ position: 'top', defaultText: 'Please wait...' })
+loadingManager({ spinnerType: 'dots' })
+loadingManager({ autoBind: 'fetch', requestFilter: { excludeUrls: [/\/api\/health/], excludeUrlPrefixes: ['http://localhost'] } })
+loadingManager({ style: { overlayColor: 'rgba(0,0,0,0.5)', spinnerColor: '#ff6b6b', backdropBlur: true, backdropBlurAmount: 6 } })
+loadingManager({ transition: { enabled: true, duration: 300, easing: 'cubic-bezier(0.4,0,0.2,1)' } })
+loadingManager({ debounceHide: { enabled: true, duration: 100 } })
+loadingManager({ callbacks: { onShow: 'console.log("loading shown")', onBeforeShow: 'return true', onHide: 'console.log("loading hidden")' } })
+loadingManager({ customTemplate: '<div class="my-loader"><span data-loading-text></span></div>' })
+loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+loadingManager({ defaultVisible: true, autoHideOn: 'manual' })
 ```
 
-| Function                        | Description                                                                   | Sub-path            |
-| ------------------------------- | ----------------------------------------------------------------------------- | ------------------- |
-| `deepMerge()`                   | Deep merge objects (undefined skipped, arrays overwritten)                    | `common/object`     |
-| `formatDate()`                  | Format date with `{YYYY}`, `{MM}`, `{DD}` etc. placeholders                   | `common/format`     |
-| `parseTemplate()`               | Parse template string, replace placeholders                                   | `common/format`     |
-| `toCamelCase()`                 | Convert to camelCase                                                          | `common/format`     |
-| `toPascalCase()`                | Convert to PascalCase                                                         | `common/format`     |
-| `stripJsonComments()`           | Remove comments from JSON string                                              | `common/format`     |
-| `generateRandomHash()`          | Generate random hash string (1-64 characters)                                 | `common/format`     |
-| `escapeHtmlAttr()`              | Escape special characters in HTML attribute values, prevent XSS injection     | `common/format`     |
-| `readFileContent()`             | Async read file content                                                       | `common/fs`         |
-| `writeFileContent()`            | Async write file content                                                      | `common/fs`         |
-| `fileExists()`                  | Async check if file exists                                                    | `common/fs`         |
-| `copySourceToTarget()`          | Copy files or directories with incremental copy and concurrency               | `common/fs`         |
-| `injectBeforeTag()`             | Inject code before a specified closing HTML tag                               | `common/html`       |
-| `injectHtmlByPriority()`        | Inject code into HTML by priority (`</head>` → `</body>` → `</html>`)         | `common/html`       |
-| `injectBeforeTagWithFallback()` | Inject with fallback strategy (`</body>` → `</html>` → append)                | `common/html`       |
-| `injectHeadAndBody()`           | Dual-zone HTML injection (head + body)                                        | `common/html`       |
-| `makeCallback()`                | Wrap callback function body as safe function expression (with try-catch)      | `common/script`     |
-| `containsScriptTag()`           | Detect if a string contains `<script>` tags                                   | `common/script`     |
-| `validateIdentifierName()`      | Validate string as a legal JavaScript identifier, prevent prototype pollution | `common/script`     |
-| `validateGlobalName()`          | Validate global variable name legality                                        | `common/validation` |
-| `validateNoScriptInTemplate()`  | Validate template string does not contain script tags (XSS protection)        | `common/validation` |
-| `validateCallbackFields()`      | Validate callback fields do not contain script tags                           | `common/validation` |
-| `validateNonNegativeNumber()`   | Validate number is non-negative                                               | `common/validation` |
-| `validateNestedDuration()`      | Validate nested config duration legality                                      | `common/validation` |
-| `validateEnumValue()`           | Validate string value is in allowed enum list                                 | `common/validation` |
+---
 
 ## Plugin Development Framework
 
-### BasePlugin Core Concepts
+### BasePlugin
 
-`BasePlugin` is the base class for all plugins, providing complete lifecycle management and development conventions:
-
-#### Lifecycle
-
-| Phase             | Method             | Description                                                    |
-| ----------------- | ------------------ | -------------------------------------------------------------- |
-| Initialization    | `constructor`      | Merge options, initialize logger and validator                 |
-| Config Resolution | `onConfigResolved` | Called when Vite config is resolved                            |
-| Hook Registration | `addPluginHooks`   | Register Vite plugin hooks                                     |
-| Destroy           | `destroy`          | Automatically called during `closeBundle` for resource cleanup |
-
-#### Automatic Hook Composition
-
-The `toPlugin()` method automatically composes the following hooks:
-
-- **configResolved** - Base class `onConfigResolved` runs first, then subclass hook
-- **closeBundle** - Subclass hook runs first, then base class `destroy`
-
-> Subclasses don't need to manually register `closeBundle` hooks for cleanup — just override the `destroy()` method.
-
-#### Required Methods
-
-| Method                   | Description           |
-| ------------------------ | --------------------- |
-| `getPluginName()`        | Return plugin name    |
-| `addPluginHooks(plugin)` | Add Vite plugin hooks |
-
-#### Optional Methods
-
-| Method                     | Default Behavior  | Description                                 |
-| -------------------------- | ----------------- | ------------------------------------------- |
-| `getDefaultOptions()`      | Returns `{}`      | Provide plugin default options              |
-| `validateOptions()`        | No validation     | Validate configuration parameters           |
-| `getEnforce()`             | `undefined`       | Plugin execution order (`'pre'` / `'post'`) |
-| `onConfigResolved(config)` | Store config      | Config resolved callback                    |
-| `destroy()`                | Unregister logger | Cleanup logic when plugin is destroyed      |
-
-#### Built-in Properties
-
-| Property     | Type                     | Description                   |
-| ------------ | ------------------------ | ----------------------------- |
-| `options`    | `Required<T>`            | Merged complete configuration |
-| `logger`     | `PluginLogger`           | Plugin logger                 |
-| `validator`  | `Validator<T>`           | Configuration validator       |
-| `viteConfig` | `ResolvedConfig \| null` | Resolved Vite configuration   |
-
-#### Error Handling Strategy
-
-Control error behavior via the `errorStrategy` configuration option:
-
-- `'throw'` (default) - Log error and throw exception, halting the build
-- `'log'` - Log error but don't throw, continue execution
-- `'ignore'` - Log error but don't throw, continue execution
-
-Wrap error-prone operations with `safeExecute` / `safeExecuteSync`:
+The base class for all built-in plugins, providing core functionality such as configuration management, logging, lifecycle management, and safe execution.
 
 ```typescript
-// Async safe execution
-const result = await this.safeExecute(async () => {
-	return await someAsyncOperation()
-}, 'Execute async operation')
-
-// Sync safe execution
-const value = this.safeExecuteSync(() => {
-	return someSyncOperation()
-}, 'Execute sync operation')
-```
-
-### createPluginFactory
-
-Create plugin factory functions with optional normalizer support:
-
-```typescript
-// Basic usage
-const myPlugin = createPluginFactory(MyPlugin)
-
-// With normalizer (supports shorthand string config)
-const myPlugin = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
-
-// Usage with shorthand
-myPlugin('./custom-path')
-```
-
-### Validator
-
-Fluent configuration validator with chainable API:
-
-```typescript
-import { Validator } from '@meng-xi/vite-plugin/common'
-
-const validator = new Validator(options)
-validator
-	.field('sourceDir')
-	.required()
-	.string()
-	.field('targetDir')
-	.required()
-	.string()
-	.field('overwrite')
-	.boolean()
-	.default(true)
-	.field('port')
-	.number()
-	.field('list')
-	.array()
-	.field('config')
-	.object()
-	.field('name')
-	.custom(val => val.length > 0, 'name cannot be empty')
-	.validate()
-```
-
-| Method       | Description                                                       |
-| ------------ | ----------------------------------------------------------------- |
-| `field()`    | Specify the field to validate                                     |
-| `required()` | Mark field as required                                            |
-| `string()`   | Validate field value is a string type                             |
-| `boolean()`  | Validate field value is a boolean type                            |
-| `number()`   | Validate field value is a number type                             |
-| `array()`    | Validate field value is an array type                             |
-| `object()`   | Validate field value is an object type                            |
-| `enum()`     | Validate field value is in allowed enum list                      |
-| `minValue()` | Validate number field value is not less than specified minimum    |
-| `maxValue()` | Validate number field value is not greater than specified maximum |
-| `default()`  | Set default value for field (only when value is undefined/null)   |
-| `custom()`   | Validate field value with a custom function                       |
-| `validate()` | Execute validation, throws error on failure                       |
-
-### Logger
-
-Global singleton log manager providing independent log control for each plugin:
-
-```typescript
-import { Logger } from '@meng-xi/vite-plugin/logger'
-
-// Create logger (usually called automatically by BasePlugin)
-Logger.create({ name: 'my-plugin', enabled: true })
-
-// Unregister plugin log config (automatically called on plugin destroy)
-Logger.unregister('my-plugin')
-
-// Destroy singleton (for test scenarios)
-Logger.destroy()
-```
-
-Log output format:
-
-```
-ℹ️ [@meng-xi/vite-plugin:my-plugin] Info message
-✅ [@meng-xi/vite-plugin:my-plugin] Success message
-⚠️ [@meng-xi/vite-plugin:my-plugin] Warning message
-❌ [@meng-xi/vite-plugin:my-plugin] Error message
-```
-
-### Custom Plugin Example
-
-```typescript
-import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin'
-import type { BasePluginOptions, PluginWithInstance } from '@meng-xi/vite-plugin/factory'
+import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
 import type { Plugin } from 'vite'
 
-interface MyPluginOptions extends BasePluginOptions {
-	path: string
+interface MyPluginOptions {
+	enabled?: boolean
+	message?: string
 }
 
 class MyPlugin extends BasePlugin<MyPluginOptions> {
-	protected getDefaultOptions() {
-		return { path: './default' }
-	}
-
-	protected validateOptions(): void {
-		this.validator.field('path').required().string().validate()
-	}
-
-	protected getPluginName(): string {
+	protected getPluginName() {
 		return 'my-plugin'
 	}
-
-	protected addPluginHooks(plugin: Plugin): void {
-		plugin.buildStart = () => {
-			this.logger.info(`Plugin started with path: ${this.options.path}`)
-		}
+	protected getDefaultOptions() {
+		return { enabled: true, message: 'Hello' }
 	}
-
-	protected destroy(): void {
-		super.destroy()
-		// Custom cleanup logic, e.g. close connections, stop watchers
+	protected validateOptions() {
+		this.validator.field('message').string().validate()
+	}
+	protected addPluginHooks(plugin: Plugin) {
+		plugin.buildStart = () => {
+			this.logger.info(this.options.message)
+		}
 	}
 }
 
-// Basic usage
 export const myPlugin = createPluginFactory(MyPlugin)
-
-// With normalizer (supports shorthand string config)
-export const myPluginWithNormalizer = createPluginFactory(MyPlugin, opt => (typeof opt === 'string' ? { path: opt } : opt))
-// Usage with shorthand: myPluginWithNormalizer('./custom-path')
 ```
+
+### Core Components
+
+| Component             | Export Path                    | Description                         |
+| --------------------- | ------------------------------ | ----------------------------------- |
+| `BasePlugin`          | `@meng-xi/vite-plugin/factory` | Plugin base class                   |
+| `createPluginFactory` | `@meng-xi/vite-plugin/factory` | Plugin factory function creator     |
+| `PluginWithInstance`  | `@meng-xi/vite-plugin/factory` | Plugin type with instance reference |
+| `Logger`              | `@meng-xi/vite-plugin/logger`  | Log manager (singleton pattern)     |
+| `Validator`           | `@meng-xi/vite-plugin/common`  | Fluent API configuration validator  |
+
+### Common Utilities
+
+| Module     | Export Path                              | Description                                                       |
+| ---------- | ---------------------------------------- | ----------------------------------------------------------------- |
+| format     | `@meng-xi/vite-plugin/common/format`     | Date formatting, name conversion, template parsing, HTML escaping |
+| fs         | `@meng-xi/vite-plugin/common/fs`         | File copying, directory traversal, concurrency control            |
+| html       | `@meng-xi/vite-plugin/common/html`       | HTML injection (injectBeforeTag, injectHeadAndBody, etc.)         |
+| object     | `@meng-xi/vite-plugin/common/object`     | Deep merge objects                                                |
+| script     | `@meng-xi/vite-plugin/common/script`     | Callback wrapping, script tag detection, identifier validation    |
+| validation | `@meng-xi/vite-plugin/common/validation` | Global name validation, XSS prevention, enum validation, etc.     |
+
+---
 
 ## Sub-path Exports
 
 Support importing modules on demand to reduce bundle size:
 
 ```typescript
-// Full import
 import { buildProgress, copyFile, htmlInject, loadingManager, BasePlugin, Logger } from '@meng-xi/vite-plugin'
 
-// Module-level import
 import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
 import { Logger } from '@meng-xi/vite-plugin/logger'
-import { buildProgress, copyFile, generateRouter, htmlInject, loadingManager } from '@meng-xi/vite-plugin/plugins'
-import { Validator, readFileContent, writeFileContent } from '@meng-xi/vite-plugin/common'
+import { buildProgress, compressAssets, copyFile, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin/plugins'
+import { Validator, readFileContent, writeFileContent, injectHeadAndBody, deepMerge } from '@meng-xi/vite-plugin/common'
 
-// Type imports (on-demand type definitions from sub-paths)
 import type { PluginWithInstance, PluginFactory, BasePluginOptions } from '@meng-xi/vite-plugin/factory'
-import type { BuildProgressOptions, GenerateVersionOptions, VersionUpdateCheckerOptions, HtmlInjectOptions, InjectRule, FaviconManagerOptions, LoadingManagerOptions, Icon } from '@meng-xi/vite-plugin/plugins'
+import type { BuildProgressOptions, CompressAssetsOptions, GenerateVersionOptions, VersionUpdateCheckerOptions, HtmlInjectOptions, FaviconManagerOptions, LoadingManagerOptions } from '@meng-xi/vite-plugin/plugins'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 import type { HtmlInjectResult, DualInjectResult } from '@meng-xi/vite-plugin/common/html'
 import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common/fs'
+```
+
+**All available sub-paths:**
+
+```
+@meng-xi/vite-plugin
+@meng-xi/vite-plugin/factory
+@meng-xi/vite-plugin/logger
+@meng-xi/vite-plugin/plugins
+@meng-xi/vite-plugin/plugins/build-progress
+@meng-xi/vite-plugin/plugins/compress-assets
+@meng-xi/vite-plugin/plugins/copy-file
+@meng-xi/vite-plugin/plugins/favicon-manager
+@meng-xi/vite-plugin/plugins/generate-router
+@meng-xi/vite-plugin/plugins/generate-version
+@meng-xi/vite-plugin/plugins/html-inject
+@meng-xi/vite-plugin/plugins/loading-manager
+@meng-xi/vite-plugin/plugins/version-update-checker
+@meng-xi/vite-plugin/common
+@meng-xi/vite-plugin/common/format
+@meng-xi/vite-plugin/common/fs
+@meng-xi/vite-plugin/common/html
+@meng-xi/vite-plugin/common/object
+@meng-xi/vite-plugin/common/script
+@meng-xi/vite-plugin/common/validation
 ```
 
 ## Changelog

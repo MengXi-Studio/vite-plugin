@@ -6,10 +6,13 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vitepress dev",
-		"build": "vitepress build",
-		"preview": "vitepress preview"
+		"build": "tsx scripts/sync-docs.ts && vitepress build",
+		"preview": "vitepress preview",
+		"sync-docs": "tsx scripts/sync-docs.ts",
+		"validate-docs": "tsx scripts/sync-docs.ts validate"
 	},
 	"devDependencies": {
+		"tsx": "^4.22.3",
 		"vitepress": "^1.6.4"
 	}
 }

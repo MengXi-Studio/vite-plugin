@@ -7,7 +7,7 @@ titleTemplate: Vite Practical Plugin Toolkit
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite Practical Plugin Toolkit
-  tagline: 8 ready-to-use plugins + complete plugin development framework for efficient Vite development
+  tagline: 9 ready-to-use plugins + complete plugin development framework for efficient Vite development
   image:
     src: /logo.png
     alt: MengXi Studio
@@ -24,8 +24,10 @@ hero:
 
 features:
   - icon: 🚀
-    title: Build Progress Display
-    details: buildProgress displays real-time build progress bar in terminal, supporting bar, spinner, and minimal formats with customizable color themes and character styles
+    title: Build Optimization & Progress
+    details:
+      buildProgress displays real-time build progress bar in terminal, supporting bar, spinner, and minimal formats; compressAssets automatically compresses build artifacts after build, supporting gzip / brotli / both
+      modes with configurable compression level, file filtering, and concurrency, plus compression statistics report
   - icon: 📁
     title: File Operations & Router Generation
     details: copyFile supports incremental file copying to build directory; generateRouter auto-generates router config from pages.json with file watching
@@ -39,6 +41,8 @@ features:
     title: Global Loading State Management
     details: loadingManager provides XHR/Fetch request interception, white-screen Loading, custom styles & animations, and lifecycle callbacks for seamless white-screen-to-interactive transitions
   - icon: 🧱
-    title: Plugin Development Framework
-    details: Exports BasePlugin, createPluginFactory, Logger, Validator and more, providing complete lifecycle management, chainable config validation, and safeExecute wrappers for building standardized custom plugins
+    title: Plugin Development Framework & Common Utilities
+    details:
+      Exports BasePlugin, createPluginFactory, Logger, Validator and more, providing complete lifecycle management, chainable config validation, and safeExecute wrappers; also provides 6 common utility modules — format,
+      fs, html, object, script, validation — covering date formatting, file operations, HTML injection, deep merge, script generation, and config validation
 ---

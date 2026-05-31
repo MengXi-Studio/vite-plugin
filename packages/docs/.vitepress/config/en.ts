@@ -165,6 +165,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/plugins/build-progress.html'
 						},
 						{
+							text: 'compressAssets',
+							link: '/en/plugins/compress-assets.html'
+						},
+						{
 							text: 'copyFile',
 							link: '/en/plugins/copy-file.html'
 						},

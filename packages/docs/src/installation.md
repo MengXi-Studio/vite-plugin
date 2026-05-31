@@ -24,12 +24,19 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
 		// 构建进度条
 		buildProgress(),
+
+		// 构建产物压缩
+		compressAssets({
+			algorithm: 'gzip',
+			threshold: 1024,
+			deleteOriginalFile: false
+		}),
 
 		// 复制文件
 		copyFile({
@@ -79,6 +86,36 @@ export default defineConfig({
 })
 ```
 
+### 子模块独立导入
+
+每个插件都支持从子路径独立导入，可以获得更好的 Tree-shaking 效果：
+
+```typescript
+import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
+import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
+import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compress-assets'
+```
+
+### 使用通用工具模块
+
+```typescript
+import { formatDate, deepMerge, copySourceToTarget } from '@meng-xi/vite-plugin'
+
+// 日期格式化
+formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss')
+
+// 深度合并对象
+const merged = deepMerge(defaultConfig, userConfig)
+
+// 复制文件（支持增量复制和并发控制）
+const result = await copySourceToTarget('src/assets', 'dist/assets', {
+	recursive: true,
+	overwrite: true,
+	incremental: true
+})
+```
+
 ### 开发自定义插件
 
 ```typescript
@@ -116,6 +153,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 ## 下一步
 
 - [buildProgress](/plugins/build-progress) - 构建进度展示
+- [compressAssets](/plugins/compress-assets) - 构建产物压缩
 - [copyFile](/plugins/copy-file) - 文件复制
 - [faviconManager](/plugins/favicon-manager) - 网站图标管理
 - [generateRouter](/plugins/generate-router) - 路由生成

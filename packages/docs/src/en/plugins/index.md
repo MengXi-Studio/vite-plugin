@@ -7,13 +7,14 @@ Vite plugin collection provided by @meng-xi/vite-plugin.
 ### Barrel import (import all plugins)
 
 ```typescript
-import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 ```
 
 ### Submodule import (recommended, supports tree-shaking)
 
 ```typescript
 import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
 import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
 import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
 import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
@@ -30,6 +31,7 @@ import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-updat
 | Plugin                                           | Description                                                   | Submodule Path                                        |
 | ------------------------------------------------ | ------------------------------------------------------------- | ----------------------------------------------------- |
 | [buildProgress](./build-progress)                | Display real-time build progress bar in terminal              | `@meng-xi/vite-plugin/plugins/build-progress`         |
+| [compressAssets](./compress-assets)              | Compress build artifacts with gzip / brotli / both            | `@meng-xi/vite-plugin/plugins/compress-assets`        |
 | [copyFile](./copy-file)                          | Copy files or directories after build                         | `@meng-xi/vite-plugin/plugins/copy-file`              |
 | [faviconManager](./favicon-manager)              | Manage website favicon links injection into HTML              | `@meng-xi/vite-plugin/plugins/favicon-manager`        |
 | [generateRouter](./generate-router)              | Auto-generate route config from uni-app pages.json            | `@meng-xi/vite-plugin/plugins/generate-router`        |

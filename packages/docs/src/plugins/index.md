@@ -7,13 +7,14 @@
 ### 通过 barrel 导入（导入所有插件）
 
 ```typescript
-import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 ```
 
 ### 通过子模块独立导入（推荐，支持 tree-shaking）
 
 ```typescript
 import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
 import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
 import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
 import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
@@ -30,6 +31,7 @@ import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-updat
 | 插件                                             | 说明                                         | 子模块路径                                            |
 | ------------------------------------------------ | -------------------------------------------- | ----------------------------------------------------- |
 | [buildProgress](./build-progress)                | 在终端实时显示构建进度条                     | `@meng-xi/vite-plugin/plugins/build-progress`         |
+| [compressAssets](./compress-assets)              | 构建产物压缩，支持 gzip / brotli / both      | `@meng-xi/vite-plugin/plugins/compress-assets`        |
 | [copyFile](./copy-file)                          | 构建完成后复制文件或目录到指定位置           | `@meng-xi/vite-plugin/plugins/copy-file`              |
 | [faviconManager](./favicon-manager)              | 管理网站图标（favicon）链接注入到 HTML 文件  | `@meng-xi/vite-plugin/plugins/favicon-manager`        |
 | [generateRouter](./generate-router)              | 根据 uni-app pages.json 自动生成路由配置     | `@meng-xi/vite-plugin/plugins/generate-router`        |

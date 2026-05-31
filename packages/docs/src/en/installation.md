@@ -24,12 +24,19 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
 		// Build progress bar
 		buildProgress(),
+
+		// Compress build artifacts
+		compressAssets({
+			algorithm: 'gzip',
+			threshold: 1024,
+			deleteOriginalFile: false
+		}),
 
 		// Copy files
 		copyFile({
@@ -79,6 +86,36 @@ export default defineConfig({
 })
 ```
 
+### Sub-module Independent Import
+
+Each plugin supports independent import from sub-paths for better Tree-shaking:
+
+```typescript
+import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
+import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
+import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compress-assets'
+```
+
+### Using Common Utility Modules
+
+```typescript
+import { formatDate, deepMerge, copySourceToTarget } from '@meng-xi/vite-plugin'
+
+// Date formatting
+formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss')
+
+// Deep merge objects
+const merged = deepMerge(defaultConfig, userConfig)
+
+// Copy files (with incremental copying and concurrency control)
+const result = await copySourceToTarget('src/assets', 'dist/assets', {
+	recursive: true,
+	overwrite: true,
+	incremental: true
+})
+```
+
 ### Developing Custom Plugins
 
 ```typescript
@@ -116,6 +153,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 ## Next Steps
 
 - [buildProgress](/en/plugins/build-progress) - Build progress display
+- [compressAssets](/en/plugins/compress-assets) - Build artifact compression
 - [copyFile](/en/plugins/copy-file) - File copying
 - [faviconManager](/en/plugins/favicon-manager) - Favicon management
 - [generateRouter](/en/plugins/generate-router) - Router generation
