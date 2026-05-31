@@ -1,25 +1,7 @@
 import path from 'node:path'
 import type { BundleAnalysisResult, ComparisonDiff, FileTypeDistribution, SizeWarning } from '../types'
-import { writeFileContent } from '@/common/fs'
-
-/**
- * 将字节数格式化为人类可读的文件大小字符串
- *
- * @param {number} bytes - 文件大小（字节）
- * @returns {string} 格式化后的文件大小字符串
- *
- * @example
- * ```typescript
- * formatFileSize(512)     // '512B'
- * formatFileSize(1536)    // '1.5KB'
- * formatFileSize(2461726) // '2.35MB'
- * ```
- */
-export function formatFileSize(bytes: number): string {
-	if (bytes < 1024) return `${bytes}B`
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`
-	return `${(bytes / (1024 * 1024)).toFixed(2)}MB`
-}
+import { writeFileContent, writeJsonReport } from '@/common/fs'
+import { formatFileSize } from '@/common/format'
 
 /**
  * 生成 JSON 格式的分析报告
@@ -85,7 +67,7 @@ export async function generateJsonReport(outDir: string, outputFileName: string,
 		comparisonDiffs: result.comparisonDiffs
 	}
 
-	await writeFileContent(outputPath, JSON.stringify(report, null, 2))
+	await writeJsonReport(outputPath, report)
 	return outputPath
 }
 

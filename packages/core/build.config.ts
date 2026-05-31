@@ -5,10 +5,12 @@ export default defineBuildConfig({
 	entries: [
 		'src/index',
 		'src/common/index',
+		'src/common/compress/index',
 		'src/common/format/index',
 		'src/common/fs/index',
 		'src/common/html/index',
 		'src/common/object/index',
+		'src/common/path/index',
 		'src/common/script/index',
 		'src/common/validation/index',
 		'src/factory/index',

@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { promises as fsp } from 'node:fs'
 import type { CompressStats, CompressSummary } from '../types'
-import { writeFileContent } from '@/common/fs'
+import { writeJsonReport } from '@/common/fs'
 
 /**
  * 根据压缩统计数据构建汇总信息
@@ -34,30 +34,6 @@ export function buildSummary(stats: CompressStats[], executionTime: number): Com
 		executionTime,
 		stats
 	}
-}
-
-/**
- * 将字节数格式化为人类可读的文件大小字符串
- *
- * @param {number} bytes - 文件大小（字节）
- * @returns {string} 格式化后的文件大小字符串
- *
- * @description 转换规则：
- * - 小于 1KB：显示为 `xB`（如 `512B`）
- * - 小于 1MB：显示为 `x.xKB`（如 `1.5KB`）
- * - 大于等于 1MB：显示为 `x.xxMB`（如 `2.35MB`）
- *
- * @example
- * ```typescript
- * formatFileSize(512)    // '512B'
- * formatFileSize(1536)   // '1.5KB'
- * formatFileSize(2461726) // '2.35MB'
- * ```
- */
-export function formatFileSize(bytes: number): string {
-	if (bytes < 1024) return `${bytes}B`
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`
-	return `${(bytes / (1024 * 1024)).toFixed(2)}MB`
 }
 
 /**
@@ -103,7 +79,7 @@ export async function writeReport(outDir: string, reportPath: string | false, su
 		}))
 	}
 
-	await writeFileContent(outputPath, JSON.stringify(report, null, 2))
+	await writeJsonReport(outputPath, report)
 }
 
 /**

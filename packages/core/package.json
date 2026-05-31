@@ -25,6 +25,11 @@
 			"import": "./dist/common/index.mjs",
 			"types": "./dist/common/index.d.ts"
 		},
+		"./common/compress": {
+			"require": "./dist/common/compress/index.cjs",
+			"import": "./dist/common/compress/index.mjs",
+			"types": "./dist/common/compress/index.d.ts"
+		},
 		"./common/format": {
 			"require": "./dist/common/format/index.cjs",
 			"import": "./dist/common/format/index.mjs",
@@ -44,6 +49,11 @@
 			"require": "./dist/common/object/index.cjs",
 			"import": "./dist/common/object/index.mjs",
 			"types": "./dist/common/object/index.d.ts"
+		},
+		"./common/path": {
+			"require": "./dist/common/path/index.cjs",
+			"import": "./dist/common/path/index.mjs",
+			"types": "./dist/common/path/index.d.ts"
 		},
 		"./common/script": {
 			"require": "./dist/common/script/index.cjs",

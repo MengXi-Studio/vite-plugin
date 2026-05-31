@@ -1,7 +1,8 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { BundleAnalyzerOptions, BundleAnalysisResult } from './types'
-import { analyzeBundle, loadPreviousReport, compareWithPrevious, generateJsonReport, generateHtmlReport, formatFileSize } from './common'
+import { analyzeBundle, loadPreviousReport, compareWithPrevious, generateJsonReport, generateHtmlReport } from './common'
+import { formatFileSize } from '@/common/format'
 
 /**
  * 构建产物分析插件

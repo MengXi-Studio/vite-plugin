@@ -1,6 +1,7 @@
 import path from 'node:path'
-import { promises as fsp } from 'node:fs'
 import type { CompressAssetsOptions } from '../types'
+import { scanDirectory as scanDirectoryFromCommon } from '@/common/fs'
+import type { ScannedFile } from '@/common/fs'
 
 /**
  * 待压缩文件候选信息
@@ -78,6 +79,7 @@ export function shouldCompressFile(relativePath: string, ext: string, size: numb
  *
  * @description 递归遍历指定目录下的所有文件，对每个文件调用
  * {@link shouldCompressFile} 判断是否符合压缩条件，返回所有符合条件的文件列表。
+ * 内部委托给 common/fs 的通用 scanDirectory 函数，通过自定义 filter 实现压缩过滤逻辑。
  *
  * @example
  * ```typescript
@@ -86,33 +88,17 @@ export function shouldCompressFile(relativePath: string, ext: string, size: numb
  * ```
  */
 export async function scanDirectory(dirPath: string, options: Required<CompressAssetsOptions>): Promise<FileCandidate[]> {
-	const candidates: FileCandidate[] = []
-
-	async function walk(currentDir: string): Promise<void> {
-		const entries = await fsp.readdir(currentDir, { withFileTypes: true })
-
-		for (const entry of entries) {
-			const fullPath = path.join(currentDir, entry.name)
-
-			if (entry.isDirectory()) {
-				await walk(fullPath)
-			} else if (entry.isFile()) {
-				const stat = await fsp.stat(fullPath)
-				const relativePath = path.relative(dirPath, fullPath)
-				const ext = path.extname(entry.name).toLowerCase()
-
-				if (shouldCompressFile(relativePath, ext, stat.size, options)) {
-					candidates.push({
-						filePath: fullPath,
-						relativePath,
-						size: stat.size,
-						ext
-					})
-				}
-			}
+	const files: ScannedFile[] = await scanDirectoryFromCommon(dirPath, {
+		filter: (filePath, ext, size) => {
+			const relativePath = path.relative(dirPath, filePath)
+			return shouldCompressFile(relativePath, ext, size, options)
 		}
-	}
+	})
 
-	await walk(dirPath)
-	return candidates
+	return files.map(f => ({
+		filePath: f.filePath,
+		relativePath: path.relative(dirPath, f.filePath),
+		size: f.size,
+		ext: f.extension
+	}))
 }
