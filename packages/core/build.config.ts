@@ -15,6 +15,7 @@ export default defineBuildConfig({
 		'src/logger/index',
 		'src/plugins/index',
 		'src/plugins/buildProgress/index',
+		'src/plugins/compressAssets/index',
 		'src/plugins/copyFile/index',
 		'src/plugins/faviconManager/index',
 		'src/plugins/generateRouter/index',

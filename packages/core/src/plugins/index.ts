@@ -1,4 +1,5 @@
 export * from './buildProgress'
+export * from './compressAssets'
 export * from './copyFile'
 export * from './faviconManager'
 export * from './generateRouter'

@@ -75,6 +75,11 @@
 			"import": "./dist/plugins/buildProgress/index.mjs",
 			"types": "./dist/plugins/buildProgress/index.d.ts"
 		},
+		"./plugins/compress-assets": {
+			"require": "./dist/plugins/compressAssets/index.cjs",
+			"import": "./dist/plugins/compressAssets/index.mjs",
+			"types": "./dist/plugins/compressAssets/index.d.ts"
+		},
 		"./plugins/copy-file": {
 			"require": "./dist/plugins/copyFile/index.cjs",
 			"import": "./dist/plugins/copyFile/index.mjs",
