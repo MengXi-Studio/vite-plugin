@@ -6,10 +6,22 @@ Formatting utilities.
 
 ```typescript
 // Submodule import (recommended)
-import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/format'
+import {
+	padNumber,
+	generateRandomHash,
+	getDateFormatParams,
+	formatDate,
+	parseTemplate,
+	toCamelCase,
+	toPascalCase,
+	stripJsonComments,
+	escapeHtmlAttr,
+	formatFileSize,
+	getExtension
+} from '@meng-xi/vite-plugin/common/format'
 
 // Barrel import
-import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr } from '@meng-xi/vite-plugin/common'
+import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr, formatFileSize, getExtension } from '@meng-xi/vite-plugin/common'
 ```
 
 ## padNumber
@@ -298,4 +310,68 @@ escapeHtmlAttr('a & b')
 
 escapeHtmlAttr('hello world')
 // 'hello world' (unchanged when no special characters)
+```
+
+---
+
+## formatFileSize
+
+Format bytes into a human-readable file size string.
+
+```typescript
+function formatFileSize(bytes: number): string
+```
+
+**Parameters**
+
+| Parameter | Type     | Description        |
+| --------- | -------- | ------------------ |
+| bytes     | `number` | File size in bytes |
+
+**Returns**
+
+`string` - Formatted file size string
+
+**Conversion Rules**
+
+| Range          | Format   | Example  |
+| -------------- | -------- | -------- |
+| Less than 1KB  | `xB`     | `512B`   |
+| Less than 1MB  | `x.xKB`  | `1.5KB`  |
+| 1MB or greater | `x.xxMB` | `2.35MB` |
+
+**Examples**
+
+```typescript
+formatFileSize(512) // '512B'
+formatFileSize(1536) // '1.5KB'
+formatFileSize(2461726) // '2.35MB'
+```
+
+---
+
+## getExtension
+
+Get file extension from a file path.
+
+```typescript
+function getExtension(filePath: string): string
+```
+
+**Parameters**
+
+| Parameter | Type     | Description |
+| --------- | -------- | ----------- |
+| filePath  | `string` | File path   |
+
+**Returns**
+
+`string` - Lowercase file extension with dot (e.g., `.js`)
+
+**Examples**
+
+```typescript
+getExtension('dist/app.js') // '.js'
+getExtension('dist/style.CSS') // '.css'
+getExtension('README') // ''
 ```

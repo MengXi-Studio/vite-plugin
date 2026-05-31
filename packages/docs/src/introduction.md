@@ -4,11 +4,12 @@
 
 ## 内置插件
 
-开箱即用的九款插件，覆盖常见构建场景：
+开箱即用的十款插件，覆盖常见构建场景：
 
 | 插件                                                    | 功能                                                                                            |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | [buildProgress](/plugins/build-progress)                | 在终端实时显示构建进度条，支持 bar / spinner / minimal 三种格式                                 |
+| [bundleAnalyzer](/plugins/bundle-analyzer)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比                            |
 | [compressAssets](/plugins/compress-assets)              | 构建产物压缩，支持 gzip / brotli / both，可配置压缩级别、文件过滤与并发数量，并生成压缩统计报告 |
 | [copyFile](/plugins/copy-file)                          | 构建完成后复制文件或目录到指定位置，支持增量复制                                                |
 | [faviconManager](/plugins/favicon-manager)              | 管理网站图标（favicon）链接注入到 HTML 文件                                                     |
@@ -49,7 +50,13 @@ interface BasePluginOptions {
 
 ## 通用工具模块
 
-导出六大工具模块，覆盖插件开发中的常见场景：
+导出八大工具模块，覆盖插件开发中的常见场景：
+
+### compress — 压缩算法工具
+
+提供 gzip 压缩大小计算功能：
+
+- `calculateGzipSize` — 计算数据的 gzip 压缩后大小，用于估算网络传输体积
 
 ### format — 格式化工具
 
@@ -63,6 +70,8 @@ interface BasePluginOptions {
 - `toPascalCase` — 转换为帕斯卡命名（PascalCase）
 - `stripJsonComments` — 移除 JSON 字符串中的注释
 - `escapeHtmlAttr` — 转义 HTML 属性值中的特殊字符，防止 XSS 注入
+- `formatFileSize` — 将字节数格式化为人类可读的文件大小字符串
+- `getExtension` — 获取文件扩展名
 
 ### fs — 文件系统工具
 
@@ -74,6 +83,8 @@ interface BasePluginOptions {
 - `fileExists` — 检查文件是否存在
 - `shouldUpdateFile` — 比较文件修改时间判断是否需要更新
 - `runWithConcurrency` — 带并发限制的批量执行
+- `scanDirectory` — 递归扫描目录，收集文件信息，支持扩展名和路径过滤
+- `writeJsonReport` — 将数据写入 JSON 文件
 
 ### html — HTML 注入工具
 
@@ -87,6 +98,10 @@ interface BasePluginOptions {
 ### object — 对象处理工具
 
 - `deepMerge` — 深度合并对象，支持嵌套对象递归合并、undefined 跳过和数组覆盖
+
+### path — 路径处理工具
+
+- `isNodeModule` — 判断模块 ID 是否来自 node_modules，支持虚拟模块检测
 
 ### script — 脚本工具
 
@@ -112,6 +127,7 @@ interface BasePluginOptions {
 
 - [安装使用](/installation) - 快速开始
 - [buildProgress](/plugins/build-progress) - 构建进度展示
+- [bundleAnalyzer](/plugins/bundle-analyzer) - 构建产物体积分析
 - [compressAssets](/plugins/compress-assets) - 构建产物压缩
 - [htmlInject](/plugins/html-inject) - HTML 内容注入
 - [loadingManager](/plugins/loading-manager) - 全局 Loading 状态管理

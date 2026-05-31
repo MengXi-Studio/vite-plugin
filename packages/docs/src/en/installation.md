@@ -24,12 +24,18 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
 		// Build progress bar
 		buildProgress(),
+
+		// Build artifact size analysis
+		bundleAnalyzer({
+			outputFormat: 'both',
+			sizeThreshold: 200
+		}),
 
 		// Compress build artifacts
 		compressAssets({
@@ -92,6 +98,7 @@ Each plugin supports independent import from sub-paths for better Tree-shaking:
 
 ```typescript
 import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
 import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
 import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
 import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compress-assets'
@@ -153,6 +160,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 ## Next Steps
 
 - [buildProgress](/en/plugins/build-progress) - Build progress display
+- [bundleAnalyzer](/en/plugins/bundle-analyzer) - Build artifact size analysis
 - [compressAssets](/en/plugins/compress-assets) - Build artifact compression
 - [copyFile](/en/plugins/copy-file) - File copying
 - [faviconManager](/en/plugins/favicon-manager) - Favicon management

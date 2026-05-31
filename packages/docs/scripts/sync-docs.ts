@@ -34,6 +34,7 @@ const EN_INDEX_PATH = join(EN_PLUGINS_DIR, 'index.md')
 
 const PLUGIN_DESCRIPTIONS_ZH: Record<string, string> = {
 	buildProgress: '在终端实时显示构建进度条',
+	bundleAnalyzer: '构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比',
 	compressAssets: '构建产物压缩，支持 gzip / brotli / both',
 	copyFile: '构建完成后复制文件或目录到指定位置',
 	faviconManager: '管理网站图标（favicon）链接注入到 HTML 文件',
@@ -46,6 +47,7 @@ const PLUGIN_DESCRIPTIONS_ZH: Record<string, string> = {
 
 const PLUGIN_DESCRIPTIONS_EN: Record<string, string> = {
 	buildProgress: 'Display real-time build progress bar in terminal',
+	bundleAnalyzer: 'Build artifact size analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison',
 	compressAssets: 'Compress build artifacts with gzip / brotli / both',
 	copyFile: 'Copy files or directories after build',
 	faviconManager: 'Manage website favicon links injection into HTML',
@@ -218,7 +220,7 @@ function generateZhDoc(plugin: PluginInfo, options: Array<{ name: string; type: 
 		'',
 		`${TBT}typescript`,
 		`${plugin.camelName}({`,
-		'	enabled: process.env.NODE_ENV === \'production\'',
+		"	enabled: process.env.NODE_ENV === 'production'",
 		'})',
 		TBT,
 		'',
@@ -226,7 +228,7 @@ function generateZhDoc(plugin: PluginInfo, options: Array<{ name: string; type: 
 		'',
 		`${TBT}typescript`,
 		`${plugin.camelName}({`,
-		'	errorStrategy: \'log\'',
+		"	errorStrategy: 'log'",
 		'})',
 		TBT,
 		'',
@@ -291,7 +293,7 @@ function generateEnDoc(plugin: PluginInfo, options: Array<{ name: string; type: 
 		'',
 		`${TBT}typescript`,
 		`${plugin.camelName}({`,
-		'	enabled: process.env.NODE_ENV === \'production\'',
+		"	enabled: process.env.NODE_ENV === 'production'",
 		'})',
 		TBT,
 		'',
@@ -299,13 +301,13 @@ function generateEnDoc(plugin: PluginInfo, options: Array<{ name: string; type: 
 		'',
 		`${TBT}typescript`,
 		`${plugin.camelName}({`,
-		'	errorStrategy: \'log\'',
+		"	errorStrategy: 'log'",
 		'})',
 		TBT,
 		'',
 		'## Notes',
 		'',
-		'- <!-- Please add notes based on the plugin\'s actual behavior -->',
+		"- <!-- Please add notes based on the plugin's actual behavior -->",
 		''
 	]
 
@@ -351,10 +353,12 @@ function checkIndexEntry(indexPath: string, camelName: string): boolean {
 function updateZhIndex(plugins: PluginInfo[]): void {
 	const barrelImports = plugins.map(p => p.camelName).join(', ')
 	const submoduleImports = plugins.map(p => `import { ${p.camelName} } from '@meng-xi/vite-plugin/plugins/${p.kebabName}'`).join('\n')
-	const tableRows = plugins.map(p => {
-		const desc = PLUGIN_DESCRIPTIONS_ZH[p.camelName] || p.description || ''
-		return `| [${p.camelName}](./${p.kebabName}) | ${desc} | ${BT}@meng-xi/vite-plugin/plugins/${p.kebabName}${BT} |`
-	}).join('\n')
+	const tableRows = plugins
+		.map(p => {
+			const desc = PLUGIN_DESCRIPTIONS_ZH[p.camelName] || p.description || ''
+			return `| [${p.camelName}](./${p.kebabName}) | ${desc} | ${BT}@meng-xi/vite-plugin/plugins/${p.kebabName}${BT} |`
+		})
+		.join('\n')
 
 	const lines = [
 		'# 插件列表',
@@ -402,10 +406,12 @@ function updateZhIndex(plugins: PluginInfo[]): void {
 function updateEnIndex(plugins: PluginInfo[]): void {
 	const barrelImports = plugins.map(p => p.camelName).join(', ')
 	const submoduleImports = plugins.map(p => `import { ${p.camelName} } from '@meng-xi/vite-plugin/plugins/${p.kebabName}'`).join('\n')
-	const tableRows = plugins.map(p => {
-		const desc = PLUGIN_DESCRIPTIONS_EN[p.camelName] || p.description || ''
-		return `| [${p.camelName}](./${p.kebabName}) | ${desc} | ${BT}@meng-xi/vite-plugin/plugins/${p.kebabName}${BT} |`
-	}).join('\n')
+	const tableRows = plugins
+		.map(p => {
+			const desc = PLUGIN_DESCRIPTIONS_EN[p.camelName] || p.description || ''
+			return `| [${p.camelName}](./${p.kebabName}) | ${desc} | ${BT}@meng-xi/vite-plugin/plugins/${p.kebabName}${BT} |`
+		})
+		.join('\n')
 
 	const lines = [
 		'# Plugins List',

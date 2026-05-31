@@ -6,12 +6,38 @@
 
 ```typescript
 // 子模块独立导入（推荐）
-import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common/fs'
-import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common/fs'
+import {
+	checkSourceExists,
+	ensureTargetDir,
+	fileExists,
+	readDirRecursive,
+	shouldUpdateFile,
+	copySourceToTarget,
+	writeFileContent,
+	readFileContent,
+	readFileSync,
+	runWithConcurrency,
+	scanDirectory,
+	writeJsonReport
+} from '@meng-xi/vite-plugin/common/fs'
+import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // barrel 导入
-import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
-import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common'
+import {
+	checkSourceExists,
+	ensureTargetDir,
+	fileExists,
+	readDirRecursive,
+	shouldUpdateFile,
+	copySourceToTarget,
+	writeFileContent,
+	readFileContent,
+	readFileSync,
+	runWithConcurrency,
+	scanDirectory,
+	writeJsonReport
+} from '@meng-xi/vite-plugin/common'
+import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 
 ## 类型导出
@@ -343,4 +369,81 @@ const results = await runWithConcurrency(
 	async url => fetch(url),
 	3 // 最多同时处理 3 个请求
 )
+```
+
+---
+
+## scanDirectory
+
+递归扫描目录，收集所有文件信息。
+
+```typescript
+async function scanDirectory(dirPath: string, options?: ScanDirectoryOptions): Promise<ScannedFile[]>
+```
+
+**参数**
+
+| 参数    | 类型                   | 默认值 | 说明     |
+| ------- | ---------------------- | ------ | -------- |
+| dirPath | `string`               | -      | 目录路径 |
+| options | `ScanDirectoryOptions` | `{}`   | 扫描选项 |
+
+**ScanDirectoryOptions**
+
+| 属性              | 类型                                                             | 默认值 | 说明                         |
+| ----------------- | ---------------------------------------------------------------- | ------ | ---------------------------- |
+| includeExtensions | `string[]`                                                       | `[]`   | 包含的文件扩展名，为空则全部 |
+| excludePatterns   | `string[]`                                                       | `[]`   | 排除的路径模式列表           |
+| filter            | `(filePath: string, extension: string, size: number) => boolean` | -      | 自定义文件过滤函数           |
+
+**ScannedFile**
+
+| 属性      | 类型     | 说明                       |
+| --------- | -------- | -------------------------- |
+| filePath  | `string` | 文件绝对路径               |
+| size      | `number` | 文件大小（字节）           |
+| extension | `string` | 文件扩展名（小写，含点号） |
+
+**返回值**
+
+`Promise<ScannedFile[]>` - 文件信息列表
+
+**示例**
+
+```typescript
+// 扫描所有 .js 文件
+const jsFiles = await scanDirectory('dist', { includeExtensions: ['.js'] })
+
+// 排除 node_modules
+const files = await scanDirectory('dist', { excludePatterns: ['node_modules'] })
+
+// 使用自定义过滤
+const largeFiles = await scanDirectory('dist', {
+	filter: (filePath, ext, size) => size > 1024
+})
+```
+
+---
+
+## writeJsonReport
+
+将数据写入 JSON 文件。
+
+```typescript
+async function writeJsonReport(filePath: string, data: object, indent?: number): Promise<void>
+```
+
+**参数**
+
+| 参数     | 类型     | 默认值 | 说明               |
+| -------- | -------- | ------ | ------------------ |
+| filePath | `string` | -      | 输出文件路径       |
+| data     | `object` | -      | 要序列化的数据对象 |
+| indent   | `number` | `2`    | JSON 缩进空格数    |
+
+**示例**
+
+```typescript
+await writeJsonReport('dist/report.json', { timestamp: Date.now(), stats: [] })
+await writeJsonReport('dist/report.json', data, 4)
 ```

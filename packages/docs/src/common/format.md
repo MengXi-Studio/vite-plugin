@@ -6,10 +6,22 @@
 
 ```typescript
 // 子模块独立导入（推荐）
-import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/format'
+import {
+	padNumber,
+	generateRandomHash,
+	getDateFormatParams,
+	formatDate,
+	parseTemplate,
+	toCamelCase,
+	toPascalCase,
+	stripJsonComments,
+	escapeHtmlAttr,
+	formatFileSize,
+	getExtension
+} from '@meng-xi/vite-plugin/common/format'
 
 // barrel 导入
-import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr } from '@meng-xi/vite-plugin/common'
+import { padNumber, generateRandomHash, getDateFormatParams, formatDate, parseTemplate, toCamelCase, toPascalCase, stripJsonComments, escapeHtmlAttr, formatFileSize, getExtension } from '@meng-xi/vite-plugin/common'
 ```
 
 ## padNumber
@@ -298,4 +310,68 @@ escapeHtmlAttr('a & b')
 
 escapeHtmlAttr('hello world')
 // 'hello world'（无特殊字符不变）
+```
+
+---
+
+## formatFileSize
+
+将字节数格式化为人类可读的文件大小字符串。
+
+```typescript
+function formatFileSize(bytes: number): string
+```
+
+**参数**
+
+| 参数  | 类型     | 说明             |
+| ----- | -------- | ---------------- |
+| bytes | `number` | 文件大小（字节） |
+
+**返回值**
+
+`string` - 格式化后的文件大小字符串
+
+**转换规则**
+
+| 范围         | 格式     | 示例     |
+| ------------ | -------- | -------- |
+| 小于 1KB     | `xB`     | `512B`   |
+| 小于 1MB     | `x.xKB`  | `1.5KB`  |
+| 大于等于 1MB | `x.xxMB` | `2.35MB` |
+
+**示例**
+
+```typescript
+formatFileSize(512) // '512B'
+formatFileSize(1536) // '1.5KB'
+formatFileSize(2461726) // '2.35MB'
+```
+
+---
+
+## getExtension
+
+获取文件扩展名。
+
+```typescript
+function getExtension(filePath: string): string
+```
+
+**参数**
+
+| 参数     | 类型     | 说明     |
+| -------- | -------- | -------- |
+| filePath | `string` | 文件路径 |
+
+**返回值**
+
+`string` - 小写的文件扩展名（含点号，如 `.js`）
+
+**示例**
+
+```typescript
+getExtension('dist/app.js') // '.js'
+getExtension('dist/style.CSS') // '.css'
+getExtension('README') // ''
 ```

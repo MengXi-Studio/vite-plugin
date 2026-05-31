@@ -86,6 +86,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/common/index.html'
 						},
 						{
+							text: 'Compress',
+							link: '/en/common/compress.html'
+						},
+						{
 							text: 'File System',
 							link: '/en/common/fs.html'
 						},
@@ -100,6 +104,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'Object',
 							link: '/en/common/object.html'
+						},
+						{
+							text: 'Path',
+							link: '/en/common/path.html'
 						},
 						{
 							text: 'Script',
@@ -163,6 +171,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'buildProgress',
 							link: '/en/plugins/build-progress.html'
+						},
+						{
+							text: 'bundleAnalyzer',
+							link: '/en/plugins/bundle-analyzer.html'
 						},
 						{
 							text: 'compressAssets',

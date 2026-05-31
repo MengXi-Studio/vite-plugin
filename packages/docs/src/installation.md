@@ -24,12 +24,18 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
 		// 构建进度条
 		buildProgress(),
+
+		// 构建产物体积分析
+		bundleAnalyzer({
+			outputFormat: 'both',
+			sizeThreshold: 200
+		}),
 
 		// 构建产物压缩
 		compressAssets({
@@ -92,6 +98,7 @@ export default defineConfig({
 
 ```typescript
 import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
 import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
 import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
 import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compress-assets'
@@ -153,6 +160,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 ## 下一步
 
 - [buildProgress](/plugins/build-progress) - 构建进度展示
+- [bundleAnalyzer](/plugins/bundle-analyzer) - 构建产物体积分析
 - [compressAssets](/plugins/compress-assets) - 构建产物压缩
 - [copyFile](/plugins/copy-file) - 文件复制
 - [faviconManager](/plugins/favicon-manager) - 网站图标管理

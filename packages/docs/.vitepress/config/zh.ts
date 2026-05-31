@@ -86,6 +86,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/common/index.html'
 						},
 						{
+							text: '压缩算法',
+							link: '/common/compress.html'
+						},
+						{
 							text: '文件系统',
 							link: '/common/fs.html'
 						},
@@ -100,6 +104,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: '对象操作',
 							link: '/common/object.html'
+						},
+						{
+							text: '路径处理',
+							link: '/common/path.html'
 						},
 						{
 							text: '脚本工具',
@@ -163,6 +171,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'buildProgress',
 							link: '/plugins/build-progress.html'
+						},
+						{
+							text: 'bundleAnalyzer',
+							link: '/plugins/bundle-analyzer.html'
 						},
 						{
 							text: 'compressAssets',

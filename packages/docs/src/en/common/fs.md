@@ -6,12 +6,38 @@ File system utilities.
 
 ```typescript
 // Submodule import (recommended)
-import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common/fs'
-import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common/fs'
+import {
+	checkSourceExists,
+	ensureTargetDir,
+	fileExists,
+	readDirRecursive,
+	shouldUpdateFile,
+	copySourceToTarget,
+	writeFileContent,
+	readFileContent,
+	readFileSync,
+	runWithConcurrency,
+	scanDirectory,
+	writeJsonReport
+} from '@meng-xi/vite-plugin/common/fs'
+import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // Barrel import
-import { checkSourceExists, ensureTargetDir, fileExists, readDirRecursive, shouldUpdateFile, copySourceToTarget, writeFileContent, readFileContent, readFileSync, runWithConcurrency } from '@meng-xi/vite-plugin/common'
-import type { CopyOptions, CopyResult } from '@meng-xi/vite-plugin/common'
+import {
+	checkSourceExists,
+	ensureTargetDir,
+	fileExists,
+	readDirRecursive,
+	shouldUpdateFile,
+	copySourceToTarget,
+	writeFileContent,
+	readFileContent,
+	readFileSync,
+	runWithConcurrency,
+	scanDirectory,
+	writeJsonReport
+} from '@meng-xi/vite-plugin/common'
+import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 
 ## Type Exports
@@ -344,4 +370,81 @@ const results = await runWithConcurrency(
 	async url => fetch(url),
 	3 // Max 3 concurrent requests
 )
+```
+
+---
+
+## scanDirectory
+
+Recursively scan a directory, collecting file information.
+
+```typescript
+async function scanDirectory(dirPath: string, options?: ScanDirectoryOptions): Promise<ScannedFile[]>
+```
+
+**Parameters**
+
+| Parameter | Type                   | Default | Description    |
+| --------- | ---------------------- | ------- | -------------- |
+| dirPath   | `string`               | -       | Directory path |
+| options   | `ScanDirectoryOptions` | `{}`    | Scan options   |
+
+**ScanDirectoryOptions**
+
+| Property          | Type                                                             | Default | Description                               |
+| ----------------- | ---------------------------------------------------------------- | ------- | ----------------------------------------- |
+| includeExtensions | `string[]`                                                       | `[]`    | File extensions to include, empty for all |
+| excludePatterns   | `string[]`                                                       | `[]`    | Path patterns to exclude                  |
+| filter            | `(filePath: string, extension: string, size: number) => boolean` | -       | Custom file filter function               |
+
+**ScannedFile**
+
+| Property  | Type     | Description                                     |
+| --------- | -------- | ----------------------------------------------- |
+| filePath  | `string` | Absolute file path                              |
+| size      | `number` | File size in bytes                              |
+| extension | `string` | Lowercase file extension with dot (e.g., `.js`) |
+
+**Returns**
+
+`Promise<ScannedFile[]>` - File information list
+
+**Examples**
+
+```typescript
+// Scan all .js files
+const jsFiles = await scanDirectory('dist', { includeExtensions: ['.js'] })
+
+// Exclude node_modules
+const files = await scanDirectory('dist', { excludePatterns: ['node_modules'] })
+
+// Use custom filter
+const largeFiles = await scanDirectory('dist', {
+	filter: (filePath, ext, size) => size > 1024
+})
+```
+
+---
+
+## writeJsonReport
+
+Write data to a JSON file.
+
+```typescript
+async function writeJsonReport(filePath: string, data: object, indent?: number): Promise<void>
+```
+
+**Parameters**
+
+| Parameter | Type     | Default | Description              |
+| --------- | -------- | ------- | ------------------------ |
+| filePath  | `string` | -       | Output file path         |
+| data      | `object` | -       | Data object to serialize |
+| indent    | `number` | `2`     | JSON indentation spaces  |
+
+**Examples**
+
+```typescript
+await writeJsonReport('dist/report.json', { timestamp: Date.now(), stats: [] })
+await writeJsonReport('dist/report.json', data, 4)
 ```
