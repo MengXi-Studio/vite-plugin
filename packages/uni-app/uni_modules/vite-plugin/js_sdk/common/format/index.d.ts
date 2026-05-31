@@ -151,6 +151,38 @@ declare function stripJsonComments(jsonString: string): string;
  * ```
  */
 declare function escapeHtmlAttr(str: string): string;
+/**
+ * 将字节数格式化为人类可读的文件大小字符串
+ *
+ * @param {number} bytes - 文件大小（字节）
+ * @returns {string} 格式化后的文件大小字符串
+ *
+ * @description 转换规则：
+ * - 小于 1KB：显示为 `xB`（如 `512B`）
+ * - 小于 1MB：显示为 `x.xKB`（如 `1.5KB`）
+ * - 大于等于 1MB：显示为 `x.xxMB`（如 `2.35MB`）
+ *
+ * @example
+ * ```typescript
+ * formatFileSize(512)     // '512B'
+ * formatFileSize(1536)    // '1.5KB'
+ * formatFileSize(2461726) // '2.35MB'
+ * ```
+ */
+declare function formatFileSize(bytes: number): string;
+/**
+ * 获取文件扩展名
+ *
+ * @param {string} filePath - 文件路径
+ * @returns {string} 小写的文件扩展名（如 '.js'）
+ *
+ * @example
+ * ```typescript
+ * getExtension('dist/app.js')  // '.js'
+ * getExtension('dist/style.CSS') // '.css'
+ * ```
+ */
+declare function getExtension(filePath: string): string;
 
-export { escapeHtmlAttr, formatDate, generateRandomHash, getDateFormatParams, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase };
+export { escapeHtmlAttr, formatDate, formatFileSize, generateRandomHash, getDateFormatParams, getExtension, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase };
 export type { DateFormatOptions };

@@ -1,3 +1,140 @@
+## 0.1.3（2026-06-01）
+
+新增 bundleAnalyzer 构建产物体积分析插件，新增 @common/compress 和 @common/path 工具模块，@common/format 和 @common/fs 新增通用函数
+
+### bundleAnalyzer（新增）
+
+构建产物体积分析插件，在 Vite 构建（writeBundle）完成后自动扫描输出目录，分析构建产物的体积分布、模块依赖、文件类型统计等关键指标，生成 JSON 报告和/或包含可视化图表的 HTML 报告，支持体积阈值告警和与上次构建的对比分析。`enforce: 'post'`。
+
+**功能特性**：
+
+- 多格式报告输出：`json`（JSON 格式）、`html`（含可视化图表的 HTML）、`both`（同时生成两种）
+- 体积分析：计算原始大小和 gzip 压缩大小，使用最高压缩级别（level: 9）
+- 阈值告警：超过 `sizeThreshold` 的 chunk 自动产生告警，超过 2 倍阈值标记为 critical
+- 构建对比：与历史报告对比体积变化趋势，显示增大、减小、新增、移除的模块
+- 可视化图表：HTML 报告支持 treemap（树状图）、sunburst（旭日图）和 list（列表）三种视图
+- 模块排行：Top N 大模块排行，区分源码和 node_modules
+- 文件类型分布：按扩展名统计体积占比
+- 自动打开：`openAnalyzer` 支持跨平台自动在浏览器中打开 HTML 报告
+- 分析摘要日志：构建完成后输出 chunk 数量、总体积、gzip 体积、Top 5 模块
+
+**配置选项**：
+
+| 选项               | 类型                                    | 默认值              | 描述                                     |
+| ------------------ | --------------------------------------- | ------------------- | ---------------------------------------- |
+| outputFormat       | `'json'` \| `'html'` \| `'both'`        | `'json'`            | 报告输出格式                             |
+| outputFile         | `string`                                | `'bundle-analysis'` | 报告输出文件名（不含扩展名）             |
+| openAnalyzer       | `boolean`                               | `false`             | 是否在生成 HTML 报告后自动打开浏览器     |
+| sizeThreshold      | `number`                                | `100`               | 体积告警阈值（KB）                       |
+| topModules         | `number`                                | `20`                | Top N 大模块排行数量                     |
+| compareWith        | `string` \| `null`                      | `null`              | 用于对比的历史报告路径                   |
+| gzipSize           | `boolean`                               | `true`              | 是否计算 gzip 大小                       |
+| excludeNodeModules | `boolean`                               | `false`             | 是否排除 node_modules 中的模块           |
+| excludePatterns    | `string[]`                              | `[]`                | 需要排除的文件路径模式列表               |
+| includeExtensions  | `string[]`                              | `[]`                | 需要包含的文件扩展名列表，为空则包含所有 |
+| defaultChartType   | `'treemap'` \| `'sunburst'` \| `'list'` | `'treemap'`         | HTML 报告中图表的默认展示形式            |
+
+**BundleAnalysisResult 类型**：
+
+| 属性                 | 类型                     | 描述                   |
+| -------------------- | ------------------------ | ---------------------- |
+| timestamp            | `string`                 | 分析时间戳（ISO 格式） |
+| totalSize            | `number`                 | 构建产物总大小（字节） |
+| totalGzipSize        | `number`                 | gzip 总大小（字节）    |
+| chunks               | `ChunkStats[]`           | chunk 统计列表         |
+| topModules           | `ModuleStats[]`          | Top N 大模块           |
+| fileTypeDistribution | `FileTypeDistribution[]` | 文件类型分布统计       |
+| warnings             | `SizeWarning[]`          | 体积阈值告警列表       |
+| comparisonDiffs      | `ComparisonDiff[]`       | 构建对比差异列表       |
+| analysisTime         | `number`                 | 分析耗时（毫秒）       |
+
+**ChunkStats 类型**：
+
+| 属性      | 类型                                | 描述                  |
+| --------- | ----------------------------------- | --------------------- |
+| name      | `string`                            | chunk 名称            |
+| size      | `number`                            | 原始大小（字节）      |
+| gzipSize  | `number`                            | gzip 压缩大小（字节） |
+| modules   | `ModuleStats[]`                     | 包含的模块列表        |
+| type      | `'entry'` \| `'chunk'` \| `'asset'` | chunk 类型            |
+| fileCount | `number`                            | 包含的文件数量        |
+
+**ModuleStats 类型**：
+
+| 属性         | 类型       | 描述                              |
+| ------------ | ---------- | --------------------------------- |
+| id           | `string`   | 模块标识符（通常是模块路径或 ID） |
+| size         | `number`   | 模块原始大小（字节）              |
+| gzipSize     | `number`   | 模块 gzip 压缩后大小（字节）      |
+| chunks       | `string[]` | 所属 chunk 名称列表               |
+| imports      | `string[]` | 依赖模块 ID 列表                  |
+| isEntry      | `boolean`  | 是否为入口模块                    |
+| isNodeModule | `boolean`  | 是否来自 node_modules             |
+
+**FileTypeDistribution 类型**：
+
+| 属性       | 类型     | 描述                        |
+| ---------- | -------- | --------------------------- |
+| extension  | `string` | 文件扩展名（如 `.js`）      |
+| count      | `number` | 该类型的文件数量            |
+| totalSize  | `number` | 该类型的总大小（字节）      |
+| percentage | `number` | 该类型的总体积占比（0-100） |
+
+**SizeWarning 类型**：
+
+| 属性        | 类型                    | 描述           |
+| ----------- | ----------------------- | -------------- |
+| level       | `'module'` \| `'chunk'` | 告警级别       |
+| name        | `string`                | 告警目标名称   |
+| sizeKB      | `number`                | 实际大小（KB） |
+| thresholdKB | `number`                | 阈值大小（KB） |
+| message     | `string`                | 告警消息       |
+
+**ComparisonDiff 类型**：
+
+| 属性           | 类型                                                                        | 描述            |
+| -------------- | --------------------------------------------------------------------------- | --------------- |
+| name           | `string`                                                                    | 模块/chunk 名称 |
+| previousSize   | `number`                                                                    | 上次构建大小    |
+| currentSize    | `number`                                                                    | 本次构建大小    |
+| diff           | `number`                                                                    | 体积变化量      |
+| diffPercentage | `number`                                                                    | 变化百分比      |
+| trend          | `'increased'` \| `'decreased'` \| `'unchanged'` \| `'added'` \| `'removed'` | 变化趋势        |
+
+### @common/compress（新增模块）
+
+- `calculateGzipSize(data)` — 计算给定数据的 gzip 压缩后大小（异步），使用最高压缩级别（level: 9），用于估算网络传输体积。参数 `data` 支持 `Buffer` 和 `string` 类型
+
+### @common/path（新增模块）
+
+- `isNodeModule(moduleId)` — 判断模块 ID 是否来自 node_modules。检测规则：路径包含 `node_modules`、以 `\0` 开头（Rollup 内部虚拟模块）、以 `virtual:` 开头（虚拟模块前缀）
+
+### @common/format（增强）
+
+新增以下工具函数：
+
+- `escapeHtmlAttr(str)` — 转义 HTML 属性值中的特殊字符，防止 XSS 注入。将 `&`、`"`、`<`、`>` 分别转义为 `&amp;`、`&quot;`、`&lt;`、`&gt;`
+- `formatFileSize(bytes)` — 将字节数格式化为人类可读的文件大小字符串。小于 1KB 显示 `xB`，小于 1MB 显示 `x.xKB`，大于等于 1MB 显示 `x.xxMB`
+- `getExtension(filePath)` — 获取文件扩展名，返回小写的扩展名（含点号，如 `.js`）
+
+### @common/fs（增强）
+
+新增以下工具函数和类型：
+
+- `scanDirectory(dirPath, options?)` — 递归扫描目录，收集所有文件信息，支持按扩展名（`includeExtensions`）、路径模式（`excludePatterns`）和自定义过滤函数（`filter`）进行过滤
+- `writeJsonReport(filePath, data, indent?)` — 将数据对象序列化为 JSON 格式并写入文件，默认缩进 2 个空格
+- `ScannedFile` 类型 — 扫描文件信息接口，包含 `filePath`、`size`、`extension` 字段
+- `ScanDirectoryOptions` 类型 — 目录扫描选项接口，包含 `includeExtensions`、`excludePatterns`、`filter` 字段
+
+### 子路径导出（增强）
+
+- `@meng-xi/vite-plugin/plugins` 新增导出类型：`BundleAnalyzerOptions`、`BundleAnalysisResult`、`BundleOutputFormat`、`ChunkStats`、`ModuleStats`、`FileTypeDistribution`、`SizeWarning`、`ComparisonDiff`
+- `@meng-xi/vite-plugin/plugins` 新增导出函数：`bundleAnalyzer`
+- `@meng-xi/vite-plugin/common/compress` 新增子路径导出，包含 `calculateGzipSize`
+- `@meng-xi/vite-plugin/common/path` 新增子路径导出，包含 `isNodeModule`
+- `@meng-xi/vite-plugin/common` 新增导出函数：`calculateGzipSize`、`isNodeModule`、`escapeHtmlAttr`、`formatFileSize`、`getExtension`、`scanDirectory`、`writeJsonReport`
+- `@meng-xi/vite-plugin/common` 新增导出类型：`ScannedFile`、`ScanDirectoryOptions`
+
 ## 0.1.2（2026-05-31）
 
 新增 compressAssets 构建产物压缩插件，所有插件参数可选化，新增 @common/object 和 @common/fs 完整工具函数

@@ -1,13 +1,16 @@
-export { CopyOptions, CopyResult, checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, shouldUpdateFile, writeFileContent } from './common/fs/index.cjs';
-export { DateFormatOptions, escapeHtmlAttr, formatDate, generateRandomHash, getDateFormatParams, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase } from './common/format/index.cjs';
+export { calculateGzipSize } from './common/compress/index.cjs';
+export { DateFormatOptions, escapeHtmlAttr, formatDate, formatFileSize, generateRandomHash, getDateFormatParams, getExtension, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase } from './common/format/index.cjs';
+export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, scanDirectory, shouldUpdateFile, writeFileContent, writeJsonReport } from './common/fs/index.cjs';
 export { DualInjectResult, HtmlInjectResult, injectBeforeTag, injectBeforeTagWithFallback, injectHeadAndBody, injectHtmlByPriority } from './common/html/index.cjs';
 export { deepMerge } from './common/object/index.cjs';
+export { isNodeModule } from './common/path/index.cjs';
 export { containsScriptTag, makeCallback, validateIdentifierName } from './common/script/index.cjs';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.cjs';
 export { validateCallbackFields, validateEnumValue, validateGlobalName, validateNestedDuration, validateNoScriptInTemplate, validateNonNegativeNumber } from './common/validation/index.cjs';
 export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.cjs';
 export { L as Logger, P as PluginLogger } from './shared/vite-plugin.CLr0ttuO.cjs';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './plugins/buildProgress/index.cjs';
+export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './plugins/bundleAnalyzer/index.cjs';
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './plugins/compressAssets/index.cjs';
 export { CopyFileOptions, copyFile } from './plugins/copyFile/index.cjs';
 export { FaviconManagerOptions, Icon, faviconManager } from './plugins/faviconManager/index.cjs';

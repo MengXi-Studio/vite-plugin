@@ -9,11 +9,11 @@ Vite 实用插件集与插件开发框架（uni-app 版本）。
 
 ## 概览
 
-| 层级       | 内容                             | 说明                                                    |
-| ---------- | -------------------------------- | ------------------------------------------------------- |
-| **插件层** | 9 个内置插件                     | 构建优化 / HTML 注入 / 路由与版本 / 运行时状态          |
-| **框架层** | BasePlugin + createPluginFactory | 生命周期管理、配置合并、钩子自动组合                    |
-| **工具层** | Logger / Validator / Common      | 单例日志、流式验证器、文件/格式/HTML/对象/脚本/校验工具 |
+| 层级       | 内容                             | 说明                                                              |
+| ---------- | -------------------------------- | ----------------------------------------------------------------- |
+| **插件层** | 10 个内置插件                    | 构建优化 / HTML 注入 / 路由与版本 / 运行时状态 / 体积分析         |
+| **框架层** | BasePlugin + createPluginFactory | 生命周期管理、配置合并、钩子自动组合                              |
+| **工具层** | Logger / Validator / Common      | 单例日志、流式验证器、压缩/文件/格式/HTML/对象/路径/脚本/校验工具 |
 
 所有插件参数均为**可选**，提供合理默认值，零配置即可使用。
 
@@ -43,11 +43,12 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 
 export default defineConfig({
 	plugins: [
 		buildProgress(),
+		bundleAnalyzer({ outputFormat: 'json' }),
 		compressAssets({ algorithm: 'both' }),
 		copyFile({ sourceDir: 'src/assets', targetDir: 'dist/assets' }),
 		faviconManager('/assets'),
@@ -66,17 +67,18 @@ export default defineConfig({
 
 ### 插件总览
 
-| 插件                   | 分类       | 一句话说明                                       |
-| ---------------------- | ---------- | ------------------------------------------------ |
-| `buildProgress`        | 构建优化   | 终端构建进度条，bar / spinner / minimal 三种格式 |
-| `compressAssets`       | 构建优化   | 构建产物 gzip / brotli 压缩，生成统计报告        |
-| `copyFile`             | 构建优化   | 构建后复制文件或目录，支持增量复制               |
-| `faviconManager`       | HTML 注入  | 网站图标 link 标签注入，支持字符串简写           |
-| `htmlInject`           | HTML 注入  | 通用 HTML 内容注入，支持选择器定位和条件注入     |
-| `generateRouter`       | 路由与版本 | 根据 pages.json 自动生成路由配置                 |
-| `generateVersion`      | 路由与版本 | 自动生成版本号，支持文件输出和全局变量注入       |
-| `versionUpdateChecker` | 路由与版本 | 运行时版本更新检查与提示                         |
-| `loadingManager`       | 运行时状态 | 全局 Loading 状态管理，支持请求拦截              |
+| 插件                   | 分类       | 一句话说明                                                 |
+| ---------------------- | ---------- | ---------------------------------------------------------- |
+| `buildProgress`        | 构建优化   | 终端构建进度条，bar / spinner / minimal 三种格式           |
+| `bundleAnalyzer`       | 构建优化   | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警 |
+| `compressAssets`       | 构建优化   | 构建产物 gzip / brotli 压缩，生成统计报告                  |
+| `copyFile`             | 构建优化   | 构建后复制文件或目录，支持增量复制                         |
+| `faviconManager`       | HTML 注入  | 网站图标 link 标签注入，支持字符串简写                     |
+| `htmlInject`           | HTML 注入  | 通用 HTML 内容注入，支持选择器定位和条件注入               |
+| `generateRouter`       | 路由与版本 | 根据 pages.json 自动生成路由配置                           |
+| `generateVersion`      | 路由与版本 | 自动生成版本号，支持文件输出和全局变量注入                 |
+| `versionUpdateChecker` | 路由与版本 | 运行时版本更新检查与提示                                   |
+| `loadingManager`       | 运行时状态 | 全局 Loading 状态管理，支持请求拦截                        |
 
 ---
 
@@ -167,6 +169,34 @@ compressAssets({ algorithm: 'both' })
 compressAssets({ algorithm: 'brotli', brotliQuality: 6 })
 compressAssets({ threshold: 2048, excludePaths: ['assets/images/'] })
 compressAssets({ deleteOriginalFile: true, reportOutput: false })
+```
+
+---
+
+### bundleAnalyzer
+
+构建产物体积分析插件。支持 JSON/HTML 报告、gzip 压缩大小计算、阈值告警和构建对比。`enforce: 'post'`。
+
+| 选项                 | 类型                                    | 默认值              | 说明                                     |
+| -------------------- | --------------------------------------- | ------------------- | ---------------------------------------- |
+| `outputFormat`       | `'json'` \| `'html'` \| `'both'`        | `'json'`            | 报告输出格式                             |
+| `outputFile`         | `string`                                | `'bundle-analysis'` | 报告输出文件名（不含扩展名）             |
+| `openAnalyzer`       | `boolean`                               | `false`             | 是否在生成 HTML 报告后自动打开浏览器     |
+| `sizeThreshold`      | `number`                                | `100`               | 体积告警阈值（KB）                       |
+| `topModules`         | `number`                                | `20`                | Top N 大模块排行数量                     |
+| `compareWith`        | `string` \| `null`                      | `null`              | 用于对比的历史报告路径                   |
+| `gzipSize`           | `boolean`                               | `true`              | 是否计算 gzip 大小                       |
+| `excludeNodeModules` | `boolean`                               | `false`             | 是否排除 node_modules 中的模块           |
+| `excludePatterns`    | `string[]`                              | `[]`                | 需要排除的文件路径模式列表               |
+| `includeExtensions`  | `string[]`                              | `[]`                | 需要包含的文件扩展名列表，为空则包含所有 |
+| `defaultChartType`   | `'treemap'` \| `'sunburst'` \| `'list'` | `'treemap'`         | HTML 报告中图表的默认展示形式            |
+
+```typescript
+bundleAnalyzer()
+bundleAnalyzer({ outputFormat: 'html', openAnalyzer: true })
+bundleAnalyzer({ outputFormat: 'both', sizeThreshold: 200 })
+bundleAnalyzer({ compareWith: 'dist/bundle-analysis.json' })
+bundleAnalyzer({ excludeNodeModules: true, gzipSize: true })
 ```
 
 ---
@@ -631,20 +661,28 @@ const validated = new Validator(options)
 
 ### Common 工具函数
 
+#### @common/compress — 压缩算法
+
+| 函数                      | 说明                               |
+| ------------------------- | ---------------------------------- |
+| `calculateGzipSize(data)` | 计算数据的 gzip 压缩后大小（异步） |
+
 #### @common/fs — 文件操作
 
-| 函数                                        | 说明                     |
-| ------------------------------------------- | ------------------------ |
-| `checkSourceExists(path)`                   | 检查源文件是否存在       |
-| `ensureTargetDir(path)`                     | 确保目标目录存在         |
-| `readDirRecursive(path, recursive)`         | 递归读取目录             |
-| `shouldUpdateFile(src, dest)`               | 检查文件是否需要更新     |
-| `fileExists(path)`                          | 检查文件是否存在         |
-| `runWithConcurrency(items, handler, limit)` | 带并发限制的批量执行     |
-| `copySourceToTarget(src, dest, options)`    | 复制文件或目录           |
-| `writeFileContent(path, content)`           | 写入文件                 |
-| `readFileContent(path)`                     | 读取文件（异步）         |
-| `readFileSync(path)`                        | 读取文件（同步，已废弃） |
+| 函数                                        | 说明                       |
+| ------------------------------------------- | -------------------------- |
+| `checkSourceExists(path)`                   | 检查源文件是否存在         |
+| `ensureTargetDir(path)`                     | 确保目标目录存在           |
+| `readDirRecursive(path, recursive)`         | 递归读取目录               |
+| `shouldUpdateFile(src, dest)`               | 检查文件是否需要更新       |
+| `fileExists(path)`                          | 检查文件是否存在           |
+| `runWithConcurrency(items, handler, limit)` | 带并发限制的批量执行       |
+| `copySourceToTarget(src, dest, options)`    | 复制文件或目录             |
+| `writeFileContent(path, content)`           | 写入文件                   |
+| `readFileContent(path)`                     | 读取文件（异步）           |
+| `readFileSync(path)`                        | 读取文件（同步，已废弃）   |
+| `scanDirectory(dirPath, options?)`          | 递归扫描目录，收集文件信息 |
+| `writeJsonReport(filePath, data, indent?)`  | 将数据写入 JSON 文件       |
 
 #### @common/format — 格式化
 
@@ -659,6 +697,8 @@ const validated = new Validator(options)
 | `toPascalCase(str)`               | 转 PascalCase          |
 | `stripJsonComments(str)`          | 移除 JSON 注释         |
 | `escapeHtmlAttr(str)`             | 转义 HTML 属性特殊字符 |
+| `formatFileSize(bytes)`           | 字节数格式化为可读大小 |
+| `getExtension(filePath)`          | 获取文件扩展名         |
 
 #### @common/html — HTML 注入
 
@@ -674,6 +714,12 @@ const validated = new Validator(options)
 | 函数                    | 说明                                                 |
 | ----------------------- | ---------------------------------------------------- |
 | `deepMerge(...sources)` | 深度合并对象（undefined 不覆盖，数组覆盖，嵌套递归） |
+
+#### @common/path — 路径处理
+
+| 函数                     | 说明                                                |
+| ------------------------ | --------------------------------------------------- |
+| `isNodeModule(moduleId)` | 判断模块 ID 是否来自 node_modules（含虚拟模块检测） |
 
 #### @common/script — 脚本安全
 
@@ -705,6 +751,9 @@ import type {
 	BasePluginOptions,
 	PluginWithInstance,
 	BuildProgressOptions,
+	BundleAnalyzerOptions,
+	BundleAnalysisResult,
+	BundleOutputFormat,
 	CompressAssetsOptions,
 	CompressStats,
 	CompressSummary,

@@ -1,13 +1,16 @@
-export { CopyOptions, CopyResult, checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, shouldUpdateFile, writeFileContent } from './common/fs/index.js';
-export { DateFormatOptions, escapeHtmlAttr, formatDate, generateRandomHash, getDateFormatParams, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase } from './common/format/index.js';
+export { calculateGzipSize } from './common/compress/index.js';
+export { DateFormatOptions, escapeHtmlAttr, formatDate, formatFileSize, generateRandomHash, getDateFormatParams, getExtension, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase } from './common/format/index.js';
+export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, scanDirectory, shouldUpdateFile, writeFileContent, writeJsonReport } from './common/fs/index.js';
 export { DualInjectResult, HtmlInjectResult, injectBeforeTag, injectBeforeTagWithFallback, injectHeadAndBody, injectHtmlByPriority } from './common/html/index.js';
 export { deepMerge } from './common/object/index.js';
+export { isNodeModule } from './common/path/index.js';
 export { containsScriptTag, makeCallback, validateIdentifierName } from './common/script/index.js';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.js';
 export { validateCallbackFields, validateEnumValue, validateGlobalName, validateNestedDuration, validateNoScriptInTemplate, validateNonNegativeNumber } from './common/validation/index.js';
 export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.js';
 export { L as Logger, P as PluginLogger } from './shared/vite-plugin.CLr0ttuO.js';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './plugins/buildProgress/index.js';
+export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './plugins/bundleAnalyzer/index.js';
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './plugins/compressAssets/index.js';
 export { CopyFileOptions, copyFile } from './plugins/copyFile/index.js';
 export { FaviconManagerOptions, Icon, faviconManager } from './plugins/faviconManager/index.js';

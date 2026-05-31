@@ -1,0 +1,1 @@
+import{createGzip as i}from"node:zlib";import{pipeline as p}from"node:stream/promises";import{Transform as m,Readable as c}from"node:stream";async function l(e){const o=typeof e=="string"?Buffer.from(e,"utf-8"):e,r=[],t=i({level:9}),f=new m({transform(n,u,a){r.push(n),a()}});return await p(c.from(o),t,f),Buffer.concat(r).length}export{l as calculateGzipSize};

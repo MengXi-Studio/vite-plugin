@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { buildProgress, compressAssets, copyFile, generateRouter, generateVersion, faviconManager, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, generateRouter, generateVersion, faviconManager, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
 
 export default defineConfig({
 	plugins: [
@@ -26,6 +26,17 @@ export default defineConfig({
 			brotliQuality: 11,
 			reportOutput: 'compress-report.json',
 			parallelLimit: 10
+		}),
+
+		// 构建产物体积分析
+		bundleAnalyzer({
+			outputFormat: 'both',
+			outputFile: 'bundle-analysis',
+			sizeThreshold: 100,
+			topModules: 10,
+			gzipSize: true,
+			excludeNodeModules: false,
+			defaultChartType: 'treemap'
 		}),
 
 		// 路由配置生成（基于 pages.json）

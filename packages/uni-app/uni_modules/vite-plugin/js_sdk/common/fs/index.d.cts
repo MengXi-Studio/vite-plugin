@@ -145,6 +145,74 @@ declare function readFileContent(filePath: string): Promise<string>;
  * @deprecated 请使用异步版本 readFileContent
  */
 declare function readFileSync(filePath: string): string;
+/**
+ * 扫描目录中的文件信息
+ */
+interface ScannedFile {
+    /** 文件绝对路径 */
+    filePath: string;
+    /** 文件大小（字节） */
+    size: number;
+    /** 文件扩展名（小写，含点号，如 '.js'） */
+    extension: string;
+}
+/**
+ * 目录扫描选项
+ */
+interface ScanDirectoryOptions {
+    /** 包含的文件扩展名列表，为空则包含所有 */
+    includeExtensions?: string[];
+    /** 排除的路径模式列表 */
+    excludePatterns?: string[];
+    /** 自定义文件过滤函数，返回 true 表示包含该文件 */
+    filter?: (filePath: string, extension: string, size: number) => boolean;
+}
+/**
+ * 递归扫描目录，收集所有文件信息
+ *
+ * @async
+ * @param {string} dirPath - 要扫描的目录路径
+ * @param {ScanDirectoryOptions} options - 扫描选项
+ * @returns {Promise<ScannedFile[]>} 文件信息列表
+ *
+ * @description 递归遍历指定目录下的所有文件，收集每个文件的大小和扩展名信息，
+ * 支持按扩展名、路径模式和自定义过滤函数进行过滤。
+ * 这是通用的目录扫描函数，可被不同插件复用。
+ *
+ * @example
+ * ```typescript
+ * // 扫描所有 .js 文件
+ * const jsFiles = await scanDirectory('dist', { includeExtensions: ['.js'] })
+ *
+ * // 排除 node_modules
+ * const files = await scanDirectory('dist', { excludePatterns: ['node_modules'] })
+ *
+ * // 使用自定义过滤
+ * const largeFiles = await scanDirectory('dist', {
+ *   filter: (filePath, ext, size) => size > 1024
+ * })
+ * ```
+ */
+declare function scanDirectory(dirPath: string, options?: ScanDirectoryOptions): Promise<ScannedFile[]>;
+/**
+ * 将数据写入 JSON 文件
+ *
+ * @async
+ * @param {string} filePath - 输出文件路径
+ * @param {object} data - 要序列化的数据对象
+ * @param {number} [indent=2] - JSON 缩进空格数
+ * @returns {Promise<void>}
+ *
+ * @description 将任意数据对象序列化为 JSON 格式并写入文件。
+ * 内部使用 writeFileContent 确保统一的错误处理。
+ *
+ * @example
+ * ```typescript
+ * await writeJsonReport('dist/report.json', { timestamp: Date.now(), stats: [] })
+ * await writeJsonReport('dist/report.json', data, 4)
+ * ```
+ */
+declare function writeJsonReport(filePath: string, data: object, indent?: number): Promise<void>;
 
-export { checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, shouldUpdateFile, writeFileContent };
-export type { CopyOptions, CopyResult };
+export { checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, scanDirectory, shouldUpdateFile, writeFileContent, writeJsonReport };
+export type { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile };

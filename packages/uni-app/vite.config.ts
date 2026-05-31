@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import { buildProgress, copyFile, generateVersion, generateRouter, faviconManager, loadingManager, versionUpdateChecker, htmlInject, compressAssets } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import { buildProgress, bundleAnalyzer, copyFile, generateVersion, generateRouter, faviconManager, loadingManager, versionUpdateChecker, htmlInject, compressAssets } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 import { resolve } from 'node:path'
 
 export default defineConfig(config => {
@@ -91,6 +91,14 @@ export default defineConfig(config => {
 				algorithm: 'both',
 				threshold: 1024,
 				reportOutput: 'compress-report.json',
+				enabled: isH5 && isProd
+			}),
+
+			bundleAnalyzer({
+				outputFormat: 'json',
+				sizeThreshold: 100,
+				topModules: 10,
+				gzipSize: true,
 				enabled: isH5 && isProd
 			}),
 

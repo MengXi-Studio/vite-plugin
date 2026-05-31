@@ -1,4 +1,5 @@
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './buildProgress/index.mjs';
+export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './bundleAnalyzer/index.mjs';
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './compressAssets/index.mjs';
 export { CopyFileOptions, copyFile } from './copyFile/index.mjs';
 export { FaviconManagerOptions, Icon, faviconManager } from './faviconManager/index.mjs';

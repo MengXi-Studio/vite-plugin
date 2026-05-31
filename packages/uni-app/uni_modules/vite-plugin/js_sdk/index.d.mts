@@ -1,13 +1,16 @@
-export { CopyOptions, CopyResult, checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, shouldUpdateFile, writeFileContent } from './common/fs/index.mjs';
-export { DateFormatOptions, escapeHtmlAttr, formatDate, generateRandomHash, getDateFormatParams, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase } from './common/format/index.mjs';
+export { calculateGzipSize } from './common/compress/index.mjs';
+export { DateFormatOptions, escapeHtmlAttr, formatDate, formatFileSize, generateRandomHash, getDateFormatParams, getExtension, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase } from './common/format/index.mjs';
+export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, scanDirectory, shouldUpdateFile, writeFileContent, writeJsonReport } from './common/fs/index.mjs';
 export { DualInjectResult, HtmlInjectResult, injectBeforeTag, injectBeforeTagWithFallback, injectHeadAndBody, injectHtmlByPriority } from './common/html/index.mjs';
 export { deepMerge } from './common/object/index.mjs';
+export { isNodeModule } from './common/path/index.mjs';
 export { containsScriptTag, makeCallback, validateIdentifierName } from './common/script/index.mjs';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.mjs';
 export { validateCallbackFields, validateEnumValue, validateGlobalName, validateNestedDuration, validateNoScriptInTemplate, validateNonNegativeNumber } from './common/validation/index.mjs';
 export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.mjs';
 export { L as Logger, P as PluginLogger } from './shared/vite-plugin.CLr0ttuO.mjs';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './plugins/buildProgress/index.mjs';
+export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './plugins/bundleAnalyzer/index.mjs';
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './plugins/compressAssets/index.mjs';
 export { CopyFileOptions, copyFile } from './plugins/copyFile/index.mjs';
 export { FaviconManagerOptions, Icon, faviconManager } from './plugins/faviconManager/index.mjs';
