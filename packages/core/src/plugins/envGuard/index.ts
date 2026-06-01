@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import type { EnvGuardOptions, EnvGuardResult, EnvValidationResult } from './types'
+import type { EnvGuardOptions, EnvGuardResult } from './types'
+import type { EnvValidationResult } from '@/common/validation'
 import { validateEnvironment, generateTemplate, generateRuntimeGuard } from './common'
 import { injectBeforeTag } from '@/common/html'
 import { writeFileContent } from '@/common/fs'

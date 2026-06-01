@@ -60,6 +60,11 @@
 			"import": "./dist/common/script/index.mjs",
 			"types": "./dist/common/script/index.d.ts"
 		},
+		"./common/ui": {
+			"require": "./dist/common/ui/index.cjs",
+			"import": "./dist/common/ui/index.mjs",
+			"types": "./dist/common/ui/index.d.ts"
+		},
 		"./common/validation": {
 			"require": "./dist/common/validation/index.cjs",
 			"import": "./dist/common/validation/index.mjs",

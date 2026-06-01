@@ -12,6 +12,7 @@ export default defineBuildConfig({
 		'src/common/object/index',
 		'src/common/path/index',
 		'src/common/script/index',
+		'src/common/ui/index',
 		'src/common/validation/index',
 		'src/factory/index',
 		'src/logger/index',

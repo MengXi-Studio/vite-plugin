@@ -1,6 +1,9 @@
 import type { HtmlInjectResult, DualInjectResult } from './type'
 
-export type { HtmlInjectResult, DualInjectResult } from './type'
+export type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, PositionInjectResult, SecurityConfig } from './type'
+export { findSelectorMatch, applyTemplateVars, evaluateCondition, sortRulesByPriority, injectAtPosition } from './inject'
+export { DEFAULT_BLOCKED_TAGS, DEFAULT_BLOCKED_ATTRIBUTES, validateSecurityConfig, sanitizeContent } from './security'
+export type { SanitizeRuleOptions } from './security'
 
 /**
  * 在 HTML 中指定闭合标签前注入代码

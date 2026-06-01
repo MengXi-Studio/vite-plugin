@@ -2,6 +2,7 @@ import type { Plugin, ResolvedConfig } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { BuildProgressOptions, BuildPhase, ProgressTheme } from './types'
 import { ANSI, DEFAULT_THEME, PHASE_LABELS, SPINNER_FRAMES } from './common'
+import { stripAnsi } from '@/common/ui'
 
 /**
  * 构建进度条插件类，用于在终端实时显示构建进度
@@ -74,25 +75,6 @@ class BuildProgressPlugin extends BasePlugin<BuildProgressOptions> {
 	 * @private
 	 */
 	private lastPercentage = 0
-
-	/**
-	 * ANSI 转义码正则表达式，用于剥离字符串中的 ANSI 码以计算可见长度
-	 *
-	 * @private
-	 * @readonly
-	 */
-	private static readonly ANSI_REGEX = /\x1b\[[0-9;]*m/g
-
-	/**
-	 * 剥离字符串中的 ANSI 转义码，返回纯可见文本
-	 *
-	 * @private
-	 * @param {string} str - 包含 ANSI 转义码的字符串
-	 * @returns {string} 剥离 ANSI 码后的纯文本
-	 */
-	private static stripAnsi(str: string): string {
-		return str.replace(BuildProgressPlugin.ANSI_REGEX, '')
-	}
 
 	protected getDefaultOptions(): Partial<BuildProgressOptions> {
 		return {
@@ -214,7 +196,7 @@ class BuildProgressPlugin extends BasePlugin<BuildProgressOptions> {
 		}
 
 		if (this.options.showModuleName && this.currentModule && this.phase === 'transform') {
-			const visibleLineLen = BuildProgressPlugin.stripAnsi(line).length
+			const visibleLineLen = stripAnsi(line).length
 			const maxModuleLen = Math.max((process.stdout.columns || 80) - visibleLineLen - 3, 20)
 			const moduleDisplay = this.currentModule.length > maxModuleLen ? '...' + this.currentModule.slice(-maxModuleLen + 3) : this.currentModule
 			line += ` ${this.theme.moduleColor(moduleDisplay)}`

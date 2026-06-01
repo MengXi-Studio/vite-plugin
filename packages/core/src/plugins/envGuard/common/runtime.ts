@@ -1,4 +1,5 @@
-import type { EnvFieldRule, RuntimeGuardMode, EnvValidationResult } from '../types'
+import type { RuntimeGuardMode } from '../types'
+import type { EnvFieldRule, EnvValidationResult } from '@/common/validation'
 
 /**
  * 生成运行时环境变量守卫的 JavaScript 代码

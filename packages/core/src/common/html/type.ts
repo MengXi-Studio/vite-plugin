@@ -1,23 +1,37 @@
-/**
- * HTML 注入结果
- */
 export interface HtmlInjectResult {
-	/** 注入后的 HTML 内容 */
 	html: string
-	/** 是否成功注入 */
 	injected: boolean
 }
 
-/**
- * 双区域 HTML 注入结果
- */
 export interface DualInjectResult {
-	/** 注入后的 HTML 内容 */
 	html: string
-	/** head 区域是否成功注入 */
 	headInjected: boolean
-	/** body 区域是否成功注入 */
 	bodyInjected: boolean
-	/** body 注入是否使用了回退策略（追加到末尾） */
 	usedFallback: boolean
+}
+
+export type InjectPosition = 'head-start' | 'head-end' | 'body-start' | 'body-end' | 'before-selector' | 'after-selector' | 'replace-selector'
+
+export type SelectorMatch = 'string' | 'regex'
+
+export type ConditionType = 'env' | 'file-contains' | 'custom'
+
+export interface InjectCondition {
+	type: ConditionType
+	value: string | ((...args: any[]) => boolean)
+	negate?: boolean
+}
+
+export interface PositionInjectResult {
+	html: string
+	injected: boolean
+	reason?: string
+}
+
+export interface SecurityConfig {
+	blockDangerousTags?: boolean
+	blockDangerousAttributes?: boolean
+	allowedTags?: string[]
+	blockedTags?: string[]
+	blockedAttributes?: string[]
 }
