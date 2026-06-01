@@ -100,6 +100,11 @@
 			"import": "./dist/plugins/copyFile/index.mjs",
 			"types": "./dist/plugins/copyFile/index.d.ts"
 		},
+		"./plugins/env-guard": {
+			"require": "./dist/plugins/envGuard/index.cjs",
+			"import": "./dist/plugins/envGuard/index.mjs",
+			"types": "./dist/plugins/envGuard/index.d.ts"
+		},
 		"./plugins/favicon-manager": {
 			"require": "./dist/plugins/faviconManager/index.cjs",
 			"import": "./dist/plugins/faviconManager/index.mjs",

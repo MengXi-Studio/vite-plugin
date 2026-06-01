@@ -20,6 +20,7 @@ export default defineBuildConfig({
 		'src/plugins/bundleAnalyzer/index',
 		'src/plugins/compressAssets/index',
 		'src/plugins/copyFile/index',
+		'src/plugins/envGuard/index',
 		'src/plugins/faviconManager/index',
 		'src/plugins/generateRouter/index',
 		'src/plugins/generateVersion/index',
