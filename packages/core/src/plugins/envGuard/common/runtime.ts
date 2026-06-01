@@ -89,6 +89,17 @@ export function generateRuntimeGuard(rules: Record<string, EnvFieldRule>, global
 	return `<script>\n${code}\n</script>`
 }
 
+/**
+ * 根据运行时守卫模式生成对应的处理代码
+ *
+ * @param {RuntimeGuardMode} mode - 守卫行为模式
+ * @returns {string} 对应模式的 JavaScript 代码片段
+ *
+ * @description 根据不同的守卫模式生成不同的客户端处理逻辑：
+ * - `console`: 在浏览器控制台输出警告信息
+ * - `throw`: 抛出运行时错误
+ * - `overlay`: 在页面顶部创建固定的警告横幅
+ */
 function buildModeHandlers(mode: RuntimeGuardMode): string {
 	switch (mode) {
 		case 'console':

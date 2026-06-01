@@ -47,6 +47,16 @@ export function generateTemplate(rules: Record<string, EnvFieldRule>): string {
 	return lines.join('\n')
 }
 
+/**
+ * 向模板行数组中追加一个分组的变量条目
+ *
+ * @param lines - 模板行数组，将被原地修改
+ * @param groupName - 分组名称
+ * @param items - 该分组下的变量条目列表
+ *
+ * @description 生成包含分组标题、变量注释（类型、是否必需、枚举值、默认值等）
+ * 和变量赋值行的模板内容，追加到 lines 数组中。
+ */
 function appendGroup(lines: string[], groupName: string, items: Array<{ key: string; rule: EnvFieldRule }>): void {
 	lines.push(`# ==============================`)
 	lines.push(`# ${groupName}`)

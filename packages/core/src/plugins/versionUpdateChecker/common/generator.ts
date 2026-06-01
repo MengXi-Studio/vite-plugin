@@ -3,6 +3,16 @@ import { makeCallback } from '@/common/script'
 
 /**
  * 生成内置 CSS 样式
+ *
+ * @param {PromptStyle} style - 提示样式类型：'modal' | 'banner' | 'toast'
+ * @param {string} [customStyle] - 自定义 CSS 样式字符串，追加在内置样式之后
+ * @returns {string} 包含在 `<style>` 标签中的完整 CSS 代码
+ *
+ * @description 根据提示样式类型生成对应的 CSS 代码，包含遮罩层和提示框的样式。
+ * 支持三种内置样式：
+ * - `modal`: 居中弹窗样式
+ * - `banner`: 顶部横幅样式
+ * - `toast`: 底部浮动提示样式
  */
 export function generateCSS(style: PromptStyle, customStyle?: string): string {
 	const base = `.__vuc-overlay__{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;pointer-events:none;}`
@@ -48,6 +58,17 @@ export function generateCSS(style: PromptStyle, customStyle?: string): string {
 
 /**
  * 生成内置 HTML 模板
+ *
+ * @param {VersionUpdateCheckerOptions} options - 插件配置选项
+ * @returns {string} 更新提示的 HTML 结构字符串
+ *
+ * @description 根据配置生成更新提示的 HTML 结构。当提供 customPromptTemplate 时使用自定义模板，
+ * 否则根据 promptStyle 生成对应的内置模板。自定义模板支持以下占位符：
+ * - `{{message}}`: 提示消息
+ * - `{{currentVersion}}`: 当前版本号
+ * - `{{newVersion}}`: 新版本号
+ * - `{{refreshButton}}`: 刷新按钮
+ * - `{{dismissButton}}`: 忽略按钮
  */
 export function generateHTMLTemplate(options: VersionUpdateCheckerOptions): string {
 	const style = options.promptStyle || 'modal'
@@ -104,6 +125,18 @@ export function generateHTMLTemplate(options: VersionUpdateCheckerOptions): stri
 
 /**
  * 生成客户端版本检查器 IIFE 代码
+ *
+ * @param {VersionUpdateCheckerOptions} options - 插件配置选项
+ * @returns {string} 完整的 JavaScript IIFE 代码字符串
+ *
+ * @description 生成在浏览器端运行的版本检查器代码，功能包括：
+ * - 从全局变量或 meta 标签读取当前版本号
+ * - 定期请求 version.json 获取最新版本号
+ * - 版本不一致时显示更新提示
+ * - 支持页面可见性变化时触发检查
+ * - 支持开发模式开关
+ * - 支持自定义回调（onUpdateAvailable / onRefresh / onDismiss）
+ * - 首次检查延迟 10 秒，避免页面刚加载就弹出提示
  */
 export function generateCheckerCode(options: VersionUpdateCheckerOptions): string {
 	const versionSource = options.versionSource || 'auto'
@@ -286,6 +319,12 @@ export function generateMetaTag(options: VersionUpdateCheckerOptions): string {
 
 /**
  * 生成完整的注入代码（CSS + HTML + JS）
+ *
+ * @param {VersionUpdateCheckerOptions} options - 插件配置选项
+ * @returns {string} 包含 CSS、HTML 容器和 JavaScript 的完整注入代码
+ *
+ * @description 将 CSS 样式、HTML 模板和 JavaScript 检查器代码组合为完整的注入代码。
+ * 外层容器默认隐藏（`display:none`），仅在检测到版本更新时才显示。
  */
 export function generateFullInjectCode(options: VersionUpdateCheckerOptions): string {
 	const css = generateCSS(options.promptStyle || 'modal', options.customStyle)

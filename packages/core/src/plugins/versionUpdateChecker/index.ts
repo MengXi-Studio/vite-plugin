@@ -13,6 +13,23 @@ import { injectHeadAndBody } from '@/common/html'
  * 运行时定期检查版本号变更，发现新版本时向用户显示刷新提示。
  */
 class VersionUpdateCheckerPlugin extends BasePlugin<VersionUpdateCheckerOptions> {
+	/**
+	 * 获取插件默认配置
+	 *
+	 * @returns {Partial<VersionUpdateCheckerOptions>} 默认配置对象
+	 *
+	 * @description 默认配置：
+	 * - versionSource: 'auto'
+	 * - defineName: '__APP_VERSION__'
+	 * - checkUrl: '/version.json'
+	 * - checkInterval: 300000 (5 分钟)
+	 * - checkOnVisibilityChange: true
+	 * - enableInDev: false
+	 * - promptStyle: 'modal'
+	 * - promptMessage: '发现新版本，是否立即刷新获取最新内容？'
+	 * - refreshButtonText: '立即刷新'
+	 * - dismissButtonText: '稍后再说'
+	 */
 	protected getDefaultOptions(): Partial<VersionUpdateCheckerOptions> {
 		return {
 			versionSource: 'auto',
@@ -28,6 +45,17 @@ class VersionUpdateCheckerPlugin extends BasePlugin<VersionUpdateCheckerOptions>
 		}
 	}
 
+	/**
+	 * 校验用户传入的配置选项
+	 *
+	 * @throws {Error} 当配置项不合法时抛出校验错误
+	 *
+	 * @description 校验规则：
+	 * - versionSource: 枚举值 'define' | 'file' | 'auto'
+	 * - promptStyle: 枚举值 'modal' | 'banner' | 'toast'
+	 * - checkInterval: 数字，最小值 5000
+	 * 然后委托 validateAll 执行安全验证
+	 */
 	protected validateOptions(): void {
 		this.validator.field('versionSource').enum(['define', 'file', 'auto']).field('promptStyle').enum(['modal', 'banner', 'toast']).field('checkInterval').number().minValue(5000).validate()
 
@@ -35,10 +63,24 @@ class VersionUpdateCheckerPlugin extends BasePlugin<VersionUpdateCheckerOptions>
 		validateAll(this.options)
 	}
 
+	/**
+	 * 获取插件名称
+	 *
+	 * @returns {string} 插件名称 'version-update-checker'
+	 */
 	protected getPluginName(): string {
 		return 'version-update-checker'
 	}
 
+	/**
+	 * 注册 Vite 插件钩子
+	 *
+	 * @param {Plugin} plugin - Vite 插件对象
+	 *
+	 * @description 注册 `transformIndexHtml` 钩子：
+	 * - 在 `<head>` 中注入 meta 标签标记当前版本
+	 * - 在 `<body>` 末尾注入版本检查和更新提示的 JavaScript 代码
+	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		const injectCode = generateFullInjectCode(this.options)
 		const metaTag = generateMetaTag(this.options)

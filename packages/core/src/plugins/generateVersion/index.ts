@@ -14,15 +14,34 @@ import { join } from 'path'
  */
 class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 	/**
-	 * 生成的版本号
+	 * 生成的版本号字符串
+	 *
+	 * @description 根据配置的格式生成的版本号，在 configResolved 钩子中赋值
 	 */
 	private version: string = ''
 
 	/**
 	 * 构建时间
+	 *
+	 * @description 版本号生成时的时间戳，用于所有时间相关格式的版本号计算
 	 */
 	private buildTime: Date = new Date()
 
+	/**
+	 * 获取插件默认配置
+	 *
+	 * @returns {Partial<GenerateVersionOptions>} 默认配置对象
+	 *
+	 * @description 默认配置：
+	 * - format: 'timestamp'
+	 * - semverBase: '1.0.0'
+	 * - outputType: 'file'
+	 * - outputFile: 'version.json'
+	 * - defineName: '__APP_VERSION__'
+	 * - hashLength: 8
+	 * - prefix: ''
+	 * - suffix: ''
+	 */
 	protected getDefaultOptions(): Partial<GenerateVersionOptions> {
 		return {
 			format: 'timestamp',
@@ -36,6 +55,16 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 		}
 	}
 
+	/**
+	 * 校验用户传入的配置选项
+	 *
+	 * @throws {Error} 当 format 为 'custom' 但未提供 customFormat 时抛出错误
+	 *
+	 * @description 校验规则：
+	 * - format: 枚举值 'timestamp' | 'date' | 'datetime' | 'semver' | 'hash' | 'custom'
+	 * - outputType: 枚举值 'file' | 'define' | 'both'
+	 * - hashLength: 数字，范围 1-32
+	 */
 	protected validateOptions(): void {
 		this.validator.field('format').enum(['timestamp', 'date', 'datetime', 'semver', 'hash', 'custom']).field('outputType').enum(['file', 'define', 'both']).field('hashLength').number().minValue(1).maxValue(32).validate()
 
@@ -45,12 +74,29 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 		}
 	}
 
+	/**
+	 * 获取插件名称
+	 *
+	 * @returns {string} 插件名称 'generate-version'
+	 */
 	protected getPluginName(): string {
 		return 'generate-version'
 	}
 
 	/**
 	 * 根据格式生成版本号
+	 *
+	 * @returns {string} 生成的版本号字符串
+	 *
+	 * @description 根据配置的 format 生成不同格式的版本号：
+	 * - `timestamp`: 紧凑时间戳格式，如 `20260203153000`
+	 * - `date`: 日期格式，如 `2026.02.03`
+	 * - `datetime`: 日期时间格式，如 `2026.02.03.153000`
+	 * - `semver`: 语义化版本格式，如 `1.0.0`
+	 * - `hash`: 随机哈希格式，如 `a1b2c3d4`
+	 * - `custom`: 自定义格式，通过 parseCustomFormat 解析
+	 *
+	 * 生成的版本号会自动添加 prefix 和 suffix。
 	 */
 	private generateVersion(): string {
 		const params = getDateFormatParams(this.buildTime)
@@ -96,6 +142,12 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 
 	/**
 	 * 解析自定义格式模板
+	 *
+	 * @param {Record<string, string>} values - 模板变量映射
+	 * @returns {string} 解析后的版本号字符串
+	 *
+	 * @description 使用 parseTemplate 工具函数解析自定义格式模板。
+	 * 如果配置了 semverBase，会额外解析 major、minor、patch 占位符。
 	 */
 	private parseCustomFormat(values: Record<string, string>): string {
 		const templateValues = { ...values }
@@ -113,6 +165,11 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 
 	/**
 	 * 生成版本信息对象
+	 *
+	 * @returns {VersionInfo} 包含版本号、构建时间、时间戳、格式和额外信息的对象
+	 *
+	 * @description 生成完整的版本信息对象，包含版本号字符串、ISO 格式构建时间、
+	 * 毫秒时间戳、版本格式类型以及通过 extra 选项附加的自定义字段。
 	 */
 	private generateVersionInfo(): VersionInfo {
 		return {
@@ -125,7 +182,13 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 	}
 
 	/**
-	 * 写入版本文件
+	 * 写入版本文件到构建输出目录
+	 *
+	 * @param {string} outDir - 构建输出目录路径
+	 * @returns {Promise<void>} 无返回值
+	 *
+	 * @description 将版本信息以 JSON 格式写入到 outputFile 指定的路径，
+	 * 文件路径相对于构建输出目录。
 	 */
 	private async writeVersionFile(outDir: string): Promise<void> {
 		const outputPath = join(outDir, this.options.outputFile || 'version.json')
@@ -135,6 +198,16 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 		this.logger.success(`版本文件已生成: ${outputPath}`)
 	}
 
+	/**
+	 * 注册 Vite 插件钩子
+	 *
+	 * @param {Plugin} plugin - Vite 插件对象
+	 *
+	 * @description 根据配置注册不同的 Vite 钩子：
+	 * - `configResolved`: 生成版本号并记录日志
+	 * - `config`: 当 outputType 为 'define' 或 'both' 时，注入全局变量
+	 * - `writeBundle`: 当 outputType 为 'file' 或 'both' 时，写入版本文件
+	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		plugin.configResolved = () => {
 			this.buildTime = new Date()

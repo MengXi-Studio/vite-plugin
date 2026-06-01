@@ -2,10 +2,27 @@ import type { HtmlTagDescriptor } from 'vite'
 import type { IconOptions } from './type'
 
 /**
- * 生成 HtmlTagDescriptor 数组（Vite 原生 API，更可靠）
+ * 根据图标配置生成 HtmlTagDescriptor 数组
  *
- * @param options - 图标配置选项
- * @returns 生成的 HtmlTagDescriptor 数组
+ * @param {IconOptions} options - 图标配置选项
+ * @returns {HtmlTagDescriptor[]} 生成的 HtmlTagDescriptor 数组
+ *
+ * @description 根据配置的优先级生成图标标签描述符：
+ * 1. 如果提供了 `link`（自定义完整标签），返回空数组，由调用方使用字符串方式处理
+ * 2. 如果提供了 `icons` 数组，为每个图标生成对应的 `<link>` 标签
+ * 3. 如果提供了 `url`，生成指向该 URL 的标准 favicon 标签
+ * 4. 默认使用 `base` 路径拼接 `favicon.ico`
+ *
+ * @example
+ * ```typescript
+ * const descriptors = generateIconTagDescriptors({
+ *   base: '/assets',
+ *   icons: [
+ *     { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }
+ *   ]
+ * })
+ * // 返回 [{ tag: 'link', attrs: { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }, injectTo: 'head' }]
+ * ```
  */
 export function generateIconTagDescriptors(options: IconOptions): HtmlTagDescriptor[] {
 	const descriptors: HtmlTagDescriptor[] = []

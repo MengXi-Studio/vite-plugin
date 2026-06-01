@@ -16,19 +16,42 @@ import { existsSync, watch as fsWatch } from 'fs'
 class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	/**
 	 * 项目根目录
+	 *
+	 * @description 从 Vite 配置中获取的项目根目录路径
 	 */
 	private projectRoot: string = process.cwd()
 
 	/**
 	 * tabBar 页面路径集合
+	 *
+	 * @description 存储从 pages.json tabBar 配置中提取的页面路径，
+	 * 用于在路由元信息中标记 isTab 字段
 	 */
 	private tabBarPages: Set<string> = new Set()
 
 	/**
 	 * 文件监听器
+	 *
+	 * @description 监听 pages.json 文件变化的 Node.js fs.FSWatcher 实例
 	 */
 	private watcher: ReturnType<typeof fsWatch> | null = null
 
+	/**
+	 * 获取插件默认配置
+	 *
+	 * @returns {Partial<GenerateRouterOptions>} 默认配置对象
+	 *
+	 * @description 默认配置：
+	 * - pagesJsonPath: 'src/pages.json'
+	 * - outputPath: 'src/router.config.ts'
+	 * - outputFormat: 'ts'
+	 * - nameStrategy: 'camelCase'
+	 * - includeSubPackages: true
+	 * - watch: true
+	 * - exportTypes: true
+	 * - preserveRouteChanges: true
+	 * - metaMapping: { navigationBarTitleText: 'title', requireAuth: 'requireAuth' }
+	 */
 	protected getDefaultOptions(): Partial<GenerateRouterOptions> {
 		return {
 			pagesJsonPath: 'src/pages.json',
@@ -46,6 +69,17 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 		}
 	}
 
+	/**
+	 * 校验用户传入的配置选项
+	 *
+	 * @throws {Error} 当 nameStrategy 为 'custom' 但未提供 customNameGenerator 时抛出错误
+	 *
+	 * @description 校验规则：
+	 * - pagesJsonPath: 字符串
+	 * - outputPath: 字符串
+	 * - outputFormat: 枚举值 'ts' | 'js'
+	 * - nameStrategy: 枚举值 'path' | 'camelCase' | 'pascalCase' | 'custom'
+	 */
 	protected validateOptions(): void {
 		this.validator.field('pagesJsonPath').string().field('outputPath').string().field('outputFormat').enum(['ts', 'js']).field('nameStrategy').enum(['path', 'camelCase', 'pascalCase', 'custom']).validate()
 
@@ -55,12 +89,26 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 		}
 	}
 
+	/**
+	 * 获取插件名称
+	 *
+	 * @returns {string} 插件名称 'generate-router'
+	 */
 	protected getPluginName(): string {
 		return 'generate-router'
 	}
 
 	/**
 	 * 根据策略生成路由名称
+	 *
+	 * @param {string} path - 页面路径
+	 * @returns {string} 根据配置策略生成的路由名称
+	 *
+	 * @description 根据 nameStrategy 配置生成不同格式的路由名称：
+	 * - `path`: 将斜杠替换为下划线，去除前导下划线
+	 * - `camelCase`: 驼峰命名
+	 * - `pascalCase`: 帕斯卡命名
+	 * - `custom`: 使用自定义生成函数
 	 */
 	private generateRouteName(path: string): string {
 		switch (this.options.nameStrategy) {
@@ -79,6 +127,13 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 
 	/**
 	 * 从页面配置中提取路由元信息
+	 *
+	 * @param {UniAppPageConfig} pageConfig - uni-app 页面配置对象
+	 * @param {string} fullPath - 页面完整路径（不含前导斜杠）
+	 * @returns {RouteMeta} 提取的路由元信息
+	 *
+	 * @description 根据 metaMapping 配置将页面 style 中的字段映射到路由元信息，
+	 * 并自动标记 tabBar 页面的 isTab 字段。
 	 */
 	private extractMeta(pageConfig: UniAppPageConfig, fullPath: string): RouteMeta {
 		const meta: RouteMeta = {}
@@ -102,6 +157,13 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 
 	/**
 	 * 解析单个页面配置为路由配置
+	 *
+	 * @param {UniAppPageConfig} pageConfig - uni-app 页面配置对象
+	 * @param {string} [rootPath=''] - 子包根路径，主包页面为空
+	 * @returns {RouteConfig} 生成的路由配置对象
+	 *
+	 * @description 将 uni-app 的页面配置转换为标准路由配置，
+	 * 包含路径、名称和元信息。子包页面路径会拼接 rootPath 前缀。
 	 */
 	private parsePageToRoute(pageConfig: UniAppPageConfig, rootPath: string = ''): RouteConfig {
 		const fullPath = rootPath ? `/${rootPath}/${pageConfig.path}` : `/${pageConfig.path}`
@@ -123,6 +185,15 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 
 	/**
 	 * 解析 pages.json 并生成路由配置数组
+	 *
+	 * @param {UniAppPagesJson} pagesJson - 解析后的 pages.json 对象
+	 * @returns {RouteConfig[]} 路由配置数组
+	 *
+	 * @description 解析流程：
+	 * 1. 校验 pages 数组有效性
+	 * 2. 提取 tabBar 页面路径到 tabBarPages 集合
+	 * 3. 解析主包页面
+	 * 4. 如果 includeSubPackages 为 true，解析子包页面
 	 */
 	private parsePagesJson(pagesJson: UniAppPagesJson): RouteConfig[] {
 		const routes: RouteConfig[] = []
@@ -162,6 +233,11 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 
 	/**
 	 * 生成类型定义代码
+	 *
+	 * @returns {string} TypeScript 类型定义代码字符串，如果不需要则返回空字符串
+	 *
+	 * @description 仅在 exportTypes 为 true 且 outputFormat 为 'ts' 时生成类型定义，
+	 * 包含 RouteMeta 和 RouteConfig 接口定义。
 	 */
 	private generateTypeDefinitions(): string {
 		if (!this.options.exportTypes || this.options.outputFormat === 'js') {
@@ -199,6 +275,12 @@ export interface RouteConfig {
 
 	/**
 	 * 生成路由配置文件内容
+	 *
+	 * @param {RouteConfig[]} routes - 路由配置数组
+	 * @returns {string} 完整的路由配置文件内容字符串
+	 *
+	 * @description 生成包含类型定义（如果需要）和路由配置数组的完整文件内容。
+	 * JSON 输出会经过美化处理：属性名去引号、字符串值使用单引号。
 	 */
 	private generateFileContent(routes: RouteConfig[]): string {
 		const typeDefinitions = this.generateTypeDefinitions()
@@ -225,6 +307,13 @@ export default routes
 
 	/**
 	 * 读取并解析 pages.json
+	 *
+	 * @returns {Promise<UniAppPagesJson | null>} 解析后的 pages.json 对象，失败时返回 null
+	 *
+	 * @throws 当文件读取或 JSON 解析失败时记录错误日志
+	 *
+	 * @description 读取 pages.json 文件，去除 JSON 注释后解析为对象。
+	 * 如果文件不存在或解析失败，返回 null 并输出相应日志。
 	 */
 	private async readPagesJson(): Promise<UniAppPagesJson | null> {
 		const pagesJsonPath = resolve(this.projectRoot, this.options.pagesJsonPath!)
@@ -245,7 +334,13 @@ export default routes
 	}
 
 	/**
-	 * 从已存在的文件中提取 routes 配置
+	 * 从已存在的路由配置文件中提取 routes 配置
+	 *
+	 * @param {string} existingContent - 已存在的文件内容
+	 * @returns {Map<string, RouteConfig>} 以路径为键的路由配置映射
+	 *
+	 * @description 使用正则表达式从已存在的文件中提取 routes 数组，
+	 * 解析为 RouteConfig 对象映射。解析失败时返回空 Map 并输出警告日志。
 	 */
 	private extractExistingRoutes(existingContent: string): Map<string, RouteConfig> {
 		const routesMap = new Map<string, RouteConfig>()
@@ -280,6 +375,15 @@ export default routes
 
 	/**
 	 * 合并路由配置，保留用户修改
+	 *
+	 * @param {RouteConfig[]} newRoutes - 新生成的路由配置数组
+	 * @param {Map<string, RouteConfig>} existingRoutesMap - 已存在的路由配置映射
+	 * @returns {RouteConfig[]} 合并后的路由配置数组
+	 *
+	 * @description 合并策略：
+	 * - path 始终使用新生成的值（由 pages.json 决定）
+	 * - 用户对 name 和 meta 的修改优先保留
+	 * - 新增的 meta 字段会自动补充，用户修改的值不会被覆盖
 	 */
 	private mergeRoutes(newRoutes: RouteConfig[], existingRoutesMap: Map<string, RouteConfig>): RouteConfig[] {
 		return newRoutes.map(newRoute => {
@@ -311,6 +415,14 @@ export default routes
 
 	/**
 	 * 生成路由配置文件
+	 *
+	 * @returns {Promise<void>} 无返回值
+	 *
+	 * @description 完整的路由配置文件生成流程：
+	 * 1. 读取并解析 pages.json
+	 * 2. 解析为路由配置数组
+	 * 3. 如果 preserveRouteChanges 为 true，合并用户修改
+	 * 4. 生成文件内容并写入磁盘
 	 */
 	private async generateRouterConfig(): Promise<void> {
 		const pagesJson = await this.readPagesJson()
@@ -340,7 +452,10 @@ export default routes
 	}
 
 	/**
-	 * 启动文件监听
+	 * 启动 pages.json 文件监听
+	 *
+	 * @description 仅在 watch 为 true 且文件存在时启动监听。
+	 * 检测到文件变化时自动重新生成路由配置。
 	 */
 	private startWatching(): void {
 		if (!this.options.watch) return
@@ -360,7 +475,9 @@ export default routes
 	}
 
 	/**
-	 * 停止文件监听
+	 * 停止 pages.json 文件监听
+	 *
+	 * @description 关闭文件监听器并释放资源，通常在插件销毁时调用。
 	 */
 	private stopWatching(): void {
 		if (this.watcher) {
@@ -369,6 +486,16 @@ export default routes
 		}
 	}
 
+	/**
+	 * 注册 Vite 插件钩子
+	 *
+	 * @param {Plugin} plugin - Vite 插件对象
+	 *
+	 * @description 注册 `configResolved` 钩子：
+	 * - 获取项目根目录
+	 * - 生成路由配置文件
+	 * - 在开发模式下启动 pages.json 文件监听
+	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		plugin.configResolved = async config => {
 			this.projectRoot = config.root
@@ -381,6 +508,11 @@ export default routes
 		}
 	}
 
+	/**
+	 * 插件销毁生命周期
+	 *
+	 * @description 调用父类销毁方法并停止文件监听
+	 */
 	protected destroy(): void {
 		super.destroy()
 		this.stopWatching()
