@@ -1,3 +1,111 @@
+## 0.1.4（2026-06-03）
+新增 envGuard 环境变量校验插件，新增 @common/ui 终端 UI 工具模块
+
+### envGuard（新增）
+
+环境变量校验插件，在 Vite 构建前校验环境变量的存在性和合法性，支持多种值类型校验、正则匹配、自定义校验函数、范围约束和长度约束，可选生成 .env 模板文件和注入运行时守卫代码。`enforce: 'post'`（运行时守卫注入）。
+
+**功能特性**：
+
+- 多类型校验：`string`、`number`、`url`、`boolean`、`enum`、`json`、`semver`、`path`
+- 范围验证：`minValue` / `maxValue` 数值范围约束（`number` 类型）
+- 长度验证：`minLength` / `maxLength` 字符串长度约束（字符串类类型）
+- 正则匹配：`pattern` 正则表达式校验
+- 自定义校验：`validator` 函数，返回 `true` 或错误消息字符串
+- 失败处理：`failAction` 支持 `error`（中断构建）、`warn`（警告继续）、`ignore`（静默忽略）
+- .env 模板生成：`generateTemplate` 自动生成含注释、分组、敏感标记的模板文件
+- 运行时守卫：`runtimeGuard` 注入 JavaScript 代码到 HTML，支持 `console`（控制台警告）、`throw`（抛出错误）、`overlay`（页面横幅）三种模式
+- 自动加载 .env：`autoLoadEnv` 按配置路径自动加载环境变量到 `process.env`
+- 校验报告：`reportOutput` 生成 JSON 格式的校验结果报告
+- 校验摘要：`showSummary` 在终端输出通过/缺失/失败统计
+
+**配置选项**：
+
+| 选项                | 类型                                    | 默认值                                                          | 描述                                 |
+| ------------------- | --------------------------------------- | --------------------------------------------------------------- | ------------------------------------ |
+| required            | `Record<string, EnvFieldRule>`          | `{}`                                                            | 环境变量校验规则映射                 |
+| failAction          | `'error'` \| `'warn'` \| `'ignore'`     | `'error'`                                                       | 校验失败时的处理动作                 |
+| generateTemplate    | `boolean`                               | `true`                                                          | 是否自动生成 .env 模板文件           |
+| templateOutput      | `string`                                | `'.env.template'`                                               | .env 模板文件的输出路径              |
+| runtimeGuard        | `boolean`                               | `false`                                                         | 是否注入运行时环境变量守卫代码       |
+| runtimeGlobalName   | `string`                                | `'__ENV_GUARD__'`                                               | 运行时守卫的全局变量名               |
+| runtimeGuardMode    | `'console'` \| `'throw'` \| `'overlay'` | `'console'`                                                     | 运行时守卫的行为模式                 |
+| envFiles            | `string[]`                              | `['.env', '.env.local', '.env.production', '.env.development']` | 需要加载的 .env 文件路径列表         |
+| autoLoadEnv         | `boolean`                               | `true`                                                          | 是否自动加载 .env 文件到 process.env |
+| reportOutput        | `string` \| `false`                     | `false`                                                         | 校验报告输出路径，`false` 不生成     |
+| validateBeforeBuild | `boolean`                               | `true`                                                          | 是否在构建前执行校验                 |
+| showSummary         | `boolean`                               | `true`                                                          | 是否输出校验摘要日志                 |
+
+**EnvFieldRule 类型**：
+
+| 属性        | 类型                                   | 描述                                   |
+| ----------- | -------------------------------------- | -------------------------------------- |
+| type        | `EnvType`                              | 值类型，默认 `'string'`                |
+| required    | `boolean`                              | 是否为必需字段，默认 `true`            |
+| pattern     | `RegExp`                               | 正则表达式，值必须匹配此模式           |
+| validator   | `(value: string) => boolean \| string` | 自定义验证函数                         |
+| message     | `string`                               | 自定义错误消息                         |
+| default     | `string`                               | 当值为空时使用的默认值                 |
+| enumValues  | `string[]`                             | 枚举值列表（仅 `enum` 类型）           |
+| minValue    | `number`                               | 数值最小值（仅 `number` 类型）         |
+| maxValue    | `number`                               | 数值最大值（仅 `number` 类型）         |
+| minLength   | `number`                               | 字符串最小长度（仅字符串类类型）       |
+| maxLength   | `number`                               | 字符串最大长度（仅字符串类类型）       |
+| group       | `string`                               | 变量分组名称，用于模板生成时的分组显示 |
+| description | `string`                               | 变量描述信息，用于模板生成时的说明文本 |
+| sensitive   | `boolean`                              | 是否为敏感变量，模板中会隐藏实际值     |
+
+**EnvValidationResult 类型**：
+
+| 属性    | 类型                                                                                                                      | 描述             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| key     | `string`                                                                                                                  | 环境变量名       |
+| status  | `'pass'` \| `'missing'` \| `'type_error'` \| `'custom_error'` \| `'enum_mismatch'` \| `'range_error'` \| `'length_error'` | 验证状态         |
+| message | `string`                                                                                                                  | 验证消息         |
+| value   | `string` \| `undefined`                                                                                                   | 环境变量的有效值 |
+| rule    | `EnvFieldRule`                                                                                                            | 应用的校验规则   |
+
+**EnvGuardResult 类型**：
+
+| 属性      | 类型                    | 描述                       |
+| --------- | ----------------------- | -------------------------- |
+| timestamp | `string`                | 校验时间戳（ISO 格式）     |
+| total     | `number`                | 校验的环境变量总数         |
+| passed    | `number`                | 校验通过的变量数量         |
+| missing   | `number`                | 缺失的必需变量数量         |
+| invalid   | `number`                | 校验失败的变量数量         |
+| results   | `EnvValidationResult[]` | 所有变量的详细校验结果列表 |
+| allPassed | `boolean`               | 是否所有变量均校验通过     |
+
+### @common/ui（新增模块）
+
+终端 UI 工具模块，提供 ANSI 转义码处理、Spinner 动画帧和字符串清理等工具函数。
+
+- `ANSI` — ANSI 转义码工具集，包含光标控制（`reset`、`clearLine`、`hideCursor`、`showCursor`）和彩色文本包装（`green`、`cyan`、`gray`、`bold`、`red`、`yellow`、`magenta`）
+- `SPINNER_FRAMES` — Spinner 动画帧序列，Windows 平台使用 ASCII 字符 `|`/`/`/`-`/`\`，其他平台使用 Unicode Braille 字符 `⠋`-`⠏`
+- `stripAnsi(str)` — 移除字符串中的所有 ANSI 转义码，用于计算文本实际显示宽度或将彩色输出转为纯文本
+
+### @common/validation（增强）
+
+新增环境变量验证相关类型和函数：
+
+- `EnvType` 类型 — 环境变量值类型，支持 `'string'` \| `'number'` \| `'url'` \| `'boolean'` \| `'enum'` \| `'json'` \| `'semver'` \| `'path'`
+- `EnvFieldRule` 接口 — 环境变量字段校验规则，包含类型约束、范围限制、自定义验证函数和元数据信息
+- `EnvValidationResult` 接口 — 环境变量验证结果，包含验证状态、错误消息和有效值
+- `STRING_LIKE_TYPES` 常量 — 字符串类类型集合，用于长度验证时判断是否需要检查 `minLength`/`maxLength`
+- `validateType(value, rule)` — 验证环境变量值的类型
+- `validateRange(value, rule)` — 验证数值范围（仅 `number` 类型）
+- `validateLength(value, rule)` — 验证字符串长度（仅字符串类类型）
+- `validateValue(key, value, rule)` — 验证单个环境变量值（按顺序执行缺失检查、类型验证、范围验证、长度验证、正则验证、自定义验证）
+- `validateEnvironment(env, rules)` — 批量验证环境变量
+
+### 子路径导出（增强）
+
+- `@meng-xi/vite-plugin/plugins` 新增导出类型：`EnvGuardOptions`、`EnvGuardResult`、`EnvFailAction`、`RuntimeGuardMode`
+- `@meng-xi/vite-plugin/plugins` 新增导出函数：`envGuard`
+- `@meng-xi/vite-plugin/common/ui` 新增子路径导出，包含 `ANSI`、`SPINNER_FRAMES`、`stripAnsi`
+- `@meng-xi/vite-plugin/common`
+  新增导出：`ANSI`、`SPINNER_FRAMES`、`stripAnsi`、`EnvType`、`EnvFieldRule`、`EnvValidationResult`、`STRING_LIKE_TYPES`、`validateType`、`validateRange`、`validateLength`、`validateValue`、`validateEnvironment`
 ## 0.1.3（2026-06-01）
 
 新增 bundleAnalyzer 构建产物体积分析插件，新增 @common/compress 和 @common/path 工具模块，@common/format 和 @common/fs 新增通用函数

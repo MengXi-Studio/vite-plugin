@@ -68,7 +68,7 @@ export default defineConfig({
 | [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/en/plugins/bundle-analyzer.html)              | Bundle volume analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build diff                                     |
 | [compressAssets](https://mengxi-studio.github.io/vite-plugin/en/plugins/compress-assets.html)              | Asset compression with gzip / brotli / both, concurrent compression and statistics report                                             |
 | [copyFile](https://mengxi-studio.github.io/vite-plugin/en/plugins/copy-file.html)                          | Copy files or directories after build, supports incremental copying                                                                   |
-| [envGuard](https://mengxi-studio.github.io/vite-plugin/en/plugins/)                                        | Environment variable validation with type checking, range validation, custom rules and runtime guard                                  |
+| [envGuard](https://mengxi-studio.github.io/vite-plugin/en/plugins/env-guard.html)                          | Environment variable validation with type checking, range validation, custom rules and runtime guard                                  |
 | [faviconManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/favicon-manager.html)              | Manage website favicon link injection and file copying, supports string shorthand config                                              |
 | [generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)              | Auto-generate route config from pages.json (uni-app)                                                                                  |
 | [generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)            | Auto-generate version numbers with file output and global variable injection                                                          |
@@ -144,7 +144,7 @@ import { calculateGzipSize } from '@meng-xi/vite-plugin/common/compress'
 | [`common/object`](https://mengxi-studio.github.io/vite-plugin/en/common/object.html)         | Object operation utils  |
 | [`common/path`](https://mengxi-studio.github.io/vite-plugin/en/common/path.html)             | Path handling utils     |
 | [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)         | Script generation utils |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/)                        | Terminal UI utils       |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                 | Terminal UI utils       |
 | [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html) | Validation utilities    |
 
 ## Sub-path Exports

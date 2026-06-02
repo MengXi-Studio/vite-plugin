@@ -67,7 +67,7 @@ export default defineConfig({
 | [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/plugins/bundle-analyzer.html)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比  |
 | [compressAssets](https://mengxi-studio.github.io/vite-plugin/plugins/compress-assets.html)              | 构建产物压缩，支持 gzip / brotli / both，并发压缩和统计报告           |
 | [copyFile](https://mengxi-studio.github.io/vite-plugin/plugins/copy-file.html)                          | 构建完成后复制文件或目录，支持增量复制                                |
-| [envGuard](https://mengxi-studio.github.io/vite-plugin/plugins/)                                        | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫          |
+| [envGuard](https://mengxi-studio.github.io/vite-plugin/plugins/env-guard.html)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫          |
 | [faviconManager](https://mengxi-studio.github.io/vite-plugin/plugins/favicon-manager.html)              | 管理网站图标链接注入和文件复制，支持字符串简写配置                    |
 | [generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)              | 根据 pages.json 自动生成路由配置（uni-app）                           |
 | [generateVersion](https://mengxi-studio.github.io/vite-plugin/plugins/generate-version.html)            | 自动生成版本号，支持文件输出和全局变量注入                            |
@@ -143,7 +143,7 @@ import { calculateGzipSize } from '@meng-xi/vite-plugin/common/compress'
 | [`common/object`](https://mengxi-studio.github.io/vite-plugin/common/object.html)         | 对象操作工具  |
 | [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)             | 路径处理工具  |
 | [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)         | 脚本生成工具  |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/)                        | 终端 UI 工具  |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                 | 终端 UI 工具  |
 | [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html) | 参数验证工具  |
 
 ## 子路径导出

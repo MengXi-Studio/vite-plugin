@@ -1,6 +1,18 @@
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import { buildProgress, bundleAnalyzer, copyFile, generateVersion, generateRouter, faviconManager, loadingManager, versionUpdateChecker, htmlInject, compressAssets } from './uni_modules/vite-plugin/js_sdk/index.mjs'
+import {
+	buildProgress,
+	bundleAnalyzer,
+	copyFile,
+	envGuard,
+	generateVersion,
+	generateRouter,
+	faviconManager,
+	loadingManager,
+	versionUpdateChecker,
+	htmlInject,
+	compressAssets
+} from './uni_modules/vite-plugin/js_sdk/index.mjs'
 import { resolve } from 'node:path'
 
 export default defineConfig(config => {
@@ -12,6 +24,15 @@ export default defineConfig(config => {
 	return {
 		plugins: [
 			uni(),
+
+			envGuard({
+				required: {
+					VITE_APP_TITLE: { type: 'string', required: true, minLength: 1, maxLength: 50 },
+					VITE_API_URL: { type: 'url', required: true },
+					VITE_DEBUG: { type: 'boolean', required: false }
+				},
+				failAction: 'warn'
+			}),
 
 			buildProgress({
 				format: 'bar',
