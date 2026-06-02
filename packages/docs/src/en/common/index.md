@@ -20,6 +20,7 @@ import { ... } from '@meng-xi/vite-plugin/common/html'
 import { ... } from '@meng-xi/vite-plugin/common/object'
 import { ... } from '@meng-xi/vite-plugin/common/path'
 import { ... } from '@meng-xi/vite-plugin/common/script'
+import { ... } from '@meng-xi/vite-plugin/common/ui'
 import { ... } from '@meng-xi/vite-plugin/common/validation'
 ```
 
@@ -36,4 +37,5 @@ import { ... } from '@meng-xi/vite-plugin/common/validation'
 | [object](./object)         | Object handling utilities | `@meng-xi/vite-plugin/common/object`     |
 | [path](./path)             | Path utilities            | `@meng-xi/vite-plugin/common/path`       |
 | [script](./script)         | Script utilities          | `@meng-xi/vite-plugin/common/script`     |
+| [ui](./ui)                 | Terminal UI utilities     | `@meng-xi/vite-plugin/common/ui`         |
 | [validation](./validation) | Parameter validator       | `@meng-xi/vite-plugin/common/validation` |

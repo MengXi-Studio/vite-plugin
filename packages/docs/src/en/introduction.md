@@ -4,7 +4,7 @@
 
 ## Built-in Plugins
 
-Ten ready-to-use plugins covering common build scenarios:
+Eleven ready-to-use plugins covering common build scenarios:
 
 | Plugin                                                     | Description                                                                                                                                             |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -12,6 +12,7 @@ Ten ready-to-use plugins covering common build scenarios:
 | [bundleAnalyzer](/en/plugins/bundle-analyzer)              | Build artifact size analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison                                           |
 | [compressAssets](/en/plugins/compress-assets)              | Compress build artifacts with gzip / brotli / both, configurable compression level, file filtering, and concurrency, plus compression statistics report |
 | [copyFile](/en/plugins/copy-file)                          | Copy files or directories to specified locations after build, with incremental copying                                                                  |
+| [envGuard](/en/plugins/env-guard)                          | Environment variable validation with type checking, range validation, custom rules and runtime guard                                                    |
 | [faviconManager](/en/plugins/favicon-manager)              | Manage website favicon links injection into HTML files                                                                                                  |
 | [generateRouter](/en/plugins/generate-router)              | Auto-generate router configuration from uni-app's pages.json                                                                                            |
 | [generateVersion](/en/plugins/generate-version)            | Auto-generate version numbers with file output and global variable injection                                                                            |
@@ -50,7 +51,7 @@ interface BasePluginOptions {
 
 ## Common Utility Modules
 
-Eight utility modules covering common scenarios in plugin development:
+Nine utility modules covering common scenarios in plugin development:
 
 ### compress — Compression Utilities
 
@@ -110,6 +111,14 @@ Provides script generation and security validation:
 - `makeCallback` — Wrap callback function body string into a safe function expression
 - `containsScriptTag` — Detect if a string contains `<script>` tags
 - `validateIdentifierName` — Validate if a string is a legal JavaScript identifier, preventing prototype pollution
+
+### ui — Terminal UI Utilities
+
+Provides terminal ANSI escape code handling and Spinner animation frames:
+
+- `ANSI` — ANSI escape code toolkit providing text coloring (green/cyan/red/yellow/magenta/gray/bold) and cursor control (reset/clearLine/hideCursor/showCursor)
+- `SPINNER_FRAMES` — Spinner animation frame sequence, automatically selecting ASCII or Unicode characters based on platform
+- `stripAnsi` — Remove all ANSI escape codes from a string
 
 ### validation — Configuration Validation Utilities
 

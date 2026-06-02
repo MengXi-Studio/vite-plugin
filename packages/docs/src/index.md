@@ -7,7 +7,7 @@ titleTemplate: Vite 实用插件工具包
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite 实用插件工具包
-  tagline: 10 款开箱即用插件 + 完整的插件开发框架，让 Vite 开发更高效
+  tagline: 11 款开箱即用插件 + 完整的插件开发框架，让 Vite 开发更高效
   image:
     src: /logo.png
     alt: 梦曦工作室
@@ -49,5 +49,5 @@ features:
     details: 导出 BasePlugin、createPluginFactory、Logger、Validator 等核心组件，提供完整生命周期管理、链式配置验证与 safeExecute 安全执行包裹
   - icon: 🛠️
     title: 通用工具模块
-    details: 提供 compress、format、fs、html、object、path、script、validation 八大工具模块，覆盖压缩算法、日期格式化、文件操作、HTML 注入、深度合并、路径处理、脚本生成与配置验证等常见场景
+    details: 提供 compress、format、fs、html、object、path、script、ui、validation 九大工具模块，覆盖压缩算法、日期格式化、文件操作、HTML 注入、深度合并、路径处理、终端 UI、脚本生成与配置验证等常见场景
 ---

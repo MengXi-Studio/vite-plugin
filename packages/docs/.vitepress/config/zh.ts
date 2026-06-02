@@ -114,6 +114,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/common/script.html'
 						},
 						{
+							text: '终端 UI',
+							link: '/common/ui.html'
+						},
+						{
 							text: '验证器',
 							link: '/common/validation.html'
 						}
@@ -183,6 +187,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'copyFile',
 							link: '/plugins/copy-file.html'
+						},
+						{
+							text: 'envGuard',
+							link: '/plugins/env-guard.html'
 						},
 						{
 							text: 'faviconManager',

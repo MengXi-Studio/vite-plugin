@@ -7,7 +7,7 @@
 ### 通过 barrel 导入（导入所有插件）
 
 ```typescript
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 ```
 
 ### 通过子模块独立导入（推荐，支持 tree-shaking）
@@ -17,6 +17,7 @@ import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
 import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
 import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
 import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
+import { envGuard } from '@meng-xi/vite-plugin/plugins/env-guard'
 import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
 import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
 import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
@@ -35,6 +36,7 @@ import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-updat
 | [bundleAnalyzer](./bundle-analyzer)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比 | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        |
 | [compressAssets](./compress-assets)              | 构建产物压缩，支持 gzip / brotli / both                              | `@meng-xi/vite-plugin/plugins/compress-assets`        |
 | [copyFile](./copy-file)                          | 构建完成后复制文件或目录到指定位置                                   | `@meng-xi/vite-plugin/plugins/copy-file`              |
+| [envGuard](./env-guard)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫         | `@meng-xi/vite-plugin/plugins/env-guard`              |
 | [faviconManager](./favicon-manager)              | 管理网站图标（favicon）链接注入到 HTML 文件                          | `@meng-xi/vite-plugin/plugins/favicon-manager`        |
 | [generateRouter](./generate-router)              | 根据 uni-app pages.json 自动生成路由配置                             | `@meng-xi/vite-plugin/plugins/generate-router`        |
 | [generateVersion](./generate-version)            | 自动生成版本号，支持文件输出和全局变量注入                           | `@meng-xi/vite-plugin/plugins/generate-version`       |

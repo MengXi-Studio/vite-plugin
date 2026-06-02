@@ -24,7 +24,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -48,6 +48,13 @@ export default defineConfig({
 		copyFile({
 			sourceDir: 'src/assets',
 			targetDir: 'dist/assets'
+		}),
+
+		// 环境变量校验
+		envGuard({
+			required: {
+				VITE_API_URL: { type: 'url', required: true }
+			}
 		}),
 
 		// 生成路由配置（uni-app）
@@ -163,6 +170,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 - [bundleAnalyzer](/plugins/bundle-analyzer) - 构建产物体积分析
 - [compressAssets](/plugins/compress-assets) - 构建产物压缩
 - [copyFile](/plugins/copy-file) - 文件复制
+- [envGuard](/plugins/env-guard) - 环境变量校验
 - [faviconManager](/plugins/favicon-manager) - 网站图标管理
 - [generateRouter](/plugins/generate-router) - 路由生成
 - [generateVersion](/plugins/generate-version) - 版本管理

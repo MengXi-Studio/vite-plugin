@@ -4,7 +4,7 @@
 
 ## 内置插件
 
-开箱即用的十款插件，覆盖常见构建场景：
+开箱即用的十一款插件，覆盖常见构建场景：
 
 | 插件                                                    | 功能                                                                                            |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -12,6 +12,7 @@
 | [bundleAnalyzer](/plugins/bundle-analyzer)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比                            |
 | [compressAssets](/plugins/compress-assets)              | 构建产物压缩，支持 gzip / brotli / both，可配置压缩级别、文件过滤与并发数量，并生成压缩统计报告 |
 | [copyFile](/plugins/copy-file)                          | 构建完成后复制文件或目录到指定位置，支持增量复制                                                |
+| [envGuard](/plugins/env-guard)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫                                    |
 | [faviconManager](/plugins/favicon-manager)              | 管理网站图标（favicon）链接注入到 HTML 文件                                                     |
 | [generateRouter](/plugins/generate-router)              | 根据 uni-app 的 pages.json 自动生成路由配置                                                     |
 | [generateVersion](/plugins/generate-version)            | 自动生成版本号，支持文件输出和全局变量注入                                                      |
@@ -50,7 +51,7 @@ interface BasePluginOptions {
 
 ## 通用工具模块
 
-导出八大工具模块，覆盖插件开发中的常见场景：
+导出九大工具模块，覆盖插件开发中的常见场景：
 
 ### compress — 压缩算法工具
 
@@ -110,6 +111,14 @@ interface BasePluginOptions {
 - `makeCallback` — 将回调函数体字符串包装为安全的函数表达式
 - `containsScriptTag` — 检测字符串是否包含 `<script>` 标签
 - `validateIdentifierName` — 验证字符串是否为合法的 JavaScript 标识符，防止原型污染
+
+### ui — 终端 UI 工具
+
+提供终端 ANSI 转义码处理和 Spinner 动画帧：
+
+- `ANSI` — ANSI 转义码工具集，提供文本着色（green/cyan/red/yellow/magenta/gray/bold）和光标控制（reset/clearLine/hideCursor/showCursor）
+- `SPINNER_FRAMES` — Spinner 动画帧序列，根据平台自动选择 ASCII 或 Unicode 字符
+- `stripAnsi` — 移除字符串中的所有 ANSI 转义码
 
 ### validation — 配置验证工具
 

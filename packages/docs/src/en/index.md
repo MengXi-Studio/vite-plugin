@@ -7,7 +7,7 @@ titleTemplate: Vite Practical Plugin Toolkit
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite Practical Plugin Toolkit
-  tagline: 10 ready-to-use plugins + complete plugin development framework for efficient Vite development
+  tagline: 11 ready-to-use plugins + complete plugin development framework for efficient Vite development
   image:
     src: /logo.png
     alt: MengXi Studio
@@ -50,6 +50,6 @@ features:
   - icon: 🛠️
     title: Common Utility Modules
     details:
-      Provides 8 utility modules — compress, format, fs, html, object, path, script, validation — covering compression, date formatting, file operations, HTML injection, deep merge, path utilities, script generation, and
-      config validation
+      Provides 9 utility modules — compress, format, fs, html, object, path, script, ui, validation — covering compression, date formatting, file operations, HTML injection, deep merge, path utilities, terminal UI,
+      script generation, and config validation
 ---

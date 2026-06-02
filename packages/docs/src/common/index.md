@@ -20,6 +20,7 @@ import { ... } from '@meng-xi/vite-plugin/common/html'
 import { ... } from '@meng-xi/vite-plugin/common/object'
 import { ... } from '@meng-xi/vite-plugin/common/path'
 import { ... } from '@meng-xi/vite-plugin/common/script'
+import { ... } from '@meng-xi/vite-plugin/common/ui'
 import { ... } from '@meng-xi/vite-plugin/common/validation'
 ```
 
@@ -36,4 +37,5 @@ import { ... } from '@meng-xi/vite-plugin/common/validation'
 | [object](./object)         | 对象处理工具     | `@meng-xi/vite-plugin/common/object`     |
 | [path](./path)             | 路径处理工具     | `@meng-xi/vite-plugin/common/path`       |
 | [script](./script)         | 脚本工具         | `@meng-xi/vite-plugin/common/script`     |
+| [ui](./ui)                 | 终端 UI 工具     | `@meng-xi/vite-plugin/common/ui`         |
 | [validation](./validation) | 参数验证器       | `@meng-xi/vite-plugin/common/validation` |

@@ -114,6 +114,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/common/script.html'
 						},
 						{
+							text: 'Terminal UI',
+							link: '/en/common/ui.html'
+						},
+						{
 							text: 'Validation',
 							link: '/en/common/validation.html'
 						}
@@ -183,6 +187,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'copyFile',
 							link: '/en/plugins/copy-file.html'
+						},
+						{
+							text: 'envGuard',
+							link: '/en/plugins/env-guard.html'
 						},
 						{
 							text: 'faviconManager',
