@@ -1,9 +1,12 @@
 export { calculateGzipSize } from './compress/index.js';
 export { DateFormatOptions, escapeHtmlAttr, formatDate, formatFileSize, generateRandomHash, getDateFormatParams, getExtension, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase } from './format/index.js';
 export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, scanDirectory, shouldUpdateFile, writeFileContent, writeJsonReport } from './fs/index.js';
-export { DualInjectResult, HtmlInjectResult, injectBeforeTag, injectBeforeTagWithFallback, injectHeadAndBody, injectHtmlByPriority } from './html/index.js';
+export { DEFAULT_BLOCKED_ATTRIBUTES, DEFAULT_BLOCKED_TAGS, SanitizeRuleOptions, applyTemplateVars, evaluateCondition, findSelectorMatch, injectAtPosition, injectBeforeTag, injectBeforeTagWithFallback, injectHeadAndBody, injectHtmlByPriority, sanitizeContent, sortRulesByPriority, validateSecurityConfig } from './html/index.js';
 export { deepMerge } from './object/index.js';
 export { isNodeModule } from './path/index.js';
 export { containsScriptTag, makeCallback, validateIdentifierName } from './script/index.js';
+export { ANSI, SPINNER_FRAMES, stripAnsi } from './ui/index.js';
 export { V as Validator } from '../shared/vite-plugin.DRRlWY8P.js';
 export { validateCallbackFields, validateEnumValue, validateGlobalName, validateNestedDuration, validateNoScriptInTemplate, validateNonNegativeNumber } from './validation/index.js';
+export { E as EnvFieldRule, a as EnvType, b as EnvValidationResult, S as STRING_LIKE_TYPES, v as validateEnvironment, c as validateLength, d as validateRange, e as validateType, f as validateValue } from '../shared/vite-plugin.CmtcnItg.js';
+export { C as ConditionType, D as DualInjectResult, H as HtmlInjectResult, I as InjectCondition, a as InjectPosition, P as PositionInjectResult, S as SecurityConfig, b as SelectorMatch } from '../shared/vite-plugin.FfJ-Wwfu.js';

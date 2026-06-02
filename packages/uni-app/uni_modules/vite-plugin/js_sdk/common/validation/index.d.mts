@@ -1,4 +1,5 @@
 export { V as Validator } from '../../shared/vite-plugin.DRRlWY8P.mjs';
+export { E as EnvFieldRule, a as EnvType, b as EnvValidationResult, S as STRING_LIKE_TYPES, v as validateEnvironment, c as validateLength, d as validateRange, e as validateType, f as validateValue } from '../../shared/vite-plugin.CmtcnItg.mjs';
 
 /**
  * 验证全局变量名的合法性（包装 validateIdentifierName，附加字段上下文信息）

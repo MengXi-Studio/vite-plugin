@@ -1,4 +1,4 @@
-import{createPluginFactory as d,BasePlugin as p}from"../../factory/index.mjs";import{makeCallback as i}from"../../common/script/index.mjs";import{validateNoScriptInTemplate as v,validateGlobalName as f,validateCallbackFields as m}from"../../common/validation/index.mjs";import{injectHeadAndBody as b}from"../../common/html/index.mjs";import"../../logger/index.mjs";import"../../common/object/index.mjs";import"../../shared/vite-plugin.DcExl6jd.mjs";function F(e,n){const u=".__vuc-overlay__{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;pointer-events:none;}";let t="";switch(e){case"modal":t=`.__vuc-modal__{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:32px;max-width:420px;width:90%;z-index:100000;pointer-events:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-align:center;}
+import{createPluginFactory as d,BasePlugin as p}from"../../factory/index.mjs";import{makeCallback as a}from"../../common/script/index.mjs";import{d as v,b as f,v as m}from"../../shared/vite-plugin.Dumot0up.mjs";import{injectHeadAndBody as b}from"../../common/html/index.mjs";import"../../logger/index.mjs";import"../../common/object/index.mjs";import"../../shared/vite-plugin.DcExl6jd.mjs";import"../../shared/vite-plugin.BCuhU1au.mjs";function F(e,n){const u=".__vuc-overlay__{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;pointer-events:none;}";let t="";switch(e){case"modal":t=`.__vuc-modal__{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:32px;max-width:420px;width:90%;z-index:100000;pointer-events:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-align:center;}
 .__vuc-modal-title__{font-size:18px;font-weight:600;color:#1a1a2e;margin:0 0 12px 0;}
 .__vuc-modal-body__{font-size:14px;color:#555;line-height:1.6;margin:0 0 8px 0;}
 .__vuc-modal-version__{font-size:12px;color:#999;margin:0 0 24px 0;}
@@ -42,7 +42,7 @@ import{createPluginFactory as d,BasePlugin as p}from"../../factory/index.mjs";im
 <div class="__vuc-modal-actions__">
 <button class="__vuc-btn__ __vuc-btn-dismiss__" onclick="window.__VUC_DISMISS__()">${r}</button>
 <button class="__vuc-btn__ __vuc-btn-refresh__" onclick="window.__VUC_REFRESH__()">${t}</button>
-</div></div></div>`}}function h(e){const n=e.versionSource||"auto",u=e.defineName||"__APP_VERSION__",t=e.checkUrl||"/version.json",r=e.checkInterval||3e5,o=e.checkOnVisibilityChange!==!1,a=e.enableInDev||!1,_=i(e.onUpdateAvailable,"versionUpdateChecker","currentVersion, newVersion"),c=i(e.onRefresh,"versionUpdateChecker","currentVersion, newVersion"),l=i(e.onDismiss,"versionUpdateChecker","currentVersion, newVersion");let s="";return(n==="define"||n==="auto")&&(s=`
+</div></div></div>`}}function h(e){const n=e.versionSource||"auto",u=e.defineName||"__APP_VERSION__",t=e.checkUrl||"/version.json",r=e.checkInterval||3e5,o=e.checkOnVisibilityChange!==!1,i=e.enableInDev||!1,_=a(e.onUpdateAvailable,"versionUpdateChecker","currentVersion, newVersion"),c=a(e.onRefresh,"versionUpdateChecker","currentVersion, newVersion"),l=a(e.onDismiss,"versionUpdateChecker","currentVersion, newVersion");let s="";return(n==="define"||n==="auto")&&(s=`
     // \u4F18\u5148\u4ECE define \u5168\u5C40\u53D8\u91CF\u8BFB\u53D6
     if (typeof ${u} !== 'undefined') return ${u};`),(n==="file"||n==="auto")&&(s+=`
     // \u4ECE\u9875\u9762 meta \u6807\u7B7E\u8BFB\u53D6
@@ -56,7 +56,7 @@ import{createPluginFactory as d,BasePlugin as p}from"../../factory/index.mjs";im
 
   // \u5F00\u53D1\u6A21\u5F0F\u68C0\u6D4B
   var _isDev = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development';
-  if (_isDev && !${JSON.stringify(a)}) return;
+  if (_isDev && !${JSON.stringify(i)}) return;
 
   // \u72B6\u6001
   var _currentVersion = null;

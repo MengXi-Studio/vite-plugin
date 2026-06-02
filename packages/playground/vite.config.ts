@@ -1,10 +1,20 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, generateRouter, generateVersion, faviconManager, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, faviconManager, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
 
 export default defineConfig({
 	plugins: [
 		vue(),
+
+		// 环境变量校验
+		envGuard({
+			required: {
+				VITE_APP_TITLE: { type: 'string', required: true, minLength: 1, maxLength: 50 },
+				VITE_API_URL: { type: 'url', required: true },
+				VITE_DEBUG: { type: 'boolean', required: false }
+			},
+			failAction: 'warn'
+		}),
 
 		// 构建进度条
 		buildProgress({

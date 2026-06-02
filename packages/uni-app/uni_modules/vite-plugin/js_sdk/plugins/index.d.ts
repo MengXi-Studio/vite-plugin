@@ -2,13 +2,16 @@ export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildP
 export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './bundleAnalyzer/index.js';
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './compressAssets/index.js';
 export { CopyFileOptions, copyFile } from './copyFile/index.js';
+export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './envGuard/index.js';
 export { FaviconManagerOptions, Icon, faviconManager } from './faviconManager/index.js';
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './generateRouter/index.js';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './generateVersion/index.js';
-export { ConditionType, HtmlInjectOptions, InjectCondition, InjectPosition, InjectRule, InjectionLogEntry, SecurityConfig, SelectorMatch, htmlInject } from './htmlInject/index.js';
+export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './htmlInject/index.js';
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './loadingManager/index.js';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './versionUpdateChecker/index.js';
 import '../factory/index.js';
 import 'vite';
 import '../shared/vite-plugin.CLr0ttuO.js';
 import '../shared/vite-plugin.DRRlWY8P.js';
+import '../shared/vite-plugin.CmtcnItg.js';
+import '../shared/vite-plugin.FfJ-Wwfu.js';

@@ -1,9 +1,12 @@
 export { calculateGzipSize } from './compress/index.cjs';
 export { DateFormatOptions, escapeHtmlAttr, formatDate, formatFileSize, generateRandomHash, getDateFormatParams, getExtension, padNumber, parseTemplate, stripJsonComments, toCamelCase, toPascalCase } from './format/index.cjs';
 export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, ensureTargetDir, fileExists, readDirRecursive, readFileContent, readFileSync, runWithConcurrency, scanDirectory, shouldUpdateFile, writeFileContent, writeJsonReport } from './fs/index.cjs';
-export { DualInjectResult, HtmlInjectResult, injectBeforeTag, injectBeforeTagWithFallback, injectHeadAndBody, injectHtmlByPriority } from './html/index.cjs';
+export { DEFAULT_BLOCKED_ATTRIBUTES, DEFAULT_BLOCKED_TAGS, SanitizeRuleOptions, applyTemplateVars, evaluateCondition, findSelectorMatch, injectAtPosition, injectBeforeTag, injectBeforeTagWithFallback, injectHeadAndBody, injectHtmlByPriority, sanitizeContent, sortRulesByPriority, validateSecurityConfig } from './html/index.cjs';
 export { deepMerge } from './object/index.cjs';
 export { isNodeModule } from './path/index.cjs';
 export { containsScriptTag, makeCallback, validateIdentifierName } from './script/index.cjs';
+export { ANSI, SPINNER_FRAMES, stripAnsi } from './ui/index.cjs';
 export { V as Validator } from '../shared/vite-plugin.DRRlWY8P.cjs';
 export { validateCallbackFields, validateEnumValue, validateGlobalName, validateNestedDuration, validateNoScriptInTemplate, validateNonNegativeNumber } from './validation/index.cjs';
+export { E as EnvFieldRule, a as EnvType, b as EnvValidationResult, S as STRING_LIKE_TYPES, v as validateEnvironment, c as validateLength, d as validateRange, e as validateType, f as validateValue } from '../shared/vite-plugin.CmtcnItg.cjs';
+export { C as ConditionType, D as DualInjectResult, H as HtmlInjectResult, I as InjectCondition, a as InjectPosition, P as PositionInjectResult, S as SecurityConfig, b as SelectorMatch } from '../shared/vite-plugin.FfJ-Wwfu.cjs';

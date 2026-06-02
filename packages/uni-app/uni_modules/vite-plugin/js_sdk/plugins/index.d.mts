@@ -2,13 +2,16 @@ export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildP
 export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './bundleAnalyzer/index.mjs';
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './compressAssets/index.mjs';
 export { CopyFileOptions, copyFile } from './copyFile/index.mjs';
+export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './envGuard/index.mjs';
 export { FaviconManagerOptions, Icon, faviconManager } from './faviconManager/index.mjs';
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './generateRouter/index.mjs';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './generateVersion/index.mjs';
-export { ConditionType, HtmlInjectOptions, InjectCondition, InjectPosition, InjectRule, InjectionLogEntry, SecurityConfig, SelectorMatch, htmlInject } from './htmlInject/index.mjs';
+export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './htmlInject/index.mjs';
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './loadingManager/index.mjs';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './versionUpdateChecker/index.mjs';
 import '../factory/index.mjs';
 import 'vite';
 import '../shared/vite-plugin.CLr0ttuO.mjs';
 import '../shared/vite-plugin.DRRlWY8P.mjs';
+import '../shared/vite-plugin.CmtcnItg.mjs';
+import '../shared/vite-plugin.FfJ-Wwfu.mjs';

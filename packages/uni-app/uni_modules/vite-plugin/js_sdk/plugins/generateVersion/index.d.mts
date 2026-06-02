@@ -46,6 +46,18 @@ interface VersionInfo {
  * 自动生成版本号插件的配置选项接口
  *
  * @interface GenerateVersionOptions
+ * @extends {BasePluginOptions}
+ *
+ * @example
+ * ```typescript
+ * generateVersion({
+ *   format: 'semver',
+ *   semverBase: '2.0.0',
+ *   outputType: 'both',
+ *   prefix: 'v',
+ *   extra: { environment: 'production' }
+ * })
+ * ```
  */
 interface GenerateVersionOptions extends BasePluginOptions {
     /**

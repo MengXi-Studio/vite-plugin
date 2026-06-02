@@ -35,6 +35,10 @@
 					<span class="icon">{{ tests.buildProgress ? '✅' : '⏳' }}</span>
 					<span>buildProgress - 构建进度条</span>
 				</div>
+				<div class="test-item" :class="{ passed: tests.bundleAnalyzer }">
+					<span class="icon">{{ tests.bundleAnalyzer ? '✅' : '⏳' }}</span>
+					<span>bundleAnalyzer - 构建产物体积分析</span>
+				</div>
 				<div class="test-item" :class="{ passed: tests.compressAssets }">
 					<span class="icon">{{ tests.compressAssets ? '✅' : '⏳' }}</span>
 					<span>compressAssets - 构建产物压缩</span>
@@ -42,6 +46,10 @@
 				<div class="test-item" :class="{ passed: tests.copyFile }">
 					<span class="icon">{{ tests.copyFile ? '✅' : '⏳' }}</span>
 					<span>copyFile - 文件复制</span>
+				</div>
+				<div class="test-item" :class="{ passed: tests.envGuard }">
+					<span class="icon">{{ tests.envGuard ? '✅' : '⏳' }}</span>
+					<span>envGuard - 环境变量校验</span>
 				</div>
 				<div class="test-item" :class="{ passed: tests.generateRouter }">
 					<span class="icon">{{ tests.generateRouter ? '✅' : '⏳' }}</span>
@@ -131,8 +139,10 @@ const versionInfo = __APP_VERSION___INFO
 
 const tests = reactive({
 	buildProgress: false,
+	bundleAnalyzer: false,
 	compressAssets: false,
 	copyFile: false,
+	envGuard: false,
 	generateRouter: false,
 	generateVersion: false,
 	htmlInject: false,
@@ -187,6 +197,14 @@ async function runTests() {
 	// buildProgress: 终端进度条在构建时已展示，此处验证构建成功即视为通过
 	tests.buildProgress = true
 
+	// bundleAnalyzer: 验证分析报告已生成
+	try {
+		const res = await fetch('/bundle-analysis.html')
+		tests.bundleAnalyzer = res.ok
+	} catch {
+		tests.bundleAnalyzer = false
+	}
+
 	// compressAssets: 验证压缩文件已生成（检查 .gz 文件是否存在）
 	try {
 		const res = await fetch('/compress-report.json')
@@ -218,6 +236,9 @@ async function runTests() {
 	} catch {
 		tests.copyFile = false
 	}
+
+	// envGuard: 验证环境变量已通过校验（构建成功即说明校验通过）
+	tests.envGuard = !!import.meta.env.VITE_APP_TITLE && !!import.meta.env.VITE_API_URL
 
 	// htmlInject: 验证注入的 meta 标签已存在于 head 中
 	const keywordsMeta = document.querySelector('meta[name="keywords"]')
