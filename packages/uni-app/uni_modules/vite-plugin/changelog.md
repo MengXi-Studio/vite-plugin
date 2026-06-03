@@ -1,4 +1,5 @@
 ## 0.1.4（2026-06-03）
+
 新增 envGuard 环境变量校验插件，新增 @common/ui 终端 UI 工具模块
 
 ### envGuard（新增）
@@ -106,6 +107,7 @@
 - `@meng-xi/vite-plugin/common/ui` 新增子路径导出，包含 `ANSI`、`SPINNER_FRAMES`、`stripAnsi`
 - `@meng-xi/vite-plugin/common`
   新增导出：`ANSI`、`SPINNER_FRAMES`、`stripAnsi`、`EnvType`、`EnvFieldRule`、`EnvValidationResult`、`STRING_LIKE_TYPES`、`validateType`、`validateRange`、`validateLength`、`validateValue`、`validateEnvironment`
+
 ## 0.1.3（2026-06-01）
 
 新增 bundleAnalyzer 构建产物体积分析插件，新增 @common/compress 和 @common/path 工具模块，@common/format 和 @common/fs 新增通用函数
