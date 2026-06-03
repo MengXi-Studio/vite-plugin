@@ -1,3 +1,4 @@
+export * from './autoImport'
 export * from './buildProgress'
 export * from './bundleAnalyzer'
 export * from './compressAssets'
