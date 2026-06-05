@@ -1,6 +1,12 @@
 import type { LoadingPosition, LoadingStyle, SpinnerType, TransitionConfig } from '../types'
 import { CLS_OVERLAY, CLS_HIDDEN, CLS_VISIBLE, CLS_TOP, CLS_CENTER, CLS_BOTTOM, CLS_SPINNER, CLS_TEXT, CLS_DOT, ID_ROOT, ATTR_TEXT, ANIM_SPIN, ANIM_DOTS, ANIM_PULSE, ANIM_BAR, POSITION_CLASS_MAP } from './constants'
-import { escapeHtmlAttr } from '@/common/format'
+
+/**
+ * 转义 HTML 属性值中的特殊字符，防止 XSS 注入
+ */
+function escapeHtmlAttr(str: string): string {
+	return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
 
 /**
  * 生成 Loading CSS 样式

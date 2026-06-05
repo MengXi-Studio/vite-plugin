@@ -2,8 +2,8 @@ import type { ResolvedConfig, Plugin } from 'vite'
 import type { BasePluginOptions, PluginFactory, OptionsNormalizer, PluginWithInstance } from './types'
 import { Logger, type PluginLogger } from '@/logger'
 import type { LoggerOptions } from '@/logger/types'
-import { deepMerge } from '@/common/object'
 import { Validator } from '@/common/validation'
+import { deepMerge } from './common'
 
 /**
  * 基础插件抽象类，提供插件开发的核心功能和生命周期管理
@@ -414,3 +414,5 @@ export function createPluginFactory<T extends BasePluginOptions, P extends BaseP
 		return vitePlugin
 	}
 }
+
+export * from './types'

@@ -1,5 +1,14 @@
 import type { LoadingCallbacks, LoadingStyle } from '../types'
-import { validateNonNegativeNumber, validateCallbackFields } from '@/common/validation'
+import { validateCallbackFields } from '@/common/validation'
+
+/**
+ * 验证数值为非负数
+ */
+function validateNonNegativeNumber(value: number | undefined, fieldName: string): void {
+	if (value !== undefined && (typeof value !== 'number' || value < 0)) {
+		throw new Error(`${fieldName} 必须是非负数`)
+	}
+}
 
 /**
  * 验证样式配置的合法性

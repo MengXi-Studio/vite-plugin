@@ -11,3 +11,37 @@ export interface LoggerOptions {
 	 */
 	enabled?: boolean
 }
+
+/**
+ * 插件日志代理接口
+ * @description 为每个插件提供独立的日志接口
+ */
+export interface PluginLogger {
+	/**
+	 * 输出成功日志
+	 * @param message 日志消息
+	 * @param data 附加数据
+	 */
+	success(message: string, data?: any): void
+
+	/**
+	 * 输出信息日志
+	 * @param message 日志消息
+	 * @param data 附加数据
+	 */
+	info(message: string, data?: any): void
+
+	/**
+	 * 输出警告日志
+	 * @param message 日志消息
+	 * @param data 附加数据
+	 */
+	warn(message: string, data?: any): void
+
+	/**
+	 * 输出错误日志
+	 * @param message 日志消息
+	 * @param data 附加数据
+	 */
+	error(message: string, data?: any): void
+}

@@ -1,13 +1,25 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { EnvGuardOptions, EnvGuardResult } from './types'
-import type { EnvValidationResult } from '@/common/validation'
+import type { EnvValidationResult } from './common'
 import { validateEnvironment, generateTemplate, generateRuntimeGuard } from './common'
 import { injectBeforeTag } from '@/common/html'
 import { writeFileContent } from '@/common/fs'
-import { formatDate } from '@/common/format'
+import { getDateFormatParams } from '@/common/format'
 import path from 'node:path'
 import fs from 'node:fs'
+
+/**
+ * 格式化日期
+ */
+function formatDate(date: Date, format: string): string {
+	const params = getDateFormatParams(date)
+	let result = format
+	for (const [key, value] of Object.entries(params)) {
+		result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value)
+	}
+	return result
+}
 
 /**
  * 环境变量守卫插件

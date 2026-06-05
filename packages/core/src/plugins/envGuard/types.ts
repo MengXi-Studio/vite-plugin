@@ -1,5 +1,5 @@
 import type { BasePluginOptions } from '@/factory/types'
-import type { EnvFieldRule, EnvValidationResult } from '@/common/validation'
+import type { EnvFieldRule, EnvValidationResult } from './common'
 
 /**
  * 环境变量校验失败时的处理动作

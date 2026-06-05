@@ -117,12 +117,7 @@ export function writeDtsFile(dtsPath: string, content: string): void {
  *
  * @description 对比现有文件内容与新生成的内容，
  * 仅在内容发生变化时才需要写入，减少不必要的文件 IO 操作。
- *
- * **判断逻辑：**
- * - 文件不存在 → 需要更新
- * - 文件读取失败 → 需要更新
- * - 文件内容与新内容不同 → 需要更新
- * - 文件内容与新内容相同 → 不需要更新
+ * 内部使用 {@link writeFileIfChanged} 的同步版本逻辑。
  *
  * @example
  * ```typescript

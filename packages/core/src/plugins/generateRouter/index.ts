@@ -1,10 +1,43 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig, UniAppPageConfig, RouteMeta } from './types'
-import { writeFileContent, readFileContent } from '@/common/fs'
-import { toCamelCase, toPascalCase, stripJsonComments } from '@/common/format'
+import { writeFileContent } from '@/common/fs'
 import { resolve } from 'path'
-import { existsSync, watch as fsWatch } from 'fs'
+import { existsSync, watch as fsWatch, promises as fsp } from 'fs'
+
+/**
+ * 将字符串转换为驼峰命名（camelCase）
+ */
+function toCamelCase(str: string, separators: RegExp = /[/-]/): string {
+	return str
+		.replace(/^\/+/, '')
+		.split(separators)
+		.filter(Boolean)
+		.map((part, index) => {
+			if (index === 0) return part.toLowerCase()
+			return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+		})
+		.join('')
+}
+
+/**
+ * 将字符串转换为帕斯卡命名（PascalCase）
+ */
+function toPascalCase(str: string, separators: RegExp = /[/-]/): string {
+	return str
+		.replace(/^\/+/, '')
+		.split(separators)
+		.filter(Boolean)
+		.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+		.join('')
+}
+
+/**
+ * 移除 JSON 字符串中的注释
+ */
+function stripJsonComments(jsonString: string): string {
+	return jsonString.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '')
+}
 
 /**
  * 生成路由配置插件类
@@ -324,7 +357,7 @@ export default routes
 		}
 
 		try {
-			const content = await readFileContent(pagesJsonPath)
+			const content = await fsp.readFile(pagesJsonPath, 'utf-8')
 			const jsonContent = stripJsonComments(content)
 			return JSON.parse(jsonContent) as UniAppPagesJson
 		} catch (error) {
@@ -433,7 +466,7 @@ export default routes
 
 		if (this.options.preserveRouteChanges && existsSync(outputPath)) {
 			try {
-				const existingContent = await readFileContent(outputPath)
+				const existingContent = await fsp.readFile(outputPath, 'utf-8')
 				const existingRoutesMap = this.extractExistingRoutes(existingContent)
 				if (existingRoutesMap.size > 0) {
 					routes = this.mergeRoutes(routes, existingRoutesMap)

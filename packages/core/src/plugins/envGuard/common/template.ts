@@ -1,4 +1,4 @@
-import type { EnvFieldRule } from '@/common/validation'
+import type { EnvFieldRule } from './validator'
 
 /**
  * 生成 .env 模板文件内容

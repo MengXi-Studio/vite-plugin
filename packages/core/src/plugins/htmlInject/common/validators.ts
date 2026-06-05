@@ -1,21 +1,30 @@
 import type { HtmlInjectOptions, InjectRule } from '../types'
 import type { SecurityConfig } from '@/common/html'
-import { validateSecurityConfig as commonValidateSecurityConfig, sanitizeContent as commonSanitizeContent } from '@/common/html'
+import { sanitizeContent as commonSanitizeContent } from '@/common/html'
 
 /**
- * 安全配置验证函数（重导出自 @/common/html）
- *
- * @see {validateSecurityConfig} in @/common/html
+ * 验证安全配置的合法性
  */
-export { commonValidateSecurityConfig as validateSecurityConfig }
+function validateSecurityConfig(security?: SecurityConfig): void {
+	if (!security) return
+	if (security.blockedTags && !Array.isArray(security.blockedTags)) {
+		throw new Error('security.blockedTags 必须是字符串数组')
+	}
+	if (security.allowedTags && !Array.isArray(security.allowedTags)) {
+		throw new Error('security.allowedTags 必须是字符串数组')
+	}
+	if (security.blockedAttributes && !Array.isArray(security.blockedAttributes)) {
+		throw new Error('security.blockedAttributes 必须是字符串数组')
+	}
+}
+
+export { validateSecurityConfig }
 
 /**
  * 验证注入规则数组
  *
  * @param {HtmlInjectOptions} options - 插件配置选项
  * @throws {Error} 当 rules 不是数组、为空数组或某条规则不合法时抛出错误
- *
- * @description 校验 rules 必须为非空数组，并逐条验证每条规则的内容、位置、选择器和条件。
  */
 export function validateRules(options: HtmlInjectOptions): void {
 	if (!options.rules || !Array.isArray(options.rules)) {
@@ -31,12 +40,6 @@ export function validateRules(options: HtmlInjectOptions): void {
 
 /**
  * 验证单条注入规则
- *
- * @param {InjectRule} rule - 注入规则对象
- * @param {number} index - 规则在数组中的索引，用于错误提示
- * @throws {Error} 当规则字段不合法时抛出包含索引的错误信息
- *
- * @description 校验规则的内容、位置、选择器、优先级和条件配置。
  */
 function validateSingleRule(rule: InjectRule, index: number): void {
 	if (!rule.content || typeof rule.content !== 'string') {
@@ -62,13 +65,6 @@ function validateSingleRule(rule: InjectRule, index: number): void {
 
 /**
  * 验证注入条件配置
- *
- * @param {InjectRule['condition']} condition - 条件配置对象
- * @param {number} index - 规则索引，用于错误提示
- * @throws {Error} 当条件类型或值不合法时抛出错误
- *
- * @description 校验条件的 type 必须为 'env'、'file-contains' 或 'custom'，
- * 并根据类型校验 value 的类型是否匹配。
  */
 function validateCondition(condition: InjectRule['condition'], index: number): void {
 	if (!condition) return
@@ -86,28 +82,14 @@ function validateCondition(condition: InjectRule['condition'], index: number): v
 
 /**
  * 执行全部配置验证
- *
- * @param {HtmlInjectOptions} options - 插件配置选项
- * @throws {Error} 当规则或安全配置不合法时抛出错误
- *
- * @description 依次验证注入规则和安全配置，确保插件配置完整有效。
  */
 export function validateAll(options: HtmlInjectOptions): void {
 	validateRules(options)
-	commonValidateSecurityConfig(options.security)
+	validateSecurityConfig(options.security)
 }
 
 /**
  * 对注入内容进行安全过滤
- *
- * @param {string} content - 原始 HTML 内容
- * @param {InjectRule} rule - 注入规则，包含 id 和 allowScriptInjection 配置
- * @param {SecurityConfig} [security] - 安全配置
- * @param {{ warn: (msg: string) => void }} [logger] - 日志记录器
- * @returns {string} 过滤后的安全 HTML 内容
- *
- * @description 委托 @/common/html 的 sanitizeContent 函数执行安全过滤，
- * 根据规则和安全配置移除危险标签和属性。
  */
 export function sanitizeContent(content: string, rule: InjectRule, security?: SecurityConfig, logger?: { warn: (msg: string) => void }): string {
 	return commonSanitizeContent(content, { id: rule.id, allowScriptInjection: rule.allowScriptInjection }, security, logger)

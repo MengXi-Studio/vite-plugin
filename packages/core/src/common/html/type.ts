@@ -1,12 +1,4 @@
 /**
- * HTML 注入与安全相关类型定义
- *
- * @module common/html/type
- * @description 定义 HTML 注入位置、选择器匹配模式、条件判断、安全配置等核心类型，
- * 为 HTML 注入和安全过滤功能提供统一的类型约束。
- */
-
-/**
  * HTML 单点注入结果
  *
  * @description 表示在 HTML 中进行单点注入操作后的结果，

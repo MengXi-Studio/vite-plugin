@@ -1,9 +1,31 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateVersionOptions, VersionInfo } from './types'
-import { generateRandomHash, getDateFormatParams, parseTemplate } from '@/common/format'
+import { getDateFormatParams } from '@/common/format'
 import { writeFileContent } from '@/common/fs'
 import { join } from 'path'
+import { randomBytes } from 'crypto'
+
+/**
+ * 生成随机哈希字符串
+ */
+function generateRandomHash(length: number = 8): string {
+	const safeLength = Math.max(1, Math.min(64, length))
+	return randomBytes(Math.ceil(safeLength / 2))
+		.toString('hex')
+		.slice(0, safeLength)
+}
+
+/**
+ * 解析模板字符串，替换占位符
+ */
+function parseTemplate(template: string, values: Record<string, string>): string {
+	let result = template
+	for (const [key, value] of Object.entries(values)) {
+		result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value)
+	}
+	return result
+}
 
 /**
  * 自动生成版本号插件类

@@ -1,3 +1,4 @@
 export { validateValue, validateEnvironment } from './validator'
+export type { EnvFieldRule, EnvValidationResult } from './validator'
 export { generateTemplate } from './template'
 export { generateRuntimeGuard } from './runtime'

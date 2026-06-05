@@ -2,8 +2,30 @@ import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { CompressAssetsOptions, CompressStats, CompressSummary } from './types'
 import { compressFile, scanDirectory, buildSummary, writeReport, deleteOriginalFiles } from './common'
-import { runWithConcurrency } from '@/common/fs'
 import { formatFileSize } from '@/common/format'
+
+/**
+ * 带并发限制的批量执行
+ */
+async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]> {
+	const results: R[] = []
+	let index = 0
+
+	async function runNext(): Promise<void> {
+		while (index < items.length) {
+			const currentIndex = index++
+			const result = await handler(items[currentIndex])
+			results[currentIndex] = result
+		}
+	}
+
+	const workers = Array(Math.min(concurrency, items.length))
+		.fill(null)
+		.map(() => runNext())
+	await Promise.all(workers)
+
+	return results
+}
 
 /**
  * 构建产物压缩插件

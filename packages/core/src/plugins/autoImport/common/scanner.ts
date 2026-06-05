@@ -108,17 +108,9 @@ export function buildNameLookup(resolvedImports: ResolvedImport[]): Map<string, 
  * @description 提取规则：
  * - 普通文件：使用文件名（去掉扩展名），如 `useAuth.ts` → `useAuth`
  * - `index` 文件：使用父目录名，如 `stores/index.ts` → `stores`
- *
- * @example
- * ```typescript
- * extractModuleName('/src/composables/useAuth.ts')  // 'useAuth'
- * extractModuleName('/src/stores/user.js')          // 'user'
- * extractModuleName('/src/utils/index.ts')          // 'utils'
- * ```
  */
-export function extractModuleName(filePath: string): string {
+function extractModuleName(filePath: string): string {
 	const basename = path.basename(filePath, path.extname(filePath))
-	// 如果是 index 文件，使用父目录名
 	if (basename === 'index') {
 		return path.basename(path.dirname(filePath))
 	}

@@ -1,7 +1,5 @@
 import type { BuildPhase, ProgressTheme } from './types'
-import { ANSI, SPINNER_FRAMES } from '@/common/ui'
-
-export { ANSI, SPINNER_FRAMES }
+import { ANSI } from '@/common/ui'
 
 /**
  * 默认进度条颜色主题

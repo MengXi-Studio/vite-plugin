@@ -1,10 +1,10 @@
 import type { ResolvedImport } from '../types'
 
 /**
- * JavaScript/TypeScript 保留关键字集合
+ * JavaScript/TypeScript 保留关键字和全局内置对象集合
  *
- * @description 这些标识符不应被自动导入，因为它们是语言内置关键字，
- * 即使在 nameLookup 中存在同名映射也应跳过
+ * @description 这些标识符不应被自动导入，因为它们是语言内置关键字或全局对象，
+ * 即使在映射表中存在同名条目也应跳过。
  */
 const JS_KEYWORDS = new Set([
 	'break',
@@ -111,17 +111,6 @@ const JS_KEYWORDS = new Set([
  *
  * @param code 源代码字符串
  * @returns 处理后的代码（注释和字符串内容被替换为空白字符，保留换行以维持行号对应）
- *
- * @description 将字符串字面量（单引号、双引号、模板字符串）和
- * 注释（单行注释、多行注释）的内容替换为等长的空格，
- * 保留换行符以维持原始代码的行号和字符偏移对应关系。
- * 这样后续的标识符检测不会误匹配注释或字符串中的内容。
- *
- * @example
- * ```typescript
- * stripCommentsAndStrings('const x = "ref" // ref')
- * // 'const x =     ' + '      '
- * ```
  */
 function stripCommentsAndStrings(code: string): string {
 	const result: string[] = []
@@ -242,6 +231,16 @@ function stripCommentsAndStrings(code: string): string {
 	}
 
 	return result.join('')
+}
+
+/**
+ * 转义正则表达式特殊字符
+ *
+ * @param str 要转义的字符串
+ * @returns 转义后的字符串，可安全用于正则表达式
+ */
+function escapeRegex(str: string): string {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 /**
@@ -774,23 +773,4 @@ function isHtmlTag(name: string): boolean {
  */
 function isVueDirective(name: string): boolean {
 	return name.startsWith('v') && name.length > 1 && name[1] === name[1].toUpperCase()
-}
-
-/**
- * 转义正则表达式特殊字符
- *
- * @param str 要转义的字符串
- * @returns 转义后的字符串，可安全用于正则表达式
- *
- * @description 将字符串中的正则特殊字符（`.*+?^${}()|[]\\`）转义，
- * 使其被当作字面字符匹配
- *
- * @example
- * ```typescript
- * escapeRegex('hello.world')
- * // 'hello\\.world'
- * ```
- */
-function escapeRegex(str: string): string {
-	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }

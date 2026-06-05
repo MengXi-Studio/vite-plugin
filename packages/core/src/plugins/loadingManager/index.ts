@@ -3,7 +3,16 @@ import { BasePlugin, createPluginFactory } from '@/factory'
 import type { LoadingManagerOptions } from './types'
 import { generateCSS, generateHTMLTemplate, generateLoadingManagerCode, validateStyle, validateTransition, validateCallbacks, validateDefaultText, validateAutoHideOn } from './common'
 import { injectHeadAndBody } from '@/common/html'
-import { validateNoScriptInTemplate, validateGlobalName, validateNestedDuration } from '@/common/validation'
+import { validateNoScriptInTemplate, validateGlobalName } from '@/common/validation'
+
+/**
+ * 验证嵌套配置项的 duration 合法性
+ */
+function validateNestedDuration(config: { enabled?: boolean; duration?: number } | undefined, errorMsg: string): void {
+	if (config?.duration !== undefined && (typeof config.duration !== 'number' || config.duration < 0)) {
+		throw new Error(errorMsg)
+	}
+}
 
 /**
  * 全局 Loading 状态管理插件类

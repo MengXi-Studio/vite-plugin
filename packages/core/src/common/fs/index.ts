@@ -46,7 +46,7 @@ export async function checkSourceExists(sourcePath: string): Promise<void> {
  * @param targetPath 目标目录路径
  * @throws 当无法创建目标目录时抛出异常
  */
-export async function ensureTargetDir(targetPath: string): Promise<void> {
+async function ensureTargetDir(targetPath: string): Promise<void> {
 	try {
 		await fs.promises.mkdir(targetPath, { recursive: true })
 	} catch (err) {
@@ -65,7 +65,7 @@ export async function ensureTargetDir(targetPath: string): Promise<void> {
  * @param recursive 是否递归读取
  * @returns 文件和目录条目列表
  */
-export async function readDirRecursive(dirPath: string, recursive: boolean): Promise<FileEntry[]> {
+async function readDirRecursive(dirPath: string, recursive: boolean): Promise<FileEntry[]> {
 	const entries = await fs.promises.readdir(dirPath, { withFileTypes: true })
 	const result: FileEntry[] = []
 
@@ -91,13 +91,11 @@ export async function readDirRecursive(dirPath: string, recursive: boolean): Pro
  * @param targetFile 目标文件路径
  * @returns 是否需要更新
  */
-export async function shouldUpdateFile(sourceFile: string, targetFile: string): Promise<boolean> {
+async function shouldUpdateFile(sourceFile: string, targetFile: string): Promise<boolean> {
 	try {
 		const [sourceStats, targetStats] = await Promise.all([fs.promises.stat(sourceFile), fs.promises.stat(targetFile)])
-		// 比较修改时间和文件大小
 		return sourceStats.mtimeMs > targetStats.mtimeMs || sourceStats.size !== targetStats.size
 	} catch {
-		// 目标文件不存在或无法访问，需要更新
 		return true
 	}
 }
@@ -106,15 +104,8 @@ export async function shouldUpdateFile(sourceFile: string, targetFile: string): 
  * 检查文件是否存在
  * @param filePath 文件路径
  * @returns 是否存在
- *
- * @example
- * ```typescript
- * if (await fileExists('/path/to/file')) {
- *   console.log('文件存在')
- * }
- * ```
  */
-export async function fileExists(filePath: string): Promise<boolean> {
+async function fileExists(filePath: string): Promise<boolean> {
 	try {
 		await fs.promises.access(filePath, fs.constants.F_OK)
 		return true
@@ -125,23 +116,12 @@ export async function fileExists(filePath: string): Promise<boolean> {
 
 /**
  * 带并发限制的批量执行
- *
  * @param items 待处理项
  * @param handler 处理函数
  * @param concurrency 并发数
  * @returns 处理结果数组，顺序与输入项对应
- *
- * @example
- * ```typescript
- * const urls = ['url1', 'url2', 'url3', 'url4', 'url5']
- * const results = await runWithConcurrency(
- *   urls,
- *   async (url) => fetch(url),
- *   3 // 最多同时处理3个请求
- * )
- * ```
  */
-export async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]> {
+async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]> {
 	const results: R[] = []
 	let index = 0
 
@@ -153,7 +133,6 @@ export async function runWithConcurrency<T, R>(items: T[], handler: (item: T) =>
 		}
 	}
 
-	// 创建并发工作线程
 	const workers = Array(Math.min(concurrency, items.length))
 		.fill(null)
 		.map(() => runNext())
@@ -186,22 +165,17 @@ export async function copySourceToTarget(sourcePath: string, targetPath: string,
 	let skippedFiles = 0
 	let copiedDirs = 0
 
-	// 检查源文件是否为目录
 	const sourceStats = await fs.promises.stat(sourcePath)
 
 	if (sourceStats.isDirectory()) {
-		// 确保目标目录存在
 		await ensureTargetDir(targetPath)
 
-		// 获取所有文件和目录（一次性获取类型信息，避免重复stat）
 		const entries = await readDirRecursive(sourcePath, recursive)
 
-		// 分离文件和目录
 		const fileEntries = entries.filter(entry => entry.isFile)
 		const dirEntries = entries.filter(entry => entry.isDirectory)
 		copiedDirs = dirEntries.length
 
-		// 预先创建所有需要的目录（并行）
 		const uniqueDirs = new Set<string>()
 		for (const fileEntry of fileEntries) {
 			const relativePath = path.relative(sourcePath, fileEntry.path)
@@ -210,12 +184,10 @@ export async function copySourceToTarget(sourcePath: string, targetPath: string,
 		}
 		await Promise.all([...uniqueDirs].map(dir => ensureTargetDir(dir)))
 
-		// 并行复制文件
 		const copyFileHandler = async (fileEntry: FileEntry): Promise<CopyFileResult> => {
 			const relativePath = path.relative(sourcePath, fileEntry.path)
 			const destFile = path.join(targetPath, relativePath)
 
-			// 检查是否需要复制
 			let needCopy = overwrite
 			if (!needCopy) {
 				const exists = await fileExists(destFile)
@@ -235,16 +207,13 @@ export async function copySourceToTarget(sourcePath: string, targetPath: string,
 
 		const results = await runWithConcurrency(fileEntries, copyFileHandler, parallelLimit)
 
-		// 统计结果
 		for (const result of results) {
 			if (result.copied) copiedFiles++
 			if (result.skipped) skippedFiles++
 		}
 	} else {
-		// 复制单个文件
 		await ensureTargetDir(path.dirname(targetPath))
 
-		// 检查是否需要复制
 		let needCopy = overwrite
 		if (!needCopy) {
 			const exists = await fileExists(targetPath)
@@ -293,45 +262,6 @@ export async function writeFileContent(filePath: string, content: string): Promi
 }
 
 /**
- * 读取文件内容
- * @param filePath 文件路径
- * @returns 文件内容字符串
- * @throws 当读取过程中出现错误时抛出异常
- */
-export async function readFileContent(filePath: string): Promise<string> {
-	try {
-		return await fs.promises.readFile(filePath, 'utf-8')
-	} catch (err) {
-		const error = err as NodeJS.ErrnoException
-		if (error.code === 'EACCES') {
-			throw new Error(`读取文件失败：没有权限读取文件 - ${filePath}`)
-		} else {
-			throw new Error(`读取文件失败：读取文件时出错 - ${filePath}，错误：${error.message}`)
-		}
-	}
-}
-
-/**
- * 同步读取文件内容
- * @param filePath 文件路径
- * @returns 文件内容字符串
- * @throws 当读取过程中出现错误时抛出异常
- * @deprecated 请使用异步版本 readFileContent
- */
-export function readFileSync(filePath: string): string {
-	try {
-		return fs.readFileSync(filePath, 'utf-8')
-	} catch (err) {
-		const error = err as NodeJS.ErrnoException
-		if (error.code === 'EACCES') {
-			throw new Error(`读取文件失败：没有权限读取文件 - ${filePath}`)
-		} else {
-			throw new Error(`读取文件失败：读取文件时出错 - ${filePath}，错误：${error.message}`)
-		}
-	}
-}
-
-/**
  * 扫描目录中的文件信息
  */
 export interface ScannedFile {
@@ -365,20 +295,11 @@ export interface ScanDirectoryOptions {
  *
  * @description 递归遍历指定目录下的所有文件，收集每个文件的大小和扩展名信息，
  * 支持按扩展名、路径模式和自定义过滤函数进行过滤。
- * 这是通用的目录扫描函数，可被不同插件复用。
  *
  * @example
  * ```typescript
- * // 扫描所有 .js 文件
  * const jsFiles = await scanDirectory('dist', { includeExtensions: ['.js'] })
- *
- * // 排除 node_modules
  * const files = await scanDirectory('dist', { excludePatterns: ['node_modules'] })
- *
- * // 使用自定义过滤
- * const largeFiles = await scanDirectory('dist', {
- *   filter: (filePath, ext, size) => size > 1024
- * })
  * ```
  */
 export async function scanDirectory(dirPath: string, options: ScanDirectoryOptions = {}): Promise<ScannedFile[]> {
@@ -436,7 +357,6 @@ export async function scanDirectory(dirPath: string, options: ScanDirectoryOptio
  * @example
  * ```typescript
  * await writeJsonReport('dist/report.json', { timestamp: Date.now(), stats: [] })
- * await writeJsonReport('dist/report.json', data, 4)
  * ```
  */
 export async function writeJsonReport(filePath: string, data: object, indent: number = 2): Promise<void> {
