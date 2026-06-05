@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory/types'
+import type { BasePluginOptions } from '@/factory/plugin'
 
 /**
  * 路由元信息

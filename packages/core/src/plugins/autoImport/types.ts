@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory/types'
+import type { BasePluginOptions } from '@/factory/plugin'
 
 /**
  * 单个导入映射项

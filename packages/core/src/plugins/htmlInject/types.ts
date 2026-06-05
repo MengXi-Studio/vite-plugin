@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory/types'
+import type { BasePluginOptions } from '@/factory/plugin'
 import type { SelectorMatch, InjectPosition, InjectCondition, SecurityConfig } from '@/common/html'
 
 /**
