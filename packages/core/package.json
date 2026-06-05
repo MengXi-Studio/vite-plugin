@@ -25,11 +25,6 @@
 			"import": "./dist/common/index.mjs",
 			"types": "./dist/common/index.d.ts"
 		},
-		"./common/compress": {
-			"require": "./dist/common/compress/index.cjs",
-			"import": "./dist/common/compress/index.mjs",
-			"types": "./dist/common/compress/index.d.ts"
-		},
 		"./common/format": {
 			"require": "./dist/common/format/index.cjs",
 			"import": "./dist/common/format/index.mjs",
@@ -44,16 +39,6 @@
 			"require": "./dist/common/html/index.cjs",
 			"import": "./dist/common/html/index.mjs",
 			"types": "./dist/common/html/index.d.ts"
-		},
-		"./common/object": {
-			"require": "./dist/common/object/index.cjs",
-			"import": "./dist/common/object/index.mjs",
-			"types": "./dist/common/object/index.d.ts"
-		},
-		"./common/path": {
-			"require": "./dist/common/path/index.cjs",
-			"import": "./dist/common/path/index.mjs",
-			"types": "./dist/common/path/index.d.ts"
 		},
 		"./common/script": {
 			"require": "./dist/common/script/index.cjs",
@@ -84,6 +69,11 @@
 			"require": "./dist/plugins/index.cjs",
 			"import": "./dist/plugins/index.mjs",
 			"types": "./dist/plugins/index.d.ts"
+		},
+		"./plugins/auto-import": {
+			"require": "./dist/plugins/autoImport/index.cjs",
+			"import": "./dist/plugins/autoImport/index.mjs",
+			"types": "./dist/plugins/autoImport/index.d.ts"
 		},
 		"./plugins/build-progress": {
 			"require": "./dist/plugins/buildProgress/index.cjs",
