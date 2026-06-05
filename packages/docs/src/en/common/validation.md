@@ -1,15 +1,15 @@
 # validation
 
-Chainable parameter validator for plugin configuration validation, along with a set of common validation functions.
+Parameter validator, providing a chainable API for validating plugin configuration and a set of common validation functions.
 
-## Import Methods
+## Import
 
 ```typescript
 // Submodule import (recommended)
-import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields, validateNonNegativeNumber, validateNestedDuration, validateEnumValue } from '@meng-xi/vite-plugin/common/validation'
+import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields } from '@meng-xi/vite-plugin/common/validation'
 
 // Barrel import
-import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields, validateNonNegativeNumber, validateNestedDuration, validateEnumValue } from '@meng-xi/vite-plugin/common'
+import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields } from '@meng-xi/vite-plugin/common'
 ```
 
 ---
@@ -28,9 +28,9 @@ class Validator<T extends Record<string, any>, K extends keyof T = any>
 constructor(options: T)
 ```
 
-| Parameter | Type | Description          |
-| --------- | ---- | -------------------- |
-| options   | `T`  | Configuration object |
+| Parameter | Type | Description                      |
+| --------- | ---- | -------------------------------- |
+| options   | `T`  | Configuration object to validate |
 
 **Example**
 
@@ -89,7 +89,7 @@ validator.field('sourceDir').required()
 
 ## string
 
-Validate field value as string type.
+Validate field value is a string type.
 
 ```typescript
 string(): this
@@ -109,7 +109,7 @@ validator.field('sourceDir').string()
 
 ## boolean
 
-Validate field value as boolean type.
+Validate field value is a boolean type.
 
 ```typescript
 boolean(): this
@@ -129,7 +129,7 @@ validator.field('enabled').boolean()
 
 ## number
 
-Validate field value as number type.
+Validate field value is a number type.
 
 ```typescript
 number(): this
@@ -149,7 +149,7 @@ validator.field('count').number()
 
 ## array
 
-Validate field value as array type.
+Validate field value is an array type.
 
 ```typescript
 array(): this
@@ -169,7 +169,7 @@ validator.field('items').array()
 
 ## object
 
-Validate field value as object type.
+Validate field value is an object type.
 
 ```typescript
 object(): this
@@ -189,7 +189,7 @@ validator.field('config').object()
 
 ## default
 
-Set default value for field (only effective when field value is `undefined` or `null`).
+Set a default value for the field (only takes effect when the field value is `undefined` or `null`).
 
 ```typescript
 default(defaultValue: T[K]): this
@@ -215,9 +215,9 @@ validator.field('overwrite').default(true)
 
 ## enum
 
-Validate field value against an allowed enum list.
+Validate field value is in the allowed enum list.
 
-When the field value exists (not `undefined`, not `null`, and not empty string), checks whether it is in the allowed enum list. Empty values skip validation.
+When the field value exists (not `undefined`, not `null`, and not empty string), check if it is in the allowed enum list. Empty values skip validation.
 
 ```typescript
 enum(allowedValues: string[]): this
@@ -225,9 +225,9 @@ enum(allowedValues: string[]): this
 
 **Parameters**
 
-| Parameter     | Type       | Description         |
-| ------------- | ---------- | ------------------- |
-| allowedValues | `string[]` | Allowed values list |
+| Parameter     | Type       | Description            |
+| ------------- | ---------- | ---------------------- |
+| allowedValues | `string[]` | List of allowed values |
 
 **Returns**
 
@@ -244,9 +244,9 @@ validator.field('format').enum(['bar', 'spinner', 'minimal'])
 
 ## minValue
 
-Validate number field value is not less than the specified minimum.
+Validate numeric field value is not less than the specified minimum.
 
-When the field value exists (not `undefined` and not `null`), checks whether it is a number type and not less than the minimum. Typically used in chain with `.number()`.
+When the field value exists (not `undefined` and not `null`), check if it is a number type and not less than the minimum. Typically used with `.number()` chaining.
 
 ```typescript
 minValue(min: number): this
@@ -273,9 +273,9 @@ validator.field('width').number().minValue(1)
 
 ## maxValue
 
-Validate number field value is not greater than the specified maximum.
+Validate numeric field value is not greater than the specified maximum.
 
-When the field value exists (not `undefined` and not `null`), checks whether it is a number type and not greater than the maximum. Typically used in chain with `.number()`.
+When the field value exists (not `undefined` and not `null`), check if it is a number type and not greater than the maximum. Typically used with `.number()` chaining.
 
 ```typescript
 maxValue(max: number): this
@@ -301,7 +301,7 @@ validator.field('hashLength').number().minValue(1).maxValue(32)
 
 ## custom
 
-Use custom function to validate field value.
+Validate field value using a custom function.
 
 ```typescript
 custom(validator: (value: T[K]) => boolean, message: string): this
@@ -309,10 +309,10 @@ custom(validator: (value: T[K]) => boolean, message: string): this
 
 **Parameters**
 
-| Parameter | Type                       | Description                      |
-| --------- | -------------------------- | -------------------------------- |
-| validator | `(value: T[K]) => boolean` | Validation function, true = pass |
-| message   | `string`                   | Error message on failure         |
+| Parameter | Type                       | Description                               |
+| --------- | -------------------------- | ----------------------------------------- |
+| validator | `(value: T[K]) => boolean` | Validation function, returns true to pass |
+| message   | `string`                   | Error message on validation failure       |
 
 **Returns**
 
@@ -321,14 +321,14 @@ custom(validator: (value: T[K]) => boolean, message: string): this
 **Example**
 
 ```typescript
-validator.field('count').custom(v => v > 0, 'count must be > 0')
+validator.field('count').custom(v => v > 0, 'count must be greater than 0')
 ```
 
 ---
 
 ## validate
 
-Execute validation, throws error on failure.
+Execute validation, throw an error on failure.
 
 ```typescript
 validate(): T
@@ -340,7 +340,7 @@ validate(): T
 
 **Throws**
 
-`Error` containing all error messages on validation failure
+`Error` containing all error messages when validation fails
 
 **Example**
 
@@ -350,7 +350,7 @@ const validated = validator.validate()
 
 ---
 
-## Complete Example
+## Full Example
 
 ```typescript
 const options = {
@@ -372,14 +372,14 @@ const validated = new Validator(options)
 	.field('count')
 	.number()
 	.minValue(1)
-	.custom(v => v > 0, 'count must be > 0')
+	.custom(v => v > 0, 'count must be greater than 0')
 	.validate()
 
 console.log(validated)
 // { sourceDir: 'src', targetDir: 'dist', count: 5, overwrite: true }
 ```
 
-**Validation Failure Example**
+**Validation failure example**
 
 ```typescript
 const options = { sourceDir: '' }
@@ -394,13 +394,13 @@ new Validator(options).field('sourceDir').required().string().field('targetDir')
 
 ## Validation Functions
 
-In addition to the `Validator` class, a set of common validation functions is provided for specific parameter validation scenarios.
+In addition to the `Validator` class, a set of common validation functions are provided for specific scenarios.
 
 ---
 
 ### validateGlobalName
 
-Validate the legality of a global variable name (wraps `validateIdentifierName` with field context information).
+Validate the legality of a global variable name.
 
 ```typescript
 function validateGlobalName(name: string | undefined, fieldName: string): void
@@ -408,14 +408,14 @@ function validateGlobalName(name: string | undefined, fieldName: string): void
 
 **Parameters**
 
-| Parameter | Type                  | Description                                                                 |
-| --------- | --------------------- | --------------------------------------------------------------------------- |
-| name      | `string \| undefined` | Global variable name                                                        |
-| fieldName | `string`              | Field name for error message context (e.g., `'globalName'`, `'defineName'`) |
+| Parameter | Type                  | Description                                                                |
+| --------- | --------------------- | -------------------------------------------------------------------------- |
+| name      | `string \| undefined` | Global variable name                                                       |
+| fieldName | `string`              | Field name for error message context (e.g. `'globalName'`, `'defineName'`) |
 
 **Throws**
 
-Throws an error with field context when the name is invalid
+Error with field context when name is invalid
 
 **Example**
 
@@ -443,7 +443,7 @@ function validateNoScriptInTemplate(template: string | undefined, fieldName: str
 
 **Throws**
 
-Throws an error when the template contains a `<script>` tag
+Error when template contains `<script>` tags
 
 **Example**
 
@@ -464,104 +464,20 @@ function validateCallbackFields(callbacks: Record<string, any>, fields: string[]
 
 **Parameters**
 
-| Parameter  | Type                  | Description                                            |
-| ---------- | --------------------- | ------------------------------------------------------ |
-| callbacks  | `Record<string, any>` | Callback configuration object                          |
-| fields     | `string[]`            | Array of callback field names to validate              |
-| objectName | `string`              | Name of the callback's parent object for error context |
+| Parameter  | Type                  | Description                                  |
+| ---------- | --------------------- | -------------------------------------------- |
+| callbacks  | `Record<string, any>` | Callback configuration object                |
+| fields     | `string[]`            | Array of callback field names to validate    |
+| objectName | `string`              | Parent object name for error message context |
 
 **Throws**
 
-- Throws an error when a callback field is not a string type
-- Throws an error when a callback string contains a `<script>` tag
+- Error when callback field is not a string type
+- Error when callback string contains `<script>` tags
 
 **Example**
 
 ```typescript
 validateCallbackFields(callbacks, ['onShow', 'onHide'], 'callbacks')
 validateCallbackFields(options, ['onUpdateAvailable', 'onRefresh'], 'callbacks')
-```
-
----
-
-### validateNonNegativeNumber
-
-Validate that a value is a non-negative number.
-
-```typescript
-function validateNonNegativeNumber(value: number | undefined, fieldName: string): void
-```
-
-**Parameters**
-
-| Parameter | Type                  | Description                  |
-| --------- | --------------------- | ---------------------------- |
-| value     | `number \| undefined` | Value to validate            |
-| fieldName | `string`              | Field name for error message |
-
-**Throws**
-
-Throws an error when the value exists but is not a number or is negative
-
-**Example**
-
-```typescript
-validateNonNegativeNumber(100, 'zIndex')
-validateNonNegativeNumber(-1, 'duration') // Throws error
-```
-
----
-
-### validateNestedDuration
-
-Validate the duration property of a nested configuration item.
-
-```typescript
-function validateNestedDuration(config: { enabled?: boolean; duration?: number } | undefined, errorMsg: string): void
-```
-
-**Parameters**
-
-| Parameter | Type                                                    | Description                         |
-| --------- | ------------------------------------------------------- | ----------------------------------- |
-| config    | `{ enabled?: boolean; duration?: number } \| undefined` | Nested configuration object         |
-| errorMsg  | `string`                                                | Error message when validation fails |
-
-**Throws**
-
-Throws an error when duration exists but is not a non-negative number
-
-**Example**
-
-```typescript
-validateNestedDuration({ enabled: true, duration: 300 }, 'minDisplayTime.duration must be a non-negative number')
-```
-
----
-
-### validateEnumValue
-
-Validate that a string value is in the allowed enum list.
-
-```typescript
-function validateEnumValue(value: string | undefined, allowedValues: string[], fieldName: string): void
-```
-
-**Parameters**
-
-| Parameter     | Type                  | Description                  |
-| ------------- | --------------------- | ---------------------------- |
-| value         | `string \| undefined` | Value to validate            |
-| allowedValues | `string[]`            | Allowed values list          |
-| fieldName     | `string`              | Field name for error message |
-
-**Throws**
-
-Throws an error when the value exists but is not in the allowed list
-
-**Example**
-
-```typescript
-validateEnumValue('center', ['center', 'top', 'bottom'], 'position')
-validateEnumValue('modal', ['modal', 'banner', 'toast'], 'promptStyle')
 ```

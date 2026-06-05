@@ -7,7 +7,7 @@ titleTemplate: Vite 实用插件工具包
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite 实用插件工具包
-  tagline: 11 款开箱即用插件 + 完整的插件开发框架，让 Vite 开发更高效
+  tagline: 12 款开箱即用插件 + 完整的插件开发框架，让 Vite 开发更高效
   image:
     src: /logo.png
     alt: 梦曦工作室
@@ -23,6 +23,9 @@ hero:
       link: https://github.com/MengXi-Studio/vite-plugin
 
 features:
+  - icon: 🔄
+    title: 自动导入
+    details: autoImport 自动注入 import 语句，支持预设映射、目录扫描、Vue 模板自动导入和 TypeScript 类型声明生成
   - icon: 🚀
     title: 构建进度展示
     details: buildProgress 在终端实时显示构建进度条，支持 bar、spinner、minimal 三种格式
@@ -49,5 +52,5 @@ features:
     details: 导出 BasePlugin、createPluginFactory、Logger、Validator 等核心组件，提供完整生命周期管理、链式配置验证与 safeExecute 安全执行包裹
   - icon: 🛠️
     title: 通用工具模块
-    details: 提供 compress、format、fs、html、object、path、script、ui、validation 九大工具模块，覆盖压缩算法、日期格式化、文件操作、HTML 注入、深度合并、路径处理、终端 UI、脚本生成与配置验证等常见场景
+    details: 提供 format、fs、html、script、ui、validation 六大工具模块，覆盖日期格式化、文件操作、HTML 注入、脚本生成、终端 UI 与配置验证等常见场景
 ---

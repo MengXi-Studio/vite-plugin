@@ -6,10 +6,10 @@
 
 ```typescript
 // 子模块独立导入（推荐）
-import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields, validateNonNegativeNumber, validateNestedDuration, validateEnumValue } from '@meng-xi/vite-plugin/common/validation'
+import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields } from '@meng-xi/vite-plugin/common/validation'
 
 // barrel 导入
-import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields, validateNonNegativeNumber, validateNestedDuration, validateEnumValue } from '@meng-xi/vite-plugin/common'
+import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields } from '@meng-xi/vite-plugin/common'
 ```
 
 ---
@@ -400,7 +400,7 @@ new Validator(options).field('sourceDir').required().string().field('targetDir')
 
 ### validateGlobalName
 
-验证全局变量名的合法性（包装 `validateIdentifierName`，附加字段上下文信息）。
+验证全局变量名的合法性。
 
 ```typescript
 function validateGlobalName(name: string | undefined, fieldName: string): void
@@ -480,88 +480,4 @@ function validateCallbackFields(callbacks: Record<string, any>, fields: string[]
 ```typescript
 validateCallbackFields(callbacks, ['onShow', 'onHide'], 'callbacks')
 validateCallbackFields(options, ['onUpdateAvailable', 'onRefresh'], 'callbacks')
-```
-
----
-
-### validateNonNegativeNumber
-
-验证数值为非负数。
-
-```typescript
-function validateNonNegativeNumber(value: number | undefined, fieldName: string): void
-```
-
-**参数**
-
-| 参数      | 类型                  | 说明                   |
-| --------- | --------------------- | ---------------------- |
-| value     | `number \| undefined` | 待验证的数值           |
-| fieldName | `string`              | 字段名称，用于错误消息 |
-
-**异常**
-
-当值存在但不是数字或为负数时抛出错误
-
-**示例**
-
-```typescript
-validateNonNegativeNumber(100, 'zIndex')
-validateNonNegativeNumber(-1, 'duration') // 抛出错误
-```
-
----
-
-### validateNestedDuration
-
-验证嵌套配置项的 duration 合法性。
-
-```typescript
-function validateNestedDuration(config: { enabled?: boolean; duration?: number } | undefined, errorMsg: string): void
-```
-
-**参数**
-
-| 参数     | 类型                                                    | 说明                     |
-| -------- | ------------------------------------------------------- | ------------------------ |
-| config   | `{ enabled?: boolean; duration?: number } \| undefined` | 嵌套配置对象             |
-| errorMsg | `string`                                                | 验证失败时的错误提示信息 |
-
-**异常**
-
-当 duration 存在但不是非负数时抛出错误
-
-**示例**
-
-```typescript
-validateNestedDuration({ enabled: true, duration: 300 }, 'minDisplayTime.duration 必须是非负数')
-```
-
----
-
-### validateEnumValue
-
-验证字符串值是否在允许的枚举列表中。
-
-```typescript
-function validateEnumValue(value: string | undefined, allowedValues: string[], fieldName: string): void
-```
-
-**参数**
-
-| 参数          | 类型                  | 说明                   |
-| ------------- | --------------------- | ---------------------- |
-| value         | `string \| undefined` | 待验证的值             |
-| allowedValues | `string[]`            | 允许的值列表           |
-| fieldName     | `string`              | 字段名称，用于错误消息 |
-
-**异常**
-
-当值存在但不在允许列表中时抛出错误
-
-**示例**
-
-```typescript
-validateEnumValue('center', ['center', 'top', 'bottom'], 'position')
-validateEnumValue('modal', ['modal', 'banner', 'toast'], 'promptStyle')
 ```

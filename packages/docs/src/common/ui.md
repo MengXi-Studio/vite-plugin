@@ -1,15 +1,15 @@
 # ui
 
-终端 UI 工具模块，提供 ANSI 转义码处理、Spinner 动画帧和字符串清理等工具函数。
+终端 UI 工具模块，提供 ANSI 转义码处理功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { ANSI, SPINNER_FRAMES, stripAnsi } from '@meng-xi/vite-plugin/common/ui'
+import { ANSI } from '@meng-xi/vite-plugin/common/ui'
 
 // barrel 导入
-import { ANSI, SPINNER_FRAMES, stripAnsi } from '@meng-xi/vite-plugin/common'
+import { ANSI } from '@meng-xi/vite-plugin/common'
 ```
 
 ## ANSI
@@ -54,64 +54,4 @@ process.stdout.write(ANSI.showCursor)
 
 // 行清理与重写
 process.stdout.write(ANSI.clearLine + ANSI.reset + ANSI.green('完成'))
-```
-
----
-
-## SPINNER_FRAMES
-
-Spinner 动画帧序列，根据操作系统平台自动选择合适的动画帧：
-
-- **Windows**：使用 ASCII 字符 `|`, `/`, `-`, `\`，确保在传统终端中正常显示
-- **其他平台**：使用 Unicode Braille 字符 `⠋`-`⠏`，视觉效果更流畅
-
-**类型**
-
-```typescript
-const SPINNER_FRAMES: string[]
-```
-
-**示例**
-
-```typescript
-let frameIndex = 0
-setInterval(() => {
-	process.stdout.write(`\r${SPINNER_FRAMES[frameIndex]} Loading...`)
-	frameIndex = (frameIndex + 1) % SPINNER_FRAMES.length
-}, 80)
-```
-
----
-
-## stripAnsi
-
-移除字符串中的所有 ANSI 转义码。
-
-```typescript
-function stripAnsi(str: string): string
-```
-
-**参数**
-
-| 参数 | 类型     | 说明                         |
-| ---- | -------- | ---------------------------- |
-| str  | `string` | 可能包含 ANSI 转义码的字符串 |
-
-**返回值**
-
-`string` - 不包含任何 ANSI 转义码的纯文本字符串
-
-**说明**
-
-使用正则表达式匹配并移除所有形如 `\x1b[...m` 的 ANSI 转义序列，常用于计算文本实际显示宽度或将彩色输出转为纯文本。
-
-**示例**
-
-```typescript
-const colored = ANSI.green('hello') + ' ' + ANSI.red('world')
-stripAnsi(colored) // 'hello world'
-
-// 计算终端显示宽度
-const text = ANSI.bold(ANSI.cyan('状态:')) + ' 完成'
-stripAnsi(text).length // 7（不含转义码的实际字符数）
 ```

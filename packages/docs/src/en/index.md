@@ -7,7 +7,7 @@ titleTemplate: Vite Practical Plugin Toolkit
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite Practical Plugin Toolkit
-  tagline: 11 ready-to-use plugins + complete plugin development framework for efficient Vite development
+  tagline: 12 ready-to-use plugins + complete plugin development framework for efficient Vite development
   image:
     src: /logo.png
     alt: MengXi Studio
@@ -23,6 +23,9 @@ hero:
       link: https://github.com/MengXi-Studio/vite-plugin
 
 features:
+  - icon: 🔄
+    title: Auto Import
+    details: autoImport automatically injects import statements with preset mappings, directory scanning, Vue template auto-import, and TypeScript declaration generation
   - icon: 🚀
     title: Build Progress Display
     details: buildProgress displays real-time build progress bar in terminal, supporting bar, spinner, and minimal formats
@@ -49,7 +52,5 @@ features:
     details: Exports BasePlugin, createPluginFactory, Logger, Validator and more, providing complete lifecycle management, chainable config validation, and safeExecute wrappers
   - icon: 🛠️
     title: Common Utility Modules
-    details:
-      Provides 9 utility modules — compress, format, fs, html, object, path, script, ui, validation — covering compression, date formatting, file operations, HTML injection, deep merge, path utilities, terminal UI,
-      script generation, and config validation
+    details: Provides 6 utility modules — format, fs, html, script, ui, validation — covering date formatting, file operations, HTML injection, script generation, terminal UI, and config validation
 ---

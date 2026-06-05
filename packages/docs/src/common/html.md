@@ -1,17 +1,17 @@
 # html
 
-HTML 注入工具，提供向 HTML 文件中注入代码的功能。
+HTML 注入工具，提供向 HTML 文件中注入代码和安全过滤的功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { injectBeforeTag, injectHtmlByPriority, injectBeforeTagWithFallback, injectHeadAndBody } from '@meng-xi/vite-plugin/common/html'
-import type { HtmlInjectResult, DualInjectResult } from '@meng-xi/vite-plugin/common/html'
+import { injectBeforeTag, injectHeadAndBody, sanitizeContent } from '@meng-xi/vite-plugin/common/html'
+import type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig, SanitizeRuleOptions } from '@meng-xi/vite-plugin/common/html'
 
 // barrel 导入
-import { injectBeforeTag, injectHtmlByPriority, injectBeforeTagWithFallback, injectHeadAndBody } from '@meng-xi/vite-plugin/common'
-import type { HtmlInjectResult, DualInjectResult } from '@meng-xi/vite-plugin/common'
+import { injectBeforeTag, injectHeadAndBody, sanitizeContent } from '@meng-xi/vite-plugin/common'
+import type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig, SanitizeRuleOptions } from '@meng-xi/vite-plugin/common'
 ```
 
 ---
@@ -45,6 +45,19 @@ interface DualInjectResult {
 	bodyInjected: boolean
 	/** body 注入是否使用了回退策略（追加到末尾） */
 	usedFallback: boolean
+}
+```
+
+### SanitizeRuleOptions
+
+内容消毒规则选项。
+
+```typescript
+interface SanitizeRuleOptions {
+	/** 规则 ID，用于错误提示 */
+	id?: string
+	/** 是否允许脚本注入（默认 false） */
+	allowScriptInjection?: boolean
 }
 ```
 
@@ -87,79 +100,6 @@ if (result.injected) {
 
 ---
 
-## injectHtmlByPriority
-
-按优先级向 HTML 中注入代码。
-
-依次尝试在指定标签前注入代码，优先注入到靠前的标签位置。适用于需要注入到页面中但无特定位置要求的场景。
-
-```typescript
-function injectHtmlByPriority(html: string, code: string, targets?: string[]): HtmlInjectResult
-```
-
-**参数**
-
-| 参数    | 类型       | 默认值                              | 说明               |
-| ------- | ---------- | ----------------------------------- | ------------------ |
-| html    | `string`   | -                                   | 原始 HTML 内容     |
-| code    | `string`   | -                                   | 要注入的代码       |
-| targets | `string[]` | `['</head>', '</body>', '</html>']` | 目标标签优先级列表 |
-
-**返回值**
-
-`HtmlInjectResult` - 注入结果对象。若所有标签均未找到，代码将追加到末尾。
-
-**示例**
-
-```typescript
-// 默认优先级：</head> > </body> > </html>
-const result = injectHtmlByPriority(html, scriptCode)
-
-// 自定义优先级：优先注入到 </body> 前
-const result = injectHtmlByPriority(html, scriptCode, ['</body>', '</html>'])
-```
-
----
-
-## injectBeforeTagWithFallback
-
-带回退策略的 HTML 注入。
-
-依次尝试在 `</body>`、`</html>` 前注入代码，如果均未找到目标标签，则将代码追加到 HTML 末尾。适用于需要注入到页面底部但不确定 HTML 结构是否完整的场景。
-
-```typescript
-function injectBeforeTagWithFallback(html: string, code: string, fallbackMessage?: string): HtmlInjectResult & { usedFallback: boolean }
-```
-
-**参数**
-
-| 参数            | 类型     | 默认值 | 说明                                     |
-| --------------- | -------- | ------ | ---------------------------------------- |
-| html            | `string` | -      | 原始 HTML 内容                           |
-| code            | `string` | -      | 要注入的代码                             |
-| fallbackMessage | `string` | -      | 回退到末尾时的警告信息，为空则不输出警告 |
-
-**返回值**
-
-`HtmlInjectResult & { usedFallback: boolean }` - 注入结果对象，包含注入后的 HTML、是否成功标志和是否使用了回退策略
-
-**示例**
-
-```typescript
-// 注入 JS 脚本到页面底部
-const result = injectBeforeTagWithFallback(html, '<script>...</script>')
-
-// 带自定义警告信息
-const result = injectBeforeTagWithFallback(html, scriptCode, '未找到 </body> 标签，代码追加到文件末尾')
-
-// 检查是否使用了回退策略
-if (result.usedFallback) {
-	console.warn('代码追加到了 HTML 末尾')
-}
-```
-
----
-
 ## injectHeadAndBody
 
 双区域 HTML 注入（head + body）。
@@ -192,4 +132,54 @@ if (result.usedFallback) console.warn('代码追加到文件末尾')
 
 // 仅注入到 body
 const result = injectHeadAndBody(html, undefined, '<script>...</script>')
+```
+
+---
+
+## sanitizeContent
+
+对注入内容进行安全过滤，防止 XSS 攻击。
+
+```typescript
+function sanitizeContent(content: string, rule: SanitizeRuleOptions, security?: SecurityConfig, logger?: { warn: (msg: string) => void }): string
+```
+
+**参数**
+
+| 参数     | 类型                              | 说明                     |
+| -------- | --------------------------------- | ------------------------ |
+| content  | `string`                          | 待过滤的 HTML 内容字符串 |
+| rule     | `SanitizeRuleOptions`             | 当前注入规则的消毒选项   |
+| security | `SecurityConfig`                  | 全局安全配置（可选）     |
+| logger   | `{ warn: (msg: string) => void }` | 日志记录器（可选）       |
+
+**返回值**
+
+`string` - 过滤后的安全 HTML 内容字符串
+
+**安全规则**
+
+- 默认阻止危险标签（`<script>`、`<iframe>`、`<object>` 等）
+- 默认阻止危险事件属性（`onclick`、`onerror` 等）
+- 可通过 `rule.allowScriptInjection` 允许脚本注入（会输出安全警告）
+- 可通过 `security.allowedTags` 放行特定标签
+
+**示例**
+
+```typescript
+// 基本使用
+const safe = sanitizeContent('<div>safe</div>', { id: 'my-rule' })
+
+// 允许脚本注入
+const safe = sanitizeContent('<script>...</script>', { id: 'my-rule', allowScriptInjection: true })
+
+// 自定义安全配置
+const safe = sanitizeContent(
+	content,
+	{ id: 'my-rule' },
+	{
+		blockDangerousTags: true,
+		allowedTags: ['div', 'span']
+	}
+)
 ```

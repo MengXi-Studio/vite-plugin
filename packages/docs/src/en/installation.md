@@ -24,10 +24,16 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker, autoImport } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		// Auto import
+		autoImport({
+			imports: { vue: ['ref', 'reactive', 'computed'] },
+			dts: 'src/auto-imports.d.ts'
+		}),
+
 		// Build progress bar
 		buildProgress(),
 
@@ -114,19 +120,22 @@ import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compres
 ### Using Common Utility Modules
 
 ```typescript
-import { formatDate, deepMerge, copySourceToTarget } from '@meng-xi/vite-plugin'
+import { formatFileSize, copySourceToTarget, scanDirectory } from '@meng-xi/vite-plugin'
 
-// Date formatting
-formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss')
+// File size formatting
+formatFileSize(1024 * 1024) // '1.00 MB'
 
-// Deep merge objects
-const merged = deepMerge(defaultConfig, userConfig)
-
-// Copy files (with incremental copying and concurrency control)
+// Copy files (with incremental copying)
 const result = await copySourceToTarget('src/assets', 'dist/assets', {
 	recursive: true,
 	overwrite: true,
 	incremental: true
+})
+
+// Scan directory
+const files = await scanDirectory('src', {
+	extensions: ['.ts', '.js'],
+	excludePaths: ['node_modules']
 })
 ```
 
@@ -166,6 +175,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 
 ## Next Steps
 
+- [autoImport](/en/plugins/auto-import) - Auto import
 - [buildProgress](/en/plugins/build-progress) - Build progress display
 - [bundleAnalyzer](/en/plugins/bundle-analyzer) - Build artifact size analysis
 - [compressAssets](/en/plugins/compress-assets) - Build artifact compression

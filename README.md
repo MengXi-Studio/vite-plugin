@@ -15,7 +15,7 @@
 
 ## 特性
 
-- **开箱即用** - 11 个实用插件，覆盖构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading 等场景
+- **开箱即用** - 12 个实用插件，覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading 等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
 - **通用工具库** - 内置 Common 工具模块，支持按需子路径导入
 - **类型安全** - 完整 TypeScript 类型定义与配置验证器
@@ -40,10 +40,11 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager, autoImport } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		autoImport({ imports: { vue: ['ref', 'reactive', 'computed'] }, dts: 'src/auto-imports.d.ts' }),
 		buildProgress(),
 		bundleAnalyzer({ outputFormat: 'both' }),
 		compressAssets({ algorithm: 'gzip' }),
@@ -63,11 +64,12 @@ export default defineConfig({
 
 | 插件                                                                                                    | 说明                                                                  |
 | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [autoImport](https://mengxi-studio.github.io/vite-plugin/plugins/auto-import.html)                      | 自动注入 import 语句，支持预设映射、目录扫描和 Vue 模板自动导入       |
 | [buildProgress](https://mengxi-studio.github.io/vite-plugin/plugins/build-progress.html)                | 终端实时构建进度条，支持 bar / spinner / minimal                      |
 | [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/plugins/bundle-analyzer.html)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比  |
 | [compressAssets](https://mengxi-studio.github.io/vite-plugin/plugins/compress-assets.html)              | 构建产物压缩，支持 gzip / brotli / both，并发压缩和统计报告           |
 | [copyFile](https://mengxi-studio.github.io/vite-plugin/plugins/copy-file.html)                          | 构建完成后复制文件或目录，支持增量复制                                |
-| [envGuard](https://mengxi-studio.github.io/vite-plugin/plugins/env-guard.html)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫          |
+| [envGuard](https://mengxi-studio.github.io/vite-plugin/plugins/)                                        | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫          |
 | [faviconManager](https://mengxi-studio.github.io/vite-plugin/plugins/favicon-manager.html)              | 管理网站图标链接注入和文件复制，支持字符串简写配置                    |
 | [generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)              | 根据 pages.json 自动生成路由配置（uni-app）                           |
 | [generateVersion](https://mengxi-studio.github.io/vite-plugin/plugins/generate-version.html)            | 自动生成版本号，支持文件输出和全局变量注入                            |
@@ -131,17 +133,14 @@ export const myPlugin = createPluginFactory(MyPlugin)
 ```typescript
 import { formatFileSize } from '@meng-xi/vite-plugin/common/format'
 import { scanDirectory } from '@meng-xi/vite-plugin/common/fs'
-import { calculateGzipSize } from '@meng-xi/vite-plugin/common/compress'
+import { injectBeforeTag } from '@meng-xi/vite-plugin/common/html'
 ```
 
 | 子路径                                                                                    | 描述          |
 | ----------------------------------------------------------------------------------------- | ------------- |
-| [`common/compress`](https://mengxi-studio.github.io/vite-plugin/common/compress.html)     | 压缩算法工具  |
 | [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)         | 格式化工具    |
 | [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                 | 文件系统工具  |
 | [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)             | HTML 注入工具 |
-| [`common/object`](https://mengxi-studio.github.io/vite-plugin/common/object.html)         | 对象操作工具  |
-| [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)             | 路径处理工具  |
 | [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)         | 脚本生成工具  |
 | [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                 | 终端 UI 工具  |
 | [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html) | 参数验证工具  |
@@ -156,6 +155,7 @@ import { calculateGzipSize } from '@meng-xi/vite-plugin/common/compress'
 | `@meng-xi/vite-plugin/plugins`                        | 所有插件                  |
 | `@meng-xi/vite-plugin/common`                         | 所有工具函数              |
 | `@meng-xi/vite-plugin/common/*`                       | 各工具子模块              |
+| `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport 插件           |
 | `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress 插件        |
 | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        | bundleAnalyzer 插件       |
 | `@meng-xi/vite-plugin/plugins/compress-assets`        | compressAssets 插件       |

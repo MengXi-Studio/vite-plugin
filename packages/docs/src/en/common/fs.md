@@ -2,41 +2,15 @@
 
 File system utilities.
 
-## Import Methods
+## Import
 
 ```typescript
 // Submodule import (recommended)
-import {
-	checkSourceExists,
-	ensureTargetDir,
-	fileExists,
-	readDirRecursive,
-	shouldUpdateFile,
-	copySourceToTarget,
-	writeFileContent,
-	readFileContent,
-	readFileSync,
-	runWithConcurrency,
-	scanDirectory,
-	writeJsonReport
-} from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport } from '@meng-xi/vite-plugin/common/fs'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // Barrel import
-import {
-	checkSourceExists,
-	ensureTargetDir,
-	fileExists,
-	readDirRecursive,
-	shouldUpdateFile,
-	copySourceToTarget,
-	writeFileContent,
-	readFileContent,
-	readFileSync,
-	runWithConcurrency,
-	scanDirectory,
-	writeJsonReport
-} from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -48,11 +22,11 @@ Copy operation options interface.
 
 ```typescript
 interface CopyOptions {
-	recursive: boolean // Recursively copy subdirectories
-	overwrite: boolean // Overwrite existing files
-	incremental?: boolean // Only copy modified files (default false)
+	recursive: boolean // Whether to recursively copy subdirectories
+	overwrite: boolean // Whether to overwrite existing files
+	incremental?: boolean // Whether to only copy modified files (default false)
 	parallelLimit?: number // Concurrency limit (default 10)
-	skipEmptyDirs?: boolean // Skip empty directories
+	skipEmptyDirs?: boolean // Whether to skip empty directories
 }
 ```
 
@@ -62,16 +36,18 @@ Copy result interface.
 
 ```typescript
 interface CopyResult {
-	copiedFiles: number // Number of files copied
-	skippedFiles: number // Number of files skipped
-	copiedDirs: number // Number of directories copied
-	executionTime: number // Execution time (ms)
+	copiedFiles: number // Number of copied files
+	skippedFiles: number // Number of skipped files
+	copiedDirs: number // Number of copied directories
+	executionTime: number // Execution time in milliseconds
 }
 ```
 
+---
+
 ## checkSourceExists
 
-Check if source file exists, throws if not.
+Check if source file exists, throw an error if not found.
 
 ```typescript
 async function checkSourceExists(sourcePath: string): Promise<void>
@@ -79,136 +55,15 @@ async function checkSourceExists(sourcePath: string): Promise<void>
 
 **Parameters**
 
-| Parameter  | Type     | Description      |
-| ---------- | -------- | ---------------- |
-| sourcePath | `string` | Source file path |
+| Parameter  | Type     | Description |
+| ---------- | -------- | ----------- |
+| sourcePath | `string` | Source path |
 
 **Example**
 
 ```typescript
 await checkSourceExists('/path/to/file')
-// Throws when not found: Error: 复制文件失败：源文件不存在 - /path/to/file
-```
-
----
-
-## ensureTargetDir
-
-Ensure target directory exists, create recursively if not.
-
-```typescript
-async function ensureTargetDir(targetPath: string): Promise<void>
-```
-
-**Parameters**
-
-| Parameter  | Type     | Description      |
-| ---------- | -------- | ---------------- |
-| targetPath | `string` | Target directory |
-
-**Example**
-
-```typescript
-await ensureTargetDir('/path/to/dir')
-```
-
----
-
-## readDirRecursive
-
-Read directory contents, returning file and directory entry list.
-
-```typescript
-async function readDirRecursive(dirPath: string, recursive: boolean): Promise<FileEntry[]>
-```
-
-**Parameters**
-
-| Parameter | Type      | Description                    |
-| --------- | --------- | ------------------------------ |
-| dirPath   | `string`  | Directory path                 |
-| recursive | `boolean` | Whether to read subdirectories |
-
-**Returns**
-
-`Promise<FileEntry[]>` - File and directory entry list
-
-**FileEntry**
-
-| Property    | Type      | Description               |
-| ----------- | --------- | ------------------------- |
-| path        | `string`  | Full path                 |
-| isFile      | `boolean` | Whether it is a file      |
-| isDirectory | `boolean` | Whether it is a directory |
-
-**Example**
-
-```typescript
-const entries = await readDirRecursive('src/assets', true)
-for (const entry of entries) {
-	if (entry.isFile) {
-		console.log('File:', entry.path)
-	} else if (entry.isDirectory) {
-		console.log('Directory:', entry.path)
-	}
-}
-```
-
----
-
-## fileExists
-
-Check if file exists.
-
-```typescript
-async function fileExists(filePath: string): Promise<boolean>
-```
-
-**Parameters**
-
-| Parameter | Type     | Description |
-| --------- | -------- | ----------- |
-| filePath  | `string` | File path   |
-
-**Returns**
-
-`boolean` - Whether file exists
-
-**Example**
-
-```typescript
-if (await fileExists('/path/to/file')) {
-	console.log('File exists')
-}
-```
-
----
-
-## shouldUpdateFile
-
-Check if file needs update (compare mtime and size).
-
-```typescript
-async function shouldUpdateFile(sourceFile: string, targetFile: string): Promise<boolean>
-```
-
-**Parameters**
-
-| Parameter  | Type     | Description      |
-| ---------- | -------- | ---------------- |
-| sourceFile | `string` | Source file path |
-| targetFile | `string` | Target file path |
-
-**Returns**
-
-`boolean` - Whether update is needed
-
-**Example**
-
-```typescript
-if (await shouldUpdateFile('src/file.txt', 'dist/file.txt')) {
-	console.log('File needs update')
-}
+// Throws if not found: Error: 复制文件失败：源文件不存在 - /path/to/file
 ```
 
 ---
@@ -231,22 +86,21 @@ async function copySourceToTarget(sourcePath: string, targetPath: string, option
 
 **CopyOptions**
 
-| Property      | Type      | Default | Description              |
-| ------------- | --------- | ------- | ------------------------ |
-| recursive     | `boolean` | -       | Recursively copy subdirs |
-| overwrite     | `boolean` | -       | Overwrite existing       |
-| incremental   | `boolean` | `false` | Only copy modified       |
-| parallelLimit | `number`  | `10`    | Concurrency limit        |
-| skipEmptyDirs | `boolean` | -       | Skip empty directories   |
+| Property      | Type      | Default | Description                     |
+| ------------- | --------- | ------- | ------------------------------- |
+| recursive     | `boolean` | -       | Recursively copy subdirectories |
+| overwrite     | `boolean` | -       | Overwrite existing files        |
+| incremental   | `boolean` | `false` | Only copy modified files        |
+| parallelLimit | `number`  | `10`    | Concurrency limit               |
 
 **CopyResult**
 
-| Property      | Type     | Description         |
-| ------------- | -------- | ------------------- |
-| copiedFiles   | `number` | Files copied        |
-| skippedFiles  | `number` | Files skipped       |
-| copiedDirs    | `number` | Directories copied  |
-| executionTime | `number` | Execution time (ms) |
+| Property      | Type     | Description             |
+| ------------- | -------- | ----------------------- |
+| copiedFiles   | `number` | Number of copied files  |
+| skippedFiles  | `number` | Number of skipped files |
+| copiedDirs    | `number` | Number of copied dirs   |
+| executionTime | `number` | Execution time (ms)     |
 
 **Example**
 
@@ -266,7 +120,7 @@ console.log(result)
 
 ## writeFileContent
 
-Write content to file.
+Write content to a file.
 
 ```typescript
 async function writeFileContent(filePath: string, content: string): Promise<void>
@@ -287,96 +141,9 @@ await writeFileContent('/path/to/file.txt', 'Hello World')
 
 ---
 
-## readFileContent
-
-Asynchronously read file content.
-
-```typescript
-async function readFileContent(filePath: string): Promise<string>
-```
-
-**Parameters**
-
-| Parameter | Type     | Description |
-| --------- | -------- | ----------- |
-| filePath  | `string` | File path   |
-
-**Returns**
-
-`Promise<string>` - File content
-
-**Example**
-
-```typescript
-const content = await readFileContent('/path/to/file.txt')
-```
-
----
-
-## readFileSync
-
-Synchronously read file content.
-
-::: danger Deprecated Use the async version `readFileContent` instead :::
-
-```typescript
-function readFileSync(filePath: string): string
-```
-
-**Parameters**
-
-| Parameter | Type     | Description |
-| --------- | -------- | ----------- |
-| filePath  | `string` | File path   |
-
-**Returns**
-
-`string` - File content
-
-**Example**
-
-```typescript
-const content = readFileSync('/path/to/file.txt')
-```
-
----
-
-## runWithConcurrency
-
-Execute tasks with concurrency limit.
-
-```typescript
-async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]>
-```
-
-**Parameters**
-
-| Parameter   | Type                      | Description       |
-| ----------- | ------------------------- | ----------------- |
-| items       | `T[]`                     | Items to process  |
-| handler     | `(item: T) => Promise<R>` | Handler function  |
-| concurrency | `number`                  | Concurrency count |
-
-**Returns**
-
-`R[]` - Result array in same order as input
-
-**Example**
-
-```typescript
-const urls = ['url1', 'url2', 'url3', 'url4', 'url5']
-const results = await runWithConcurrency(
-	urls,
-	async url => fetch(url),
-	3 // Max 3 concurrent requests
-)
-```
-
----
-
 ## scanDirectory
 
-Recursively scan a directory, collecting file information.
+Recursively scan a directory and collect file information.
 
 ```typescript
 async function scanDirectory(dirPath: string, options?: ScanDirectoryOptions): Promise<ScannedFile[]>
@@ -399,17 +166,17 @@ async function scanDirectory(dirPath: string, options?: ScanDirectoryOptions): P
 
 **ScannedFile**
 
-| Property  | Type     | Description                                     |
-| --------- | -------- | ----------------------------------------------- |
-| filePath  | `string` | Absolute file path                              |
-| size      | `number` | File size in bytes                              |
-| extension | `string` | Lowercase file extension with dot (e.g., `.js`) |
+| Property  | Type     | Description                          |
+| --------- | -------- | ------------------------------------ |
+| filePath  | `string` | Absolute file path                   |
+| size      | `number` | File size in bytes                   |
+| extension | `string` | File extension (lowercase, with dot) |
 
 **Returns**
 
-`Promise<ScannedFile[]>` - File information list
+`Promise<ScannedFile[]>` - List of file information
 
-**Examples**
+**Example**
 
 ```typescript
 // Scan all .js files
@@ -418,7 +185,7 @@ const jsFiles = await scanDirectory('dist', { includeExtensions: ['.js'] })
 // Exclude node_modules
 const files = await scanDirectory('dist', { excludePatterns: ['node_modules'] })
 
-// Use custom filter
+// Custom filter
 const largeFiles = await scanDirectory('dist', {
 	filter: (filePath, ext, size) => size > 1024
 })
@@ -442,7 +209,7 @@ async function writeJsonReport(filePath: string, data: object, indent?: number):
 | data      | `object` | -       | Data object to serialize |
 | indent    | `number` | `2`     | JSON indentation spaces  |
 
-**Examples**
+**Example**
 
 ```typescript
 await writeJsonReport('dist/report.json', { timestamp: Date.now(), stats: [] })

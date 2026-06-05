@@ -15,8 +15,8 @@
 
 ## Features
 
-- **Ready to Use** - 11 practical plugins covering build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon management,
-  global Loading, and more
+- **Ready to Use** - 12 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
+  management, global Loading, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
 - **Common Utility Library** - Built-in Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
@@ -41,10 +41,11 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager, autoImport } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		autoImport({ imports: { vue: ['ref', 'reactive', 'computed'] }, dts: 'src/auto-imports.d.ts' }),
 		buildProgress(),
 		bundleAnalyzer({ outputFormat: 'both' }),
 		compressAssets({ algorithm: 'gzip' }),
@@ -64,6 +65,7 @@ export default defineConfig({
 
 | Plugin                                                                                                     | Description                                                                                                                           |
 | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)                      | Auto-inject import statements with preset mappings, directory scanning, and Vue template auto-import                                  |
 | [buildProgress](https://mengxi-studio.github.io/vite-plugin/en/plugins/build-progress.html)                | Real-time terminal build progress bar, supports bar / spinner / minimal                                                               |
 | [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/en/plugins/bundle-analyzer.html)              | Bundle volume analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build diff                                     |
 | [compressAssets](https://mengxi-studio.github.io/vite-plugin/en/plugins/compress-assets.html)              | Asset compression with gzip / brotli / both, concurrent compression and statistics report                                             |
@@ -132,19 +134,16 @@ Built-in general-purpose utility function library, organized by functional modul
 ```typescript
 import { formatFileSize } from '@meng-xi/vite-plugin/common/format'
 import { scanDirectory } from '@meng-xi/vite-plugin/common/fs'
-import { calculateGzipSize } from '@meng-xi/vite-plugin/common/compress'
+import { injectBeforeTag } from '@meng-xi/vite-plugin/common/html'
 ```
 
 | Sub-path                                                                                     | Description             |
 | -------------------------------------------------------------------------------------------- | ----------------------- |
-| [`common/compress`](https://mengxi-studio.github.io/vite-plugin/en/common/compress.html)     | Compression utilities   |
 | [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)         | Formatting utilities    |
 | [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                 | File system utilities   |
 | [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)             | HTML injection utils    |
-| [`common/object`](https://mengxi-studio.github.io/vite-plugin/en/common/object.html)         | Object operation utils  |
-| [`common/path`](https://mengxi-studio.github.io/vite-plugin/en/common/path.html)             | Path handling utils     |
 | [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)         | Script generation utils |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/)                        | Terminal UI utils       |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                 | Terminal UI utils       |
 | [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html) | Validation utilities    |
 
 ## Sub-path Exports
@@ -157,6 +156,7 @@ import { calculateGzipSize } from '@meng-xi/vite-plugin/common/compress'
 | `@meng-xi/vite-plugin/plugins`                        | All plugins                          |
 | `@meng-xi/vite-plugin/common`                         | All utility functions                |
 | `@meng-xi/vite-plugin/common/*`                       | Utility sub-modules                  |
+| `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport plugin                    |
 | `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress plugin                 |
 | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        | bundleAnalyzer plugin                |
 | `@meng-xi/vite-plugin/plugins/compress-assets`        | compressAssets plugin                |

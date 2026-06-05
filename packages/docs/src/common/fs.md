@@ -6,37 +6,11 @@
 
 ```typescript
 // 子模块独立导入（推荐）
-import {
-	checkSourceExists,
-	ensureTargetDir,
-	fileExists,
-	readDirRecursive,
-	shouldUpdateFile,
-	copySourceToTarget,
-	writeFileContent,
-	readFileContent,
-	readFileSync,
-	runWithConcurrency,
-	scanDirectory,
-	writeJsonReport
-} from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport } from '@meng-xi/vite-plugin/common/fs'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // barrel 导入
-import {
-	checkSourceExists,
-	ensureTargetDir,
-	fileExists,
-	readDirRecursive,
-	shouldUpdateFile,
-	copySourceToTarget,
-	writeFileContent,
-	readFileContent,
-	readFileSync,
-	runWithConcurrency,
-	scanDirectory,
-	writeJsonReport
-} from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -69,6 +43,8 @@ interface CopyResult {
 }
 ```
 
+---
+
 ## checkSourceExists
 
 检查源文件是否存在，不存在时抛出异常。
@@ -88,127 +64,6 @@ async function checkSourceExists(sourcePath: string): Promise<void>
 ```typescript
 await checkSourceExists('/path/to/file')
 // 文件不存在时抛出: Error: 复制文件失败：源文件不存在 - /path/to/file
-```
-
----
-
-## ensureTargetDir
-
-确保目标目录存在，不存在则递归创建。
-
-```typescript
-async function ensureTargetDir(targetPath: string): Promise<void>
-```
-
-**参数**
-
-| 参数       | 类型     | 说明         |
-| ---------- | -------- | ------------ |
-| targetPath | `string` | 目标目录路径 |
-
-**示例**
-
-```typescript
-await ensureTargetDir('/path/to/dir')
-```
-
----
-
-## readDirRecursive
-
-读取目录内容，返回文件和目录条目列表。
-
-```typescript
-async function readDirRecursive(dirPath: string, recursive: boolean): Promise<FileEntry[]>
-```
-
-**参数**
-
-| 参数      | 类型      | 说明               |
-| --------- | --------- | ------------------ |
-| dirPath   | `string`  | 目录路径           |
-| recursive | `boolean` | 是否递归读取子目录 |
-
-**返回值**
-
-`Promise<FileEntry[]>` - 文件和目录条目列表
-
-**FileEntry**
-
-| 属性        | 类型      | 说明       |
-| ----------- | --------- | ---------- |
-| path        | `string`  | 完整路径   |
-| isFile      | `boolean` | 是否为文件 |
-| isDirectory | `boolean` | 是否为目录 |
-
-**示例**
-
-```typescript
-const entries = await readDirRecursive('src/assets', true)
-for (const entry of entries) {
-	if (entry.isFile) {
-		console.log('文件:', entry.path)
-	} else if (entry.isDirectory) {
-		console.log('目录:', entry.path)
-	}
-}
-```
-
----
-
-## fileExists
-
-检查文件是否存在。
-
-```typescript
-async function fileExists(filePath: string): Promise<boolean>
-```
-
-**参数**
-
-| 参数     | 类型     | 说明     |
-| -------- | -------- | -------- |
-| filePath | `string` | 文件路径 |
-
-**返回值**
-
-`boolean` - 文件是否存在
-
-**示例**
-
-```typescript
-if (await fileExists('/path/to/file')) {
-	console.log('文件存在')
-}
-```
-
----
-
-## shouldUpdateFile
-
-检查文件是否需要更新（比较修改时间和文件大小）。
-
-```typescript
-async function shouldUpdateFile(sourceFile: string, targetFile: string): Promise<boolean>
-```
-
-**参数**
-
-| 参数       | 类型     | 说明         |
-| ---------- | -------- | ------------ |
-| sourceFile | `string` | 源文件路径   |
-| targetFile | `string` | 目标文件路径 |
-
-**返回值**
-
-`boolean` - 是否需要更新
-
-**示例**
-
-```typescript
-if (await shouldUpdateFile('src/file.txt', 'dist/file.txt')) {
-	console.log('文件需要更新')
-}
 ```
 
 ---
@@ -282,93 +137,6 @@ async function writeFileContent(filePath: string, content: string): Promise<void
 
 ```typescript
 await writeFileContent('/path/to/file.txt', 'Hello World')
-```
-
----
-
-## readFileContent
-
-异步读取文件内容。
-
-```typescript
-async function readFileContent(filePath: string): Promise<string>
-```
-
-**参数**
-
-| 参数     | 类型     | 说明     |
-| -------- | -------- | -------- |
-| filePath | `string` | 文件路径 |
-
-**返回值**
-
-`Promise<string>` - 文件内容
-
-**示例**
-
-```typescript
-const content = await readFileContent('/path/to/file.txt')
-```
-
----
-
-## readFileSync
-
-同步读取文件内容。
-
-::: danger 已废弃请使用异步版本 `readFileContent` :::
-
-```typescript
-function readFileSync(filePath: string): string
-```
-
-**参数**
-
-| 参数     | 类型     | 说明     |
-| -------- | -------- | -------- |
-| filePath | `string` | 文件路径 |
-
-**返回值**
-
-`string` - 文件内容
-
-**示例**
-
-```typescript
-const content = readFileSync('/path/to/file.txt')
-```
-
----
-
-## runWithConcurrency
-
-带并发限制的批量执行。
-
-```typescript
-async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]>
-```
-
-**参数**
-
-| 参数        | 类型                      | 说明     |
-| ----------- | ------------------------- | -------- |
-| items       | `T[]`                     | 待处理项 |
-| handler     | `(item: T) => Promise<R>` | 处理函数 |
-| concurrency | `number`                  | 并发数   |
-
-**返回值**
-
-`R[]` - 处理结果数组，顺序与输入项对应
-
-**示例**
-
-```typescript
-const urls = ['url1', 'url2', 'url3', 'url4', 'url5']
-const results = await runWithConcurrency(
-	urls,
-	async url => fetch(url),
-	3 // 最多同时处理 3 个请求
-)
 ```
 
 ---

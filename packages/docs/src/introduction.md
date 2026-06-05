@@ -4,10 +4,11 @@
 
 ## 内置插件
 
-开箱即用的十一款插件，覆盖常见构建场景：
+开箱即用的十二款插件，覆盖常见构建场景：
 
 | 插件                                                    | 功能                                                                                            |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [autoImport](/plugins/auto-import)                      | 自动注入 import 语句，支持预设映射、目录扫描、Vue 模板自动导入和 TypeScript 类型声明生成        |
 | [buildProgress](/plugins/build-progress)                | 在终端实时显示构建进度条，支持 bar / spinner / minimal 三种格式                                 |
 | [bundleAnalyzer](/plugins/bundle-analyzer)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比                            |
 | [compressAssets](/plugins/compress-assets)              | 构建产物压缩，支持 gzip / brotli / both，可配置压缩级别、文件过滤与并发数量，并生成压缩统计报告 |
@@ -51,74 +52,44 @@ interface BasePluginOptions {
 
 ## 通用工具模块
 
-导出九大工具模块，覆盖插件开发中的常见场景：
-
-### compress — 压缩算法工具
-
-提供 gzip 压缩大小计算功能：
-
-- `calculateGzipSize` — 计算数据的 gzip 压缩后大小，用于估算网络传输体积
+导出六大工具模块，覆盖插件开发中的常见场景：
 
 ### format — 格式化工具
 
-提供日期格式化、模板解析和命名转换等功能：
+提供日期格式化参数和文件大小格式化功能：
 
-- `formatDate` — 日期格式化，支持自定义模板
-- `parseTemplate` — 模板字符串解析，替换占位符
-- `generateRandomHash` — 生成随机哈希字符串
-- `padNumber` — 数字补零
-- `toCamelCase` — 转换为驼峰命名（camelCase）
-- `toPascalCase` — 转换为帕斯卡命名（PascalCase）
-- `stripJsonComments` — 移除 JSON 字符串中的注释
-- `escapeHtmlAttr` — 转义 HTML 属性值中的特殊字符，防止 XSS 注入
+- `getDateFormatParams` — 获取日期格式化参数对象
 - `formatFileSize` — 将字节数格式化为人类可读的文件大小字符串
-- `getExtension` — 获取文件扩展名
 
 ### fs — 文件系统工具
 
-提供文件操作、目录扫描和并发控制等功能：
+提供文件操作、目录扫描和报告生成等功能：
 
-- `copySourceToTarget` — 复制文件或目录，支持增量复制和并发控制
-- `readDirRecursive` — 递归读取目录内容
-- `readFileContent` / `writeFileContent` — 异步读写文件
-- `fileExists` — 检查文件是否存在
-- `shouldUpdateFile` — 比较文件修改时间判断是否需要更新
-- `runWithConcurrency` — 带并发限制的批量执行
+- `checkSourceExists` — 检查源路径是否存在
+- `copySourceToTarget` — 复制文件或目录，支持增量复制
+- `writeFileContent` — 异步写入文件内容
 - `scanDirectory` — 递归扫描目录，收集文件信息，支持扩展名和路径过滤
 - `writeJsonReport` — 将数据写入 JSON 文件
 
 ### html — HTML 注入工具
 
-提供多种 HTML 内容注入策略：
+提供多种 HTML 内容注入策略和安全过滤：
 
 - `injectBeforeTag` — 在指定闭合标签前注入代码
-- `injectHtmlByPriority` — 按优先级向 HTML 中注入代码
-- `injectBeforeTagWithFallback` — 带回退策略的 HTML 注入
 - `injectHeadAndBody` — 双区域 HTML 注入（head + body）
-
-### object — 对象处理工具
-
-- `deepMerge` — 深度合并对象，支持嵌套对象递归合并、undefined 跳过和数组覆盖
-
-### path — 路径处理工具
-
-- `isNodeModule` — 判断模块 ID 是否来自 node_modules，支持虚拟模块检测
+- `sanitizeContent` — 对注入内容进行安全过滤，防止 XSS 攻击
 
 ### script — 脚本工具
 
-提供脚本生成和安全性验证功能：
+提供脚本生成功能：
 
-- `makeCallback` — 将回调函数体字符串包装为安全的函数表达式
-- `containsScriptTag` — 检测字符串是否包含 `<script>` 标签
-- `validateIdentifierName` — 验证字符串是否为合法的 JavaScript 标识符，防止原型污染
+- `makeCallback` — 将回调函数体字符串包装为安全的函数表达式（包含 try-catch 保护）
 
 ### ui — 终端 UI 工具
 
-提供终端 ANSI 转义码处理和 Spinner 动画帧：
+提供终端 ANSI 转义码处理：
 
 - `ANSI` — ANSI 转义码工具集，提供文本着色（green/cyan/red/yellow/magenta/gray/bold）和光标控制（reset/clearLine/hideCursor/showCursor）
-- `SPINNER_FRAMES` — Spinner 动画帧序列，根据平台自动选择 ASCII 或 Unicode 字符
-- `stripAnsi` — 移除字符串中的所有 ANSI 转义码
 
 ### validation — 配置验证工具
 
@@ -128,13 +99,11 @@ interface BasePluginOptions {
 - `validateGlobalName` — 验证全局变量名的合法性
 - `validateNoScriptInTemplate` — 验证模板字符串不包含 script 标签（XSS 防护）
 - `validateCallbackFields` — 验证回调字段不包含 script 标签
-- `validateNonNegativeNumber` — 验证数值为非负数
-- `validateNestedDuration` — 验证嵌套配置项的 duration 合法性
-- `validateEnumValue` — 验证字符串值是否在允许的枚举列表中
 
 ## 下一步
 
 - [安装使用](/installation) - 快速开始
+- [autoImport](/plugins/auto-import) - 自动导入
 - [buildProgress](/plugins/build-progress) - 构建进度展示
 - [bundleAnalyzer](/plugins/bundle-analyzer) - 构建产物体积分析
 - [compressAssets](/plugins/compress-assets) - 构建产物压缩

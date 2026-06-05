@@ -24,10 +24,16 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker, autoImport } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		// 自动导入
+		autoImport({
+			imports: { vue: ['ref', 'reactive', 'computed'] },
+			dts: 'src/auto-imports.d.ts'
+		}),
+
 		// 构建进度条
 		buildProgress(),
 
@@ -114,19 +120,22 @@ import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compres
 ### 使用通用工具模块
 
 ```typescript
-import { formatDate, deepMerge, copySourceToTarget } from '@meng-xi/vite-plugin'
+import { formatFileSize, copySourceToTarget, scanDirectory } from '@meng-xi/vite-plugin'
 
-// 日期格式化
-formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss')
+// 文件大小格式化
+formatFileSize(1024 * 1024) // '1.00 MB'
 
-// 深度合并对象
-const merged = deepMerge(defaultConfig, userConfig)
-
-// 复制文件（支持增量复制和并发控制）
+// 复制文件（支持增量复制）
 const result = await copySourceToTarget('src/assets', 'dist/assets', {
 	recursive: true,
 	overwrite: true,
 	incremental: true
+})
+
+// 扫描目录
+const files = await scanDirectory('src', {
+	extensions: ['.ts', '.js'],
+	excludePaths: ['node_modules']
 })
 ```
 
@@ -166,6 +175,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 
 ## 下一步
 
+- [autoImport](/plugins/auto-import) - 自动导入
 - [buildProgress](/plugins/build-progress) - 构建进度展示
 - [bundleAnalyzer](/plugins/bundle-analyzer) - 构建产物体积分析
 - [compressAssets](/plugins/compress-assets) - 构建产物压缩

@@ -7,12 +7,13 @@
 ### 通过 barrel 导入（导入所有插件）
 
 ```typescript
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { autoImport, buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 ```
 
 ### 通过子模块独立导入（推荐，支持 tree-shaking）
 
 ```typescript
+import { autoImport } from '@meng-xi/vite-plugin/plugins/auto-import'
 import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
 import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
 import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
@@ -32,6 +33,7 @@ import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-updat
 
 | 插件                                             | 说明                                                                 | 子模块路径                                            |
 | ------------------------------------------------ | -------------------------------------------------------------------- | ----------------------------------------------------- |
+| [autoImport](./auto-import)                      | 自动注入 import 语句，支持预设映射、目录扫描和 Vue 模板自动导入      | `@meng-xi/vite-plugin/plugins/auto-import`            |
 | [buildProgress](./build-progress)                | 在终端实时显示构建进度条                                             | `@meng-xi/vite-plugin/plugins/build-progress`         |
 | [bundleAnalyzer](./bundle-analyzer)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比 | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        |
 | [compressAssets](./compress-assets)              | 构建产物压缩，支持 gzip / brotli / both                              | `@meng-xi/vite-plugin/plugins/compress-assets`        |

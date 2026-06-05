@@ -4,10 +4,11 @@
 
 ## Built-in Plugins
 
-Eleven ready-to-use plugins covering common build scenarios:
+Twelve ready-to-use plugins covering common build scenarios:
 
 | Plugin                                                     | Description                                                                                                                                             |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [autoImport](/en/plugins/auto-import)                      | Auto-inject import statements with preset mappings, directory scanning, Vue template auto-import, and TypeScript declaration generation                 |
 | [buildProgress](/en/plugins/build-progress)                | Display real-time build progress bar in terminal, supporting bar / spinner / minimal formats                                                            |
 | [bundleAnalyzer](/en/plugins/bundle-analyzer)              | Build artifact size analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison                                           |
 | [compressAssets](/en/plugins/compress-assets)              | Compress build artifacts with gzip / brotli / both, configurable compression level, file filtering, and concurrency, plus compression statistics report |
@@ -51,74 +52,44 @@ interface BasePluginOptions {
 
 ## Common Utility Modules
 
-Nine utility modules covering common scenarios in plugin development:
-
-### compress — Compression Utilities
-
-Provides gzip compression size calculation:
-
-- `calculateGzipSize` — Calculate the gzip-compressed size of data for estimating network transfer size
+Six utility modules covering common scenarios in plugin development:
 
 ### format — Formatting Utilities
 
-Provides date formatting, template parsing, and naming conversion:
+Provides date formatting parameters and file size formatting:
 
-- `formatDate` — Date formatting with custom templates
-- `parseTemplate` — Template string parsing with placeholder replacement
-- `generateRandomHash` — Generate random hash strings
-- `padNumber` — Zero-pad numbers
-- `toCamelCase` — Convert to camelCase
-- `toPascalCase` — Convert to PascalCase
-- `stripJsonComments` — Remove comments from JSON strings
-- `escapeHtmlAttr` — Escape special characters in HTML attribute values for XSS prevention
+- `getDateFormatParams` — Get date formatting parameter object
 - `formatFileSize` — Format bytes into a human-readable file size string
-- `getExtension` — Get file extension from a file path
 
 ### fs — File System Utilities
 
-Provides file operations, directory scanning, and concurrency control:
+Provides file operations, directory scanning, and report generation:
 
-- `copySourceToTarget` — Copy files or directories with incremental copying and concurrency control
-- `readDirRecursive` — Recursively read directory contents
-- `readFileContent` / `writeFileContent` — Async file read/write
-- `fileExists` — Check if a file exists
-- `shouldUpdateFile` — Compare modification times to determine if update is needed
-- `runWithConcurrency` — Batch execution with concurrency limit
+- `checkSourceExists` — Check if source path exists
+- `copySourceToTarget` — Copy files or directories with incremental copying
+- `writeFileContent` — Async write file content
 - `scanDirectory` — Recursively scan directory, collect file info with extension and path filtering
 - `writeJsonReport` — Write data to a JSON file
 
 ### html — HTML Injection Utilities
 
-Provides multiple HTML content injection strategies:
+Provides multiple HTML content injection strategies and security filtering:
 
 - `injectBeforeTag` — Inject code before a specified closing tag
-- `injectHtmlByPriority` — Inject code into HTML by tag priority
-- `injectBeforeTagWithFallback` — HTML injection with fallback strategy
 - `injectHeadAndBody` — Dual-zone HTML injection (head + body)
-
-### object — Object Utilities
-
-- `deepMerge` — Deep merge objects with recursive nested object merging, undefined skipping, and array overwriting
-
-### path — Path Utilities
-
-- `isNodeModule` — Check if a module ID is from node_modules, supporting virtual module detection
+- `sanitizeContent` — Sanitize injected content to prevent XSS attacks
 
 ### script — Script Utilities
 
-Provides script generation and security validation:
+Provides script generation functionality:
 
-- `makeCallback` — Wrap callback function body string into a safe function expression
-- `containsScriptTag` — Detect if a string contains `<script>` tags
-- `validateIdentifierName` — Validate if a string is a legal JavaScript identifier, preventing prototype pollution
+- `makeCallback` — Wrap callback function body string into a safe function expression (with try-catch protection)
 
 ### ui — Terminal UI Utilities
 
-Provides terminal ANSI escape code handling and Spinner animation frames:
+Provides terminal ANSI escape code handling:
 
 - `ANSI` — ANSI escape code toolkit providing text coloring (green/cyan/red/yellow/magenta/gray/bold) and cursor control (reset/clearLine/hideCursor/showCursor)
-- `SPINNER_FRAMES` — Spinner animation frame sequence, automatically selecting ASCII or Unicode characters based on platform
-- `stripAnsi` — Remove all ANSI escape codes from a string
 
 ### validation — Configuration Validation Utilities
 
@@ -128,13 +99,11 @@ Provides chainable validator and preset validation functions:
 - `validateGlobalName` — Validate the legality of global variable names
 - `validateNoScriptInTemplate` — Validate template strings don't contain script tags (XSS prevention)
 - `validateCallbackFields` — Validate callback fields don't contain script tags
-- `validateNonNegativeNumber` — Validate numeric values are non-negative
-- `validateNestedDuration` — Validate duration legality in nested configuration
-- `validateEnumValue` — Validate string values are within allowed enum list
 
 ## Next Steps
 
 - [Installation](/en/installation) - Quick start
+- [autoImport](/en/plugins/auto-import) - Auto import
 - [buildProgress](/en/plugins/build-progress) - Build progress display
 - [bundleAnalyzer](/en/plugins/bundle-analyzer) - Build artifact size analysis
 - [compressAssets](/en/plugins/compress-assets) - Build artifact compression

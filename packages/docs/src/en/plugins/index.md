@@ -7,12 +7,13 @@ Vite plugin collection provided by @meng-xi/vite-plugin.
 ### Barrel import (import all plugins)
 
 ```typescript
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
+import { autoImport, buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin'
 ```
 
 ### Submodule import (recommended, supports tree-shaking)
 
 ```typescript
+import { autoImport } from '@meng-xi/vite-plugin/plugins/auto-import'
 import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
 import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
 import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
@@ -32,6 +33,7 @@ import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-updat
 
 | Plugin                                           | Description                                                                                                   | Submodule Path                                        |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [autoImport](./auto-import)                      | Auto-inject import statements with preset mappings, directory scanning, and Vue template support              | `@meng-xi/vite-plugin/plugins/auto-import`            |
 | [buildProgress](./build-progress)                | Display real-time build progress bar in terminal                                                              | `@meng-xi/vite-plugin/plugins/build-progress`         |
 | [bundleAnalyzer](./bundle-analyzer)              | Build artifact size analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        |
 | [compressAssets](./compress-assets)              | Compress build artifacts with gzip / brotli / both                                                            | `@meng-xi/vite-plugin/plugins/compress-assets`        |
