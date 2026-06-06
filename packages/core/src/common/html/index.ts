@@ -1,7 +1,7 @@
 import type { HtmlInjectResult, DualInjectResult } from './type'
 
 export type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig } from './type'
-export { sanitizeContent } from './security'
+export { sanitizeContent, escapeHtmlAttr } from './security'
 export type { SanitizeRuleOptions } from './security'
 
 /**

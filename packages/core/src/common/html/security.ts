@@ -1,6 +1,25 @@
 import type { SecurityConfig } from './type'
 
 /**
+ * 转义 HTML 属性值中的特殊字符
+ *
+ * @param str - 需要转义的字符串
+ * @returns 转义后的安全字符串
+ *
+ * @description 将字符串中的 `&`、`"`、`'`、`<`、`>` 转义为对应的 HTML 实体，
+ * 防止在 HTML 属性值中注入恶意代码。
+ *
+ * @example
+ * ```typescript
+ * escapeHtmlAttr('hello "world" & <friends>')
+ * // 'hello &quot;world&quot; &amp; &lt;friends&gt;'
+ * ```
+ */
+export function escapeHtmlAttr(str: string): string {
+	return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+/**
  * 检测字符串是否包含 `<script>` 标签
  */
 function containsScriptTag(str: string): boolean {

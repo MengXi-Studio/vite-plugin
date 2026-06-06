@@ -1,6 +1,7 @@
 import type { InjectRule, InjectionLogEntry } from '../types'
 import type { InjectPosition, SelectorMatch, InjectCondition, SecurityConfig } from '@/common/html'
 import { sanitizeContent } from '@/common/html'
+import { parseTemplate } from '@/common/format'
 
 /**
  * 在 HTML 中查找选择器匹配位置
@@ -27,14 +28,8 @@ function findSelectorMatch(html: string, selector: string, selectorMatch?: Selec
  * 替换模板字符串中的变量占位符
  */
 function applyTemplateVars(content: string, ruleVars?: Record<string, string>, globalVars?: Record<string, string>): string {
-	let result = content
 	const mergedVars: Record<string, string> = { ...globalVars, ...ruleVars }
-	for (const [key, value] of Object.entries(mergedVars)) {
-		const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-		const escapedValue = value.replace(/\$/g, '$$$$')
-		result = result.replace(new RegExp(`\\{\\{${escapedKey}\\}\\}`, 'g'), escapedValue)
-	}
-	return result
+	return parseTemplate(content, mergedVars)
 }
 
 /**

@@ -2,7 +2,7 @@ import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig, UniAppPageConfig, RouteMeta } from './types'
 import { toCamelCase, toPascalCase, stripJsonComments, generateRouterDtsContent } from './common'
-import { writeFileContent } from '@/common/fs'
+import { writeFileContent, shouldUpdateFileContent } from '@/common/fs'
 import { resolve } from 'path'
 import { existsSync, watch as fsWatch, promises as fsp } from 'fs'
 
@@ -474,14 +474,7 @@ export default routes
 		const content = generateRouterDtsContent(routes)
 
 		// 检查内容是否变化，避免不必要的写入
-		if (existsSync(dtsPath)) {
-			try {
-				const existing = await fsp.readFile(dtsPath, 'utf-8')
-				if (existing === content) return
-			} catch {
-				// 读取失败时继续写入
-			}
-		}
+		if (!shouldUpdateFileContent(dtsPath, content)) return
 
 		await writeFileContent(dtsPath, content)
 		this.logger.success(`路由类型声明文件已生成: ${dtsPath}`)

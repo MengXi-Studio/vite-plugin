@@ -206,7 +206,7 @@ export function generateCheckerCode(options: VersionUpdateCheckerOptions): strin
         if (_currentVersion === _latestVersion) return;
 
         // 版本不一致，发现更新
-        var shouldShow = ${cbUpdateAvailable}(_currentVersion, _latestVersion);
+        var shouldShow = (${cbUpdateAvailable})(_currentVersion, _latestVersion);
         if (shouldShow !== false) {
           _showPrompt();
         }
@@ -243,13 +243,13 @@ export function generateCheckerCode(options: VersionUpdateCheckerOptions): strin
 
   // 刷新页面
   window.__VUC_REFRESH__ = function() {
-    ${cbRefresh}(_currentVersion, _latestVersion);
+    (${cbRefresh})(_currentVersion, _latestVersion);
     window.location.reload();
   };
 
   // 忽略更新
   window.__VUC_DISMISS__ = function() {
-    ${cbDismiss}(_currentVersion, _latestVersion);
+    (${cbDismiss})(_currentVersion, _latestVersion);
     _dismissed = true;
     _hidePrompt();
   };

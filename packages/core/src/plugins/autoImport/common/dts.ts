@@ -1,6 +1,5 @@
-import fs from 'node:fs'
-import path from 'node:path'
 import type { ResolvedImport } from '../types'
+import { writeFileSyncSafely, shouldUpdateFileContent } from '@/common/fs'
 
 /**
  * 生成 TypeScript 类型声明文件内容
@@ -120,13 +119,7 @@ export function generateDtsContent(imports: ResolvedImport[]): string {
  * ```
  */
 export function writeDtsFile(dtsPath: string, content: string): void {
-	const dir = path.dirname(dtsPath)
-
-	if (!fs.existsSync(dir)) {
-		fs.mkdirSync(dir, { recursive: true })
-	}
-
-	fs.writeFileSync(dtsPath, content, 'utf-8')
+	writeFileSyncSafely(dtsPath, content)
 }
 
 /**
@@ -138,7 +131,7 @@ export function writeDtsFile(dtsPath: string, content: string): void {
  *
  * @description 对比现有文件内容与新生成的内容，
  * 仅在内容发生变化时才需要写入，减少不必要的文件 IO 操作。
- * 内部使用 {@link writeFileIfChanged} 的同步版本逻辑。
+ * 委托给 {@link shouldUpdateFileContent} 实现。
  *
  * @example
  * ```typescript
@@ -148,12 +141,5 @@ export function writeDtsFile(dtsPath: string, content: string): void {
  * ```
  */
 export function shouldUpdateDts(dtsPath: string, newContent: string): boolean {
-	if (!fs.existsSync(dtsPath)) return true
-
-	try {
-		const existing = fs.readFileSync(dtsPath, 'utf-8')
-		return existing !== newContent
-	} catch {
-		return true
-	}
+	return shouldUpdateFileContent(dtsPath, newContent)
 }

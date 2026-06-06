@@ -362,3 +362,57 @@ export async function scanDirectory(dirPath: string, options: ScanDirectoryOptio
 export async function writeJsonReport(filePath: string, data: object, indent: number = 2): Promise<void> {
 	await writeFileContent(filePath, JSON.stringify(data, null, indent))
 }
+
+/**
+ * 同步写入文件内容，自动创建不存在的目录
+ *
+ * @param filePath 文件路径
+ * @param content 文件内容
+ *
+ * @description 同步写入文件，如果目标目录不存在会自动递归创建。
+ * 适用于构建钩子中需要同步写入的场景（如 `transform` 钩子）。
+ *
+ * @throws 当文件写入失败时（如权限不足），抛出 `NodeJS.ErrnoException`
+ *
+ * @example
+ * ```typescript
+ * writeFileSyncSafely('/project/src/auto-imports.d.ts', 'declare global { ... }')
+ * ```
+ */
+export function writeFileSyncSafely(filePath: string, content: string): void {
+	const dir = path.dirname(filePath)
+
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true })
+	}
+
+	fs.writeFileSync(filePath, content, 'utf-8')
+}
+
+/**
+ * 检查文件内容是否需要更新（同步版本）
+ *
+ * @param filePath 文件路径
+ * @param newContent 新生成的文件内容
+ * @returns 如果需要更新返回 `true`，否则返回 `false`
+ *
+ * @description 对比现有文件内容与新生成的内容，
+ * 仅在内容发生变化时才需要写入，减少不必要的文件 IO 操作。
+ *
+ * @example
+ * ```typescript
+ * if (shouldUpdateFileContent('/project/src/auto-imports.d.ts', newContent)) {
+ *   writeFileSyncSafely('/project/src/auto-imports.d.ts', newContent)
+ * }
+ * ```
+ */
+export function shouldUpdateFileContent(filePath: string, newContent: string): boolean {
+	if (!fs.existsSync(filePath)) return true
+
+	try {
+		const existing = fs.readFileSync(filePath, 'utf-8')
+		return existing !== newContent
+	} catch {
+		return true
+	}
+}
