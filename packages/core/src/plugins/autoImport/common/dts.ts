@@ -59,17 +59,38 @@ export function generateDtsContent(imports: ResolvedImport[]): string {
 		moduleMap.get(imp.module)!.push(imp)
 	}
 
+	// 去重：同名标识符只保留最后一个模块的声明
+	const seenNames = new Set<string>()
+	const deduplicatedModuleMap = new Map<string, ResolvedImport[]>()
+
+	// 反向遍历模块，使后配置的模块优先
+	const entries = [...moduleMap.entries()].reverse()
+	for (const [mod, items] of entries) {
+		const dedupedItems: ResolvedImport[] = []
+		for (const item of items) {
+			if (!seenNames.has(item.name)) {
+				seenNames.add(item.name)
+				dedupedItems.push(item)
+			}
+		}
+		if (dedupedItems.length > 0) {
+			deduplicatedModuleMap.set(mod, dedupedItems)
+		}
+	}
+
 	lines.push('declare global {')
 
-	for (const [mod, items] of moduleMap) {
+	// 恢复原始模块顺序输出
+	for (const mod of moduleMap.keys()) {
+		const dedupedItems = deduplicatedModuleMap.get(mod)
+		if (!dedupedItems) continue
+
 		lines.push(`  // from '${mod}'`)
 
-		for (const item of items) {
+		for (const item of dedupedItems) {
 			if (item.isDefault) {
-				// 默认导出：声明为 const 变量，类型为模块的 default 导出
 				lines.push(`  const ${item.name}: typeof import('${mod}')['default']`)
 			} else {
-				// 命名导出：声明为 const 变量，类型为模块的对应命名导出
 				lines.push(`  const ${item.name}: typeof import('${mod}')['${item.name}']`)
 			}
 		}

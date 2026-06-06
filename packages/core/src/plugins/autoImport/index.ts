@@ -107,7 +107,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 			dts: 'src/auto-imports.d.ts',
 			vueTemplate: false,
 			ignore: [],
-			fileFilter: /\.(vue|jsx|tsx|ts|js|mjs)$/,
+			fileFilter: /^(?!.*node_modules).*\.(vue|jsx|tsx|ts|js|mjs)$/,
 			injectAtPosition: 'top'
 		}
 	}

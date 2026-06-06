@@ -9,33 +9,223 @@ import type { ScannedModule, ImportMapping, ResolvedImport } from '../types'
  * @param root 项目根目录，用于解析相对路径
  * @returns 模块的所有命名导出名称列表
  *
- * @description 解析策略：
- * 1. 尝试将模块路径解析为本地文件（补全扩展名），使用 {@link parseModuleExports} 解析
- * 2. 尝试从 `node_modules` 中查找模块入口文件，使用 {@link parseModuleExports} 解析
- * 3. 解析失败时返回空数组
+ * @description 解析策略（按优先级）：
+ * 1. 尝试从 `node_modules` 中查找 `.d.ts` 类型声明文件，使用 {@link parseDtsExports} 解析
+ * 2. 尝试将模块路径解析为本地文件（补全扩展名），使用 {@link parseModuleExports} 解析
+ * 3. 尝试从 `node_modules` 中查找模块入口文件，使用 {@link parseModuleExports} 解析
+ * 4. 解析失败时返回空数组
+ *
+ * **优先使用 `.d.ts` 的原因：** bundler 格式的运行时入口文件（如 `vue.runtime.esm-bundler.js`）
+ * 通常只包含 `export { compile }` 等极少导出，而完整的 API 通过动态方式导出，
+ * 静态正则无法匹配。`.d.ts` 文件包含完整的静态类型声明，能准确反映模块的所有导出。
  */
 function resolveWildcardExports(modulePath: string, root: string): string[] {
-	// 1. 尝试作为文件路径解析
+	// 1. 优先从 .d.ts 类型声明文件解析（最准确）
+	const dtsExports = resolveDtsExports(modulePath, root)
+	if (dtsExports.length > 0) return dtsExports
+
+	// 2. 尝试作为本地文件路径解析
 	const absolutePath = path.isAbsolute(modulePath) ? modulePath : path.resolve(root, modulePath)
 
-	// 尝试直接路径、补全扩展名
 	const extensions = ['', '.ts', '.js', '.mts', '.mjs', '/index.ts', '/index.js']
 	for (const ext of extensions) {
 		const tryPath = absolutePath + ext
 		if (fs.existsSync(tryPath) && fs.statSync(tryPath).isFile()) {
 			const result = parseModuleExports(tryPath)
-			if (result) return result.exports
+			if (result && result.exports.length > 0) return result.exports
 		}
 	}
 
-	// 2. 尝试从 node_modules 解析
+	// 3. 尝试从 node_modules 解析运行时入口
 	const moduleEntry = resolveModuleEntry(modulePath, root)
 	if (moduleEntry) {
 		const result = parseModuleExports(moduleEntry)
-		if (result) return result.exports
+		if (result && result.exports.length > 0) return result.exports
 	}
 
 	return []
+}
+
+/**
+ * 从 `.d.ts` 类型声明文件中解析模块的所有命名导出
+ *
+ * @param moduleName npm 包名
+ * @param root 项目根目录
+ * @returns 命名导出名称列表
+ *
+ * @description 按优先级查找 `.d.ts` 文件：
+ * 1. 使用 `require.resolve` 解析模块路径，再查找对应的 `.d.ts` 文件
+ * 2. `package.json` 的 `types`/`typings` 字段
+ * 3. `package.json` 的 `exports` 字段中的 `types` 条件
+ * 4. 回退到 `dist/index.d.ts`、`index.d.ts` 等常见路径
+ *
+ * 解析 `.d.ts` 文件时，会递归处理 `export * from '...'` 重导出，
+ * 确保获取模块的完整导出列表。
+ */
+function resolveDtsExports(moduleName: string, root: string): string[] {
+	try {
+		// 使用 require.resolve 定位模块目录（兼容 pnpm 符号链接）
+		let moduleDir: string | null = null
+		try {
+			const resolved = require.resolve(moduleName, { paths: [root] })
+			// resolved 是入口文件路径，取其所在包的根目录
+			// 向上查找 package.json 所在目录
+			let dir = path.dirname(resolved)
+			while (dir !== path.dirname(dir)) {
+				if (fs.existsSync(path.join(dir, 'package.json'))) {
+					moduleDir = dir
+					break
+				}
+				dir = path.dirname(dir)
+			}
+		} catch {
+			// require.resolve 失败，回退到直接路径
+		}
+
+		// 回退：直接拼接 node_modules 路径
+		if (!moduleDir) {
+			const directPath = path.resolve(root, 'node_modules', moduleName)
+			if (fs.existsSync(path.join(directPath, 'package.json'))) {
+				moduleDir = directPath
+			}
+		}
+
+		if (!moduleDir) return []
+
+		const pkgPath = path.join(moduleDir, 'package.json')
+		const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+		let dtsPath: string | null = null
+
+		// 1. 从 types/typings 字段查找
+		const typesField = pkg.types || pkg.typings
+		if (typesField && typeof typesField === 'string') {
+			const resolved = path.resolve(moduleDir, typesField)
+			if (fs.existsSync(resolved)) dtsPath = resolved
+		}
+
+		// 2. 从 exports 字段的 types 条件查找
+		if (!dtsPath && pkg.exports) {
+			const dotExport = pkg.exports['.']
+			if (dotExport) {
+				const typesEntry = typeof dotExport === 'string' ? null : dotExport.import?.types || dotExport.types || dotExport.default?.types
+				if (typeof typesEntry === 'string') {
+					const resolved = path.resolve(moduleDir, typesEntry)
+					if (fs.existsSync(resolved)) dtsPath = resolved
+				}
+			}
+		}
+
+		// 3. 回退到常见路径
+		if (!dtsPath) {
+			const fallbacks = ['dist/index.d.ts', 'index.d.ts', 'dist/index.d.mts', 'index.d.mts']
+			for (const fb of fallbacks) {
+				const resolved = path.resolve(moduleDir, fb)
+				if (fs.existsSync(resolved)) {
+					dtsPath = resolved
+					break
+				}
+			}
+		}
+
+		if (!dtsPath) return []
+
+		return parseDtsExportsRecursive(dtsPath, root, new Set())
+	} catch {
+		return []
+	}
+}
+
+/**
+ * 递归解析 `.d.ts` 文件的导出，处理 `export * from '...'` 重导出
+ *
+ * @param dtsPath `.d.ts` 文件绝对路径
+ * @param root 项目根目录
+ * @param visited 已访问文件集合，防止循环引用
+ * @returns 命名导出名称列表
+ *
+ * @description 解析以下导出语法：
+ * - `export { name1, name2 }` — 命名导出
+ * - `export { foo as bar }` — 重命名导出（使用别名 bar）
+ * - `export declare const/let/var/function/class name` — 声明导出
+ * - `export type name` / `export interface name` — 类型导出
+ * - `export * from 'module'` — 重导出（递归解析）
+ */
+function parseDtsExportsRecursive(dtsPath: string, root: string, visited: Set<string>): string[] {
+	if (visited.has(dtsPath)) return []
+	visited.add(dtsPath)
+
+	const exportSet = new Set<string>()
+
+	try {
+		const content = fs.readFileSync(dtsPath, 'utf-8')
+
+		// 匹配 export { name1, name2 } / export { foo as bar }
+		const namedExportRegex = /export\s*\{([^}]+)\}/g
+		let match: RegExpExecArray | null
+		while ((match = namedExportRegex.exec(content)) !== null) {
+			const names = match[1].split(',').map(s => {
+				const trimmed = s.trim()
+				const parts = trimmed.split(/\s+as\s+/)
+				return parts.length > 1 ? parts[parts.length - 1].trim() : parts[0].trim()
+			})
+			for (const name of names) {
+				if (name && name !== 'default') exportSet.add(name)
+			}
+		}
+
+		// 匹配 export declare const/let/var/function/class name
+		const declareExportRegex = /export\s+declare\s+(?:const|let|var|function|class)\s+(\w+)/g
+		while ((match = declareExportRegex.exec(content)) !== null) {
+			exportSet.add(match[1])
+		}
+
+		// 匹配 export type / export interface
+		const typeExportRegex = /export\s+(?:type|interface)\s+(\w+)/g
+		while ((match = typeExportRegex.exec(content)) !== null) {
+			exportSet.add(match[1])
+		}
+
+		// 匹配 export * from 'module' — 递归解析重导出
+		const reExportRegex = /export\s+\*\s+from\s+['"]([^'"]+)['"]/g
+		while ((match = reExportRegex.exec(content)) !== null) {
+			const reExportedModule = match[1]
+			const reExports = resolveReExportedModule(reExportedModule, dtsPath, root, visited)
+			for (const name of reExports) {
+				exportSet.add(name)
+			}
+		}
+	} catch {
+		// 读取失败，跳过
+	}
+
+	return [...exportSet]
+}
+
+/**
+ * 解析重导出模块的 `.d.ts` 文件
+ *
+ * @param moduleSpecifier import 路径（如 `@vue/runtime-core` 或 `./runtime-core`）
+ * @param fromPath 来源文件路径，用于解析相对路径
+ * @param root 项目根目录
+ * @param visited 已访问文件集合
+ * @returns 重导出模块的命名导出列表
+ */
+function resolveReExportedModule(moduleSpecifier: string, fromPath: string, root: string, visited: Set<string>): string[] {
+	// 尝试作为相对路径解析
+	if (moduleSpecifier.startsWith('.')) {
+		const dir = path.dirname(fromPath)
+		const extensions = ['.d.ts', '.d.mts', '/index.d.ts', '/index.d.mts']
+		for (const ext of extensions) {
+			const resolved = path.resolve(dir, moduleSpecifier + ext)
+			if (fs.existsSync(resolved)) {
+				return parseDtsExportsRecursive(resolved, root, visited)
+			}
+		}
+	}
+
+	// 尝试作为 npm 包解析
+	const dtsExports = resolveDtsExports(moduleSpecifier, root)
+	return dtsExports
 }
 
 /**
@@ -46,34 +236,66 @@ function resolveWildcardExports(modulePath: string, root: string): string[] {
  * @returns 入口文件绝对路径，解析失败返回 `null`
  *
  * @description 按优先级依次尝试：
- * 1. `package.json` 的 `exports` 字段（支持 `import`/`default` 条件）
- * 2. `package.json` 的 `main` 字段
- * 3. `index.js` 回退
+ * 1. 使用 `require.resolve` 解析（兼容 pnpm 符号链接）
+ * 2. `package.json` 的 `exports` 字段（支持 `import`/`default` 条件）
+ * 3. `package.json` 的 `main` 字段
+ * 4. `index.js` 回退
  */
 function resolveModuleEntry(moduleName: string, root: string): string | null {
+	// 优先使用 require.resolve（兼容 pnpm）
 	try {
-		const pkgPath = path.resolve(root, 'node_modules', moduleName, 'package.json')
-		if (!fs.existsSync(pkgPath)) return null
+		const resolved = require.resolve(moduleName, { paths: [root] })
+		if (fs.existsSync(resolved)) return resolved
+	} catch {
+		// 回退到手动解析
+	}
 
+	try {
+		// 使用 require.resolve 定位模块目录
+		let moduleDir: string | null = null
+		try {
+			const resolved = require.resolve(moduleName, { paths: [root] })
+			let dir = path.dirname(resolved)
+			while (dir !== path.dirname(dir)) {
+				if (fs.existsSync(path.join(dir, 'package.json'))) {
+					moduleDir = dir
+					break
+				}
+				dir = path.dirname(dir)
+			}
+		} catch {
+			// 回退
+		}
+
+		if (!moduleDir) {
+			const directPath = path.resolve(root, 'node_modules', moduleName)
+			if (fs.existsSync(path.join(directPath, 'package.json'))) {
+				moduleDir = directPath
+			}
+		}
+
+		if (!moduleDir) return null
+
+		const pkgPath = path.join(moduleDir, 'package.json')
 		const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
 
 		// 优先使用 exports 字段
 		if (pkg.exports) {
 			const exportEntry = typeof pkg.exports === 'string' ? pkg.exports : pkg.exports['.']?.import || pkg.exports['.']?.default || pkg.exports['.']
 			if (typeof exportEntry === 'string') {
-				const entryPath = path.resolve(root, 'node_modules', moduleName, exportEntry)
+				const entryPath = path.resolve(moduleDir, exportEntry)
 				if (fs.existsSync(entryPath)) return entryPath
 			}
 		}
 
 		// 回退到 main 字段
 		if (pkg.main) {
-			const entryPath = path.resolve(root, 'node_modules', moduleName, pkg.main)
+			const entryPath = path.resolve(moduleDir, pkg.main)
 			if (fs.existsSync(entryPath)) return entryPath
 		}
 
 		// 回退到 index.js
-		const indexPath = path.resolve(root, 'node_modules', moduleName, 'index.js')
+		const indexPath = path.resolve(moduleDir, 'index.js')
 		if (fs.existsSync(indexPath)) return indexPath
 
 		return null
