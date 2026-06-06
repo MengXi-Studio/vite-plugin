@@ -125,6 +125,41 @@ declare function scanDirectory(dirPath: string, options?: ScanDirectoryOptions):
  * ```
  */
 declare function writeJsonReport(filePath: string, data: object, indent?: number): Promise<void>;
+/**
+ * 同步写入文件内容，自动创建不存在的目录
+ *
+ * @param filePath 文件路径
+ * @param content 文件内容
+ *
+ * @description 同步写入文件，如果目标目录不存在会自动递归创建。
+ * 适用于构建钩子中需要同步写入的场景（如 `transform` 钩子）。
+ *
+ * @throws 当文件写入失败时（如权限不足），抛出 `NodeJS.ErrnoException`
+ *
+ * @example
+ * ```typescript
+ * writeFileSyncSafely('/project/src/auto-imports.d.ts', 'declare global { ... }')
+ * ```
+ */
+declare function writeFileSyncSafely(filePath: string, content: string): void;
+/**
+ * 检查文件内容是否需要更新（同步版本）
+ *
+ * @param filePath 文件路径
+ * @param newContent 新生成的文件内容
+ * @returns 如果需要更新返回 `true`，否则返回 `false`
+ *
+ * @description 对比现有文件内容与新生成的内容，
+ * 仅在内容发生变化时才需要写入，减少不必要的文件 IO 操作。
+ *
+ * @example
+ * ```typescript
+ * if (shouldUpdateFileContent('/project/src/auto-imports.d.ts', newContent)) {
+ *   writeFileSyncSafely('/project/src/auto-imports.d.ts', newContent)
+ * }
+ * ```
+ */
+declare function shouldUpdateFileContent(filePath: string, newContent: string): boolean;
 
-export { checkSourceExists, copySourceToTarget, scanDirectory, writeFileContent, writeJsonReport };
+export { checkSourceExists, copySourceToTarget, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport };
 export type { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile };

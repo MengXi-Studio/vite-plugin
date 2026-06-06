@@ -25,7 +25,7 @@ hero:
 features:
   - icon: 🔄
     title: Auto Import
-    details: autoImport automatically injects import statements with preset mappings, directory scanning, Vue template auto-import, and TypeScript declaration generation
+    details: autoImport automatically injects import statements with preset mappings, wildcard (`'*'`), directory scanning, Vue template auto-import, and TypeScript declaration generation
   - icon: 🚀
     title: Build Progress Display
     details: buildProgress displays real-time build progress bar in terminal, supporting bar, spinner, and minimal formats
@@ -36,8 +36,14 @@ features:
     title: Build Artifact Size Analysis
     details: bundleAnalyzer analyzes build artifact size distribution with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison
   - icon: 📁
-    title: File Operations & Router Generation
-    details: copyFile supports incremental file copying to build directory; generateRouter auto-generates router config from pages.json with file watching
+    title: File Copying
+    details: copyFile copies files or directories to specified locations after build, with incremental copying, concurrency control, and empty directory skipping
+  - icon: 🗺️
+    title: Router Generation
+    details: generateRouter auto-generates router config and type declarations from pages.json, supporting multiple naming strategies, sub-package routes, and file watching
+  - icon: 🔐
+    title: Environment Variable Validation
+    details: envGuard validates environment variable types, formats, and ranges, supporting custom rules, runtime guards, and template generation
   - icon: 🔖
     title: Version Management & Update Detection
     details: generateVersion auto-generates version numbers with file output and global variable injection; versionUpdateChecker detects version changes at runtime and prompts users to refresh

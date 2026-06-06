@@ -1,16 +1,16 @@
 # html
 
-HTML injection utilities, providing code injection and security filtering for HTML files.
+HTML injection utilities, providing code injection, security filtering, and attribute value escaping for HTML files.
 
 ## Import
 
 ```typescript
 // Submodule import (recommended)
-import { injectBeforeTag, injectHeadAndBody, sanitizeContent } from '@meng-xi/vite-plugin/common/html'
+import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/html'
 import type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig, SanitizeRuleOptions } from '@meng-xi/vite-plugin/common/html'
 
 // Barrel import
-import { injectBeforeTag, injectHeadAndBody, sanitizeContent } from '@meng-xi/vite-plugin/common'
+import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common'
 import type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig, SanitizeRuleOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -182,4 +182,44 @@ const safe = sanitizeContent(
 		allowedTags: ['div', 'span']
 	}
 )
+```
+
+---
+
+## escapeHtmlAttr
+
+Escape special characters in HTML attribute values to prevent attribute injection attacks.
+
+```typescript
+function escapeHtmlAttr(value: string): string
+```
+
+**Parameters**
+
+| Parameter | Type     | Description      |
+| --------- | -------- | ---------------- |
+| value     | `string` | String to escape |
+
+**Returns**
+
+`string` - Escaped safe string
+
+**Escaping Rules**
+
+| Character | Escaped Result |
+| --------- | -------------- |
+| `&`       | `&amp;`        |
+| `"`       | `&quot;`       |
+| `'`       | `&#39;`        |
+| `<`       | `&lt;`         |
+| `>`       | `&gt;`         |
+
+**Example**
+
+```typescript
+escapeHtmlAttr('hello "world"')
+// 'hello &quot;world&quot;'
+
+escapeHtmlAttr("<script>alert('xss')</script>")
+// '&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;'
 ```

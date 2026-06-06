@@ -1,16 +1,16 @@
 # html
 
-HTML 注入工具，提供向 HTML 文件中注入代码和安全过滤的功能。
+HTML 注入工具，提供向 HTML 文件中注入代码、安全过滤和属性值转义的功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { injectBeforeTag, injectHeadAndBody, sanitizeContent } from '@meng-xi/vite-plugin/common/html'
+import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/html'
 import type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig, SanitizeRuleOptions } from '@meng-xi/vite-plugin/common/html'
 
 // barrel 导入
-import { injectBeforeTag, injectHeadAndBody, sanitizeContent } from '@meng-xi/vite-plugin/common'
+import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common'
 import type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig, SanitizeRuleOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -182,4 +182,44 @@ const safe = sanitizeContent(
 		allowedTags: ['div', 'span']
 	}
 )
+```
+
+---
+
+## escapeHtmlAttr
+
+转义 HTML 属性值中的特殊字符，防止属性注入攻击。
+
+```typescript
+function escapeHtmlAttr(value: string): string
+```
+
+**参数**
+
+| 参数  | 类型     | 说明           |
+| ----- | -------- | -------------- |
+| value | `string` | 要转义的字符串 |
+
+**返回值**
+
+`string` - 转义后的安全字符串
+
+**转义规则**
+
+| 字符 | 转义结果 |
+| ---- | -------- |
+| `&`  | `&amp;`  |
+| `"`  | `&quot;` |
+| `'`  | `&#39;`  |
+| `<`  | `&lt;`   |
+| `>`  | `&gt;`   |
+
+**示例**
+
+```typescript
+escapeHtmlAttr('hello "world"')
+// 'hello &quot;world&quot;'
+
+escapeHtmlAttr("<script>alert('xss')</script>")
+// '&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;'
 ```

@@ -1,4 +1,4 @@
-import{createPluginFactory as d,BasePlugin as p}from"../../factory/index.mjs";import{makeCallback as i}from"../../common/script/index.mjs";import{validateNoScriptInTemplate as v,validateGlobalName as f,validateCallbackFields as m}from"../../common/validation/index.mjs";import{injectHeadAndBody as b}from"../../common/html/index.mjs";import"../../logger/index.mjs";import"../../shared/vite-plugin.DcExl6jd.mjs";import"../../shared/vite-plugin.BPFqtmWa.mjs";function F(e,n){const u=".__vuc-overlay__{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;pointer-events:none;}";let t="";switch(e){case"modal":t=`.__vuc-modal__{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:32px;max-width:420px;width:90%;z-index:100000;pointer-events:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-align:center;}
+import{createPluginFactory as d,BasePlugin as p}from"../../factory/index.mjs";import{makeCallback as i}from"../../common/script/index.mjs";import{validateNoScriptInTemplate as v,validateGlobalName as f,validateCallbackFields as m}from"../../common/validation/index.mjs";import{injectHeadAndBody as b}from"../../common/html/index.mjs";import"../../logger/index.mjs";import"../../shared/vite-plugin.DcExl6jd.mjs";import"../../shared/vite-plugin.CuXEJAWX.mjs";function F(e,n){const u=".__vuc-overlay__{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;pointer-events:none;}";let t="";switch(e){case"modal":t=`.__vuc-modal__{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:32px;max-width:420px;width:90%;z-index:100000;pointer-events:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-align:center;}
 .__vuc-modal-title__{font-size:18px;font-weight:600;color:#1a1a2e;margin:0 0 12px 0;}
 .__vuc-modal-body__{font-size:14px;color:#555;line-height:1.6;margin:0 0 8px 0;}
 .__vuc-modal-version__{font-size:12px;color:#999;margin:0 0 24px 0;}
@@ -89,7 +89,7 @@ import{createPluginFactory as d,BasePlugin as p}from"../../factory/index.mjs";im
         if (_currentVersion === _latestVersion) return;
 
         // \u7248\u672C\u4E0D\u4E00\u81F4\uFF0C\u53D1\u73B0\u66F4\u65B0
-        var shouldShow = ${_}(_currentVersion, _latestVersion);
+        var shouldShow = (${_})(_currentVersion, _latestVersion);
         if (shouldShow !== false) {
           _showPrompt();
         }
@@ -126,13 +126,13 @@ import{createPluginFactory as d,BasePlugin as p}from"../../factory/index.mjs";im
 
   // \u5237\u65B0\u9875\u9762
   window.__VUC_REFRESH__ = function() {
-    ${c}(_currentVersion, _latestVersion);
+    (${c})(_currentVersion, _latestVersion);
     window.location.reload();
   };
 
   // \u5FFD\u7565\u66F4\u65B0
   window.__VUC_DISMISS__ = function() {
-    ${l}(_currentVersion, _latestVersion);
+    (${l})(_currentVersion, _latestVersion);
     _dismissed = true;
     _hidePrompt();
   };

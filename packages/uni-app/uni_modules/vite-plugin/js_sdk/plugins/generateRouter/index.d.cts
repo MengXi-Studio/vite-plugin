@@ -203,6 +203,29 @@ interface GenerateRouterOptions extends BasePluginOptions {
      * @default true
      */
     preserveRouteChanges?: boolean;
+    /**
+     * TypeScript 类型声明文件输出路径
+     *
+     * @description 控制是否生成路由类型声明文件（`.d.ts`）：
+     * - `string`：在指定路径生成类型声明文件
+     * - `true`：使用默认路径 `src/router.d.ts`
+     * - `false`：不生成类型声明文件
+     *
+     * 生成的类型声明文件会为 `@meng-xi/uni-router` 模块扩展 `RouteNameMap` 接口，
+     * 提供路由名称到路径和元信息的类型映射，实现类型安全的路由导航。
+     *
+     * @default false
+     *
+     * @example
+     * ```typescript
+     * // 使用默认路径
+     * generateRouter({ dts: true })
+     *
+     * // 自定义路径
+     * generateRouter({ dts: 'src/types/router.d.ts' })
+     * ```
+     */
+    dts?: string | boolean;
 }
 
 /**
@@ -245,6 +268,16 @@ interface GenerateRouterOptions extends BasePluginOptions {
  *     requireAuth: 'requireAuth',
  *     customField: 'custom'
  *   }
+ * })
+ *
+ * // 生成路由类型声明文件
+ * generateRouter({
+ *   dts: true
+ * })
+ *
+ * // 自定义类型声明文件路径
+ * generateRouter({
+ *   dts: 'src/types/router.d.ts'
  * })
  * ```
  *

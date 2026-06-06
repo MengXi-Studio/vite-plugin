@@ -1,6 +1,6 @@
 # generateRouter
 
-Auto-generate router configuration from uni-app's `pages.json`.
+Auto-generate router configuration and TypeScript type declarations from uni-app's `pages.json`.
 
 ## Import Methods
 
@@ -25,21 +25,22 @@ export default defineConfig({
 
 ## Options
 
-| Option               | Type                           | Default                  | Description                  |
-| -------------------- | ------------------------------ | ------------------------ | ---------------------------- |
-| pagesJsonPath        | `string`                       | `'src/pages.json'`       | Path to pages.json           |
-| outputPath           | `string`                       | `'src/router.config.ts'` | Output file path             |
-| outputFormat         | `'ts' \| 'js'`                 | `'ts'`                   | Output format                |
-| nameStrategy         | `NameStrategy`                 | `'camelCase'`            | Route naming strategy        |
-| customNameGenerator  | `(path: string) => string`     | -                        | Custom name generator        |
-| includeSubPackages   | `boolean`                      | `true`                   | Include sub-package routes   |
-| watch                | `boolean`                      | `true`                   | Watch for changes            |
-| metaMapping          | `Record<string, string>`       | See below                | Style to meta field mapping  |
-| exportTypes          | `boolean`                      | `true`                   | Export type definitions (TS) |
-| preserveRouteChanges | `boolean`                      | `true`                   | Preserve user route changes  |
-| enabled              | `boolean`                      | `true`                   | Enable the plugin            |
-| verbose              | `boolean`                      | `true`                   | Show detailed logs           |
-| errorStrategy        | `'throw' \| 'log' \| 'ignore'` | `'throw'`                | Error handling strategy      |
+| Option               | Type                           | Default                  | Description                             |
+| -------------------- | ------------------------------ | ------------------------ | --------------------------------------- |
+| pagesJsonPath        | `string`                       | `'src/pages.json'`       | Path to pages.json                      |
+| outputPath           | `string`                       | `'src/router.config.ts'` | Output file path                        |
+| outputFormat         | `'ts' \| 'js'`                 | `'ts'`                   | Output format                           |
+| nameStrategy         | `NameStrategy`                 | `'camelCase'`            | Route naming strategy                   |
+| customNameGenerator  | `(path: string) => string`     | -                        | Custom name generator                   |
+| includeSubPackages   | `boolean`                      | `true`                   | Include sub-package routes              |
+| watch                | `boolean`                      | `true`                   | Watch for changes                       |
+| metaMapping          | `Record<string, string>`       | See below                | Style to meta field mapping             |
+| exportTypes          | `boolean`                      | `true`                   | Export type definitions (TS)            |
+| preserveRouteChanges | `boolean`                      | `true`                   | Preserve user route changes             |
+| dts                  | `string \| boolean`            | `false`                  | Route type declaration file output path |
+| enabled              | `boolean`                      | `true`                   | Enable the plugin                       |
+| verbose              | `boolean`                      | `true`                   | Show detailed logs                      |
+| errorStrategy        | `'throw' \| 'log' \| 'ignore'` | `'throw'`                | Error handling strategy                 |
 
 ### Route Naming Strategies
 
@@ -56,6 +57,31 @@ export default defineConfig({
 {
   navigationBarTitleText: 'title',
   requireAuth: 'requireAuth'
+}
+```
+
+### dts Type Declarations
+
+Control whether to generate route type declaration files (`.d.ts`), extending the `RouteNameMap` interface for the `@meng-xi/uni-router` module to enable type-safe route navigation.
+
+| Value    | Description                                      |
+| -------- | ------------------------------------------------ |
+| `false`  | Don't generate type declaration file (default)   |
+| `true`   | Use default path `src/router.d.ts`               |
+| `string` | Generate type declaration file at specified path |
+
+Generated type declaration file example:
+
+```typescript
+import '@meng-xi/uni-router'
+
+declare module '@meng-xi/uni-router' {
+	interface RouteNameMap {
+		/** Home */
+		pagesIndexIndex: { path: '/pages/index/index'; meta: { title: string; isTab: true } }
+		/** Profile */
+		pagesUserProfile: { path: '/pages/user/profile'; meta: { title: string; requireAuth: true } }
+	}
 }
 ```
 
@@ -96,6 +122,19 @@ generateRouter({
 ```typescript
 generateRouter({
 	includeSubPackages: false
+})
+```
+
+### Generate Route Type Declarations
+
+```typescript
+generateRouter({
+	dts: true // Use default path src/router.d.ts
+})
+
+// Or custom path
+generateRouter({
+	dts: 'src/types/router.d.ts'
 })
 ```
 

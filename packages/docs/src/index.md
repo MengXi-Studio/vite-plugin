@@ -25,7 +25,7 @@ hero:
 features:
   - icon: 🔄
     title: 自动导入
-    details: autoImport 自动注入 import 语句，支持预设映射、目录扫描、Vue 模板自动导入和 TypeScript 类型声明生成
+    details: autoImport 自动注入 import 语句，支持预设映射、通配符（`'*'`）、目录扫描、Vue 模板自动导入和 TypeScript 类型声明生成
   - icon: 🚀
     title: 构建进度展示
     details: buildProgress 在终端实时显示构建进度条，支持 bar、spinner、minimal 三种格式
@@ -36,8 +36,14 @@ features:
     title: 构建产物体积分析
     details: bundleAnalyzer 分析构建产物体积分布，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比
   - icon: 📁
-    title: 文件操作与路由生成
-    details: copyFile 支持增量复制文件到构建目录；generateRouter 根据 pages.json 自动生成路由配置并监听变更
+    title: 文件复制
+    details: copyFile 在构建完成后复制文件或目录到指定位置，支持增量复制、并发控制与空目录跳过
+  - icon: 🗺️
+    title: 路由生成
+    details: generateRouter 根据 pages.json 自动生成路由配置与类型声明，支持多种命名策略、分包路由与文件监听
+  - icon: 🔐
+    title: 环境变量校验
+    details: envGuard 校验环境变量的类型、格式与范围，支持自定义规则、运行时守卫与模板生成
   - icon: 🔖
     title: 版本管理与更新检测
     details: generateVersion 自动生成版本号，支持文件输出与全局变量注入；versionUpdateChecker 在运行时定期检测版本变更并提示用户刷新

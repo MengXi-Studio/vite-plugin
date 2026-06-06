@@ -2,6 +2,8 @@
 
 Common utilities module providing file system operations, formatting, HTML injection, script utilities, terminal UI, and validation.
 
+All submodules support on-demand imports, and internal plugins also reuse logic through these common modules.
+
 ## Import Methods
 
 ### Barrel import (import all submodules)

@@ -1,16 +1,16 @@
 # fs
 
-File system utilities.
+File system utilities, providing file operations, directory scanning, safe writing, and change detection.
 
 ## Import
 
 ```typescript
 // Submodule import (recommended)
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport } from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // Barrel import
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -214,4 +214,68 @@ async function writeJsonReport(filePath: string, data: object, indent?: number):
 ```typescript
 await writeJsonReport('dist/report.json', { timestamp: Date.now(), stats: [] })
 await writeJsonReport('dist/report.json', data, 4)
+```
+
+---
+
+## writeFileSyncSafely
+
+Synchronously write file content, automatically creating non-existent directories.
+
+```typescript
+function writeFileSyncSafely(filePath: string, content: string): void
+```
+
+**Parameters**
+
+| Parameter | Type     | Description  |
+| --------- | -------- | ------------ |
+| filePath  | `string` | File path    |
+| content   | `string` | File content |
+
+**Notes**
+
+- Synchronously writes file, automatically creates target directories recursively if they don't exist
+- Suitable for scenarios requiring synchronous writes in build hooks (e.g., `transform` hook)
+- Throws `NodeJS.ErrnoException` when file write fails (e.g., insufficient permissions)
+
+**Example**
+
+```typescript
+writeFileSyncSafely('/project/src/auto-imports.d.ts', 'declare global { ... }')
+```
+
+---
+
+## shouldUpdateFileContent
+
+Check if file content needs to be updated (synchronous version).
+
+```typescript
+function shouldUpdateFileContent(filePath: string, newContent: string): boolean
+```
+
+**Parameters**
+
+| Parameter  | Type     | Description                  |
+| ---------- | -------- | ---------------------------- |
+| filePath   | `string` | File path                    |
+| newContent | `string` | Newly generated file content |
+
+**Returns**
+
+`boolean` - Returns `true` if update is needed, `false` otherwise
+
+**Notes**
+
+- Compares existing file content with newly generated content, only needs to write when content has changed
+- Reduces unnecessary file IO operations
+- Returns `true` when file doesn't exist
+
+**Example**
+
+```typescript
+if (shouldUpdateFileContent('/project/src/auto-imports.d.ts', newContent)) {
+	writeFileSyncSafely('/project/src/auto-imports.d.ts', newContent)
+}
 ```

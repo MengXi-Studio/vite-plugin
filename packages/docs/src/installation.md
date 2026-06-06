@@ -30,8 +30,9 @@ export default defineConfig({
 	plugins: [
 		// 自动导入
 		autoImport({
-			imports: { vue: ['ref', 'reactive', 'computed'] },
-			dts: 'src/auto-imports.d.ts'
+			imports: { vue: ['*'] },
+			dts: 'src/auto-imports.d.ts',
+			vueTemplate: true
 		}),
 
 		// 构建进度条
@@ -66,7 +67,8 @@ export default defineConfig({
 		// 生成路由配置（uni-app）
 		generateRouter({
 			pagesJsonPath: 'src/pages.json',
-			outputPath: 'src/router.config.ts'
+			outputPath: 'src/router.config.ts',
+			dts: true
 		}),
 
 		// 生成版本号
@@ -120,10 +122,16 @@ import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compres
 ### 使用通用工具模块
 
 ```typescript
-import { formatFileSize, copySourceToTarget, scanDirectory } from '@meng-xi/vite-plugin'
+import { formatFileSize, parseTemplate, formatDate, copySourceToTarget, scanDirectory, writeFileSyncSafely, escapeHtmlAttr } from '@meng-xi/vite-plugin'
 
 // 文件大小格式化
-formatFileSize(1024 * 1024) // '1.00 MB'
+formatFileSize(1024 * 1024) // '1.00MB'
+
+// 模板变量替换
+parseTemplate('Hello {{name}}!', { name: 'World' }) // 'Hello World!'
+
+// 日期格式化
+formatDate(new Date(), '{YYYY}-{MM}-{DD}') // '2026-06-06'
 
 // 复制文件（支持增量复制）
 const result = await copySourceToTarget('src/assets', 'dist/assets', {
@@ -134,9 +142,15 @@ const result = await copySourceToTarget('src/assets', 'dist/assets', {
 
 // 扫描目录
 const files = await scanDirectory('src', {
-	extensions: ['.ts', '.js'],
-	excludePaths: ['node_modules']
+	includeExtensions: ['.ts', '.js'],
+	excludePatterns: ['node_modules']
 })
+
+// 同步安全写入文件（自动创建目录）
+writeFileSyncSafely('src/auto-imports.d.ts', 'declare global { ... }')
+
+// HTML 属性值转义
+escapeHtmlAttr('hello "world"') // 'hello &quot;world&quot;'
 ```
 
 ### 开发自定义插件

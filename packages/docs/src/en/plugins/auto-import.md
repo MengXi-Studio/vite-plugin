@@ -1,6 +1,7 @@
 # autoImport
 
-A Vite plugin that automatically injects import statements, supporting preset mappings and directory scanning, with optional TypeScript declaration file generation and Vue template auto-import support.
+A Vite plugin that automatically injects import statements, supporting preset mappings, wildcard imports (`'*'`), and directory scanning, with optional TypeScript declaration file generation and Vue template auto-import
+support.
 
 ## Import
 
@@ -36,22 +37,22 @@ export default defineConfig({
 
 ## Options
 
-| Option           | Type                                                                                              | Default                             | Description                             |
-| ---------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------- | --------------------------------------- |
-| imports          | `Record<string, string[]> \| ImportMapping[] \| Array<Record<string, string[]> \| ImportMapping>` | `{}`                                | Import mapping configuration            |
-| dirs             | `string[]`                                                                                        | `[]`                                | Directories to scan                     |
-| dts              | `string \| boolean`                                                                               | `'auto-imports.d.ts'`               | TypeScript declaration file output path |
-| vueTemplate      | `boolean`                                                                                         | `false`                             | Enable auto-import for Vue templates    |
-| ignore           | `string[]`                                                                                        | `[]`                                | Identifiers to ignore                   |
-| fileFilter       | `RegExp`                                                                                          | `/\.(vue\|jsx\|tsx\|ts\|js\|mjs)$/` | File filter regex                       |
-| injectAtPosition | `'top' \| 'after-last-import'`                                                                    | `'top'`                             | Import statement injection position     |
-| enabled          | `boolean`                                                                                         | `true`                              | Enable the plugin                       |
-| verbose          | `boolean`                                                                                         | `true`                              | Show detailed logs                      |
-| errorStrategy    | `'throw' \| 'log' \| 'ignore'`                                                                    | `'throw'`                           | Error handling strategy                 |
+| Option           | Type                                                                                              | Default                                                  | Description                             |
+| ---------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------- |
+| imports          | `Record<string, string[]> \| ImportMapping[] \| Array<Record<string, string[]> \| ImportMapping>` | `{}`                                                     | Import mapping configuration            |
+| dirs             | `string[]`                                                                                        | `[]`                                                     | Directories to scan                     |
+| dts              | `string \| boolean`                                                                               | `'auto-imports.d.ts'`                                    | TypeScript declaration file output path |
+| vueTemplate      | `boolean`                                                                                         | `false`                                                  | Enable auto-import for Vue templates    |
+| ignore           | `string[]`                                                                                        | `[]`                                                     | Identifiers to ignore                   |
+| fileFilter       | `RegExp`                                                                                          | `/^(?!.*node_modules).*\.(vue\|jsx\|tsx\|ts\|js\|mjs)$/` | File filter regex                       |
+| injectAtPosition | `'top' \| 'after-last-import'`                                                                    | `'top'`                                                  | Import statement injection position     |
+| enabled          | `boolean`                                                                                         | `true`                                                   | Enable the plugin                       |
+| verbose          | `boolean`                                                                                         | `true`                                                   | Show detailed logs                      |
+| errorStrategy    | `'throw' \| 'log' \| 'ignore'`                                                                    | `'throw'`                                                | Error handling strategy                 |
 
 ### imports Formats
 
-Supports three formats:
+Supports four formats:
 
 **1. Shorthand** — Key is module path, value is array of import names
 
@@ -62,7 +63,16 @@ imports: {
 }
 ```
 
-**2. Full format** — Supports default import configuration
+**2. Wildcard** — Use `'*'` to auto-import all named exports from a module
+
+```typescript
+imports: {
+  vue: ['*'], // Auto-import all named exports from vue (ref, reactive, computed, etc.)
+  'vue-router': ['*']
+}
+```
+
+**3. Full format** — Supports default import configuration
 
 ```typescript
 imports: [
@@ -71,7 +81,7 @@ imports: [
 ]
 ```
 
-**3. Mixed format** — Both formats can be mixed in an array
+**4. Mixed format** — Multiple formats can be mixed in an array
 
 ```typescript
 imports: [{ vue: ['ref', 'reactive'] }, { module: 'lodash', names: ['debounce'], defaultImport: true }]
@@ -122,6 +132,19 @@ Module info from directory scanning.
 autoImport({
 	imports: {
 		vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted']
+	}
+})
+```
+
+### Wildcard Auto-Import
+
+Use `'*'` to auto-import all named exports from a module without listing each one:
+
+```typescript
+autoImport({
+	imports: {
+		vue: ['*'],
+		'vue-router': ['*']
 	}
 })
 ```

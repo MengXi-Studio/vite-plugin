@@ -1,6 +1,6 @@
-export { DateFormatOptions, formatFileSize, getDateFormatParams } from './common/format/index.js';
-export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, scanDirectory, writeFileContent, writeJsonReport } from './common/fs/index.js';
-export { SanitizeRuleOptions, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './common/html/index.js';
+export { DateFormatOptions, formatDate, formatFileSize, getDateFormatParams, parseTemplate } from './common/format/index.js';
+export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.js';
+export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './common/html/index.js';
 export { makeCallback } from './common/script/index.js';
 export { ANSI } from './common/ui/index.js';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.js';

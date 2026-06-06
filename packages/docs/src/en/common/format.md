@@ -1,16 +1,16 @@
 # format
 
-Formatting utilities.
+Formatting utilities, providing date formatting parameters, template variable replacement, date formatting, and file size formatting.
 
 ## Import
 
 ```typescript
 // Submodule import (recommended)
-import { getDateFormatParams, formatFileSize } from '@meng-xi/vite-plugin/common/format'
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common/format'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // Barrel import
-import { getDateFormatParams, formatFileSize } from '@meng-xi/vite-plugin/common'
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -59,6 +59,73 @@ function getDateFormatParams(date?: Date): DateFormatOptions
 ```typescript
 const params = getDateFormatParams(new Date())
 // { YYYY: '2026', MM: '02', DD: '03', HH: '15', mm: '30', ss: '00', ... }
+```
+
+---
+
+## parseTemplate
+
+Replace `{{key}}` placeholders in a template string.
+
+```typescript
+function parseTemplate(template: string, values: Record<string, string>): string
+```
+
+**Parameters**
+
+| Parameter | Type                     | Description                                                                                             |
+| --------- | ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| template  | `string`                 | Template string containing `{{key}}` placeholders                                                       |
+| values    | `Record<string, string>` | Key-value mapping for placeholders, supports merging multiple variable groups (later overrides earlier) |
+
+**Returns**
+
+`string` - String with placeholders replaced
+
+**Notes**
+
+- Regex special characters in key names are automatically escaped
+- `$` in values is safely handled to avoid regex replacement issues
+
+**Example**
+
+```typescript
+parseTemplate('Hello {{name}}!', { name: 'World' })
+// 'Hello World!'
+
+parseTemplate('{{YYYY}}-{{MM}}-{{DD}}', getDateFormatParams())
+// '2026-06-06'
+```
+
+---
+
+## formatDate
+
+Format a date string using `{key}` single-brace placeholders.
+
+```typescript
+function formatDate(date: Date, format: string): string
+```
+
+**Parameters**
+
+| Parameter | Type     | Description                                                                                     |
+| --------- | -------- | ----------------------------------------------------------------------------------------------- |
+| date      | `Date`   | Date object                                                                                     |
+| format    | `string` | Format string, supports `{YYYY}`, `{MM}`, `{DD}`, `{HH}`, `{mm}`, `{ss}` and other placeholders |
+
+**Returns**
+
+`string` - Formatted date string
+
+**Example**
+
+```typescript
+formatDate(new Date(), '{YYYY}-{MM}-{DD}T{HH}:{mm}:{ss}')
+// '2026-06-06T15:30:00'
+
+formatDate(new Date(), '{YYYY}.{MM}.{DD}')
+// '2026.06.06'
 ```
 
 ---

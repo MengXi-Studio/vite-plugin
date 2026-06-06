@@ -36,6 +36,40 @@ interface DateFormatOptions {
  */
 declare function getDateFormatParams(date?: Date): DateFormatOptions;
 /**
+ * 替换模板字符串中的变量占位符
+ *
+ * @param template - 包含 `{{key}}` 占位符的模板字符串
+ * @param values - 占位符键值映射，支持合并多组变量（后者覆盖前者）
+ * @returns 替换占位符后的字符串
+ *
+ * @description 将模板中的 `{{key}}` 占位符替换为对应的值。
+ * 键名中的正则特殊字符会被自动转义，值中的 `$` 也会被安全处理。
+ *
+ * @example
+ * ```typescript
+ * parseTemplate('Hello {{name}}!', { name: 'World' })
+ * // 'Hello World!'
+ *
+ * parseTemplate('{{YYYY}}-{{MM}}-{{DD}}', getDateFormatParams())
+ * // '2026-06-06'
+ * ```
+ */
+declare function parseTemplate(template: string, values: Record<string, string>): string;
+/**
+ * 格式化日期字符串
+ *
+ * @param date - 日期对象
+ * @param format - 格式字符串，支持 `{YYYY}`、`{MM}`、`{DD}`、`{HH}`、`{mm}`、`{ss}` 等占位符
+ * @returns 格式化后的日期字符串
+ *
+ * @example
+ * ```typescript
+ * formatDate(new Date(), '{YYYY}-{MM}-{DD}T{HH}:{mm}:{ss}')
+ * // '2026-06-06T15:30:00'
+ * ```
+ */
+declare function formatDate(date: Date, format: string): string;
+/**
  * 将字节数格式化为人类可读的文件大小字符串
  *
  * @param {number} bytes - 文件大小（字节）
@@ -55,5 +89,5 @@ declare function getDateFormatParams(date?: Date): DateFormatOptions;
  */
 declare function formatFileSize(bytes: number): string;
 
-export { formatFileSize, getDateFormatParams };
+export { formatDate, formatFileSize, getDateFormatParams, parseTemplate };
 export type { DateFormatOptions };

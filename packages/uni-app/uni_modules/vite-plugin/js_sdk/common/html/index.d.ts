@@ -2,6 +2,22 @@ import { S as SecurityConfig, H as HtmlInjectResult, D as DualInjectResult } fro
 export { C as ConditionType, I as InjectCondition, a as InjectPosition, b as SelectorMatch } from '../../shared/vite-plugin.BI9taN75.js';
 
 /**
+ * 转义 HTML 属性值中的特殊字符
+ *
+ * @param str - 需要转义的字符串
+ * @returns 转义后的安全字符串
+ *
+ * @description 将字符串中的 `&`、`"`、`'`、`<`、`>` 转义为对应的 HTML 实体，
+ * 防止在 HTML 属性值中注入恶意代码。
+ *
+ * @example
+ * ```typescript
+ * escapeHtmlAttr('hello "world" & <friends>')
+ * // 'hello &quot;world&quot; &amp; &lt;friends&gt;'
+ * ```
+ */
+declare function escapeHtmlAttr(str: string): string;
+/**
  * 内容消毒规则选项
  */
 interface SanitizeRuleOptions {
@@ -43,5 +59,5 @@ declare function injectBeforeTag(html: string, tag: string, code: string): HtmlI
  */
 declare function injectHeadAndBody(html: string, headCode: string | undefined, bodyCode: string): DualInjectResult;
 
-export { DualInjectResult, HtmlInjectResult, SecurityConfig, injectBeforeTag, injectHeadAndBody, sanitizeContent };
+export { DualInjectResult, HtmlInjectResult, SecurityConfig, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent };
 export type { SanitizeRuleOptions };

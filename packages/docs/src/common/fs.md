@@ -1,16 +1,16 @@
 # fs
 
-文件系统操作工具。
+文件系统操作工具，提供文件复制、目录扫描、安全写入和变更检测等功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport } from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // barrel 导入
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -214,4 +214,68 @@ async function writeJsonReport(filePath: string, data: object, indent?: number):
 ```typescript
 await writeJsonReport('dist/report.json', { timestamp: Date.now(), stats: [] })
 await writeJsonReport('dist/report.json', data, 4)
+```
+
+---
+
+## writeFileSyncSafely
+
+同步写入文件内容，自动创建不存在的目录。
+
+```typescript
+function writeFileSyncSafely(filePath: string, content: string): void
+```
+
+**参数**
+
+| 参数     | 类型     | 说明     |
+| -------- | -------- | -------- |
+| filePath | `string` | 文件路径 |
+| content  | `string` | 文件内容 |
+
+**说明**
+
+- 同步写入文件，如果目标目录不存在会自动递归创建
+- 适用于构建钩子中需要同步写入的场景（如 `transform` 钩子）
+- 当文件写入失败时（如权限不足），抛出 `NodeJS.ErrnoException`
+
+**示例**
+
+```typescript
+writeFileSyncSafely('/project/src/auto-imports.d.ts', 'declare global { ... }')
+```
+
+---
+
+## shouldUpdateFileContent
+
+检查文件内容是否需要更新（同步版本）。
+
+```typescript
+function shouldUpdateFileContent(filePath: string, newContent: string): boolean
+```
+
+**参数**
+
+| 参数       | 类型     | 说明             |
+| ---------- | -------- | ---------------- |
+| filePath   | `string` | 文件路径         |
+| newContent | `string` | 新生成的文件内容 |
+
+**返回值**
+
+`boolean` - 如果需要更新返回 `true`，否则返回 `false`
+
+**说明**
+
+- 对比现有文件内容与新生成的内容，仅在内容发生变化时才需要写入
+- 减少不必要的文件 IO 操作
+- 文件不存在时返回 `true`
+
+**示例**
+
+```typescript
+if (shouldUpdateFileContent('/project/src/auto-imports.d.ts', newContent)) {
+	writeFileSyncSafely('/project/src/auto-imports.d.ts', newContent)
+}
 ```

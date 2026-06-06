@@ -1,16 +1,16 @@
 # format
 
-格式化工具。
+格式化工具，提供日期格式化参数、模板变量替换、日期格式化和文件大小格式化功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { getDateFormatParams, formatFileSize } from '@meng-xi/vite-plugin/common/format'
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common/format'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // barrel 导入
-import { getDateFormatParams, formatFileSize } from '@meng-xi/vite-plugin/common'
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -59,6 +59,73 @@ function getDateFormatParams(date?: Date): DateFormatOptions
 ```typescript
 const params = getDateFormatParams(new Date())
 // { YYYY: '2026', MM: '02', DD: '03', HH: '15', mm: '30', ss: '00', ... }
+```
+
+---
+
+## parseTemplate
+
+替换模板字符串中的 `{{key}}` 占位符。
+
+```typescript
+function parseTemplate(template: string, values: Record<string, string>): string
+```
+
+**参数**
+
+| 参数     | 类型                     | 说明                                             |
+| -------- | ------------------------ | ------------------------------------------------ |
+| template | `string`                 | 包含 `{{key}}` 占位符的模板字符串                |
+| values   | `Record<string, string>` | 占位符键值映射，支持合并多组变量（后者覆盖前者） |
+
+**返回值**
+
+`string` - 替换占位符后的字符串
+
+**说明**
+
+- 键名中的正则特殊字符会被自动转义
+- 值中的 `$` 也会被安全处理，避免正则替换问题
+
+**示例**
+
+```typescript
+parseTemplate('Hello {{name}}!', { name: 'World' })
+// 'Hello World!'
+
+parseTemplate('{{YYYY}}-{{MM}}-{{DD}}', getDateFormatParams())
+// '2026-06-06'
+```
+
+---
+
+## formatDate
+
+格式化日期字符串，使用 `{key}` 单花括号占位符。
+
+```typescript
+function formatDate(date: Date, format: string): string
+```
+
+**参数**
+
+| 参数   | 类型     | 说明                                                                       |
+| ------ | -------- | -------------------------------------------------------------------------- |
+| date   | `Date`   | 日期对象                                                                   |
+| format | `string` | 格式字符串，支持 `{YYYY}`、`{MM}`、`{DD}`、`{HH}`、`{mm}`、`{ss}` 等占位符 |
+
+**返回值**
+
+`string` - 格式化后的日期字符串
+
+**示例**
+
+```typescript
+formatDate(new Date(), '{YYYY}-{MM}-{DD}T{HH}:{mm}:{ss}')
+// '2026-06-06T15:30:00'
+
+formatDate(new Date(), '{YYYY}.{MM}.{DD}')
+// '2026.06.06'
 ```
 
 ---

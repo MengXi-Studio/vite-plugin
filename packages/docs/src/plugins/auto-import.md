@@ -1,6 +1,6 @@
 # autoImport
 
-自动注入 import 语句的 Vite 插件，支持预设映射和目录扫描两种方式，可选生成 TypeScript 类型声明文件，支持 Vue 模板自动导入。
+自动注入 import 语句的 Vite 插件，支持预设映射、通配符导入（`'*'`）和目录扫描三种方式，可选生成 TypeScript 类型声明文件，支持 Vue 模板自动导入。
 
 ## 导入方式
 
@@ -36,22 +36,22 @@ export default defineConfig({
 
 ## 配置选项
 
-| 选项             | 类型                                                                                              | 默认值                              | 说明                    |
-| ---------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------- | ----------------------- |
-| imports          | `Record<string, string[]> \| ImportMapping[] \| Array<Record<string, string[]> \| ImportMapping>` | `{}`                                | 导入映射配置            |
-| dirs             | `string[]`                                                                                        | `[]`                                | 需要扫描的目录列表      |
-| dts              | `string \| boolean`                                                                               | `'auto-imports.d.ts'`               | 类型声明文件输出路径    |
-| vueTemplate      | `boolean`                                                                                         | `false`                             | 是否为 Vue 模板启用导入 |
-| ignore           | `string[]`                                                                                        | `[]`                                | 需要忽略的标识符列表    |
-| fileFilter       | `RegExp`                                                                                          | `/\.(vue\|jsx\|tsx\|ts\|js\|mjs)$/` | 文件过滤正则表达式      |
-| injectAtPosition | `'top' \| 'after-last-import'`                                                                    | `'top'`                             | import 语句注入位置     |
-| enabled          | `boolean`                                                                                         | `true`                              | 启用插件                |
-| verbose          | `boolean`                                                                                         | `true`                              | 显示详细日志            |
-| errorStrategy    | `'throw' \| 'log' \| 'ignore'`                                                                    | `'throw'`                           | 错误处理策略            |
+| 选项             | 类型                                                                                              | 默认值                                                   | 说明                    |
+| ---------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------- |
+| imports          | `Record<string, string[]> \| ImportMapping[] \| Array<Record<string, string[]> \| ImportMapping>` | `{}`                                                     | 导入映射配置            |
+| dirs             | `string[]`                                                                                        | `[]`                                                     | 需要扫描的目录列表      |
+| dts              | `string \| boolean`                                                                               | `'auto-imports.d.ts'`                                    | 类型声明文件输出路径    |
+| vueTemplate      | `boolean`                                                                                         | `false`                                                  | 是否为 Vue 模板启用导入 |
+| ignore           | `string[]`                                                                                        | `[]`                                                     | 需要忽略的标识符列表    |
+| fileFilter       | `RegExp`                                                                                          | `/^(?!.*node_modules).*\.(vue\|jsx\|tsx\|ts\|js\|mjs)$/` | 文件过滤正则表达式      |
+| injectAtPosition | `'top' \| 'after-last-import'`                                                                    | `'top'`                                                  | import 语句注入位置     |
+| enabled          | `boolean`                                                                                         | `true`                                                   | 启用插件                |
+| verbose          | `boolean`                                                                                         | `true`                                                   | 显示详细日志            |
+| errorStrategy    | `'throw' \| 'log' \| 'ignore'`                                                                    | `'throw'`                                                | 错误处理策略            |
 
 ### imports 配置格式
 
-支持三种格式：
+支持四种格式：
 
 **1. 简写格式** — 键为模块路径，值为导入名称数组
 
@@ -62,7 +62,16 @@ imports: {
 }
 ```
 
-**2. 完整格式** — 支持默认导入配置
+**2. 通配符格式** — 使用 `'*'` 自动导入模块所有命名导出
+
+```typescript
+imports: {
+  vue: ['*'], // 自动导入 vue 的所有命名导出（ref, reactive, computed 等）
+  'vue-router': ['*']
+}
+```
+
+**3. 完整格式** — 支持默认导入配置
 
 ```typescript
 imports: [
@@ -71,7 +80,7 @@ imports: [
 ]
 ```
 
-**3. 混合格式** — 两种格式可以在数组中混合使用
+**4. 混合格式** — 多种格式可以在数组中混合使用
 
 ```typescript
 imports: [{ vue: ['ref', 'reactive'] }, { module: 'lodash', names: ['debounce'], defaultImport: true }]
@@ -122,6 +131,19 @@ imports: [{ vue: ['ref', 'reactive'] }, { module: 'lodash', names: ['debounce'],
 autoImport({
 	imports: {
 		vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted']
+	}
+})
+```
+
+### 通配符自动导入
+
+使用 `'*'` 自动导入模块的所有命名导出，无需逐一列举：
+
+```typescript
+autoImport({
+	imports: {
+		vue: ['*'],
+		'vue-router': ['*']
 	}
 })
 ```

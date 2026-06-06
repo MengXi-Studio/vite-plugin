@@ -1,6 +1,6 @@
 # generateRouter
 
-根据 uni-app 的 `pages.json` 自动生成路由配置文件。
+根据 uni-app 的 `pages.json` 自动生成路由配置文件和 TypeScript 类型声明。
 
 ## 导入方式
 
@@ -38,6 +38,7 @@ export default defineConfig({
 | metaMapping          | `Record<string, string>`       | 见下方                   | style 字段到 meta 的映射 |
 | exportTypes          | `boolean`                      | `true`                   | 导出类型定义（仅 TS）    |
 | preserveRouteChanges | `boolean`                      | `true`                   | 保留用户对 routes 的修改 |
+| dts                  | `string \| boolean`            | `false`                  | 路由类型声明文件输出路径 |
 | enabled              | `boolean`                      | `true`                   | 启用插件                 |
 | verbose              | `boolean`                      | `true`                   | 显示详细日志             |
 | errorStrategy        | `'throw' \| 'log' \| 'ignore'` | `'throw'`                | 错误处理策略             |
@@ -57,6 +58,31 @@ export default defineConfig({
 {
   navigationBarTitleText: 'title',
   requireAuth: 'requireAuth'
+}
+```
+
+### dts 类型声明
+
+控制是否生成路由类型声明文件（`.d.ts`），为 `@meng-xi/uni-router` 模块扩展 `RouteNameMap` 接口，实现类型安全的路由导航。
+
+| 值       | 说明                           |
+| -------- | ------------------------------ |
+| `false`  | 不生成类型声明文件（默认）     |
+| `true`   | 使用默认路径 `src/router.d.ts` |
+| `string` | 在指定路径生成类型声明文件     |
+
+生成的类型声明文件示例：
+
+```typescript
+import '@meng-xi/uni-router'
+
+declare module '@meng-xi/uni-router' {
+	interface RouteNameMap {
+		/** 首页 */
+		pagesIndexIndex: { path: '/pages/index/index'; meta: { title: string; isTab: true } }
+		/** 个人中心 */
+		pagesUserProfile: { path: '/pages/user/profile'; meta: { title: string; requireAuth: true } }
+	}
 }
 ```
 
@@ -97,6 +123,19 @@ generateRouter({
 ```typescript
 generateRouter({
 	includeSubPackages: false
+})
+```
+
+### 生成路由类型声明
+
+```typescript
+generateRouter({
+	dts: true // 使用默认路径 src/router.d.ts
+})
+
+// 或自定义路径
+generateRouter({
+	dts: 'src/types/router.d.ts'
 })
 ```
 

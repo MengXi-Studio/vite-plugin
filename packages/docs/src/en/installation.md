@@ -30,8 +30,9 @@ export default defineConfig({
 	plugins: [
 		// Auto import
 		autoImport({
-			imports: { vue: ['ref', 'reactive', 'computed'] },
-			dts: 'src/auto-imports.d.ts'
+			imports: { vue: ['*'] },
+			dts: 'src/auto-imports.d.ts',
+			vueTemplate: true
 		}),
 
 		// Build progress bar
@@ -66,7 +67,8 @@ export default defineConfig({
 		// Generate router config (uni-app)
 		generateRouter({
 			pagesJsonPath: 'src/pages.json',
-			outputPath: 'src/router.config.ts'
+			outputPath: 'src/router.config.ts',
+			dts: true
 		}),
 
 		// Generate version
@@ -120,10 +122,16 @@ import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compres
 ### Using Common Utility Modules
 
 ```typescript
-import { formatFileSize, copySourceToTarget, scanDirectory } from '@meng-xi/vite-plugin'
+import { formatFileSize, parseTemplate, formatDate, copySourceToTarget, scanDirectory, writeFileSyncSafely, escapeHtmlAttr } from '@meng-xi/vite-plugin'
 
 // File size formatting
-formatFileSize(1024 * 1024) // '1.00 MB'
+formatFileSize(1024 * 1024) // '1.00MB'
+
+// Template variable replacement
+parseTemplate('Hello {{name}}!', { name: 'World' }) // 'Hello World!'
+
+// Date formatting
+formatDate(new Date(), '{YYYY}-{MM}-{DD}') // '2026-06-06'
 
 // Copy files (with incremental copying)
 const result = await copySourceToTarget('src/assets', 'dist/assets', {
@@ -134,9 +142,15 @@ const result = await copySourceToTarget('src/assets', 'dist/assets', {
 
 // Scan directory
 const files = await scanDirectory('src', {
-	extensions: ['.ts', '.js'],
-	excludePaths: ['node_modules']
+	includeExtensions: ['.ts', '.js'],
+	excludePatterns: ['node_modules']
 })
+
+// Sync safe write (auto-creates directories)
+writeFileSyncSafely('src/auto-imports.d.ts', 'declare global { ... }')
+
+// HTML attribute value escaping
+escapeHtmlAttr('hello "world"') // 'hello &quot;world&quot;'
 ```
 
 ### Developing Custom Plugins

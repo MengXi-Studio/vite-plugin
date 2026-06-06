@@ -6,20 +6,20 @@
 
 开箱即用的十二款插件，覆盖常见构建场景：
 
-| 插件                                                    | 功能                                                                                            |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [autoImport](/plugins/auto-import)                      | 自动注入 import 语句，支持预设映射、目录扫描、Vue 模板自动导入和 TypeScript 类型声明生成        |
-| [buildProgress](/plugins/build-progress)                | 在终端实时显示构建进度条，支持 bar / spinner / minimal 三种格式                                 |
-| [bundleAnalyzer](/plugins/bundle-analyzer)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比                            |
-| [compressAssets](/plugins/compress-assets)              | 构建产物压缩，支持 gzip / brotli / both，可配置压缩级别、文件过滤与并发数量，并生成压缩统计报告 |
-| [copyFile](/plugins/copy-file)                          | 构建完成后复制文件或目录到指定位置，支持增量复制                                                |
-| [envGuard](/plugins/env-guard)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫                                    |
-| [faviconManager](/plugins/favicon-manager)              | 管理网站图标（favicon）链接注入到 HTML 文件                                                     |
-| [generateRouter](/plugins/generate-router)              | 根据 uni-app 的 pages.json 自动生成路由配置                                                     |
-| [generateVersion](/plugins/generate-version)            | 自动生成版本号，支持文件输出和全局变量注入                                                      |
-| [htmlInject](/plugins/html-inject)                      | HTML 内容注入，支持多种位置和条件注入                                                           |
-| [loadingManager](/plugins/loading-manager)              | 全局 Loading 状态管理，支持请求拦截和白屏 Loading                                               |
-| [versionUpdateChecker](/plugins/version-update-checker) | 运行时版本更新检查，发现新版本时提示用户刷新                                                    |
+| 插件                                                    | 功能                                                                                                      |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [autoImport](/plugins/auto-import)                      | 自动注入 import 语句，支持预设映射、通配符（`'*'`）、目录扫描、Vue 模板自动导入和 TypeScript 类型声明生成 |
+| [buildProgress](/plugins/build-progress)                | 在终端实时显示构建进度条，支持 bar / spinner / minimal 三种格式                                           |
+| [bundleAnalyzer](/plugins/bundle-analyzer)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比                                      |
+| [compressAssets](/plugins/compress-assets)              | 构建产物压缩，支持 gzip / brotli / both，可配置压缩级别、文件过滤与并发数量，并生成压缩统计报告           |
+| [copyFile](/plugins/copy-file)                          | 构建完成后复制文件或目录到指定位置，支持增量复制                                                          |
+| [envGuard](/plugins/env-guard)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫                                              |
+| [faviconManager](/plugins/favicon-manager)              | 管理网站图标（favicon）链接注入到 HTML 文件                                                               |
+| [generateRouter](/plugins/generate-router)              | 根据 uni-app 的 pages.json 自动生成路由配置与类型声明                                                     |
+| [generateVersion](/plugins/generate-version)            | 自动生成版本号，支持文件输出和全局变量注入                                                                |
+| [htmlInject](/plugins/html-inject)                      | HTML 内容注入，支持多种位置和条件注入                                                                     |
+| [loadingManager](/plugins/loading-manager)              | 全局 Loading 状态管理和白屏 Loading和白屏 Loading                                                         |
+| [versionUpdateChecker](/plugins/version-update-checker) | 运行时版本更新检查，发现新版本时提示用户刷新                                                              |
 
 ## 插件开发框架
 
@@ -56,28 +56,33 @@ interface BasePluginOptions {
 
 ### format — 格式化工具
 
-提供日期格式化参数和文件大小格式化功能：
+提供日期格式化参数、模板变量替换、日期格式化和文件大小格式化功能：
 
 - `getDateFormatParams` — 获取日期格式化参数对象
+- `parseTemplate` — 替换模板字符串中的 `{{key}}` 占位符
+- `formatDate` — 使用 `{key}` 占位符格式化日期字符串
 - `formatFileSize` — 将字节数格式化为人类可读的文件大小字符串
 
 ### fs — 文件系统工具
 
-提供文件操作、目录扫描和报告生成等功能：
+提供文件操作、目录扫描、安全写入和变更检测等功能：
 
 - `checkSourceExists` — 检查源路径是否存在
 - `copySourceToTarget` — 复制文件或目录，支持增量复制
 - `writeFileContent` — 异步写入文件内容
 - `scanDirectory` — 递归扫描目录，收集文件信息，支持扩展名和路径过滤
 - `writeJsonReport` — 将数据写入 JSON 文件
+- `writeFileSyncSafely` — 同步写入文件，自动创建不存在的目录
+- `shouldUpdateFileContent` — 检查文件内容是否需要更新，减少不必要的 IO
 
 ### html — HTML 注入工具
 
-提供多种 HTML 内容注入策略和安全过滤：
+提供多种 HTML 内容注入策略、安全过滤和属性值转义：
 
 - `injectBeforeTag` — 在指定闭合标签前注入代码
 - `injectHeadAndBody` — 双区域 HTML 注入（head + body）
 - `sanitizeContent` — 对注入内容进行安全过滤，防止 XSS 攻击
+- `escapeHtmlAttr` — 转义 HTML 属性值中的特殊字符
 
 ### script — 脚本工具
 
