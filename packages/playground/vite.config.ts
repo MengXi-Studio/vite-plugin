@@ -46,7 +46,7 @@ export default defineConfig({
 					'onUnhandledRejection'
 				]
 			},
-			dts: 'src/auto-imports.d.ts',
+			dts: true,
 			vueTemplate: true,
 			fileFilter: /src[\\/].*\.[jt]sx?$|src[\\/].*\.vue$/
 		}),

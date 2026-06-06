@@ -102,7 +102,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 		return {
 			imports: {},
 			dirs: [],
-			dts: 'auto-imports.d.ts',
+			dts: 'src/auto-imports.d.ts',
 			vueTemplate: false,
 			ignore: [],
 			fileFilter: /\.(vue|jsx|tsx|ts|js|mjs)$/,
@@ -123,7 +123,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 	protected validateOptions(): void {
 		this.validator
 			.field('dts')
-			.custom(v => v === false || typeof v === 'string', 'dts 必须为 false 或字符串路径')
+			.custom(v => v === false || v === true || typeof v === 'string', 'dts 必须为 false、true 或字符串路径')
 			.field('vueTemplate')
 			.boolean()
 			.field('injectAtPosition')
@@ -273,7 +273,8 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 		if (this.allResolvedImports.length === 0) return
 
 		const root = this.viteConfig?.root || process.cwd()
-		const dtsPath = path.isAbsolute(this.options.dts as string) ? (this.options.dts as string) : path.resolve(root, this.options.dts as string)
+		const dtsValue = typeof this.options.dts === 'string' ? this.options.dts : 'src/auto-imports.d.ts'
+		const dtsPath = path.isAbsolute(dtsValue) ? dtsValue : path.resolve(root, dtsValue)
 
 		const content = generateDtsContent(this.allResolvedImports)
 
