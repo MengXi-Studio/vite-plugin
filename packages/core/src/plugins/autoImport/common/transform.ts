@@ -763,6 +763,56 @@ function isHtmlTag(name: string): boolean {
 }
 
 /**
+ * 将 import 语句注入到 Vue SFC 的 `<script setup>` 块内部
+ *
+ * @param code Vue SFC 源代码字符串
+ * @param importStatements 要注入的 import 语句字符串
+ * @returns 注入 import 语句后的 SFC 代码字符串
+ *
+ * @description 在 `<script setup>` 标签的起始位置之后插入 import 语句。
+ * 适用于 `order: 'pre'` 模式下处理原始 SFC 文件，
+ * 确保 import 语句位于 `<script setup>` 块内部，
+ * 以便 SFC 编译器正确编译。
+ *
+ * **匹配规则：**
+ * - 支持 `<script setup>` 和 `<script setup lang="ts">` 等变体
+ * - import 语句插入在标签闭合 `>` 之后、已有代码之前
+ * - 若无 `<script setup>` 块则不注入（返回原代码）
+ *
+ * @example
+ * ```typescript
+ * injectIntoScriptSetup(
+ *   '<script setup lang="ts">\nconst x = ref(0)\n</script>',
+ *   "import { ref } from 'vue'"
+ * )
+ * // '<script setup lang="ts">\nimport { ref } from \'vue\'\nconst x = ref(0)\n</script>'
+ * ```
+ */
+export function injectIntoScriptSetup(code: string, importStatements: string): string {
+	if (!importStatements.trim()) return code
+
+	// 匹配 <script setup> 标签（支持 lang 等属性）
+	const scriptSetupMatch = code.match(/<script\s+setup[^>]*>/)
+	if (!scriptSetupMatch) return code
+
+	const insertPos = scriptSetupMatch.index! + scriptSetupMatch[0].length
+	return code.slice(0, insertPos) + '\n' + importStatements + '\n' + code.slice(insertPos)
+}
+
+/**
+ * 判断代码是否为原始 Vue SFC 文件（而非编译后的 JS）
+ *
+ * @param code 源代码字符串
+ * @returns 如果是原始 SFC 文件返回 `true`，否则返回 `false`
+ *
+ * @description 通过检测 `<script` 标签判断是否为原始 SFC 文件。
+ * 编译后的 JS 代码不会包含 `<script` 标签。
+ */
+export function isRawSfc(code: string): boolean {
+	return /<script[\s>]/.test(code)
+}
+
+/**
  * 判断名称是否为 Vue 指令前缀
  *
  * @param name 要检查的名称

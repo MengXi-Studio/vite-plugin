@@ -22,33 +22,11 @@ export default defineConfig({
 		// 自动导入
 		autoImport({
 			imports: {
-				'@dcloudio/uni-app': [
-					'onLaunch',
-					'onShow',
-					'onHide',
-					'onLoad',
-					'onReady',
-					'onUnload',
-					'onPullDownRefresh',
-					'onReachBottom',
-					'onShareAppMessage',
-					'onShareTimeline',
-					'onPageScroll',
-					'onResize',
-					'onTabItemTap',
-					'onBackPress',
-					'onNavigationBarButtonTap',
-					'onNavigationBarSearchInputChanged',
-					'onNavigationBarSearchInputConfirmed',
-					'onNavigationBarSearchInputFocusChanged',
-					'onThemeChange',
-					'onPageNotFound',
-					'onUnhandledRejection'
-				]
+				'@dcloudio/uni-app': ['*'],
+				vue: ['*']
 			},
 			dts: true,
-			vueTemplate: true,
-			fileFilter: /src[\\/].*\.[jt]sx?$|src[\\/].*\.vue$/
+			vueTemplate: true
 		}),
 
 		// 环境变量校验

@@ -3,32 +3,116 @@ import path from 'node:path'
 import type { ScannedModule, ImportMapping, ResolvedImport } from '../types'
 
 /**
- * 解析用户配置的 imports 为统一的 ResolvedImport 列表
+ * 解析模块的所有命名导出（用于 `'*'` 通配符）
  *
- * @param imports 用户配置的导入映射，支持多种格式：
- * - `Record<string, string[]>` 简写格式
- * - `ImportMapping[]` 完整格式
+ * @param modulePath 模块路径（npm 包名或文件路径）
+ * @param root 项目根目录，用于解析相对路径
+ * @returns 模块的所有命名导出名称列表
+ *
+ * @description 解析策略：
+ * 1. 尝试将模块路径解析为本地文件（补全扩展名），使用 {@link parseModuleExports} 解析
+ * 2. 尝试从 `node_modules` 中查找模块入口文件，使用 {@link parseModuleExports} 解析
+ * 3. 解析失败时返回空数组
+ */
+function resolveWildcardExports(modulePath: string, root: string): string[] {
+	// 1. 尝试作为文件路径解析
+	const absolutePath = path.isAbsolute(modulePath) ? modulePath : path.resolve(root, modulePath)
+
+	// 尝试直接路径、补全扩展名
+	const extensions = ['', '.ts', '.js', '.mts', '.mjs', '/index.ts', '/index.js']
+	for (const ext of extensions) {
+		const tryPath = absolutePath + ext
+		if (fs.existsSync(tryPath) && fs.statSync(tryPath).isFile()) {
+			const result = parseModuleExports(tryPath)
+			if (result) return result.exports
+		}
+	}
+
+	// 2. 尝试从 node_modules 解析
+	const moduleEntry = resolveModuleEntry(modulePath, root)
+	if (moduleEntry) {
+		const result = parseModuleExports(moduleEntry)
+		if (result) return result.exports
+	}
+
+	return []
+}
+
+/**
+ * 从 node_modules 中解析模块入口文件路径
+ *
+ * @param moduleName npm 包名
+ * @param root 项目根目录
+ * @returns 入口文件绝对路径，解析失败返回 `null`
+ *
+ * @description 按优先级依次尝试：
+ * 1. `package.json` 的 `exports` 字段（支持 `import`/`default` 条件）
+ * 2. `package.json` 的 `main` 字段
+ * 3. `index.js` 回退
+ */
+function resolveModuleEntry(moduleName: string, root: string): string | null {
+	try {
+		const pkgPath = path.resolve(root, 'node_modules', moduleName, 'package.json')
+		if (!fs.existsSync(pkgPath)) return null
+
+		const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+
+		// 优先使用 exports 字段
+		if (pkg.exports) {
+			const exportEntry = typeof pkg.exports === 'string' ? pkg.exports : pkg.exports['.']?.import || pkg.exports['.']?.default || pkg.exports['.']
+			if (typeof exportEntry === 'string') {
+				const entryPath = path.resolve(root, 'node_modules', moduleName, exportEntry)
+				if (fs.existsSync(entryPath)) return entryPath
+			}
+		}
+
+		// 回退到 main 字段
+		if (pkg.main) {
+			const entryPath = path.resolve(root, 'node_modules', moduleName, pkg.main)
+			if (fs.existsSync(entryPath)) return entryPath
+		}
+
+		// 回退到 index.js
+		const indexPath = path.resolve(root, 'node_modules', moduleName, 'index.js')
+		if (fs.existsSync(indexPath)) return indexPath
+
+		return null
+	} catch {
+		return null
+	}
+}
+
+/**
+ * 解析用户配置的 imports 为统一的 {@link ResolvedImport} 列表
+ *
+ * @param imports 导入映射配置，支持多种格式：
+ * - `Record<string, string[]>` — 简写格式，如 `{ vue: ['ref', 'reactive'] }`
+ * - `ImportMapping[]` — 完整格式，支持默认导入配置
  * - 两种格式混合使用的数组
+ * @param root 项目根目录，用于解析 `'*'` 通配符时的模块路径
  * @returns 解析后的 {@link ResolvedImport} 列表
  *
- * @description 将用户提供的各种格式的导入配置统一转换为
- * `ResolvedImport[]` 格式，便于后续构建查找表和代码转换。
+ * @description 将各种格式的导入配置统一转换为 `ResolvedImport[]`，
+ * 便于后续构建查找表和代码转换。
  *
- * **支持的格式：**
- * - 简写格式：`{ 'vue': ['ref', 'reactive'] }` — 键为模块路径，值为导入名称数组
- * - 完整格式：`[{ module: 'vue', names: ['ref'], defaultImport: false }]`
- * - 混合格式：两种格式可以在数组中混合使用
+ * **通配符支持：** 值数组中使用 `'*'` 时，自动发现模块的所有命名导出。
  *
  * @example
  * ```typescript
+ * // 简写格式
  * resolveImports({ vue: ['ref', 'reactive'] })
  * // [{ module: 'vue', name: 'ref', isDefault: false }, { module: 'vue', name: 'reactive', isDefault: false }]
  *
+ * // 通配符格式
+ * resolveImports({ '@dcloudio/uni-app': ['*'] }, '/project/root')
+ * // [{ module: '@dcloudio/uni-app', name: 'onLaunch', isDefault: false }, ...]
+ *
+ * // 完整格式
  * resolveImports([{ module: 'lodash', names: ['debounce'], defaultImport: true }])
  * // [{ module: 'lodash', name: 'debounce', isDefault: true }]
  * ```
  */
-export function resolveImports(imports: Record<string, string[]> | ImportMapping[] | Array<Record<string, string[]> | ImportMapping> | undefined): ResolvedImport[] {
+export function resolveImports(imports: Record<string, string[]> | ImportMapping[] | Array<Record<string, string[]> | ImportMapping> | undefined, root?: string): ResolvedImport[] {
 	if (!imports) return []
 
 	const result: ResolvedImport[] = []
@@ -38,19 +122,31 @@ export function resolveImports(imports: Record<string, string[]> | ImportMapping
 			if ('module' in item && 'names' in item) {
 				// ImportMapping 格式
 				const mapping = item as ImportMapping
-				for (const name of mapping.names) {
-					result.push({
-						module: mapping.module,
-						name,
-						isDefault: mapping.defaultImport ?? false
-					})
+				if (mapping.names.includes('*')) {
+					const projectRoot = root || process.cwd()
+					const exports = resolveWildcardExports(mapping.module, projectRoot)
+					for (const name of exports) {
+						result.push({ module: mapping.module, name, isDefault: mapping.defaultImport ?? false })
+					}
+				} else {
+					for (const name of mapping.names) {
+						result.push({ module: mapping.module, name, isDefault: mapping.defaultImport ?? false })
+					}
 				}
 			} else {
 				// Record<string, string[]> 格式混在数组中
 				const record = item as Record<string, string[]>
 				for (const [mod, names] of Object.entries(record)) {
-					for (const name of names) {
-						result.push({ module: mod, name, isDefault: false })
+					if (names.includes('*')) {
+						const projectRoot = root || process.cwd()
+						const exports = resolveWildcardExports(mod, projectRoot)
+						for (const name of exports) {
+							result.push({ module: mod, name, isDefault: false })
+						}
+					} else {
+						for (const name of names) {
+							result.push({ module: mod, name, isDefault: false })
+						}
 					}
 				}
 			}
@@ -58,8 +154,16 @@ export function resolveImports(imports: Record<string, string[]> | ImportMapping
 	} else {
 		// Record<string, string[]> 格式
 		for (const [mod, names] of Object.entries(imports)) {
-			for (const name of names) {
-				result.push({ module: mod, name, isDefault: false })
+			if (names.includes('*')) {
+				const projectRoot = root || process.cwd()
+				const exports = resolveWildcardExports(mod, projectRoot)
+				for (const name of exports) {
+					result.push({ module: mod, name, isDefault: false })
+				}
+			} else {
+				for (const name of names) {
+					result.push({ module: mod, name, isDefault: false })
+				}
 			}
 		}
 	}
@@ -68,16 +172,13 @@ export function resolveImports(imports: Record<string, string[]> | ImportMapping
 }
 
 /**
- * 构建 名称→模块 的查找映射表
+ * 构建名称→模块的查找映射表
  *
  * @param resolvedImports 解析后的 {@link ResolvedImport} 导入列表
  * @returns 以标识符名称为键、{@link ResolvedImport} 为值的 Map
  *
- * @description 将 {@link ResolvedImport} 列表转换为以标识符名称为键的映射表，
- * 用于在代码转换时快速查找需要自动导入的标识符。
- *
- * **覆盖规则：** 如果同名标识符出现在多个模块中，后出现的会覆盖先出现的
- * （用户配置中靠后的项优先级更高）
+ * @description 用于在代码转换时快速查找需要自动导入的标识符。
+ * 同名标识符出现在多个模块中时，后出现的会覆盖先出现的（配置靠后优先级更高）。
  *
  * @example
  * ```typescript
@@ -85,7 +186,7 @@ export function resolveImports(imports: Record<string, string[]> | ImportMapping
  *   { module: 'vue', name: 'ref', isDefault: false },
  *   { module: 'vue', name: 'reactive', isDefault: false }
  * ])
- * lookup.get('ref')     // { module: 'vue', name: 'ref', isDefault: false }
+ * lookup.get('ref')      // { module: 'vue', name: 'ref', isDefault: false }
  * lookup.get('reactive') // { module: 'vue', name: 'reactive', isDefault: false }
  * ```
  */
@@ -125,13 +226,9 @@ function extractModuleName(filePath: string): string {
  * @returns 扫描到的 {@link ScannedModule} 模块信息列表
  *
  * @description 递归扫描指定目录下的 `.ts`/`.js`/`.mts`/`.mjs` 文件，
- * 解析每个文件的导出信息（命名导出和默认导出），
- * 将其转换为可自动导入的映射项。
- *
- * **扫描规则：**
- * - 自动跳过 `node_modules` 目录和以 `.` 开头的隐藏目录
- * - 自动跳过 `.d.ts` 类型声明文件
- * - 不存在的目录或非目录路径会被静默跳过
+ * 解析每个文件的导出信息（命名导出和默认导出）。
+ * 自动跳过 `node_modules`、隐藏目录（以 `.` 开头）和 `.d.ts` 文件。
+ * 不存在的目录或非目录路径会被静默跳过。
  *
  * @example
  * ```typescript
@@ -162,8 +259,7 @@ export function scanDirectories(dirs: string[], root: string): ScannedModule[] {
  * @param dir 当前目录的绝对路径
  * @param modules 收集的 {@link ScannedModule} 模块列表（就地修改）
  *
- * @description 递归遍历目录树，对每个符合条件的文件调用
- * {@link parseModuleExports} 解析导出信息并添加到 modules 列表中。
+ * @description 对每个符合条件的文件调用 {@link parseModuleExports} 解析导出信息。
  * 跳过 `node_modules`、隐藏目录、非目标扩展名文件和 `.d.ts` 文件。
  */
 function walkDirectory(dir: string, modules: ScannedModule[]): void {
@@ -173,7 +269,6 @@ function walkDirectory(dir: string, modules: ScannedModule[]): void {
 		const fullPath = path.join(dir, entry.name)
 
 		if (entry.isDirectory()) {
-			// 跳过 node_modules 和隐藏目录
 			if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue
 			walkDirectory(fullPath, modules)
 			continue
@@ -198,23 +293,22 @@ function walkDirectory(dir: string, modules: ScannedModule[]): void {
  * 解析模块文件的导出信息
  *
  * @param filePath 模块文件的绝对路径
- * @returns 解析成功返回 {@link ScannedModule}，解析失败或无导出返回 `null`
+ * @returns 解析成功返回 {@link ScannedModule}，无导出或解析失败返回 `null`
  *
  * @description 使用正则表达式分析文件内容，提取命名导出和默认导出。
  *
- * **支持的导出语法：**
- * - `export function name()` — 函数导出
- * - `export async function name()` — 异步函数导出
- * - `export const/let/var name = ...` — 变量导出
- * - `export class name` — 类导出
+ * **支持的导出语法（ESM）：**
+ * - `export function name()` / `export async function name()` — 函数
+ * - `export const/let/var name` — 变量
+ * - `export class name` — 类
  * - `export { name1, name2 }` — 列表导出
  * - `export { foo as bar }` — 重命名导出（使用别名 bar）
  * - `export { default as Name }` — 默认导出重命名（使用 Name）
- * - `export default function name()` — 默认函数导出
- * - `export default class name` — 默认类导出
- * - `export default expression` — 默认表达式导出
- * - `export type name` — TypeScript 类型导出
- * - `export interface name` — TypeScript 接口导出
+ * - `export default function name()` / `export default class name` — 默认导出
+ * - `export type name` / `export interface name` — TypeScript 类型
+ *
+ * **支持的导出语法（CommonJS）：**
+ * - `exports.name = ...` — 命名导出
  *
  * @example
  * ```typescript
@@ -252,16 +346,11 @@ export function parseModuleExports(filePath: string): ScannedModule | null {
 		while ((match = namedExportRegex.exec(content)) !== null) {
 			const names = match[1].split(',').map(s => {
 				const trimmed = s.trim()
-				// 处理 export { name as alias } 或 export { default as Name }
 				const parts = trimmed.split(/\s+as\s+/)
-				// 如果有 as 别名，使用别名（最后一部分）
-				// export { default as Name } → 使用 Name
-				// export { foo as bar } → 使用 bar
+				// export { default as Name } → Name | export { foo as bar } → bar
 				return parts.length > 1 ? parts[parts.length - 1].trim() : parts[0].trim()
 			})
 			for (const name of names) {
-				// 注意：export { default as Name } 中 default 是原始名，Name 是别名
-				// Name 是有效导出，不应被过滤
 				if (name && name !== 'default') {
 					exports.push(name)
 				}
@@ -281,7 +370,15 @@ export function parseModuleExports(filePath: string): ScannedModule | null {
 			exports.push(match[1])
 		}
 
-		// 如果没有任何导出，跳过此文件
+		// 匹配 CommonJS exports.xxx = xxx / module.exports = { xxx }
+		const cjsExportRegex = /^(?:exports\.(\w+)\s*=|module\.exports\s*=\s*\{)/gm
+		while ((match = cjsExportRegex.exec(content)) !== null) {
+			if (match[1]) {
+				exports.push(match[1])
+			}
+		}
+
+		// 无任何导出则跳过
 		if (exports.length === 0 && defaultExport === null) {
 			return null
 		}
@@ -297,16 +394,14 @@ export function parseModuleExports(filePath: string): ScannedModule | null {
 }
 
 /**
- * 将扫描到的模块信息转换为 ResolvedImport 列表
+ * 将扫描到的模块信息转换为 {@link ResolvedImport} 列表
  *
  * @param modules 扫描到的 {@link ScannedModule} 模块列表
  * @returns 解析后的 {@link ResolvedImport} 导入映射列表
  *
  * @description 转换规则：
- * - 每个命名导出生成一个 `isDefault: false` 的 {@link ResolvedImport}
- * - 默认导出生成一个 `isDefault: true` 的 {@link ResolvedImport}，
- *   使用导出名称作为标识符名称
- * - 模块路径使用文件的绝对路径
+ * - 命名导出 → `isDefault: false`，模块路径使用文件绝对路径
+ * - 默认导出 → `isDefault: true`，使用导出名称作为标识符
  *
  * @example
  * ```typescript
@@ -323,7 +418,6 @@ export function scannedModulesToImports(modules: ScannedModule[]): ResolvedImpor
 	const result: ResolvedImport[] = []
 
 	for (const mod of modules) {
-		// 命名导出
 		for (const exportName of mod.exports) {
 			result.push({
 				module: mod.filePath,
@@ -332,7 +426,6 @@ export function scannedModulesToImports(modules: ScannedModule[]): ResolvedImpor
 			})
 		}
 
-		// 默认导出
 		if (mod.defaultExport) {
 			result.push({
 				module: mod.filePath,

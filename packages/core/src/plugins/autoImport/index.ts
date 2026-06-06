@@ -10,6 +10,8 @@ import {
 	isAlreadyImported,
 	generateImportStatements,
 	injectImports,
+	injectIntoScriptSetup,
+	isRawSfc,
 	detectVueTemplateImports,
 	generateDtsContent,
 	writeDtsFile,
@@ -151,7 +153,9 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 	 *   构建导入映射表和扫描目录
 	 *
 	 * - **`transform`**（order: 'pre'）：在代码转换阶段检测标识符使用并注入 import 语句。
-	 *   使用 `pre` 顺序确保在其他插件处理之前执行。
+	 *   使用 `pre` 顺序确保注入的 import 语句能被 Vite 的 import analysis 正确解析。
+	 *   对于原始 SFC 文件，import 语句注入到 `<script setup>` 块内部；
+	 *   对于已编译的 JS 文件，import 语句注入到文件顶部。
 	 *   仅处理匹配 `fileFilter` 的文件。
 	 *
 	 * - **`buildEnd`**：在构建结束时生成 TypeScript 类型声明文件
@@ -190,10 +194,10 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 	 */
 	private initialize(): void {
 		// 1. 解析 imports 配置
-		const configImports = resolveImports(this.options.imports)
+		const root = this.viteConfig?.root || process.cwd()
+		const configImports = resolveImports(this.options.imports, root)
 
 		// 2. 扫描目录
-		const root = this.viteConfig?.root || process.cwd()
 		const scannedModules = scanDirectories(this.options.dirs, root)
 		const scannedImports = scannedModulesToImports(scannedModules)
 
@@ -224,19 +228,24 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 	 * @returns 转换结果对象 `{ code, map? }`，无需转换返回 `null`
 	 *
 	 * @description 转换流程：
-	 * 1. 使用 {@link detectUsedImports} 检测代码中使用的标识符
-	 * 2. 如果启用 `vueTemplate` 且为 `.vue` 文件，
+	 * 1. 判断代码是否为原始 SFC 文件（包含 `<script` 标签）
+	 * 2. 使用 {@link detectUsedImports} 检测代码中使用的标识符
+	 * 3. 如果启用 `vueTemplate` 且为原始 SFC 文件，
 	 *    使用 {@link detectVueTemplateImports} 检测模板中的标识符
-	 * 3. 过滤掉已显式导入的标识符（{@link isAlreadyImported}）
-	 * 4. 使用 {@link generateImportStatements} 生成 import 语句
-	 * 5. 使用 {@link injectImports} 注入到代码中
+	 * 4. 过滤掉已显式导入的标识符（{@link isAlreadyImported}）
+	 * 5. 使用 {@link generateImportStatements} 生成 import 语句
+	 * 6. 原始 SFC 使用 {@link injectIntoScriptSetup} 注入到 `<script setup>` 块内；
+	 *    编译后 JS 使用 {@link injectImports} 注入到文件顶部
 	 */
 	private transformCode(code: string, id: string): { code: string; map?: any } | null {
+		// 判断是否为原始 SFC 文件（包含 <script 标签）
+		const rawSfc = id.endsWith('.vue') && isRawSfc(code)
+
 		// 检测代码中使用的标识符
 		let usedImports = detectUsedImports(code, this.nameLookup, this.ignoreSet)
 
-		// Vue 模板检测
-		if (this.options.vueTemplate && id.endsWith('.vue')) {
+		// Vue 模板检测（仅在原始 SFC 文件中扫描模板）
+		if (this.options.vueTemplate && rawSfc) {
 			const templateImports = detectVueTemplateImports(code, this.nameLookup, this.ignoreSet)
 			// 合并去重
 			const seen = new Set(usedImports.map(i => i.name))
@@ -256,8 +265,8 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 		// 生成 import 语句
 		const importStatements = generateImportStatements(usedImports)
 
-		// 注入到代码中
-		const newCode = injectImports(code, importStatements, this.options.injectAtPosition)
+		// 注入到代码中：原始 SFC 注入到 <script setup> 块内，编译后 JS 注入到顶部
+		const newCode = rawSfc ? injectIntoScriptSetup(code, importStatements) : injectImports(code, importStatements, this.options.injectAtPosition)
 
 		return { code: newCode }
 	}
