@@ -103,6 +103,7 @@ export default {
 			pendingCount: 0,
 			compressResult: null,
 			testList: [
+				{ name: 'autoImport - 自动导入', passed: false },
 				{ name: 'buildProgress - 构建进度条', passed: false },
 				{ name: 'bundleAnalyzer - 构建产物体积分析', passed: false },
 				{ name: 'generateRouter - 路由生成', passed: false },
@@ -142,53 +143,58 @@ export default {
 			}
 		},
 		runTests() {
-			this.testList[0].passed = true
+			// autoImport: 验证 Vue API 已自动注入
+			// #ifdef H5
+			this.testList[0].passed = typeof ref === 'function' && typeof reactive === 'function'
+			// #endif
+
+			this.testList[1].passed = true
 
 			// #ifdef H5
 			// bundleAnalyzer: 验证分析报告已生成
 			fetch('/bundle-analysis.json', { method: 'HEAD' })
 				.then(res => {
-					this.testList[1].passed = res.ok
+					this.testList[2].passed = res.ok
 				})
 				.catch(() => {
-					this.testList[1].passed = false
+					this.testList[2].passed = false
 				})
 
-			this.testList[2].passed = true
+			this.testList[3].passed = true
 			// #endif
 
-			this.testList[3].passed = !!this.appVersion && this.appVersion !== 'dev'
+			this.testList[4].passed = !!this.appVersion && this.appVersion !== 'dev'
 
 			// #ifdef H5
 			const metaDesc = document.querySelector('meta[name="description"]')
-			this.testList[4].passed = !!metaDesc
+			this.testList[5].passed = !!metaDesc
 
 			const linkEl = document.querySelector('link[rel="icon"]')
-			this.testList[5].passed = !!linkEl
+			this.testList[6].passed = !!linkEl
 
 			fetch('/static/logo.png', { method: 'HEAD' })
 				.then(res => {
-					this.testList[6].passed = res.ok
+					this.testList[7].passed = res.ok
 				})
 				.catch(() => {
-					this.testList[6].passed = false
+					this.testList[7].passed = false
 				})
 
 			fetch('/index.js.gz', { method: 'HEAD' })
 				.then(res => {
-					this.testList[7].passed = res.ok || res.status === 200
+					this.testList[8].passed = res.ok || res.status === 200
 				})
 				.catch(() => {
-					this.testList[7].passed = document.querySelector('script[src$=".js"]') !== null
+					this.testList[8].passed = document.querySelector('script[src$=".js"]') !== null
 				})
 
 			// envGuard: 验证环境变量已通过校验
-			this.testList[8].passed = !!import.meta.env.VITE_APP_TITLE && !!import.meta.env.VITE_API_URL
+			this.testList[9].passed = !!import.meta.env.VITE_APP_TITLE && !!import.meta.env.VITE_API_URL
 
 			const manager = window.__LOADING_MANAGER__
-			this.testList[9].passed = !!manager && typeof manager.show === 'function'
+			this.testList[10].passed = !!manager && typeof manager.show === 'function'
 
-			this.testList[10].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
+			this.testList[11].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
 			// #endif
 		},
 		showLoading() {

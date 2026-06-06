@@ -1,3 +1,95 @@
+## 0.1.5（2026-06-06）
+
+新增 autoImport 自动导入插件，精简 Common 工具模块（移除 compress、object、path），修复 dts 类型声明文件在开发模式下不生成的问题
+
+### autoImport（新增）
+
+自动导入插件，在 Vite 构建过程中自动检测代码中使用的标识符，并将对应的 import 语句注入到文件顶部，无需手动编写 import 声明。`enforce: 'post'`。
+
+**功能特性**：
+
+- 预设映射：通过 `imports` 配置常用库的自动导入规则，支持简写格式（`Record<string, string[]>`）和完整格式（`ImportMapping[]`，支持默认导入）
+- 目录扫描：通过 `dirs` 配置自动扫描指定目录下的模块导出，递归扫描子目录，跳过 `node_modules` 和隐藏目录
+- Vue 模板支持：`vueTemplate` 开启后，Vue SFC `<template>` 中使用的 API 也会被自动导入
+- 类型声明生成：`dts` 选项自动生成 `.d.ts` 类型声明文件，提供 IDE 类型提示
+- 标识符忽略：`ignore` 选项排除不需要自动导入的标识符
+- 文件过滤：`fileFilter` 正则控制需要处理的文件范围
+- 注入位置：`injectAtPosition` 支持 `'top'`（文件顶部）和 `'after-last-import'`（最后一个 import 之后）两种位置
+
+**配置选项**：
+
+| 选项             | 类型                                                            | 默认值                              | 描述                                 |
+| ---------------- | --------------------------------------------------------------- | ----------------------------------- | ------------------------------------ |
+| imports          | `Record<string, string[]>` \| `ImportMapping[]` \| `Array<...>` | `{}`                                | 导入映射配置                         |
+| dirs             | `string[]`                                                      | `[]`                                | 需要扫描的目录列表                   |
+| dts              | `string` \| `boolean`                                           | `'auto-imports.d.ts'`               | 类型声明文件输出路径，`false` 不生成 |
+| vueTemplate      | `boolean`                                                       | `false`                             | 是否为 Vue 模板启用自动导入          |
+| ignore           | `string[]`                                                      | `[]`                                | 需要忽略的标识符列表                 |
+| fileFilter       | `RegExp`                                                        | `/\.(vue\|jsx\|tsx\|ts\|js\|mjs)$/` | 文件过滤正则表达式                   |
+| injectAtPosition | `'top'` \| `'after-last-import'`                                | `'top'`                             | import 语句注入位置                  |
+
+**ImportMapping 类型**：
+
+| 属性          | 类型       | 描述                         |
+| ------------- | ---------- | ---------------------------- |
+| module        | `string`   | 模块路径                     |
+| names         | `string[]` | 要导入的名称列表             |
+| defaultImport | `boolean`  | 是否为默认导入，默认 `false` |
+
+**ResolvedImport 类型**：
+
+| 属性      | 类型      | 描述           |
+| --------- | --------- | -------------- |
+| module    | `string`  | 模块路径       |
+| name      | `string`  | 导入标识符名称 |
+| isDefault | `boolean` | 是否为默认导入 |
+
+**ScannedModule 类型**：
+
+| 属性          | 类型               | 描述                        |
+| ------------- | ------------------ | --------------------------- |
+| filePath      | `string`           | 模块文件的绝对路径          |
+| exports       | `string[]`         | 命名导出名称列表            |
+| defaultExport | `string` \| `null` | 默认导出名称，无则为 `null` |
+
+**TransformResult 类型**：
+
+| 属性 | 类型     | 描述                    |
+| ---- | -------- | ----------------------- |
+| code | `string` | 转换后的代码字符串      |
+| map  | `any`    | Source map 信息（可选） |
+
+### Common 工具模块（精简）
+
+移除使用次数不足 2 次的工具模块，仅保留在多处被复用的核心工具：
+
+- **移除** `@common/compress` — `calculateGzipSize` 仅在 `bundleAnalyzer` 中使用，已内联
+- **移除** `@common/object` — `deepMerge` 仅在 `loadingManager` 中使用，已内联
+- **移除** `@common/path` — `isNodeModule` 仅在 `bundleAnalyzer` 中使用，已内联
+
+保留的 6 个模块：
+
+| 子路径              | 描述          | 导出内容                                                                                                     |
+| ------------------- | ------------- | ------------------------------------------------------------------------------------------------------------ |
+| `common/format`     | 格式化工具    | `getDateFormatParams`、`formatFileSize`、`DateFormatOptions`                                                 |
+| `common/fs`         | 文件系统工具  | `checkSourceExists`、`copySourceToTarget`、`writeFileContent`、`scanDirectory`、`writeJsonReport` 及相关类型 |
+| `common/html`       | HTML 注入工具 | `injectBeforeTag`、`injectHeadAndBody`、`sanitizeContent` 及相关类型                                         |
+| `common/script`     | 脚本生成工具  | `makeCallback`                                                                                               |
+| `common/ui`         | 终端 UI 工具  | `ANSI`                                                                                                       |
+| `common/validation` | 参数验证工具  | `Validator`、`validateGlobalName`、`validateNoScriptInTemplate`、`validateCallbackFields`                    |
+
+### 子路径导出（变更）
+
+- 新增 `@meng-xi/vite-plugin/plugins/auto-import` 子路径导出
+- 新增导出函数：`autoImport`
+- 新增导出类型：`AutoImportOptions`、`ImportMapping`、`ResolvedImport`、`ScannedModule`、`TransformResult`
+- 移除 `@meng-xi/vite-plugin/common/compress` 子路径导出
+- 移除 `@meng-xi/vite-plugin/common/object` 子路径导出
+- 移除 `@meng-xi/vite-plugin/common/path` 子路径导出
+- `@meng-xi/vite-plugin/common`
+  移除导出：`calculateGzipSize`、`deepMerge`、`isNodeModule`、`SPINNER_FRAMES`、`stripAnsi`、`escapeHtmlAttr`、`getExtension`、`padNumber`、`generateRandomHash`、`formatDate`、`parseTemplate`、`toCamelCase`、`toPascalCase`、`stripJsonComments`
+  及相关类型
+
 ## 0.1.4（2026-06-03）
 
 新增 envGuard 环境变量校验插件，新增 @common/ui 终端 UI 工具模块

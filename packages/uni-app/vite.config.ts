@@ -11,7 +11,8 @@ import {
 	loadingManager,
 	versionUpdateChecker,
 	htmlInject,
-	compressAssets
+	compressAssets,
+	autoImport
 } from './uni_modules/vite-plugin/js_sdk/index.mjs'
 import { resolve } from 'node:path'
 
@@ -24,6 +25,16 @@ export default defineConfig(config => {
 	return {
 		plugins: [
 			uni(),
+
+			// 自动导入
+			autoImport({
+				imports: {
+					vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted', 'onUnmounted']
+				},
+				dts: 'auto-imports.d.ts',
+				vueTemplate: true,
+				enabled: isH5
+			}),
 
 			envGuard({
 				required: {
