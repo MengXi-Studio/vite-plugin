@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig, UniAppPageConfig, RouteMeta } from './types'
-import { toCamelCase, toPascalCase, stripJsonComments } from './common'
+import { toCamelCase, toPascalCase, stripJsonComments, generateRouterDtsContent } from './common'
 import { writeFileContent } from '@/common/fs'
 import { resolve } from 'path'
 import { existsSync, watch as fsWatch, promises as fsp } from 'fs'
@@ -51,6 +51,7 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	 * - exportTypes: true
 	 * - preserveRouteChanges: true
 	 * - metaMapping: { navigationBarTitleText: 'title', requireAuth: 'requireAuth' }
+	 * - dts: false
 	 */
 	protected getDefaultOptions(): Partial<GenerateRouterOptions> {
 		return {
@@ -65,7 +66,8 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 			metaMapping: {
 				navigationBarTitleText: 'title',
 				requireAuth: 'requireAuth'
-			}
+			},
+			dts: false
 		}
 	}
 
@@ -449,6 +451,40 @@ export default routes
 
 		this.logger.success(`路由配置文件已生成: ${outputPath}`)
 		this.logger.info(`共生成 ${routes.length} 条路由配置`)
+
+		// 生成类型声明文件
+		await this.generateDtsFile(routes)
+	}
+
+	/**
+	 * 生成路由类型声明文件
+	 *
+	 * @param {RouteConfig[]} routes - 路由配置数组
+	 * @returns {Promise<void>} 无返回值
+	 *
+	 * @description 当 `dts` 选项启用时，生成 `.d.ts` 类型声明文件，
+	 * 扩展 `@meng-xi/uni-router` 模块的 `RouteNameMap` 接口。
+	 * 仅在内容发生变化时才写入文件，减少不必要的文件 IO。
+	 */
+	private async generateDtsFile(routes: RouteConfig[]): Promise<void> {
+		if (!this.options.dts) return
+
+		const dtsPath = resolve(this.projectRoot, typeof this.options.dts === 'string' ? this.options.dts : 'src/router.d.ts')
+
+		const content = generateRouterDtsContent(routes)
+
+		// 检查内容是否变化，避免不必要的写入
+		if (existsSync(dtsPath)) {
+			try {
+				const existing = await fsp.readFile(dtsPath, 'utf-8')
+				if (existing === content) return
+			} catch {
+				// 读取失败时继续写入
+			}
+		}
+
+		await writeFileContent(dtsPath, content)
+		this.logger.success(`路由类型声明文件已生成: ${dtsPath}`)
 	}
 
 	/**
@@ -559,6 +595,16 @@ export default routes
  *     requireAuth: 'requireAuth',
  *     customField: 'custom'
  *   }
+ * })
+ *
+ * // 生成路由类型声明文件
+ * generateRouter({
+ *   dts: true
+ * })
+ *
+ * // 自定义类型声明文件路径
+ * generateRouter({
+ *   dts: 'src/types/router.d.ts'
  * })
  * ```
  *
