@@ -17,7 +17,7 @@
 
 - **开箱即用** - 12 个实用插件，覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading 等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
-- **通用工具库** - 内置 Common 工具模块，支持按需子路径导入
+- **通用工具库** - 内置 6 大 Common 工具模块，支持按需子路径导入
 - **类型安全** - 完整 TypeScript 类型定义与配置验证器
 - **按需导入** - 支持子路径导出，减少打包体积
 
@@ -40,7 +40,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager, autoImport } from '@meng-xi/vite-plugin'
+import { autoImport, buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -69,9 +69,9 @@ export default defineConfig({
 | [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/plugins/bundle-analyzer.html)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比  |
 | [compressAssets](https://mengxi-studio.github.io/vite-plugin/plugins/compress-assets.html)              | 构建产物压缩，支持 gzip / brotli / both，并发压缩和统计报告           |
 | [copyFile](https://mengxi-studio.github.io/vite-plugin/plugins/copy-file.html)                          | 构建完成后复制文件或目录，支持增量复制                                |
-| [envGuard](https://mengxi-studio.github.io/vite-plugin/plugins/)                                        | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫          |
+| [envGuard](https://mengxi-studio.github.io/vite-plugin/plugins/env-guard.html)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫          |
 | [faviconManager](https://mengxi-studio.github.io/vite-plugin/plugins/favicon-manager.html)              | 管理网站图标链接注入和文件复制，支持字符串简写配置                    |
-| [generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)              | 根据 pages.json 自动生成路由配置（uni-app）                           |
+| [generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)              | 根据 pages.json 自动生成路由配置与类型声明（uni-app）                 |
 | [generateVersion](https://mengxi-studio.github.io/vite-plugin/plugins/generate-version.html)            | 自动生成版本号，支持文件输出和全局变量注入                            |
 | [htmlInject](https://mengxi-studio.github.io/vite-plugin/plugins/html-inject.html)                      | HTML 内容注入，支持多种位置、选择器定位、条件注入、模板变量和安全过滤 |
 | [loadingManager](https://mengxi-studio.github.io/vite-plugin/plugins/loading-manager.html)              | 全局 Loading 状态管理，支持请求拦截、防抖、过渡动画和白屏 Loading     |
@@ -131,19 +131,33 @@ export const myPlugin = createPluginFactory(MyPlugin)
 内置通用工具函数库，按功能模块组织，支持子路径按需导入。
 
 ```typescript
-import { formatFileSize } from '@meng-xi/vite-plugin/common/format'
-import { scanDirectory } from '@meng-xi/vite-plugin/common/fs'
-import { injectBeforeTag } from '@meng-xi/vite-plugin/common/html'
+// 格式化：日期参数、模板变量替换、文件大小、日期格式化
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common/format'
+
+// 文件系统：文件复制、目录扫描、安全写入、变更检测
+import { copySourceToTarget, scanDirectory, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
+
+// HTML：标签注入、内容消毒、属性转义
+import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/html'
+
+// 脚本生成：回调函数包装
+import { makeCallback } from '@meng-xi/vite-plugin/common/script'
+
+// 终端 UI：ANSI 颜色码
+import { ANSI } from '@meng-xi/vite-plugin/common/ui'
+
+// 参数验证：链式验证器、通用校验函数
+import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng-xi/vite-plugin/common/validation'
 ```
 
-| 子路径                                                                                    | 描述          |
-| ----------------------------------------------------------------------------------------- | ------------- |
-| [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)         | 格式化工具    |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                 | 文件系统工具  |
-| [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)             | HTML 注入工具 |
-| [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)         | 脚本生成工具  |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                 | 终端 UI 工具  |
-| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html) | 参数验证工具  |
+| 子路径                                                                                    | 描述                                                                      |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)         | 日期参数提取、模板变量替换 `{{key}}`、日期格式化 `{YYYY}`、文件大小格式化 |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                 | 文件/目录复制、目录扫描、同步安全写入、文件变更检测                       |
+| [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)             | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                  |
+| [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)         | 回调函数体包装为安全的函数表达式（含 try-catch）                          |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                 | 终端 ANSI 颜色码常量                                                      |
+| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html) | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                      |
 
 ## 子路径导出
 

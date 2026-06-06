@@ -18,7 +18,7 @@
 - **Ready to Use** - 12 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
   management, global Loading, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
-- **Common Utility Library** - Built-in Common utility modules supporting on-demand sub-path imports
+- **Common Utility Library** - Built-in 6 Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
 - **On-demand Import** - Supports sub-path exports to reduce bundle size
 
@@ -41,7 +41,7 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager, autoImport } from '@meng-xi/vite-plugin'
+import { autoImport, buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -70,9 +70,9 @@ export default defineConfig({
 | [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/en/plugins/bundle-analyzer.html)              | Bundle volume analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build diff                                     |
 | [compressAssets](https://mengxi-studio.github.io/vite-plugin/en/plugins/compress-assets.html)              | Asset compression with gzip / brotli / both, concurrent compression and statistics report                                             |
 | [copyFile](https://mengxi-studio.github.io/vite-plugin/en/plugins/copy-file.html)                          | Copy files or directories after build, supports incremental copying                                                                   |
-| [envGuard](https://mengxi-studio.github.io/vite-plugin/en/plugins/)                                        | Environment variable validation with type checking, range validation, custom rules and runtime guard                                  |
+| [envGuard](https://mengxi-studio.github.io/vite-plugin/en/plugins/env-guard.html)                          | Environment variable validation with type checking, range validation, custom rules and runtime guard                                  |
 | [faviconManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/favicon-manager.html)              | Manage website favicon link injection and file copying, supports string shorthand config                                              |
-| [generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)              | Auto-generate route config from pages.json (uni-app)                                                                                  |
+| [generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)              | Auto-generate route config and type declarations from pages.json (uni-app)                                                            |
 | [generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)            | Auto-generate version numbers with file output and global variable injection                                                          |
 | [htmlInject](https://mengxi-studio.github.io/vite-plugin/en/plugins/html-inject.html)                      | HTML content injection with multiple positions, selector targeting, conditional injection, template variables, and security filtering |
 | [loadingManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/loading-manager.html)              | Global Loading state management with request interception, debounce, transition animations, and white-screen Loading                  |
@@ -132,19 +132,33 @@ export const myPlugin = createPluginFactory(MyPlugin)
 Built-in general-purpose utility function library, organized by functional modules, supporting on-demand sub-path imports.
 
 ```typescript
-import { formatFileSize } from '@meng-xi/vite-plugin/common/format'
-import { scanDirectory } from '@meng-xi/vite-plugin/common/fs'
-import { injectBeforeTag } from '@meng-xi/vite-plugin/common/html'
+// Formatting: date params, template variable replacement, file size, date formatting
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common/format'
+
+// File system: file copy, directory scan, safe write, change detection
+import { copySourceToTarget, scanDirectory, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
+
+// HTML: tag injection, content sanitization, attribute escaping
+import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/html'
+
+// Script generation: callback function wrapping
+import { makeCallback } from '@meng-xi/vite-plugin/common/script'
+
+// Terminal UI: ANSI color codes
+import { ANSI } from '@meng-xi/vite-plugin/common/ui'
+
+// Validation: chain validator, common validation functions
+import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng-xi/vite-plugin/common/validation'
 ```
 
-| Sub-path                                                                                     | Description             |
-| -------------------------------------------------------------------------------------------- | ----------------------- |
-| [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)         | Formatting utilities    |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                 | File system utilities   |
-| [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)             | HTML injection utils    |
-| [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)         | Script generation utils |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                 | Terminal UI utils       |
-| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html) | Validation utilities    |
+| Sub-path                                                                                     | Description                                                                                         |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)         | Date param extraction, template variable replacement `{{key}}`, date formatting `{YYYY}`, file size |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                 | File/directory copy, directory scan, sync safe write, file change detection                         |
+| [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)             | HTML tag injection, dual-zone injection, content sanitization, HTML attribute value escaping        |
+| [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)         | Callback body wrapping into safe function expressions (with try-catch)                              |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                 | Terminal ANSI color code constants                                                                  |
+| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html) | Chain-style config validator, global name validation, script detection, callback field validation   |
 
 ## Sub-path Exports
 
