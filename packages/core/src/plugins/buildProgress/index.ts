@@ -1,19 +1,8 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { BuildProgressOptions, BuildPhase, ProgressTheme } from './types'
-import { DEFAULT_THEME, PHASE_LABELS } from './common'
+import { DEFAULT_THEME, PHASE_LABELS, SPINNER_FRAMES, stripAnsi } from './common'
 import { ANSI } from '@/common/ui'
-
-/** Spinner 动画帧序列 */
-const SPINNER_FRAMES = process.platform === 'win32' ? ['|', '/', '-', '\\'] : ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
-
-/** ANSI 转义码匹配正则 */
-const ANSI_REGEX = /\x1b\[[0-9;]*m/g
-
-/** 移除字符串中的所有 ANSI 转义码 */
-function stripAnsi(str: string): string {
-	return str.replace(ANSI_REGEX, '')
-}
 
 /**
  * 构建进度条插件类，用于在终端实时显示构建进度
