@@ -1,6 +1,6 @@
 import { BasePluginOptions, PluginFactory } from '../../factory/index.js';
 import 'vite';
-import '../../shared/vite-plugin.CLr0ttuO.js';
+import '../../shared/vite-plugin.B8FuZce1.js';
 import '../../shared/vite-plugin.DRRlWY8P.js';
 
 /**

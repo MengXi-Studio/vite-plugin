@@ -209,6 +209,11 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 		this.initialized = true
 
 		this.logger.info(`初始化完成: ${this.allResolvedImports.length} 个自动导入映射, ${scannedModules.length} 个扫描模块`)
+
+		// 初始化完成后立即生成类型声明文件（开发模式也需要类型提示）
+		if (this.options.dts) {
+			this.generateDts()
+		}
 	}
 
 	/**

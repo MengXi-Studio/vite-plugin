@@ -1,6 +1,6 @@
 import { BasePluginOptions, PluginFactory } from '../../factory/index.cjs';
 import 'vite';
-import '../../shared/vite-plugin.CLr0ttuO.cjs';
+import '../../shared/vite-plugin.B8FuZce1.cjs';
 import '../../shared/vite-plugin.DRRlWY8P.cjs';
 
 /**

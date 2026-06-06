@@ -1,7 +1,7 @@
 import { BasePluginOptions, PluginFactory } from '../../factory/index.cjs';
-import { a as InjectPosition, b as SelectorMatch, I as InjectCondition, S as SecurityConfig } from '../../shared/vite-plugin.FfJ-Wwfu.cjs';
+import { a as InjectPosition, b as SelectorMatch, I as InjectCondition, S as SecurityConfig } from '../../shared/vite-plugin.BI9taN75.cjs';
 import 'vite';
-import '../../shared/vite-plugin.CLr0ttuO.cjs';
+import '../../shared/vite-plugin.B8FuZce1.cjs';
 import '../../shared/vite-plugin.DRRlWY8P.cjs';
 
 /**

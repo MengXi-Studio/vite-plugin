@@ -31,6 +31,10 @@
 		<div class="card">
 			<h2>插件功能验证</h2>
 			<div class="test-list">
+				<div class="test-item" :class="{ passed: tests.autoImport }">
+					<span class="icon">{{ tests.autoImport ? '✅' : '⏳' }}</span>
+					<span>autoImport - 自动导入</span>
+				</div>
 				<div class="test-item" :class="{ passed: tests.buildProgress }">
 					<span class="icon">{{ tests.buildProgress ? '✅' : '⏳' }}</span>
 					<span>buildProgress - 构建进度条</span>
@@ -131,13 +135,15 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, onUnmounted } from 'vue'
+// Vue API 由 autoImport 自动注入，无需手动导入
+// import { reactive, ref, onMounted, onUnmounted } from 'vue'
 import type { LoadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
 
 const appVersion = __APP_VERSION__
 const versionInfo = __APP_VERSION___INFO
 
 const tests = reactive({
+	autoImport: false,
 	buildProgress: false,
 	bundleAnalyzer: false,
 	compressAssets: false,
@@ -194,6 +200,9 @@ onUnmounted(() => {
 })
 
 async function runTests() {
+	// autoImport: 验证 Vue API 已自动注入（reactive/ref 无需手动导入即可使用）
+	tests.autoImport = typeof reactive === 'function' && typeof ref === 'function' && typeof onMounted === 'function'
+
 	// buildProgress: 终端进度条在构建时已展示，此处验证构建成功即视为通过
 	tests.buildProgress = true
 

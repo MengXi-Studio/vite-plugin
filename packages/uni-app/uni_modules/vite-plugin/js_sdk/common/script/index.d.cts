@@ -5,50 +5,7 @@
  * @param context - 回调上下文标识，用于错误日志
  * @param params - 函数参数列表字符串，默认为空
  * @returns 安全的函数表达式字符串（包含 try-catch 保护）
- *
- * @example
- * ```typescript
- * makeCallback('console.log("done")')
- * // 'function() { try { console.log("done") } catch(e) { console.error('[callback] error:', e); } }'
- *
- * makeCallback('console.log(a, b)', 'callback', 'a, b')
- * // 'function(a, b) { try { console.log(a, b) } catch(e) { console.error('[callback] error:', e); } }'
- *
- * makeCallback('')
- * // 'function() {}'
- * ```
  */
 declare function makeCallback(body?: string, context?: string, params?: string): string;
-/**
- * 检测字符串是否包含 `<script>` 标签
- *
- * @param str - 待检测的字符串
- * @returns 是否包含 script 标签
- *
- * @example
- * ```typescript
- * containsScriptTag('<div onclick="alert(1)">') // false
- * containsScriptTag('<script>alert(1)</script>') // true
- * ```
- */
-declare function containsScriptTag(str: string): boolean;
-/**
- * 验证字符串是否为合法的 JavaScript 标识符
- *
- * @description 检查名称是否以字母、下划线或美元符开头，
- * 仅包含字母、数字、下划线和美元符，并排除可能导致原型污染的内置属性
- *
- * @param name - 待验证的标识符名称
- * @throws 当名称不是合法标识符时抛出错误
- * @throws 当名称为 JavaScript 内置属性时抛出错误
- *
- * @example
- * ```typescript
- * validateIdentifierName('__LOADING_MANAGER__') // 通过
- * validateIdentifierName('123abc')              // 抛出错误
- * validateIdentifierName('__proto__')           // 抛出错误（内置属性）
- * ```
- */
-declare function validateIdentifierName(name: string): void;
 
-export { containsScriptTag, makeCallback, validateIdentifierName };
+export { makeCallback };

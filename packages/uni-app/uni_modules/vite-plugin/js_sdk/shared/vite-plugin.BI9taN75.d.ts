@@ -1,11 +1,4 @@
 /**
- * HTML 注入与安全相关类型定义
- *
- * @module common/html/type
- * @description 定义 HTML 注入位置、选择器匹配模式、条件判断、安全配置等核心类型，
- * 为 HTML 注入和安全过滤功能提供统一的类型约束。
- */
-/**
  * HTML 单点注入结果
  *
  * @description 表示在 HTML 中进行单点注入操作后的结果，
@@ -96,20 +89,6 @@ interface InjectCondition {
     negate?: boolean;
 }
 /**
- * 按位置注入结果
- *
- * @description 表示按指定位置注入内容后的详细结果，
- * 包含注入后的 HTML、是否成功标志和失败原因。
- */
-interface PositionInjectResult {
-    /** 注入后的 HTML 内容 */
-    html: string;
-    /** 是否成功注入 */
-    injected: boolean;
-    /** 注入失败时的原因说明（仅在 `injected` 为 `false` 时存在） */
-    reason?: string;
-}
-/**
  * HTML 安全配置
  *
  * @description 控制 HTML 内容注入时的安全过滤策略，
@@ -140,4 +119,4 @@ interface SecurityConfig {
     blockedAttributes?: string[];
 }
 
-export type { ConditionType as C, DualInjectResult as D, HtmlInjectResult as H, InjectCondition as I, PositionInjectResult as P, SecurityConfig as S, InjectPosition as a, SelectorMatch as b };
+export type { ConditionType as C, DualInjectResult as D, HtmlInjectResult as H, InjectCondition as I, SecurityConfig as S, InjectPosition as a, SelectorMatch as b };

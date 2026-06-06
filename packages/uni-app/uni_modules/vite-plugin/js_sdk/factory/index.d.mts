@@ -1,5 +1,5 @@
 import { Plugin, ResolvedConfig } from 'vite';
-import { P as PluginLogger, a as LoggerOptions } from '../shared/vite-plugin.CLr0ttuO.mjs';
+import { P as PluginLogger, L as LoggerOptions } from '../shared/vite-plugin.B8FuZce1.mjs';
 import { V as Validator } from '../shared/vite-plugin.DRRlWY8P.mjs';
 
 /**

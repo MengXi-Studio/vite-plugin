@@ -1,10 +1,32 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, faviconManager, htmlInject, loadingManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins'
+import {
+	buildProgress,
+	bundleAnalyzer,
+	compressAssets,
+	copyFile,
+	envGuard,
+	generateRouter,
+	generateVersion,
+	faviconManager,
+	htmlInject,
+	loadingManager,
+	versionUpdateChecker,
+	autoImport
+} from '@meng-xi/vite-plugin/plugins'
 
 export default defineConfig({
 	plugins: [
 		vue(),
+
+		// 自动导入
+		autoImport({
+			imports: {
+				vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted', 'onUnmounted']
+			},
+			dts: 'src/auto-imports.d.ts',
+			vueTemplate: true
+		}),
 
 		// 环境变量校验
 		envGuard({

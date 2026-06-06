@@ -1,3 +1,4 @@
+export { AutoImportOptions, ImportMapping, ResolvedImport, ScannedModule, TransformResult, autoImport } from './autoImport/index.mjs';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './buildProgress/index.mjs';
 export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './bundleAnalyzer/index.mjs';
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './compressAssets/index.mjs';
@@ -11,7 +12,6 @@ export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, Lo
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './versionUpdateChecker/index.mjs';
 import '../factory/index.mjs';
 import 'vite';
-import '../shared/vite-plugin.CLr0ttuO.mjs';
+import '../shared/vite-plugin.B8FuZce1.mjs';
 import '../shared/vite-plugin.DRRlWY8P.mjs';
-import '../shared/vite-plugin.CmtcnItg.mjs';
-import '../shared/vite-plugin.FfJ-Wwfu.mjs';
+import '../shared/vite-plugin.BI9taN75.mjs';
