@@ -6,7 +6,7 @@ declare module '*.vue' {
 	export default component
 }
 
-import type { LoadingManager } from '@meng-xi/vite-plugin/plugins/loadingManager'
+import type { LoadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
 import type { VersionInfo } from '@meng-xi/vite-plugin/plugins/generate-version'
 
 declare global {

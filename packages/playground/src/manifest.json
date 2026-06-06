@@ -1,0 +1,29 @@
+{
+	"name": "MengXi UniApp Playground",
+	"appid": "__UNI__MXPLAY",
+	"description": "@meng-xi/vite-plugin 插件功能演示",
+	"versionName": "0.1.5",
+	"versionCode": "100",
+	"transformPx": false,
+	"h5": {
+		"title": "MengXi UniApp Playground",
+		"router": {
+			"mode": "hash",
+			"base": "./"
+		},
+		"sdkConfigs": {},
+		"devServer": {
+			"port": 5173
+		}
+	},
+	"mp-weixin": {
+		"appid": "",
+		"setting": {
+			"urlCheck": false,
+			"es6": true,
+			"postcss": true,
+			"minified": true
+		},
+		"usingComponents": true
+	}
+}

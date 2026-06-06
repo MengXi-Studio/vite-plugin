@@ -3,12 +3,27 @@
 export {}
 
 declare global {
-  // from 'vue'
-  const ref: typeof import('vue')['ref']
-  const reactive: typeof import('vue')['reactive']
-  const computed: typeof import('vue')['computed']
-  const watch: typeof import('vue')['watch']
-  const onMounted: typeof import('vue')['onMounted']
-  const onUnmounted: typeof import('vue')['onUnmounted']
+  // from '@dcloudio/uni-app'
+  const onLaunch: typeof import('@dcloudio/uni-app')['onLaunch']
+  const onShow: typeof import('@dcloudio/uni-app')['onShow']
+  const onHide: typeof import('@dcloudio/uni-app')['onHide']
+  const onLoad: typeof import('@dcloudio/uni-app')['onLoad']
+  const onReady: typeof import('@dcloudio/uni-app')['onReady']
+  const onUnload: typeof import('@dcloudio/uni-app')['onUnload']
+  const onPullDownRefresh: typeof import('@dcloudio/uni-app')['onPullDownRefresh']
+  const onReachBottom: typeof import('@dcloudio/uni-app')['onReachBottom']
+  const onShareAppMessage: typeof import('@dcloudio/uni-app')['onShareAppMessage']
+  const onShareTimeline: typeof import('@dcloudio/uni-app')['onShareTimeline']
+  const onPageScroll: typeof import('@dcloudio/uni-app')['onPageScroll']
+  const onResize: typeof import('@dcloudio/uni-app')['onResize']
+  const onTabItemTap: typeof import('@dcloudio/uni-app')['onTabItemTap']
+  const onBackPress: typeof import('@dcloudio/uni-app')['onBackPress']
+  const onNavigationBarButtonTap: typeof import('@dcloudio/uni-app')['onNavigationBarButtonTap']
+  const onNavigationBarSearchInputChanged: typeof import('@dcloudio/uni-app')['onNavigationBarSearchInputChanged']
+  const onNavigationBarSearchInputConfirmed: typeof import('@dcloudio/uni-app')['onNavigationBarSearchInputConfirmed']
+  const onNavigationBarSearchInputFocusChanged: typeof import('@dcloudio/uni-app')['onNavigationBarSearchInputFocusChanged']
+  const onThemeChange: typeof import('@dcloudio/uni-app')['onThemeChange']
+  const onPageNotFound: typeof import('@dcloudio/uni-app')['onPageNotFound']
+  const onUnhandledRejection: typeof import('@dcloudio/uni-app')['onUnhandledRejection']
 
 }

@@ -1,34 +1,75 @@
 {
 	"pages": [
 		{
-			"path": "pages/index",
+			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "首页"
+				"navigationBarTitleText": "首页 - uni-router 演示"
 			}
 		},
 		{
-			"path": "pages/about",
+			"path": "pages/navigation/navigation",
 			"style": {
-				"navigationBarTitleText": "关于",
-				"requireAuth": false
+				"navigationBarTitleText": "路由导航"
 			}
 		},
 		{
-			"path": "pages/profile",
+			"path": "pages/guards/guards",
 			"style": {
-				"navigationBarTitleText": "个人中心",
+				"navigationBarTitleText": "路由守卫"
+			}
+		},
+		{
+			"path": "pages/detail/detail",
+			"style": {
+				"navigationBarTitleText": "详情页"
+			}
+		},
+		{
+			"path": "pages/protected/protected",
+			"style": {
+				"navigationBarTitleText": "受保护页面",
 				"requireAuth": true
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/about/about",
+			"style": {
+				"navigationBarTitleText": "关于"
+			}
+		},
+		{
+			"path": "pages/resolve/resolve",
+			"style": {
+				"navigationBarTitleText": "路由解析"
+			}
+		},
+		{
+			"path": "pages/error/error",
+			"style": {
+				"navigationBarTitleText": "错误页面"
 			}
 		}
 	],
 	"subPackages": [
 		{
-			"root": "pages/admin",
+			"root": "pages-sub",
 			"pages": [
 				{
-					"path": "dashboard",
+					"path": "profile/profile",
 					"style": {
-						"navigationBarTitleText": "管理面板",
+						"navigationBarTitleText": "个人中心"
+					}
+				},
+				{
+					"path": "settings/settings",
+					"style": {
+						"navigationBarTitleText": "设置",
 						"requireAuth": true
 					}
 				}
@@ -36,22 +77,25 @@
 		}
 	],
 	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#42b883",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
 		"list": [
 			{
-				"pagePath": "pages/index",
+				"pagePath": "pages/index/index",
 				"text": "首页"
 			},
 			{
-				"pagePath": "pages/about",
+				"pagePath": "pages/about/about",
 				"text": "关于"
-			},
-			{
-				"pagePath": "pages/profile",
-				"text": "我的"
 			}
 		]
 	},
 	"globalStyle": {
-		"navigationBarTextStyle": "black"
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "MengXi UniApp",
+		"navigationBarBackgroundColor": "#ffffff",
+		"backgroundColor": "#f5f5f5"
 	}
 }

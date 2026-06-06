@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig, type PluginOption } from 'vite'
+import uni from '@dcloudio/vite-plugin-uni'
 import {
 	buildProgress,
 	bundleAnalyzer,
@@ -17,15 +17,38 @@ import {
 
 export default defineConfig({
 	plugins: [
-		vue(),
+		uni(),
 
 		// 自动导入
 		autoImport({
 			imports: {
-				vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted', 'onUnmounted']
+				'@dcloudio/uni-app': [
+					'onLaunch',
+					'onShow',
+					'onHide',
+					'onLoad',
+					'onReady',
+					'onUnload',
+					'onPullDownRefresh',
+					'onReachBottom',
+					'onShareAppMessage',
+					'onShareTimeline',
+					'onPageScroll',
+					'onResize',
+					'onTabItemTap',
+					'onBackPress',
+					'onNavigationBarButtonTap',
+					'onNavigationBarSearchInputChanged',
+					'onNavigationBarSearchInputConfirmed',
+					'onNavigationBarSearchInputFocusChanged',
+					'onThemeChange',
+					'onPageNotFound',
+					'onUnhandledRejection'
+				]
 			},
 			dts: 'src/auto-imports.d.ts',
-			vueTemplate: true
+			vueTemplate: true,
+			fileFilter: /src[\\/].*\.[jt]sx?$|src[\\/].*\.vue$/
 		}),
 
 		// 环境变量校验
@@ -84,7 +107,8 @@ export default defineConfig({
 			metaMapping: {
 				navigationBarTitleText: 'title',
 				requireAuth: 'requireAuth'
-			}
+			},
+			dts: true
 		}),
 
 		// 文件复制
@@ -116,22 +140,17 @@ export default defineConfig({
 			rules: [
 				{
 					id: 'meta-keywords',
-					content: '<meta name="keywords" content="Vite, Plugin, MengXi">',
+					content: '<meta name="keywords" content="uni-app, Vite, Plugin, MengXi">',
 					position: 'head-end'
 				},
 				{
 					id: 'theme-color',
 					content: '<meta name="theme-color" content="#42b883">',
 					position: 'head-end'
-				},
-				{
-					id: 'preload-font',
-					content: '<link rel="preload" href="/assets/fonts/main.woff2" as="font" type="font/woff2" crossorigin>',
-					position: 'head-end'
 				}
 			],
 			templateVars: {
-				appName: 'Vite Plugin Playground'
+				appName: 'MengXi UniApp Playground'
 			},
 			logInjection: true
 		}),
@@ -155,11 +174,11 @@ export default defineConfig({
 
 		// 网站图标管理
 		faviconManager({
-			base: '/assets',
-			icons: [{ rel: 'icon', href: '/assets/favicon.ico', sizes: '32x32' }],
+			base: '/static',
+			icons: [{ rel: 'icon', href: '/static/favicon.ico', sizes: '32x32' }],
 			copyOptions: {
-				sourceDir: 'src/assets',
-				targetDir: 'dist/assets',
+				sourceDir: 'src/static',
+				targetDir: 'dist/static',
 				overwrite: true,
 				recursive: true
 			}
@@ -204,5 +223,5 @@ export default defineConfig({
 				onHide: 'console.log("[Loading] hidden")'
 			}
 		})
-	]
+	] as PluginOption[]
 })

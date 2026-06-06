@@ -31,36 +31,83 @@ export interface RouteConfig {
  */
 export const routes: RouteConfig[] = [
 	{
-		path: '/pages/index',
-		name: 'pagesIndex',
+		path: '/pages/index/index',
+		name: 'pagesIndexIndex',
 		meta: {
-			title: '首页',
+			title: '首页 - uni-router 演示',
 			isTab: true
 		}
 	},
 	{
-		path: '/pages/about',
-		name: 'pagesAbout',
+		path: '/pages/navigation/navigation',
+		name: 'pagesNavigationNavigation',
+		meta: {
+			title: '路由导航'
+		}
+	},
+	{
+		path: '/pages/guards/guards',
+		name: 'pagesGuardsGuards',
+		meta: {
+			title: '路由守卫'
+		}
+	},
+	{
+		path: '/pages/detail/detail',
+		name: 'pagesDetailDetail',
+		meta: {
+			title: '详情页'
+		}
+	},
+	{
+		path: '/pages/protected/protected',
+		name: 'pagesProtectedProtected',
+		meta: {
+			title: '受保护页面',
+			requireAuth: true
+		}
+	},
+	{
+		path: '/pages/login/login',
+		name: 'pagesLoginLogin',
+		meta: {
+			title: '登录'
+		}
+	},
+	{
+		path: '/pages/about/about',
+		name: 'pagesAboutAbout',
 		meta: {
 			title: '关于',
-			requireAuth: false,
 			isTab: true
 		}
 	},
 	{
-		path: '/pages/profile',
-		name: 'pagesProfile',
+		path: '/pages/resolve/resolve',
+		name: 'pagesResolveResolve',
 		meta: {
-			title: '个人中心',
-			requireAuth: true,
-			isTab: true
+			title: '路由解析'
 		}
 	},
 	{
-		path: '/pages/admin/dashboard',
-		name: 'pagesAdminDashboard',
+		path: '/pages/error/error',
+		name: 'pagesErrorError',
 		meta: {
-			title: '管理面板',
+			title: '错误页面'
+		}
+	},
+	{
+		path: '/pages-sub/profile/profile',
+		name: 'pagesSubProfileProfile',
+		meta: {
+			title: '个人中心'
+		}
+	},
+	{
+		path: '/pages-sub/settings/settings',
+		name: 'pagesSubSettingsSettings',
+		meta: {
+			title: '设置',
 			requireAuth: true
 		}
 	}
