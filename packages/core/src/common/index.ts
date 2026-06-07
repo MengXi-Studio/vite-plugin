@@ -1,6 +1,7 @@
 export * from './format'
 export * from './fs'
 export * from './html'
+export * from './path'
 export * from './script'
 export * from './ui'
 export * from './validation'

@@ -8,6 +8,7 @@ export default defineBuildConfig({
 		'src/common/format/index',
 		'src/common/fs/index',
 		'src/common/html/index',
+		'src/common/path/index',
 		'src/common/script/index',
 		'src/common/ui/index',
 		'src/common/validation/index',

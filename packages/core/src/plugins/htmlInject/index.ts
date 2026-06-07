@@ -3,6 +3,7 @@ import { BasePlugin, createPluginFactory } from '@/factory'
 import type { HtmlInjectOptions, InjectionLogEntry } from './types'
 import { validateAll, processRules } from './common'
 import path from 'node:path'
+import { normalizePath } from '@/common/path'
 
 /**
  * HTML 内容注入插件类
@@ -78,8 +79,8 @@ class HtmlInjectPlugin extends BasePlugin<HtmlInjectOptions> {
 		if (targetFile === 'index.html') {
 			return filename.endsWith('index.html') || filename.endsWith('index.htm')
 		}
-		const normalizedTarget = targetFile.replace(/\\/g, '/')
-		const normalizedFilename = filename.replace(/\\/g, '/')
+		const normalizedTarget = normalizePath(targetFile)
+		const normalizedFilename = normalizePath(filename)
 		if (normalizedFilename.endsWith(normalizedTarget)) {
 			return true
 		}

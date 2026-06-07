@@ -40,6 +40,11 @@
 			"import": "./dist/common/html/index.mjs",
 			"types": "./dist/common/html/index.d.ts"
 		},
+		"./common/path": {
+			"require": "./dist/common/path/index.cjs",
+			"import": "./dist/common/path/index.mjs",
+			"types": "./dist/common/path/index.d.ts"
+		},
 		"./common/script": {
 			"require": "./dist/common/script/index.cjs",
 			"import": "./dist/common/script/index.mjs",

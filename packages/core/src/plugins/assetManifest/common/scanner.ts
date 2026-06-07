@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { scanDirectory as scanDirectoryFromCommon } from '@/common/fs'
 import type { ScannedFile } from '@/common/fs'
+import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@/common/path'
 import type { AssetManifestOptions, AssetMap } from '../types'
 
 /**
@@ -49,41 +50,31 @@ export interface ScannedAsset {
  * ```
  */
 export function shouldIncludeAsset(relativePath: string, ext: string, options: Required<AssetManifestOptions>): boolean {
-	const normalizedPath = relativePath.replace(/\\/g, '/')
+	const normalizedPath = normalizePath(relativePath)
 
-	// 1. 排除指定扩展名
-	if (options.excludeExtensions.length > 0 && options.excludeExtensions.includes(ext)) {
+	// 1. 排除指定扩展名 / 包含指定扩展名
+	if (!isExtensionIncluded(ext, { includeExtensions: options.includeExtensions, excludeExtensions: options.excludeExtensions })) {
 		return false
 	}
 
-	// 2. 包含指定扩展名（列表非空时生效）
-	if (options.includeExtensions.length > 0 && !options.includeExtensions.includes(ext)) {
+	// 2. 排除指定路径（使用路径段边界匹配，避免子字符串误匹配）
+	if (isPathExcluded(relativePath, options.excludePaths, { matchMode: 'segment' })) {
 		return false
 	}
 
-	// 3. 排除指定路径（使用路径段边界匹配，避免子字符串误匹配）
-	if (options.excludePaths.length > 0) {
-		for (const excludePath of options.excludePaths) {
-			const normalizedExclude = excludePath.replace(/\\/g, '/')
-			if (normalizedPath.startsWith(normalizedExclude + '/') || normalizedPath === normalizedExclude || normalizedPath.includes('/' + normalizedExclude + '/') || normalizedPath.endsWith('/' + normalizedExclude)) {
-				return false
-			}
-		}
-	}
-
-	// 4. 排除清单输出文件自身（基于用户配置的 outputFile）
-	const normalizedOutputFile = options.outputFile.replace(/\\/g, '/')
+	// 3. 排除清单输出文件自身（基于用户配置的 outputFile）
+	const normalizedOutputFile = normalizePath(options.outputFile)
 	if (normalizedPath === normalizedOutputFile || normalizedPath.endsWith('/' + normalizedOutputFile)) {
 		return false
 	}
 
-	// 5. 排除常见的清单文件
+	// 4. 排除常见的清单文件
 	if (normalizedPath.endsWith('manifest.json') || normalizedPath.endsWith('asset-manifest.json')) {
 		return false
 	}
 
-	// 6. 排除压缩文件（作为安全兜底，即使未在 excludeExtensions 中配置）
-	if (ext === '.gz' || ext === '.br') {
+	// 5. 排除压缩文件（作为安全兜底，即使未在 excludeExtensions 中配置）
+	if (isPreCompressed(ext)) {
 		return false
 	}
 
@@ -111,14 +102,14 @@ export function shouldIncludeAsset(relativePath: string, ext: string, options: R
 export async function scanOutputDirectory(dirPath: string, options: Required<AssetManifestOptions>): Promise<ScannedAsset[]> {
 	const files: ScannedFile[] = await scanDirectoryFromCommon(dirPath, {
 		filter: (filePath, ext, _size) => {
-			const relativePath = path.relative(dirPath, filePath).replace(/\\/g, '/')
+			const relativePath = normalizePath(path.relative(dirPath, filePath))
 			return shouldIncludeAsset(relativePath, ext, options)
 		}
 	})
 
 	return files.map(f => ({
 		filePath: f.filePath,
-		relativePath: path.relative(dirPath, f.filePath).replace(/\\/g, '/'),
+		relativePath: normalizePath(path.relative(dirPath, f.filePath)),
 		size: f.size,
 		ext: f.extension
 	}))

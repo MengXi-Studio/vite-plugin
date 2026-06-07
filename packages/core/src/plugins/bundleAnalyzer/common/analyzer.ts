@@ -5,6 +5,7 @@ import { promisify } from 'node:util'
 import type { ModuleStats, ChunkStats, FileTypeDistribution, SizeWarning, BundleAnalysisResult } from '../types'
 import { scanDirectory } from '@/common/fs'
 import type { ScannedFile } from '@/common/fs'
+import { normalizePath } from '@/common/path'
 
 const gzip = promisify(zlib.gzip)
 
@@ -167,7 +168,7 @@ export async function buildChunkStats(outDir: string, files: ScannedFile[], opti
 
 	for (const file of files) {
 		const relativePath = path.relative(outDir, file.filePath)
-		const name = relativePath.replace(/\\/g, '/')
+		const name = normalizePath(relativePath)
 		const ext = file.extension
 
 		let chunkType: ChunkStats['type'] = 'chunk'

@@ -2,6 +2,7 @@ import path from 'node:path'
 import type { CompressAssetsOptions } from '../types'
 import { scanDirectory as scanDirectoryFromCommon } from '@/common/fs'
 import type { ScannedFile } from '@/common/fs'
+import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@/common/path'
 
 /**
  * 待压缩文件候选信息
@@ -39,30 +40,19 @@ export interface FileCandidate {
  * 路径比较时会统一将反斜杠转换为正斜杠，确保跨平台一致性。
  */
 export function shouldCompressFile(relativePath: string, ext: string, size: number, options: Required<CompressAssetsOptions>): boolean {
-	const normalizedPath = relativePath.replace(/\\/g, '/')
-
 	if (size < options.threshold) {
 		return false
 	}
 
-	if (options.excludeExtensions.length > 0 && options.excludeExtensions.includes(ext)) {
+	if (!isExtensionIncluded(ext, { includeExtensions: options.includeExtensions, excludeExtensions: options.excludeExtensions })) {
 		return false
 	}
 
-	if (options.includeExtensions.length > 0 && !options.includeExtensions.includes(ext)) {
+	if (isPathExcluded(relativePath, options.excludePaths)) {
 		return false
 	}
 
-	if (options.excludePaths.length > 0) {
-		for (const excludePath of options.excludePaths) {
-			const normalizedExclude = excludePath.replace(/\\/g, '/')
-			if (normalizedPath.startsWith(normalizedExclude) || normalizedPath.includes(normalizedExclude)) {
-				return false
-			}
-		}
-	}
-
-	if (ext === '.gz' || ext === '.br') {
+	if (isPreCompressed(ext)) {
 		return false
 	}
 
@@ -97,7 +87,7 @@ export async function scanDirectory(dirPath: string, options: Required<CompressA
 
 	return files.map(f => ({
 		filePath: f.filePath,
-		relativePath: path.relative(dirPath, f.filePath),
+		relativePath: normalizePath(path.relative(dirPath, f.filePath)),
 		size: f.size,
 		ext: f.extension
 	}))
