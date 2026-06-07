@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory/plugin'
+import type { BasePluginOptions } from '@/factory'
 
 /**
  * 输出报告格式类型

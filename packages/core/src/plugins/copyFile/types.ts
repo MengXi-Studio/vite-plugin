@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory/plugin'
+import type { BasePluginOptions } from '@/factory'
 
 /**
  * 复制文件插件的配置选项接口

@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory/plugin'
+import type { BasePluginOptions } from '@/factory'
 
 /**
  * 进度条显示格式类型

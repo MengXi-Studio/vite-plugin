@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory/plugin'
+import type { BasePluginOptions } from '@/factory'
 import type { EnvFieldRule, EnvValidationResult } from './common'
 
 /**
