@@ -14,6 +14,7 @@ export default defineBuildConfig({
 		'src/factory/index',
 		'src/logger/index',
 		'src/plugins/index',
+		'src/plugins/assetManifest/index',
 		'src/plugins/autoImport/index',
 		'src/plugins/buildProgress/index',
 		'src/plugins/bundleAnalyzer/index',

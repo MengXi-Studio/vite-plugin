@@ -70,6 +70,11 @@
 			"import": "./dist/plugins/index.mjs",
 			"types": "./dist/plugins/index.d.ts"
 		},
+		"./plugins/asset-manifest": {
+			"require": "./dist/plugins/assetManifest/index.cjs",
+			"import": "./dist/plugins/assetManifest/index.mjs",
+			"types": "./dist/plugins/assetManifest/index.d.ts"
+		},
 		"./plugins/auto-import": {
 			"require": "./dist/plugins/autoImport/index.cjs",
 			"import": "./dist/plugins/autoImport/index.mjs",
