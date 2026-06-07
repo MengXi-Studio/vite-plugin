@@ -31,7 +31,7 @@ export default defineConfig(config => {
 				imports: {
 					vue: ['*']
 				},
-				dts: true,
+				dts: 'auto-imports.d.ts',
 				vueTemplate: true,
 				enabled: isH5
 			}),
@@ -57,7 +57,7 @@ export default defineConfig(config => {
 			generateRouter({
 				pagesJsonPath: 'pages.json',
 				outputPath: 'router.config.ts',
-				dts: true,
+				dts: 'router.d.d.ts',
 				metaMapping: {
 					navigationBarTitleText: 'title',
 					requireAuth: 'requireAuth'

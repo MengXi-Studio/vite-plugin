@@ -36,6 +36,13 @@ export const routes: RouteConfig[] = [
 		meta: {
 			title: 'uni-app'
 		}
+	},
+	{
+		path: '/pages/about/index',
+		name: 'pagesAboutIndex',
+		meta: {
+			title: '关于'
+		}
 	}
 ]
 
