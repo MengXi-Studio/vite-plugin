@@ -161,6 +161,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/index.html'
 						},
 						{
+							text: 'assetManifest',
+							link: '/plugins/asset-manifest.html'
+						},
+						{
 							text: 'autoImport',
 							link: '/plugins/auto-import.html'
 						},

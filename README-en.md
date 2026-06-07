@@ -18,7 +18,7 @@
 - **Ready to Use** - 12 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
   management, global Loading, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
-- **Common Utility Library** - Built-in 6 Common utility modules supporting on-demand sub-path imports
+- **Common Utility Library** - Built-in 7 Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
 - **On-demand Import** - Supports sub-path exports to reduce bundle size
 
@@ -149,6 +149,9 @@ import { ANSI } from '@meng-xi/vite-plugin/common/ui'
 
 // Validation: chain validator, common validation functions
 import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng-xi/vite-plugin/common/validation'
+
+// Path: path normalization, extension filtering, path exclusion matching, pre-compression detection
+import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@meng-xi/vite-plugin/common/path'
 ```
 
 | Sub-path                                                                                     | Description                                                                                         |
@@ -159,6 +162,7 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng
 | [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)         | Callback body wrapping into safe function expressions (with try-catch)                              |
 | [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                 | Terminal ANSI color code constants                                                                  |
 | [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html) | Chain-style config validator, global name validation, script detection, callback field validation   |
+| [`common/path`](https://mengxi-studio.github.io/vite-plugin/en/common/path.html)             | Path normalization, extension filtering, path exclusion matching, pre-compression format detection  |
 
 ## Sub-path Exports
 

@@ -17,7 +17,7 @@
 
 - **开箱即用** - 12 个实用插件，覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading 等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
-- **通用工具库** - 内置 6 大 Common 工具模块，支持按需子路径导入
+- **通用工具库** - 内置 7 大 Common 工具模块，支持按需子路径导入
 - **类型安全** - 完整 TypeScript 类型定义与配置验证器
 - **按需导入** - 支持子路径导出，减少打包体积
 
@@ -148,6 +148,9 @@ import { ANSI } from '@meng-xi/vite-plugin/common/ui'
 
 // 参数验证：链式验证器、通用校验函数
 import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng-xi/vite-plugin/common/validation'
+
+// 路径处理：路径规范化、扩展名过滤、路径排除匹配、预压缩检测
+import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@meng-xi/vite-plugin/common/path'
 ```
 
 | 子路径                                                                                    | 描述                                                                      |
@@ -158,6 +161,7 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng
 | [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)         | 回调函数体包装为安全的函数表达式（含 try-catch）                          |
 | [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                 | 终端 ANSI 颜色码常量                                                      |
 | [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html) | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                      |
+| [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)             | 路径规范化、扩展名过滤、路径排除匹配、预压缩格式检测                      |
 
 ## 子路径导出
 

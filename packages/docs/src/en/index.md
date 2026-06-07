@@ -7,7 +7,7 @@ titleTemplate: Vite Practical Plugin Toolkit
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite Practical Plugin Toolkit
-  tagline: 12 ready-to-use plugins + complete plugin development framework for efficient Vite development
+  tagline: 13 ready-to-use plugins + complete plugin development framework for efficient Vite development
   image:
     src: /logo.png
     alt: MengXi Studio
@@ -23,6 +23,9 @@ hero:
       link: https://github.com/MengXi-Studio/vite-plugin
 
 features:
+  - icon: 📋
+    title: Asset Manifest Generation
+    details: assetManifest automatically scans build output directory and generates asset mapping manifest, supporting Vite/Webpack/custom output formats, entry grouping, and runtime injection
   - icon: 🔄
     title: Auto Import
     details: autoImport automatically injects import statements with preset mappings, wildcard (`'*'`), directory scanning, Vue template auto-import, and TypeScript declaration generation
@@ -45,11 +48,17 @@ features:
     title: Environment Variable Validation
     details: envGuard validates environment variable types, formats, and ranges, supporting custom rules, runtime guards, and template generation
   - icon: 🔖
-    title: Version Management & Update Detection
-    details: generateVersion auto-generates version numbers with file output and global variable injection; versionUpdateChecker detects version changes at runtime and prompts users to refresh
+    title: Version Generation
+    details: generateVersion auto-generates version numbers with file output and global variable injection, supporting timestamp, git hash, and other formats
+  - icon: 🔔
+    title: Version Update Detection
+    details: versionUpdateChecker periodically detects version changes at runtime, prompting users to refresh when a new version is found, with configurable check interval and prompt style
   - icon: 📝
-    title: HTML Injection & Favicon Management
-    details: htmlInject supports multi-position and conditional HTML content injection, template variable replacement, and security filtering; faviconManager manages favicon link injection
+    title: HTML Content Injection
+    details: htmlInject supports multi-position and conditional HTML content injection, template variable replacement, and security filtering
+  - icon: 🌐
+    title: Favicon Management
+    details: faviconManager manages favicon link injection with automatic multi-format icon detection and HTML injection
   - icon: ⏳
     title: Global Loading State Management
     details: loadingManager provides XHR/Fetch request interception, white-screen Loading, custom styles & animations, and lifecycle callbacks for seamless white-screen-to-interactive transitions

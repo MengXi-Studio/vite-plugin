@@ -161,6 +161,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/plugins/index.html'
 						},
 						{
+							text: 'assetManifest',
+							link: '/en/plugins/asset-manifest.html'
+						},
+						{
 							text: 'autoImport',
 							link: '/en/plugins/auto-import.html'
 						},

@@ -4,10 +4,11 @@
 
 ## Built-in Plugins
 
-Twelve ready-to-use plugins covering common build scenarios:
+Thirteen ready-to-use plugins covering common build scenarios:
 
 | Plugin                                                     | Description                                                                                                                                               |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [assetManifest](/en/plugins/asset-manifest)                | Automatically scan build output and generate asset mapping manifest, supporting Vite/Webpack/custom formats, entry grouping, and runtime injection        |
 | [autoImport](/en/plugins/auto-import)                      | Auto-inject import statements with preset mappings, wildcard (`'*'`), directory scanning, Vue template auto-import, and TypeScript declaration generation |
 | [buildProgress](/en/plugins/build-progress)                | Display real-time build progress bar in terminal, supporting bar / spinner / minimal formats                                                              |
 | [bundleAnalyzer](/en/plugins/bundle-analyzer)              | Build artifact size analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison                                             |
@@ -18,7 +19,7 @@ Twelve ready-to-use plugins covering common build scenarios:
 | [generateRouter](/en/plugins/generate-router)              | Auto-generate router configuration and TypeScript type declarations from uni-app's pages.json                                                             |
 | [generateVersion](/en/plugins/generate-version)            | Auto-generate version numbers with file output and global variable injection                                                                              |
 | [htmlInject](/en/plugins/html-inject)                      | HTML content injection with multiple positions and conditions                                                                                             |
-| [loadingManager](/en/plugins/loading-manager)              | Global Loading state management with request interception and white-screen Loading                                                                        |
+| [loadingManager](/en/plugins/loading-manager)              | Global Loading state management with XHR/Fetch request interception, white-screen Loading, custom styles & animations, and lifecycle callbacks            |
 | [versionUpdateChecker](/en/plugins/version-update-checker) | Runtime version update check with refresh prompt                                                                                                          |
 
 ## Plugin Development Framework
@@ -108,6 +109,7 @@ Provides chainable validator and preset validation functions:
 ## Next Steps
 
 - [Installation](/en/installation) - Quick start
+- [assetManifest](/en/plugins/asset-manifest) - Asset manifest generation
 - [autoImport](/en/plugins/auto-import) - Auto import
 - [buildProgress](/en/plugins/build-progress) - Build progress display
 - [bundleAnalyzer](/en/plugins/bundle-analyzer) - Build artifact size analysis

@@ -4,10 +4,11 @@
 
 ## 内置插件
 
-开箱即用的十二款插件，覆盖常见构建场景：
+开箱即用的十三款插件，覆盖常见构建场景：
 
 | 插件                                                    | 功能                                                                                                      |
 | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [assetManifest](/plugins/asset-manifest)                | 构建后自动扫描产物目录生成资源映射清单，支持 Vite/Webpack/自定义三种输出格式、按入口分组和运行时注入      |
 | [autoImport](/plugins/auto-import)                      | 自动注入 import 语句，支持预设映射、通配符（`'*'`）、目录扫描、Vue 模板自动导入和 TypeScript 类型声明生成 |
 | [buildProgress](/plugins/build-progress)                | 在终端实时显示构建进度条，支持 bar / spinner / minimal 三种格式                                           |
 | [bundleAnalyzer](/plugins/bundle-analyzer)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比                                      |
@@ -18,7 +19,7 @@
 | [generateRouter](/plugins/generate-router)              | 根据 uni-app 的 pages.json 自动生成路由配置与类型声明                                                     |
 | [generateVersion](/plugins/generate-version)            | 自动生成版本号，支持文件输出和全局变量注入                                                                |
 | [htmlInject](/plugins/html-inject)                      | HTML 内容注入，支持多种位置和条件注入                                                                     |
-| [loadingManager](/plugins/loading-manager)              | 全局 Loading 状态管理和白屏 Loading和白屏 Loading                                                         |
+| [loadingManager](/plugins/loading-manager)              | 全局 Loading 状态管理，支持 XHR/Fetch 请求自动拦截、白屏 Loading、自定义样式与动画及生命周期回调          |
 | [versionUpdateChecker](/plugins/version-update-checker) | 运行时版本更新检查，发现新版本时提示用户刷新                                                              |
 
 ## 插件开发框架
@@ -108,6 +109,7 @@ interface BasePluginOptions {
 ## 下一步
 
 - [安装使用](/installation) - 快速开始
+- [assetManifest](/plugins/asset-manifest) - 资源清单生成
 - [autoImport](/plugins/auto-import) - 自动导入
 - [buildProgress](/plugins/build-progress) - 构建进度展示
 - [bundleAnalyzer](/plugins/bundle-analyzer) - 构建产物体积分析

@@ -24,10 +24,27 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, faviconManager, generateRouter, generateVersion, htmlInject, loadingManager, versionUpdateChecker, autoImport } from '@meng-xi/vite-plugin'
+import {
+	assetManifest,
+	buildProgress,
+	bundleAnalyzer,
+	compressAssets,
+	copyFile,
+	envGuard,
+	faviconManager,
+	generateRouter,
+	generateVersion,
+	htmlInject,
+	loadingManager,
+	versionUpdateChecker,
+	autoImport
+} from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
+		// Asset manifest generation
+		assetManifest(),
+
 		// Auto import
 		autoImport({
 			imports: { vue: ['*'] },
@@ -189,6 +206,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 
 ## Next Steps
 
+- [assetManifest](/en/plugins/asset-manifest) - Asset manifest generation
 - [autoImport](/en/plugins/auto-import) - Auto import
 - [buildProgress](/en/plugins/build-progress) - Build progress display
 - [bundleAnalyzer](/en/plugins/bundle-analyzer) - Build artifact size analysis

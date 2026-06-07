@@ -7,7 +7,7 @@ titleTemplate: Vite 实用插件工具包
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite 实用插件工具包
-  tagline: 12 款开箱即用插件 + 完整的插件开发框架，让 Vite 开发更高效
+  tagline: 13 款开箱即用插件 + 完整的插件开发框架，让 Vite 开发更高效
   image:
     src: /logo.png
     alt: 梦曦工作室
@@ -23,6 +23,9 @@ hero:
       link: https://github.com/MengXi-Studio/vite-plugin
 
 features:
+  - icon: 📋
+    title: 资源清单生成
+    details: assetManifest 在构建后自动扫描产物目录生成资源映射清单，支持 Vite/Webpack/自定义三种输出格式、按入口分组和运行时注入
   - icon: 🔄
     title: 自动导入
     details: autoImport 自动注入 import 语句，支持预设映射、通配符（`'*'`）、目录扫描、Vue 模板自动导入和 TypeScript 类型声明生成
@@ -45,11 +48,17 @@ features:
     title: 环境变量校验
     details: envGuard 校验环境变量的类型、格式与范围，支持自定义规则、运行时守卫与模板生成
   - icon: 🔖
-    title: 版本管理与更新检测
-    details: generateVersion 自动生成版本号，支持文件输出与全局变量注入；versionUpdateChecker 在运行时定期检测版本变更并提示用户刷新
+    title: 版本号生成
+    details: generateVersion 自动生成版本号，支持文件输出与全局变量注入，提供时间戳、git hash 等多种格式
+  - icon: 🔔
+    title: 版本更新检测
+    details: versionUpdateChecker 在运行时定期检测版本变更，发现新版本时提示用户刷新，支持自定义检测间隔与提示样式
   - icon: 📝
-    title: HTML 注入与图标管理
-    details: htmlInject 支持多种位置与条件的 HTML 内容注入、模板变量替换及安全过滤；faviconManager 管理 favicon 链接注入
+    title: HTML 内容注入
+    details: htmlInject 支持多种位置与条件的 HTML 内容注入、模板变量替换及安全过滤
+  - icon: 🌐
+    title: 网站图标管理
+    details: faviconManager 管理 favicon 链接注入，支持多格式图标自动检测与 HTML 注入
   - icon: ⏳
     title: 全局 Loading 状态管理
     details: loadingManager 支持 XHR/Fetch 请求自动拦截、白屏 Loading、自定义样式与动画及生命周期回调，实现从白屏到交互的无缝过渡
