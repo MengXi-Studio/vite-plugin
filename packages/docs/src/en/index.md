@@ -23,49 +23,22 @@ hero:
       link: https://github.com/MengXi-Studio/vite-plugin
 
 features:
-  - icon: 📋
-    title: Asset Manifest Generation
-    details: assetManifest automatically scans build output directory and generates asset mapping manifest, supporting Vite/Webpack/custom output formats, entry grouping, and runtime injection
   - icon: 🔄
-    title: Auto Import
-    details: autoImport automatically injects import statements with preset mappings, wildcard (`'*'`), directory scanning, Vue template auto-import, and TypeScript declaration generation
-  - icon: 🚀
-    title: Build Progress Display
-    details: buildProgress displays real-time build progress bar in terminal, supporting bar, spinner, and minimal formats
-  - icon: 📦
-    title: Build Artifact Compression
-    details: compressAssets automatically compresses build artifacts, supporting gzip / brotli / both modes with configurable compression level, file filtering, and concurrency, plus compression statistics report
-  - icon: 📊
-    title: Build Artifact Size Analysis
-    details: bundleAnalyzer analyzes build artifact size distribution with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison
-  - icon: 📁
-    title: File Copying
-    details: copyFile copies files or directories to specified locations after build, with incremental copying, concurrency control, and empty directory skipping
-  - icon: 🗺️
-    title: Router Generation
-    details: generateRouter auto-generates router config and type declarations from pages.json, supporting multiple naming strategies, sub-package routes, and file watching
+    title: Build Enhancement
+    details: autoImport, buildProgress, compressAssets, bundleAnalyzer, assetManifest — covering auto-import, progress display, compression, size analysis, and asset manifest
+  - icon: 🗂️
+    title: Assets & Routing
+    details: copyFile, generateRouter, faviconManager, htmlInject — file copying, route generation, favicon management, and HTML injection
   - icon: 🔐
-    title: Environment Variable Validation
-    details: envGuard validates environment variable types, formats, and ranges, supporting custom rules, runtime guards, and template generation
-  - icon: 🔖
-    title: Version Generation
-    details: generateVersion auto-generates version numbers with file output and global variable injection, supporting timestamp, git hash, and other formats
-  - icon: 🔔
-    title: Version Update Detection
-    details: versionUpdateChecker periodically detects version changes at runtime, prompting users to refresh when a new version is found, with configurable check interval and prompt style
-  - icon: 📝
-    title: HTML Content Injection
-    details: htmlInject supports multi-position and conditional HTML content injection, template variable replacement, and security filtering
-  - icon: 🌐
-    title: Favicon Management
-    details: faviconManager manages favicon link injection with automatic multi-format icon detection and HTML injection
+    title: Environment & Version
+    details: envGuard, generateVersion, versionUpdateChecker — environment variable validation, version generation, and update detection
   - icon: ⏳
-    title: Global Loading State Management
-    details: loadingManager provides XHR/Fetch request interception, white-screen Loading, custom styles & animations, and lifecycle callbacks for seamless white-screen-to-interactive transitions
+    title: Runtime Experience
+    details: loadingManager — global Loading state management with request interception, white-screen Loading, custom styles & animations
   - icon: 🧱
     title: Plugin Development Framework
-    details: Exports BasePlugin, createPluginFactory, Logger, Validator and more, providing complete lifecycle management, chainable config validation, and safeExecute wrappers
+    details: Exports BasePlugin, createPluginFactory, Logger, Validator and more, providing complete lifecycle management, chainable config validation, and safe execution wrappers
   - icon: 🛠️
     title: Common Utility Modules
-    details: Provides 6 utility modules — format, fs, html, script, ui, validation — covering date formatting, file operations, HTML injection, script generation, terminal UI, and config validation
+    details: 6 utility modules — format, fs, html, script, ui, validation — covering date formatting, file operations, HTML injection, script generation, terminal UI, and config validation
 ---

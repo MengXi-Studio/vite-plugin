@@ -1,3 +1,4 @@
+export { AssetGroup, AssetManifestOptions, AssetManifestResult, AssetMap, CustomFormatter, ManifestOutputFormat, WebpackEntryAsset, WebpackManifestOutput, assetManifest } from './assetManifest/index.js';
 export { AutoImportOptions, ImportMapping, ResolvedImport, ScannedModule, TransformResult, autoImport } from './autoImport/index.js';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './buildProgress/index.js';
 export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './bundleAnalyzer/index.js';

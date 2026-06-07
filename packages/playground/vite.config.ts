@@ -1,6 +1,7 @@
 import { defineConfig, type PluginOption } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 import {
+	assetManifest,
 	buildProgress,
 	bundleAnalyzer,
 	compressAssets,
@@ -18,6 +19,16 @@ import {
 export default defineConfig({
 	plugins: [
 		uni(),
+
+		// 资源清单生成
+		assetManifest({
+			outputFormat: 'vite',
+			outputFile: 'manifest.json',
+			publicPath: '/',
+			injectRuntime: true,
+			runtimeGlobalName: '__ASSET_MANIFEST__',
+			groupByEntry: true
+		}),
 
 		// 自动导入
 		autoImport({

@@ -1,12 +1,14 @@
 export { DateFormatOptions, formatDate, formatFileSize, getDateFormatParams, parseTemplate } from './common/format/index.js';
 export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.js';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './common/html/index.js';
+export { isExtensionIncluded, isPathExcluded, isPreCompressed, normalizePath } from './common/path/index.js';
 export { makeCallback } from './common/script/index.js';
 export { ANSI } from './common/ui/index.js';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.js';
 export { validateCallbackFields, validateGlobalName, validateNoScriptInTemplate } from './common/validation/index.js';
 export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.js';
 export { Logger } from './logger/index.js';
+export { AssetGroup, AssetManifestOptions, AssetManifestResult, AssetMap, CustomFormatter, ManifestOutputFormat, WebpackEntryAsset, WebpackManifestOutput, assetManifest } from './plugins/assetManifest/index.js';
 export { AutoImportOptions, ImportMapping, ResolvedImport, ScannedModule, TransformResult, autoImport } from './plugins/autoImport/index.js';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './plugins/buildProgress/index.js';
 export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './plugins/bundleAnalyzer/index.js';

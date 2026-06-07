@@ -1,3 +1,75 @@
+## 0.1.7（2026-06-08）
+
+新增 assetManifest 资源清单生成插件
+
+### assetManifest（新增）
+
+资源清单生成插件，在 Vite 构建（`writeBundle`）完成后自动扫描输出目录中的文件，生成资源映射清单（`manifest.json`），支持 Vite 标准、Webpack 兼容和自定义三种输出格式。支持按入口分组、运行时注入、自定义格式化等功能。`enforce: 'post'`。
+
+**功能特性**：
+
+- **多种输出格式**：支持 `vite`（Vite 标准格式）、`webpack`（Webpack 兼容格式）和 `custom`（自定义格式化器）三种清单格式
+- **按入口分组**：`groupByEntry` 开启后，将资源按入口点分组，区分 JS、CSS 和其他资源文件
+- **运行时注入**：`injectRuntime` 将资源映射表以全局变量形式注入到 HTML 文件的 `</head>` 标签前
+- **文件过滤**：支持 `includeExtensions` / `excludeExtensions` / `excludePaths` 灵活控制清单包含的文件
+- **公共路径前缀**：`publicPath` 自动添加到所有资源路径前，适配 CDN 部署
+- **冲突检测**：构建资源映射表时自动检测路径冲突并输出警告
+- **实例方法**：提供 `getAssetMap()`、`getManifest()`、`getGroups()` 方法供外部访问清单数据
+
+**配置选项**：
+
+| 选项              | 类型                                  | 默认值                   | 描述                                   |
+| ----------------- | ------------------------------------- | ------------------------ | -------------------------------------- |
+| outputFormat      | `'vite'` \| `'webpack'` \| `'custom'` | `'vite'`                 | 清单输出格式                           |
+| outputFile        | `string`                              | `'manifest.json'`        | 清单输出文件名，相对于构建输出目录     |
+| includeExtensions | `string[]`                            | `[]`                     | 包含的文件扩展名，为空则包含所有       |
+| publicPath        | `string`                              | `'/'`                    | 公共路径前缀                           |
+| injectRuntime     | `boolean`                             | `false`                  | 是否将清单注入为运行时全局变量         |
+| runtimeGlobalName | `string`                              | `'__ASSET_MANIFEST__'`   | 运行时全局变量名称                     |
+| customFormatter   | `CustomFormatter` \| `null`           | `null`                   | 自定义格式化器，仅 `custom` 格式时生效 |
+| groupByEntry      | `boolean`                             | `false`                  | 是否按入口分组资源                     |
+| excludeExtensions | `string[]`                            | `['.map', '.gz', '.br']` | 排除的文件扩展名                       |
+| excludePaths      | `string[]`                            | `[]`                     | 排除的路径模式列表                     |
+
+**AssetMap 类型**：
+
+| 属性 | 类型     | 描述                                   |
+| ---- | -------- | -------------------------------------- |
+| [key | `string` | 原始资源路径，值为带 hash 的输出路径 ] |
+
+**AssetGroup 类型**：
+
+| 属性         | 类型       | 描述                |
+| ------------ | ---------- | ------------------- |
+| entry        | `string`   | 入口名称            |
+| assets       | `object`   | 入口关联的资源分类  |
+| assets.js    | `string[]` | JavaScript 文件列表 |
+| assets.css   | `string[]` | CSS 文件列表        |
+| assets.other | `string[]` | 其他资源文件列表    |
+
+**AssetManifestResult 类型**：
+
+| 属性       | 类型           | 描述                         |
+| ---------- | -------------- | ---------------------------- |
+| version    | `string`       | 清单版本号                   |
+| timestamp  | `string`       | 生成时间戳（ISO 8601 格式）  |
+| publicPath | `string`       | 公共路径前缀                 |
+| assets     | `AssetMap`     | 资源映射表                   |
+| groups     | `AssetGroup[]` | 按入口分组的资源信息（可选） |
+
+**WebpackManifestOutput 类型**：
+
+| 属性    | 类型                  | 描述               |
+| ------- | --------------------- | ------------------ |
+| entries | `WebpackEntryAsset[]` | 所有入口的资源信息 |
+| assets  | `AssetMap`            | 资源映射表         |
+
+### 子路径导出（变更）
+
+- 新增 `@meng-xi/vite-plugin/plugins/asset-manifest` 子路径导出
+- 新增导出函数：`assetManifest`
+- 新增导出类型：`AssetManifestOptions`、`AssetMap`、`AssetGroup`、`AssetManifestResult`、`ManifestOutputFormat`、`WebpackEntryAsset`、`WebpackManifestOutput`、`CustomFormatter`
+
 ## 0.1.6（2026-06-07）
 
 autoImport 支持通配符自动导入，generateRouter 新增路由类型声明生成，Common 工具模块新增多项通用函数，插件代码规范化重构

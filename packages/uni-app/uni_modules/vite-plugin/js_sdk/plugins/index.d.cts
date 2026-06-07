@@ -1,3 +1,4 @@
+export { AssetGroup, AssetManifestOptions, AssetManifestResult, AssetMap, CustomFormatter, ManifestOutputFormat, WebpackEntryAsset, WebpackManifestOutput, assetManifest } from './assetManifest/index.cjs';
 export { AutoImportOptions, ImportMapping, ResolvedImport, ScannedModule, TransformResult, autoImport } from './autoImport/index.cjs';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './buildProgress/index.cjs';
 export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './bundleAnalyzer/index.cjs';

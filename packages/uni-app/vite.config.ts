@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 import {
+	assetManifest,
 	buildProgress,
 	bundleAnalyzer,
 	copyFile,
@@ -25,6 +26,17 @@ export default defineConfig(config => {
 	return {
 		plugins: [
 			uni(),
+
+			// 资源清单生成
+			assetManifest({
+				outputFormat: 'vite',
+				outputFile: 'manifest.json',
+				publicPath: '/',
+				injectRuntime: true,
+				runtimeGlobalName: '__ASSET_MANIFEST__',
+				groupByEntry: true,
+				enabled: isH5 && isProd
+			}),
 
 			// 自动导入 - 使用通配符导入 Vue 全部 API
 			autoImport({
