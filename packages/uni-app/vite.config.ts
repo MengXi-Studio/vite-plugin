@@ -26,16 +26,17 @@ export default defineConfig(config => {
 		plugins: [
 			uni(),
 
-			// 自动导入
+			// 自动导入 - 使用通配符导入 Vue 全部 API
 			autoImport({
 				imports: {
-					vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted', 'onUnmounted']
+					vue: ['*']
 				},
-				dts: 'auto-imports.d.ts',
+				dts: true,
 				vueTemplate: true,
 				enabled: isH5
 			}),
 
+			// 环境变量校验
 			envGuard({
 				required: {
 					VITE_APP_TITLE: { type: 'string', required: true, minLength: 1, maxLength: 50 },
@@ -45,21 +46,25 @@ export default defineConfig(config => {
 				failAction: 'warn'
 			}),
 
+			// 构建进度条
 			buildProgress({
 				format: 'bar',
 				clearOnComplete: false,
 				showModuleName: true
 			}),
 
+			// 路由生成 + 类型声明
 			generateRouter({
 				pagesJsonPath: 'pages.json',
 				outputPath: 'router.config.ts',
+				dts: true,
 				metaMapping: {
 					navigationBarTitleText: 'title',
 					requireAuth: 'requireAuth'
 				}
 			}),
 
+			// 版本生成
 			generateVersion({
 				format: 'custom',
 				customFormat: '{YYYY}.{MM}.{DD}-{hash}',
@@ -73,6 +78,7 @@ export default defineConfig(config => {
 				}
 			}),
 
+			// HTML 注入
 			htmlInject({
 				rules: [
 					{
@@ -104,6 +110,7 @@ export default defineConfig(config => {
 				enabled: isH5
 			}),
 
+			// 网站图标管理
 			faviconManager({
 				base: viteEnv.VITE_BASE_URL,
 				enabled: isH5 && isProd,
@@ -113,12 +120,14 @@ export default defineConfig(config => {
 				}
 			}),
 
+			// 文件复制
 			copyFile({
 				sourceDir: resolve('public'),
 				targetDir: resolve('dist/build/h5'),
 				enabled: isH5 && isProd
 			}),
 
+			// 构建产物压缩
 			compressAssets({
 				algorithm: 'both',
 				threshold: 1024,
@@ -126,6 +135,7 @@ export default defineConfig(config => {
 				enabled: isH5 && isProd
 			}),
 
+			// 构建产物体积分析
 			bundleAnalyzer({
 				outputFormat: 'json',
 				sizeThreshold: 100,
@@ -134,6 +144,7 @@ export default defineConfig(config => {
 				enabled: isH5 && isProd
 			}),
 
+			// 全局 Loading 状态管理
 			loadingManager({
 				defaultVisible: true,
 				autoHideOn: 'DOMContentLoaded',
@@ -163,6 +174,7 @@ export default defineConfig(config => {
 				enabled: isH5
 			}),
 
+			// 版本更新检测
 			versionUpdateChecker({
 				checkInterval: 60000,
 				onUpdateAvailable: 'console.log("[VersionUpdate] 当前:", currentVersion, "最新:", newVersion); return true;',

@@ -1,3 +1,117 @@
+## 0.1.6（2026-06-07）
+
+autoImport 支持通配符自动导入，generateRouter 新增路由类型声明生成，Common 工具模块新增多项通用函数，插件代码规范化重构
+
+### autoImport（增强）
+
+自动导入插件新增通配符 `'*'` 支持，可自动导入模块的所有命名导出，无需逐一列举。修复了开发模式下与 uni-app 插件的协同问题，修正了默认文件过滤规则。
+
+**新增功能**：
+
+- **通配符导入**：`imports` 配置支持 `'*'` 通配符，自动解析模块的所有命名导出。解析策略优先从 `.d.ts` 类型声明文件提取导出（最准确），回退到运行时入口文件解析
+- **Vue SFC 注入**：新增 `injectIntoScriptSetup` 函数，将 import 语句注入到 `<script setup>` 块内部，解决 `enforce: 'pre'` 时与 Vue SFC 编译器的协同问题
+
+**修复**：
+
+- 修复 `transform` 钩子 `enforce: 'post'` 导致裸模块标识符无法解析的问题，改回 `enforce: 'pre'`
+- 修复默认 `fileFilter` 未排除 `node_modules`，导致库文件被错误处理并注入错误的 import 语句
+- 修复 `resolveWildcardExports` 解析 `vue` 模块时走了运行时入口（仅含 `export { compile }`），导致 `vue: ['*']` 只解析出 `compile` 一个导出
+- 修复 `for (const [mod, items] of moduleMap)` 中 `items` 变量声明后未使用的问题
+- 修复 `makeCallback` 返回的匿名函数作为函数声明调用时的语法错误，改用 IIFE 形式
+
+**配置选项变更**：
+
+| 选项       | 变更前默认值                        | 变更后默认值                                             | 说明                             |
+| ---------- | ----------------------------------- | -------------------------------------------------------- | -------------------------------- |
+| imports    | -                                   | -                                                        | 新增支持 `'*'` 通配符格式        |
+| fileFilter | `/\.(vue\|jsx\|tsx\|ts\|js\|mjs)$/` | `/^(?!.*node_modules).*\.(vue\|jsx\|tsx\|ts\|js\|mjs)$/` | 默认排除 `node_modules` 中的文件 |
+
+**通配符用法**：
+
+```typescript
+autoImport({
+	imports: {
+		vue: ['*'], // 自动导入 vue 的所有命名导出
+		'vue-router': ['*'] // 自动导入 vue-router 的所有命名导出
+	}
+})
+```
+
+### generateRouter（增强）
+
+路由生成插件新增 TypeScript 类型声明文件生成功能，为 `@meng-xi/uni-router` 模块扩展 `RouteNameMap` 接口，实现类型安全的路由导航。
+
+**新增功能**：
+
+- **路由类型声明生成**：新增 `dts` 选项，控制是否生成 `router.d.ts` 类型声明文件
+  - `false`：不生成类型声明文件（默认）
+  - `true`：使用默认路径 `src/router.d.ts`
+  - `string`：在指定路径生成类型声明文件
+- 生成的类型声明包含 TSDoc 注释（页面标题）和完整的元信息类型映射
+
+**生成的类型声明示例**：
+
+```typescript
+import '@meng-xi/uni-router'
+
+declare module '@meng-xi/uni-router' {
+	interface RouteNameMap {
+		/** 首页 */
+		pagesIndexIndex: { path: '/pages/index/index'; meta: { title: string; isTab: true } }
+		/** 个人中心 */
+		pagesUserProfile: { path: '/pages/user/profile'; meta: { title: string; requireAuth: true } }
+	}
+}
+```
+
+**新增配置选项**：
+
+| 选项 | 类型                  | 默认值  | 描述                                          |
+| ---- | --------------------- | ------- | --------------------------------------------- |
+| dts  | `string` \| `boolean` | `false` | 路由类型声明文件输出路径，`true` 使用默认路径 |
+
+### Common 工具模块（增强）
+
+新增多项通用函数，提升工具模块的实用性：
+
+**common/format（增强）**：
+
+| 新增函数        | 描述                                                                         |
+| --------------- | ---------------------------------------------------------------------------- |
+| `parseTemplate` | 替换模板字符串中的 `{{key}}` 占位符，键名特殊字符自动转义，值中 `$` 安全处理 |
+| `formatDate`    | 使用 `{YYYY}`、`{MM}` 等占位符格式化日期字符串                               |
+
+**common/fs（增强）**：
+
+| 新增函数                  | 描述                                                              |
+| ------------------------- | ----------------------------------------------------------------- |
+| `writeFileSyncSafely`     | 同步写入文件，自动创建不存在的目录，适用于 `transform` 等同步钩子 |
+| `shouldUpdateFileContent` | 对比文件内容是否需要更新，减少不必要的文件 IO 操作                |
+
+**common/html（增强）**：
+
+| 新增函数         | 描述                                                                      |
+| ---------------- | ------------------------------------------------------------------------- |
+| `escapeHtmlAttr` | 转义 HTML 属性值中的特殊字符（`&`、`"`、`'`、`<`、`>`），防止属性注入攻击 |
+
+### 插件代码规范化重构
+
+按照 `autoImport/common` 目录规范，将各插件中不属于插件核心逻辑的函数、常量等提取到 `common/` 子目录，通过 `common/index.ts` 聚合导出：
+
+- `buildProgress/common` — 提取常量和工具函数
+- `generateRouter/common` — 提取路由工具函数和类型声明生成逻辑（`dts.ts`）
+- `envGuard/common` — 提取运行时守卫、模板生成、校验逻辑
+- `faviconManager/common` — 提取类型定义
+- `htmlInject/common` — 提取代码生成器和校验器
+- `loadingManager/common` — 提取常量、函数体生成器、代码生成器和校验器
+- `versionUpdateChecker/common` — 提取代码生成器和校验器
+
+### 子路径导出（变更）
+
+- `@meng-xi/vite-plugin/common/format` 新增导出：`parseTemplate`、`formatDate`
+- `@meng-xi/vite-plugin/common/fs` 新增导出：`writeFileSyncSafely`、`shouldUpdateFileContent`
+- `@meng-xi/vite-plugin/common/html` 新增导出：`escapeHtmlAttr`
+
 ## 0.1.5（2026-06-06）
 
 新增 autoImport 自动导入插件，精简 Common 工具模块（移除 compress、object、path），修复 dts 类型声明文件在开发模式下不生成的问题

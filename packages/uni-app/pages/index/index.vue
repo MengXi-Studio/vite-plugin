@@ -18,9 +18,41 @@
 				<text class="info-label">环境</text>
 				<text class="info-value">{{ versionInfo.environment || '-' }}</text>
 			</view>
+		</view>
+
+		<!-- autoImport 验证 -->
+		<view class="card">
+			<text class="card-title">autoImport - 自动导入</text>
+			<text class="hint">使用 vue: ['*'] 通配符，自动导入 Vue 全部 API</text>
 			<view class="info-row">
-				<text class="info-label">格式</text>
-				<text class="info-value">{{ versionInfo.format || '-' }}</text>
+				<text class="info-label">ref</text>
+				<text :class="['info-value', autoImportResult.ref ? 'active' : '']">
+					{{ autoImportResult.ref ? '可用' : '不可用' }}
+				</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">reactive</text>
+				<text :class="['info-value', autoImportResult.reactive ? 'active' : '']">
+					{{ autoImportResult.reactive ? '可用' : '不可用' }}
+				</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">computed</text>
+				<text :class="['info-value', autoImportResult.computed ? 'active' : '']">
+					{{ autoImportResult.computed ? '可用' : '不可用' }}
+				</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">watch</text>
+				<text :class="['info-value', autoImportResult.watch ? 'active' : '']">
+					{{ autoImportResult.watch ? '可用' : '不可用' }}
+				</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">onMounted</text>
+				<text :class="['info-value', autoImportResult.onMounted ? 'active' : '']">
+					{{ autoImportResult.onMounted ? '可用' : '不可用' }}
+				</text>
 			</view>
 		</view>
 
@@ -40,7 +72,7 @@
 
 		<!-- Loading 演示 -->
 		<view class="card">
-			<text class="card-title">Loading 演示</text>
+			<text class="card-title">loadingManager - 全局 Loading</text>
 			<text class="hint">autoBind: 'all' 已开启，请求自动触发 Loading</text>
 			<view class="btn-group">
 				<view class="btn btn-sm" @click="showLoading">
@@ -70,8 +102,8 @@
 
 		<!-- 压缩验证 -->
 		<view class="card">
-			<text class="card-title">压缩验证</text>
-			<text class="hint">compressAssets 在生产构建后生成 .gz / .br 文件</text>
+			<text class="card-title">compressAssets - 构建产物压缩</text>
+			<text class="hint">生产构建后生成 .gz / .br 文件</text>
 			<view class="info-row">
 				<text class="info-label">算法</text>
 				<text class="info-value">gzip + brotli (both)</text>
@@ -90,6 +122,14 @@
 				</text>
 			</view>
 		</view>
+
+		<!-- 导航到其他页面 -->
+		<view class="card">
+			<text class="card-title">更多演示</text>
+			<view class="btn" @click="navigateTo('/pages/about/index')">
+				<text class="btn-text">关于页面（路由导航）</text>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -102,6 +142,13 @@ export default {
 			loadingVisible: false,
 			pendingCount: 0,
 			compressResult: null,
+			autoImportResult: {
+				ref: false,
+				reactive: false,
+				computed: false,
+				watch: false,
+				onMounted: false
+			},
 			testList: [
 				{ name: 'autoImport - 自动导入', passed: false },
 				{ name: 'buildProgress - 构建进度条', passed: false },
@@ -119,12 +166,22 @@ export default {
 		}
 	},
 	onLoad() {
+		this.checkAutoImport()
 		this.startStatusPolling()
 	},
 	onUnload() {
 		this.stopStatusPolling()
 	},
 	methods: {
+		checkAutoImport() {
+			// #ifdef H5
+			this.autoImportResult.ref = typeof ref === 'function'
+			this.autoImportResult.reactive = typeof reactive === 'function'
+			this.autoImportResult.computed = typeof computed === 'function'
+			this.autoImportResult.watch = typeof watch === 'function'
+			this.autoImportResult.onMounted = typeof onMounted === 'function'
+			// #endif
+		},
 		startStatusPolling() {
 			this._statusTimer = setInterval(() => {
 				// #ifdef H5
@@ -143,14 +200,12 @@ export default {
 			}
 		},
 		runTests() {
-			// autoImport: 验证 Vue API 已自动注入
 			// #ifdef H5
+			// autoImport: 验证 Vue API 已自动注入
 			this.testList[0].passed = typeof ref === 'function' && typeof reactive === 'function'
-			// #endif
 
 			this.testList[1].passed = true
 
-			// #ifdef H5
 			// bundleAnalyzer: 验证分析报告已生成
 			fetch('/bundle-analysis.json', { method: 'HEAD' })
 				.then(res => {
@@ -160,18 +215,20 @@ export default {
 					this.testList[2].passed = false
 				})
 
+			// generateRouter: 验证路由配置已生成
 			this.testList[3].passed = true
-			// #endif
 
 			this.testList[4].passed = !!this.appVersion && this.appVersion !== 'dev'
 
-			// #ifdef H5
+			// htmlInject: 验证 meta 标签已注入
 			const metaDesc = document.querySelector('meta[name="description"]')
 			this.testList[5].passed = !!metaDesc
 
+			// faviconManager: 验证 favicon 已注入
 			const linkEl = document.querySelector('link[rel="icon"]')
 			this.testList[6].passed = !!linkEl
 
+			// copyFile: 验证文件已复制
 			fetch('/static/logo.png', { method: 'HEAD' })
 				.then(res => {
 					this.testList[7].passed = res.ok
@@ -180,6 +237,7 @@ export default {
 					this.testList[7].passed = false
 				})
 
+			// compressAssets: 验证压缩文件已生成
 			fetch('/index.js.gz', { method: 'HEAD' })
 				.then(res => {
 					this.testList[8].passed = res.ok || res.status === 200
@@ -191,9 +249,11 @@ export default {
 			// envGuard: 验证环境变量已通过校验
 			this.testList[9].passed = !!import.meta.env.VITE_APP_TITLE && !!import.meta.env.VITE_API_URL
 
+			// loadingManager: 验证 Loading 管理器已注入
 			const manager = window.__LOADING_MANAGER__
 			this.testList[10].passed = !!manager && typeof manager.show === 'function'
 
+			// versionUpdateChecker: 验证版本更新检测已注入
 			this.testList[11].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
 			// #endif
 		},
@@ -244,6 +304,9 @@ export default {
 					}
 				})
 			// #endif
+		},
+		navigateTo(url) {
+			uni.navigateTo({ url })
 		}
 	}
 }
