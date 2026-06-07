@@ -45,7 +45,7 @@ importers:
   packages/core:
     dependencies:
       vite:
-        specifier: ^5.0.0 || ^6.0.0 || ^7.0.0
+        specifier: '>=5.0.0 <8.0.0'
         version: 5.2.8(@types/node@22.19.20)(terser@5.48.0)
     devDependencies:
       '@types/node':
