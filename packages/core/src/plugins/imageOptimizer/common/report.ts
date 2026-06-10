@@ -1,7 +1,7 @@
-import path from 'node:path'
 import { promises as fsp } from 'node:fs'
 import type { ImageOptimizeStats, ImageOptimizeSummary } from '../types'
-import { writeJsonReport } from '@/common/fs'
+import { writeJsonReport, resolveReportPath } from '@/common/fs'
+import { calcRatio } from '@/common/format'
 
 /**
  * 根据优化统计数据构建汇总信息
@@ -24,7 +24,7 @@ import { writeJsonReport } from '@/common/fs'
 export function buildSummary(stats: ImageOptimizeStats[], skippedFiles: number, failedFiles: number, executionTime: number): ImageOptimizeSummary {
 	const totalOriginalSize = stats.reduce((sum, s) => sum + s.originalSize, 0)
 	const totalOptimizedSize = stats.reduce((sum, s) => sum + s.optimizedSize, 0)
-	const totalRatio = totalOriginalSize > 0 ? Number(((1 - totalOptimizedSize / totalOriginalSize) * 100).toFixed(1)) : 0
+	const totalRatio = calcRatio(totalOriginalSize, totalOptimizedSize)
 	const convertedFiles = stats.filter(s => s.converted).length
 
 	// 按输出格式分组统计
@@ -41,7 +41,7 @@ export function buildSummary(stats: ImageOptimizeStats[], skippedFiles: number, 
 
 	// 计算每组的压缩率
 	for (const entry of Object.values(byFormat)) {
-		entry.ratio = entry.originalSize > 0 ? Number(((1 - entry.optimizedSize / entry.originalSize) * 100).toFixed(1)) : 0
+		entry.ratio = calcRatio(entry.originalSize, entry.optimizedSize)
 	}
 
 	return {
@@ -78,9 +78,8 @@ export function buildSummary(stats: ImageOptimizeStats[], skippedFiles: number, 
  * ```
  */
 export async function writeReport(outDir: string, reportPath: string | false, summary: ImageOptimizeSummary): Promise<void> {
-	if (!reportPath) return
-
-	const outputPath = path.isAbsolute(reportPath) ? reportPath : path.join(outDir, reportPath)
+	const outputPath = resolveReportPath(outDir, reportPath)
+	if (!outputPath) return
 
 	const report = {
 		timestamp: new Date().toISOString(),

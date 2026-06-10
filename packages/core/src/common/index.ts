@@ -1,3 +1,4 @@
+export * from './concurrency'
 export * from './format'
 export * from './fs'
 export * from './html'

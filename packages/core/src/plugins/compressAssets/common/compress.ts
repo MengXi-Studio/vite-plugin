@@ -2,6 +2,7 @@ import { createGzip, createBrotliCompress, constants } from 'node:zlib'
 import { createReadStream, createWriteStream, promises as fsp } from 'node:fs'
 import { pipeline } from 'node:stream/promises'
 import type { CompressStats } from '../types'
+import { calcRatio } from '@/common/format'
 
 /**
  * 使用 gzip 算法压缩单个文件
@@ -30,7 +31,7 @@ export async function compressFileGzip(filePath: string, outputPath: string, lev
 		file: filePath,
 		originalSize,
 		compressedSize,
-		ratio: originalSize > 0 ? Number(((1 - compressedSize / originalSize) * 100).toFixed(1)) : 0,
+		ratio: calcRatio(originalSize, compressedSize),
 		algorithm: 'gzip'
 	}
 }
@@ -66,7 +67,7 @@ export async function compressFileBrotli(filePath: string, outputPath: string, q
 		file: filePath,
 		originalSize,
 		compressedSize,
-		ratio: originalSize > 0 ? Number(((1 - compressedSize / originalSize) * 100).toFixed(1)) : 0,
+		ratio: calcRatio(originalSize, compressedSize),
 		algorithm: 'brotli'
 	}
 }

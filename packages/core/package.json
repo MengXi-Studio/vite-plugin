@@ -25,6 +25,11 @@
 			"import": "./dist/common/index.mjs",
 			"types": "./dist/common/index.d.ts"
 		},
+		"./common/concurrency": {
+			"require": "./dist/common/concurrency/index.cjs",
+			"import": "./dist/common/concurrency/index.mjs",
+			"types": "./dist/common/concurrency/index.d.ts"
+		},
 		"./common/format": {
 			"require": "./dist/common/format/index.cjs",
 			"import": "./dist/common/format/index.mjs",

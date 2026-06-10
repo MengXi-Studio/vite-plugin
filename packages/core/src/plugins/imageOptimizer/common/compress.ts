@@ -1,6 +1,7 @@
 import { promises as fsp } from 'node:fs'
 import type { ImageFormat, FormatQualityOptions, ImageOptimizeStats } from '../types'
 import { getOutputExtension } from './filter'
+import { calcRatio } from '@/common/format'
 
 /**
  * sharp 模块的懒加载引用
@@ -189,7 +190,7 @@ export async function compressImage(filePath: string, format: Exclude<ImageForma
 		relativePath: '',
 		originalSize,
 		optimizedSize: finalSize,
-		ratio: originalSize > 0 ? Number(((1 - finalSize / originalSize) * 100).toFixed(1)) : 0,
+		ratio: calcRatio(originalSize, finalSize),
 		sourceFormat: format,
 		outputFormat: format,
 		converted: false,
@@ -276,7 +277,7 @@ export async function convertImage(
 		relativePath: '',
 		originalSize,
 		optimizedSize,
-		ratio: originalSize > 0 ? Number(((1 - optimizedSize / originalSize) * 100).toFixed(1)) : 0,
+		ratio: calcRatio(originalSize, optimizedSize),
 		sourceFormat,
 		outputFormat: targetFormat,
 		converted: true,
@@ -331,7 +332,7 @@ export async function optimizeSvg(filePath: string, svgoConfig: { plugins?: Reco
 		relativePath: '',
 		originalSize,
 		optimizedSize: finalSize,
-		ratio: originalSize > 0 ? Number(((1 - finalSize / originalSize) * 100).toFixed(1)) : 0,
+		ratio: calcRatio(originalSize, finalSize),
 		sourceFormat: 'svg',
 		outputFormat: 'svg',
 		converted: false,

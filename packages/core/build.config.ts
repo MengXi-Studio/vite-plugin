@@ -5,6 +5,7 @@ export default defineBuildConfig({
 	entries: [
 		'src/index',
 		'src/common/index',
+		'src/common/concurrency/index',
 		'src/common/format/index',
 		'src/common/fs/index',
 		'src/common/html/index',

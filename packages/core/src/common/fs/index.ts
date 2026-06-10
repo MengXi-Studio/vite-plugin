@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import type { CopyOptions, CopyResult } from './type'
+import { runWithConcurrency } from '@/common/concurrency'
 
 export type { CopyOptions, CopyResult } from './type'
 
@@ -112,33 +113,6 @@ async function fileExists(filePath: string): Promise<boolean> {
 	} catch {
 		return false
 	}
-}
-
-/**
- * 带并发限制的批量执行
- * @param items 待处理项
- * @param handler 处理函数
- * @param concurrency 并发数
- * @returns 处理结果数组，顺序与输入项对应
- */
-async function runWithConcurrency<T, R>(items: T[], handler: (item: T) => Promise<R>, concurrency: number): Promise<R[]> {
-	const results: R[] = []
-	let index = 0
-
-	async function runNext(): Promise<void> {
-		while (index < items.length) {
-			const currentIndex = index++
-			const result = await handler(items[currentIndex])
-			results[currentIndex] = result
-		}
-	}
-
-	const workers = Array(Math.min(concurrency, items.length))
-		.fill(null)
-		.map(() => runNext())
-	await Promise.all(workers)
-
-	return results
 }
 
 /**
@@ -415,4 +389,26 @@ export function shouldUpdateFileContent(filePath: string, newContent: string): b
 	} catch {
 		return true
 	}
+}
+
+/**
+ * 解析报告输出路径
+ *
+ * @param {string} outDir - 构建输出目录路径
+ * @param {string | false} reportPath - 报告文件路径，为 false 时返回 null
+ * @returns {string | null} 解析后的绝对路径，reportPath 为 false 时返回 null
+ *
+ * @description 当 reportPath 为相对路径时，相对于 outDir 解析；
+ * 为绝对路径时直接使用；为 false 时返回 null。
+ *
+ * @example
+ * ```typescript
+ * resolveReportPath('dist', 'report.json')   // 'dist/report.json'
+ * resolveReportPath('dist', '/tmp/r.json')    // '/tmp/r.json'
+ * resolveReportPath('dist', false)            // null
+ * ```
+ */
+export function resolveReportPath(outDir: string, reportPath: string | false): string | null {
+	if (!reportPath) return null
+	return path.isAbsolute(reportPath) ? reportPath : path.join(outDir, reportPath)
 }

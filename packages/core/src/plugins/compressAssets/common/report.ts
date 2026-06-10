@@ -1,7 +1,7 @@
-import path from 'node:path'
 import { promises as fsp } from 'node:fs'
 import type { CompressStats, CompressSummary } from '../types'
-import { writeJsonReport } from '@/common/fs'
+import { writeJsonReport, resolveReportPath } from '@/common/fs'
+import { calcRatio } from '@/common/format'
 
 /**
  * 根据压缩统计数据构建汇总信息
@@ -22,7 +22,7 @@ import { writeJsonReport } from '@/common/fs'
 export function buildSummary(stats: CompressStats[], executionTime: number): CompressSummary {
 	const totalOriginalSize = stats.reduce((sum, s) => sum + s.originalSize, 0)
 	const totalCompressedSize = stats.reduce((sum, s) => sum + s.compressedSize, 0)
-	const totalRatio = totalOriginalSize > 0 ? Number(((1 - totalCompressedSize / totalOriginalSize) * 100).toFixed(1)) : 0
+	const totalRatio = calcRatio(totalOriginalSize, totalCompressedSize)
 
 	return {
 		totalFiles: stats.length,
@@ -56,9 +56,8 @@ export function buildSummary(stats: CompressStats[], executionTime: number): Com
  * ```
  */
 export async function writeReport(outDir: string, reportPath: string | false, summary: CompressSummary): Promise<void> {
-	if (!reportPath) return
-
-	const outputPath = path.isAbsolute(reportPath) ? reportPath : path.join(outDir, reportPath)
+	const outputPath = resolveReportPath(outDir, reportPath)
+	if (!outputPath) return
 	const report = {
 		timestamp: new Date().toISOString(),
 		summary: {
