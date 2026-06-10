@@ -1,0 +1,5 @@
+export { compressImage, convertImage, optimizeSvg, isSharpAvailable, isSvgoAvailable, resetModuleCache } from './compress'
+export { scanImageFiles, shouldOptimizeFile, getFormatByExtension, getOutputExtension } from './filter'
+export type { ImageCandidate } from './filter'
+export { resolveConvertMapping, getTargetFormat, needsConversion, validateConvertMapping } from './convert'
+export { buildSummary, writeReport } from './report'

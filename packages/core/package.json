@@ -130,6 +130,11 @@
 			"import": "./dist/plugins/htmlInject/index.mjs",
 			"types": "./dist/plugins/htmlInject/index.d.ts"
 		},
+		"./plugins/image-optimizer": {
+			"require": "./dist/plugins/imageOptimizer/index.cjs",
+			"import": "./dist/plugins/imageOptimizer/index.mjs",
+			"types": "./dist/plugins/imageOptimizer/index.d.ts"
+		},
 		"./plugins/loading-manager": {
 			"require": "./dist/plugins/loadingManager/index.cjs",
 			"import": "./dist/plugins/loadingManager/index.mjs",
@@ -153,6 +158,10 @@
 	},
 	"peerDependencies": {
 		"vite": ">=5.0.0 <8.0.0"
+	},
+	"optionalDependencies": {
+		"sharp": "^0.33.0",
+		"svgo": "^3.3.0"
 	},
 	"devDependencies": {
 		"@types/node": "^22.0.0",

@@ -26,6 +26,7 @@ export default defineBuildConfig({
 		'src/plugins/generateRouter/index',
 		'src/plugins/generateVersion/index',
 		'src/plugins/htmlInject/index',
+		'src/plugins/imageOptimizer/index',
 		'src/plugins/loadingManager/index',
 		'src/plugins/versionUpdateChecker/index'
 	],
