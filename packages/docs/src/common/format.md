@@ -1,12 +1,12 @@
 # format
 
-格式化工具，提供日期格式化参数、模板变量替换、日期格式化和文件大小格式化功能。
+格式化工具，提供日期格式化参数、模板变量替换、日期格式化、文件大小格式化和压缩率计算功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common/format'
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // barrel 导入
@@ -162,4 +162,38 @@ function formatFileSize(bytes: number): string
 formatFileSize(512) // '512B'
 formatFileSize(1536) // '1.5KB'
 formatFileSize(2461726) // '2.35MB'
+```
+
+---
+
+## calcRatio
+
+计算压缩率百分比。
+
+```typescript
+function calcRatio(originalSize: number, compressedSize: number): number
+```
+
+**参数**
+
+| 参数           | 类型     | 说明             |
+| -------------- | -------- | ---------------- |
+| originalSize   | `number` | 原始大小（字节） |
+| compressedSize | `number` | 压缩后大小（字节） |
+
+**返回值**
+
+`number` - 压缩率百分比（0-100），如 65.2 表示体积减少 65.2%
+
+**说明**
+
+- 计算公式：`(1 - compressedSize / originalSize) * 100`，保留一位小数
+- 当 `originalSize` 为 0 时返回 0，避免除零错误
+
+**示例**
+
+```typescript
+calcRatio(10000, 6000)  // 40.0
+calcRatio(10000, 10000) // 0
+calcRatio(0, 0)         // 0
 ```

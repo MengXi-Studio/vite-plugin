@@ -1,12 +1,12 @@
 # fs
 
-File system utilities, providing file operations, directory scanning, safe writing, and change detection.
+File system utilities, providing file operations, directory scanning, safe writing, change detection, and report path resolution.
 
 ## Import
 
 ```typescript
 // Submodule import (recommended)
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath } from '@meng-xi/vite-plugin/common/fs'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // Barrel import
@@ -278,4 +278,39 @@ function shouldUpdateFileContent(filePath: string, newContent: string): boolean
 if (shouldUpdateFileContent('/project/src/auto-imports.d.ts', newContent)) {
 	writeFileSyncSafely('/project/src/auto-imports.d.ts', newContent)
 }
+```
+
+---
+
+## resolveReportPath
+
+Resolve report output path.
+
+```typescript
+function resolveReportPath(outDir: string, reportPath: string | false): string | null
+```
+
+**Parameters**
+
+| Parameter  | Type             | Description                                    |
+| ---------- | ---------------- | ---------------------------------------------- |
+| outDir     | `string`         | Build output directory path                    |
+| reportPath | `string \| false` | Report file path, false to skip report generation |
+
+**Returns**
+
+`string | null` - Resolved absolute path, returns `null` when `reportPath` is `false`
+
+**Notes**
+
+- When `reportPath` is a relative path, it is resolved relative to `outDir`
+- When `reportPath` is an absolute path, it is used directly
+- When `reportPath` is `false`, returns `null`
+
+**Example**
+
+```typescript
+resolveReportPath('dist', 'report.json')   // 'dist/report.json'
+resolveReportPath('dist', '/tmp/r.json')    // '/tmp/r.json'
+resolveReportPath('dist', false)            // null
 ```

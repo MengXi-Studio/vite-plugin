@@ -19,6 +19,7 @@ import {
 	generateRouter,
 	generateVersion,
 	htmlInject,
+	imageOptimizer,
 	loadingManager,
 	versionUpdateChecker
 } from '@meng-xi/vite-plugin'
@@ -38,6 +39,7 @@ import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
 import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
 import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
 import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
+import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/image-optimizer'
 import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
 import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
 ```
@@ -59,6 +61,7 @@ import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-updat
 | [generateRouter](./generate-router)              | 根据 uni-app pages.json 自动生成路由配置                             | `@meng-xi/vite-plugin/plugins/generate-router`        |
 | [generateVersion](./generate-version)            | 自动生成版本号，支持文件输出和全局变量注入                           | `@meng-xi/vite-plugin/plugins/generate-version`       |
 | [htmlInject](./html-inject)                      | HTML 内容注入，支持多种位置和条件注入                                | `@meng-xi/vite-plugin/plugins/html-inject`            |
+| [imageOptimizer](./image-optimizer)              | 图片优化压缩与格式转换，支持 JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG        | `@meng-xi/vite-plugin/plugins/image-optimizer`        |
 | [loadingManager](./loading-manager)              | 全局 Loading 状态管理，支持请求拦截                                  | `@meng-xi/vite-plugin/plugins/loading-manager`        |
 | [versionUpdateChecker](./version-update-checker) | 运行时版本更新检查，发现新版本时提示用户刷新                         | `@meng-xi/vite-plugin/plugins/version-update-checker` |
 

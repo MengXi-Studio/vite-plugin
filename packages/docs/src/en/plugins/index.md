@@ -19,6 +19,7 @@ import {
 	generateRouter,
 	generateVersion,
 	htmlInject,
+	imageOptimizer,
 	loadingManager,
 	versionUpdateChecker
 } from '@meng-xi/vite-plugin'
@@ -38,6 +39,7 @@ import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
 import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
 import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
 import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
+import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/image-optimizer'
 import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
 import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
 ```
@@ -59,6 +61,7 @@ import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-updat
 | [generateRouter](./generate-router)              | Auto-generate route config from uni-app pages.json                                                            | `@meng-xi/vite-plugin/plugins/generate-router`        |
 | [generateVersion](./generate-version)            | Generate version with file output or global variable                                                          | `@meng-xi/vite-plugin/plugins/generate-version`       |
 | [htmlInject](./html-inject)                      | HTML content injection with multiple positions and conditions                                                 | `@meng-xi/vite-plugin/plugins/html-inject`            |
+| [imageOptimizer](./image-optimizer)              | Image optimization & format conversion, supports JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG                              | `@meng-xi/vite-plugin/plugins/image-optimizer`        |
 | [loadingManager](./loading-manager)              | Global Loading state management with request interception                                                     | `@meng-xi/vite-plugin/plugins/loading-manager`        |
 | [versionUpdateChecker](./version-update-checker) | Runtime version update check with refresh prompt                                                              | `@meng-xi/vite-plugin/plugins/version-update-checker` |
 

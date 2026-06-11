@@ -1,12 +1,12 @@
 # format
 
-Formatting utilities, providing date formatting parameters, template variable replacement, date formatting, and file size formatting.
+Formatting utilities, providing date formatting parameters, template variable replacement, date formatting, file size formatting, and compression ratio calculation.
 
 ## Import
 
 ```typescript
 // Submodule import (recommended)
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common/format'
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // Barrel import
@@ -162,4 +162,38 @@ function formatFileSize(bytes: number): string
 formatFileSize(512) // '512B'
 formatFileSize(1536) // '1.5KB'
 formatFileSize(2461726) // '2.35MB'
+```
+
+---
+
+## calcRatio
+
+Calculate compression ratio percentage.
+
+```typescript
+function calcRatio(originalSize: number, compressedSize: number): number
+```
+
+**Parameters**
+
+| Parameter      | Type     | Description               |
+| -------------- | -------- | ------------------------- |
+| originalSize   | `number` | Original size (bytes)     |
+| compressedSize | `number` | Compressed size (bytes)   |
+
+**Returns**
+
+`number` - Compression ratio percentage (0-100), e.g., 65.2 means 65.2% size reduction
+
+**Notes**
+
+- Formula: `(1 - compressedSize / originalSize) * 100`, rounded to one decimal place
+- Returns 0 when `originalSize` is 0, avoiding division by zero
+
+**Example**
+
+```typescript
+calcRatio(10000, 6000)  // 40.0
+calcRatio(10000, 10000) // 0
+calcRatio(0, 0)         // 0
 ```

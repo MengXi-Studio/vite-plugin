@@ -15,10 +15,10 @@
 
 ## Features
 
-- **Ready to Use** - 12 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
-  management, global Loading, and more
+- **Ready to Use** - 13 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
+  management, global Loading, image optimization, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
-- **Common Utility Library** - Built-in 7 Common utility modules supporting on-demand sub-path imports
+- **Common Utility Library** - Built-in 8 Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
 - **On-demand Import** - Supports sub-path exports to reduce bundle size
 
@@ -41,7 +41,21 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { autoImport, buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import {
+	autoImport,
+	buildProgress,
+	bundleAnalyzer,
+	compressAssets,
+	copyFile,
+	envGuard,
+	generateRouter,
+	generateVersion,
+	versionUpdateChecker,
+	htmlInject,
+	faviconManager,
+	loadingManager,
+	imageOptimizer
+} from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -56,7 +70,8 @@ export default defineConfig({
 		versionUpdateChecker(),
 		htmlInject({ rules: [{ id: 'meta', content: '<meta name="description" content="My App">', position: 'head-end' }] }),
 		faviconManager('/assets'),
-		loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+		loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' }),
+		imageOptimizer({ quality: { jpeg: 80, webp: 75 }, convertToWebp: { png: true } })
 	]
 })
 ```
@@ -77,6 +92,7 @@ export default defineConfig({
 | [htmlInject](https://mengxi-studio.github.io/vite-plugin/en/plugins/html-inject.html)                      | HTML content injection with multiple positions, selector targeting, conditional injection, template variables, and security filtering |
 | [loadingManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/loading-manager.html)              | Global Loading state management with request interception, debounce, transition animations, and white-screen Loading                  |
 | [versionUpdateChecker](https://mengxi-studio.github.io/vite-plugin/en/plugins/version-update-checker.html) | Runtime version update checking with multiple prompt styles and custom callbacks                                                      |
+| [imageOptimizer](https://mengxi-studio.github.io/vite-plugin/en/plugins/image-optimizer.html)              | Image optimization & format conversion, supports JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG, concurrent processing and statistics report         |
 
 ## Plugin Development Framework
 
@@ -132,10 +148,13 @@ export const myPlugin = createPluginFactory(MyPlugin)
 Built-in general-purpose utility function library, organized by functional modules, supporting on-demand sub-path imports.
 
 ```typescript
-// Formatting: date params, template variable replacement, file size, date formatting
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common/format'
+// Formatting: date params, template variable replacement, file size, date formatting, compression ratio
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 
-// File system: file copy, directory scan, safe write, change detection
+// Concurrency: batch execution with concurrency limit
+import { runWithConcurrency } from '@meng-xi/vite-plugin/common/concurrency'
+
+// File system: file copy, directory scan, safe write, change detection, report path resolution
 import { copySourceToTarget, scanDirectory, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
 
 // HTML: tag injection, content sanitization, attribute escaping
@@ -154,15 +173,16 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng
 import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@meng-xi/vite-plugin/common/path'
 ```
 
-| Sub-path                                                                                     | Description                                                                                         |
-| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)         | Date param extraction, template variable replacement `{{key}}`, date formatting `{YYYY}`, file size |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                 | File/directory copy, directory scan, sync safe write, file change detection                         |
-| [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)             | HTML tag injection, dual-zone injection, content sanitization, HTML attribute value escaping        |
-| [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)         | Callback body wrapping into safe function expressions (with try-catch)                              |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                 | Terminal ANSI color code constants                                                                  |
-| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html) | Chain-style config validator, global name validation, script detection, callback field validation   |
-| [`common/path`](https://mengxi-studio.github.io/vite-plugin/en/common/path.html)             | Path normalization, extension filtering, path exclusion matching, pre-compression format detection  |
+| Sub-path                                                                                       | Description                                                                                                            |
+| ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)           | Date param extraction, template variable replacement `{{key}}`, date formatting `{YYYY}`, file size, compression ratio |
+| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/en/common/concurrency.html) | Batch async execution with concurrency limit                                                                           |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                   | File/directory copy, directory scan, sync safe write, file change detection                                            |
+| [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)               | HTML tag injection, dual-zone injection, content sanitization, HTML attribute value escaping                           |
+| [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)           | Callback body wrapping into safe function expressions (with try-catch)                                                 |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                   | Terminal ANSI color code constants                                                                                     |
+| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html)   | Chain-style config validator, global name validation, script detection, callback field validation                      |
+| [`common/path`](https://mengxi-studio.github.io/vite-plugin/en/common/path.html)               | Path normalization, extension filtering, path exclusion matching, pre-compression format detection                     |
 
 ## Sub-path Exports
 
@@ -174,6 +194,7 @@ import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } f
 | `@meng-xi/vite-plugin/plugins`                        | All plugins                          |
 | `@meng-xi/vite-plugin/common`                         | All utility functions                |
 | `@meng-xi/vite-plugin/common/*`                       | Utility sub-modules                  |
+| `@meng-xi/vite-plugin/common/concurrency`             | Concurrency control utilities        |
 | `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport plugin                    |
 | `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress plugin                 |
 | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        | bundleAnalyzer plugin                |
@@ -186,6 +207,7 @@ import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } f
 | `@meng-xi/vite-plugin/plugins/html-inject`            | htmlInject plugin                    |
 | `@meng-xi/vite-plugin/plugins/loading-manager`        | loadingManager plugin                |
 | `@meng-xi/vite-plugin/plugins/version-update-checker` | versionUpdateChecker plugin          |
+| `@meng-xi/vite-plugin/plugins/image-optimizer`        | imageOptimizer plugin                |
 
 ## License
 

@@ -86,6 +86,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/common/index.html'
 						},
 						{
+							text: '并发控制',
+							link: '/common/concurrency.html'
+						},
+						{
 							text: '文件系统',
 							link: '/common/fs.html'
 						},
@@ -203,6 +207,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'htmlInject',
 							link: '/plugins/html-inject.html'
+						},
+						{
+							text: 'imageOptimizer',
+							link: '/plugins/image-optimizer.html'
 						},
 						{
 							text: 'loadingManager',

@@ -1,12 +1,12 @@
 # fs
 
-文件系统操作工具，提供文件复制、目录扫描、安全写入和变更检测等功能。
+文件系统操作工具，提供文件复制、目录扫描、安全写入、变更检测和报告路径解析等功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath } from '@meng-xi/vite-plugin/common/fs'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // barrel 导入
@@ -278,4 +278,39 @@ function shouldUpdateFileContent(filePath: string, newContent: string): boolean
 if (shouldUpdateFileContent('/project/src/auto-imports.d.ts', newContent)) {
 	writeFileSyncSafely('/project/src/auto-imports.d.ts', newContent)
 }
+```
+
+---
+
+## resolveReportPath
+
+解析报告输出路径。
+
+```typescript
+function resolveReportPath(outDir: string, reportPath: string | false): string | null
+```
+
+**参数**
+
+| 参数       | 类型             | 说明                           |
+| ---------- | ---------------- | ------------------------------ |
+| outDir     | `string`         | 构建输出目录路径               |
+| reportPath | `string \| false` | 报告文件路径，false 不生成报告 |
+
+**返回值**
+
+`string | null` - 解析后的绝对路径，`reportPath` 为 `false` 时返回 `null`
+
+**说明**
+
+- 当 `reportPath` 为相对路径时，相对于 `outDir` 解析
+- 当 `reportPath` 为绝对路径时直接使用
+- 当 `reportPath` 为 `false` 时返回 `null`
+
+**示例**
+
+```typescript
+resolveReportPath('dist', 'report.json')   // 'dist/report.json'
+resolveReportPath('dist', '/tmp/r.json')    // '/tmp/r.json'
+resolveReportPath('dist', false)            // null
 ```

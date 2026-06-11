@@ -15,9 +15,9 @@
 
 ## 特性
 
-- **开箱即用** - 12 个实用插件，覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading 等场景
+- **开箱即用** - 13 个实用插件，覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading、图片优化 等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
-- **通用工具库** - 内置 7 大 Common 工具模块，支持按需子路径导入
+- **通用工具库** - 内置 8 大 Common 工具模块，支持按需子路径导入
 - **类型安全** - 完整 TypeScript 类型定义与配置验证器
 - **按需导入** - 支持子路径导出，减少打包体积
 
@@ -40,7 +40,21 @@ pnpm add @meng-xi/vite-plugin -D
 
 ```typescript
 import { defineConfig } from 'vite'
-import { autoImport, buildProgress, bundleAnalyzer, compressAssets, copyFile, envGuard, generateRouter, generateVersion, versionUpdateChecker, htmlInject, faviconManager, loadingManager } from '@meng-xi/vite-plugin'
+import {
+	autoImport,
+	buildProgress,
+	bundleAnalyzer,
+	compressAssets,
+	copyFile,
+	envGuard,
+	generateRouter,
+	generateVersion,
+	versionUpdateChecker,
+	htmlInject,
+	faviconManager,
+	loadingManager,
+	imageOptimizer
+} from '@meng-xi/vite-plugin'
 
 export default defineConfig({
 	plugins: [
@@ -55,27 +69,29 @@ export default defineConfig({
 		versionUpdateChecker(),
 		htmlInject({ rules: [{ id: 'meta', content: '<meta name="description" content="My App">', position: 'head-end' }] }),
 		faviconManager('/assets'),
-		loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' })
+		loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' }),
+		imageOptimizer({ quality: { jpeg: 80, webp: 75 }, convertToWebp: { png: true } })
 	]
 })
 ```
 
 ## 内置插件
 
-| 插件                                                                                                    | 说明                                                                  |
-| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [autoImport](https://mengxi-studio.github.io/vite-plugin/plugins/auto-import.html)                      | 自动注入 import 语句，支持预设映射、目录扫描和 Vue 模板自动导入       |
-| [buildProgress](https://mengxi-studio.github.io/vite-plugin/plugins/build-progress.html)                | 终端实时构建进度条，支持 bar / spinner / minimal                      |
-| [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/plugins/bundle-analyzer.html)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比  |
-| [compressAssets](https://mengxi-studio.github.io/vite-plugin/plugins/compress-assets.html)              | 构建产物压缩，支持 gzip / brotli / both，并发压缩和统计报告           |
-| [copyFile](https://mengxi-studio.github.io/vite-plugin/plugins/copy-file.html)                          | 构建完成后复制文件或目录，支持增量复制                                |
-| [envGuard](https://mengxi-studio.github.io/vite-plugin/plugins/env-guard.html)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫          |
-| [faviconManager](https://mengxi-studio.github.io/vite-plugin/plugins/favicon-manager.html)              | 管理网站图标链接注入和文件复制，支持字符串简写配置                    |
-| [generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)              | 根据 pages.json 自动生成路由配置与类型声明（uni-app）                 |
-| [generateVersion](https://mengxi-studio.github.io/vite-plugin/plugins/generate-version.html)            | 自动生成版本号，支持文件输出和全局变量注入                            |
-| [htmlInject](https://mengxi-studio.github.io/vite-plugin/plugins/html-inject.html)                      | HTML 内容注入，支持多种位置、选择器定位、条件注入、模板变量和安全过滤 |
-| [loadingManager](https://mengxi-studio.github.io/vite-plugin/plugins/loading-manager.html)              | 全局 Loading 状态管理，支持请求拦截、防抖、过渡动画和白屏 Loading     |
-| [versionUpdateChecker](https://mengxi-studio.github.io/vite-plugin/plugins/version-update-checker.html) | 运行时版本更新检查，支持多种提示样式和自定义回调                      |
+| 插件                                                                                                    | 说明                                                                             |
+| ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [autoImport](https://mengxi-studio.github.io/vite-plugin/plugins/auto-import.html)                      | 自动注入 import 语句，支持预设映射、目录扫描和 Vue 模板自动导入                  |
+| [buildProgress](https://mengxi-studio.github.io/vite-plugin/plugins/build-progress.html)                | 终端实时构建进度条，支持 bar / spinner / minimal                                 |
+| [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/plugins/bundle-analyzer.html)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比             |
+| [compressAssets](https://mengxi-studio.github.io/vite-plugin/plugins/compress-assets.html)              | 构建产物压缩，支持 gzip / brotli / both，并发压缩和统计报告                      |
+| [copyFile](https://mengxi-studio.github.io/vite-plugin/plugins/copy-file.html)                          | 构建完成后复制文件或目录，支持增量复制                                           |
+| [envGuard](https://mengxi-studio.github.io/vite-plugin/plugins/env-guard.html)                          | 环境变量校验，支持类型检查、范围验证、自定义规则和运行时守卫                     |
+| [faviconManager](https://mengxi-studio.github.io/vite-plugin/plugins/favicon-manager.html)              | 管理网站图标链接注入和文件复制，支持字符串简写配置                               |
+| [generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)              | 根据 pages.json 自动生成路由配置与类型声明（uni-app）                            |
+| [generateVersion](https://mengxi-studio.github.io/vite-plugin/plugins/generate-version.html)            | 自动生成版本号，支持文件输出和全局变量注入                                       |
+| [htmlInject](https://mengxi-studio.github.io/vite-plugin/plugins/html-inject.html)                      | HTML 内容注入，支持多种位置、选择器定位、条件注入、模板变量和安全过滤            |
+| [loadingManager](https://mengxi-studio.github.io/vite-plugin/plugins/loading-manager.html)              | 全局 Loading 状态管理，支持请求拦截、防抖、过渡动画和白屏 Loading                |
+| [versionUpdateChecker](https://mengxi-studio.github.io/vite-plugin/plugins/version-update-checker.html) | 运行时版本更新检查，支持多种提示样式和自定义回调                                 |
+| [imageOptimizer](https://mengxi-studio.github.io/vite-plugin/plugins/image-optimizer.html)              | 图片优化压缩与格式转换，支持 JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG，并发处理和统计报告 |
 
 ## 插件开发框架
 
@@ -131,10 +147,13 @@ export const myPlugin = createPluginFactory(MyPlugin)
 内置通用工具函数库，按功能模块组织，支持子路径按需导入。
 
 ```typescript
-// 格式化：日期参数、模板变量替换、文件大小、日期格式化
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common/format'
+// 格式化：日期参数、模板变量替换、文件大小、日期格式化、压缩率计算
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 
-// 文件系统：文件复制、目录扫描、安全写入、变更检测
+// 并发控制：带并发限制的批量执行
+import { runWithConcurrency } from '@meng-xi/vite-plugin/common/concurrency'
+
+// 文件系统：文件复制、目录扫描、安全写入、变更检测、报告路径解析
 import { copySourceToTarget, scanDirectory, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
 
 // HTML：标签注入、内容消毒、属性转义
@@ -153,15 +172,16 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng
 import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@meng-xi/vite-plugin/common/path'
 ```
 
-| 子路径                                                                                    | 描述                                                                      |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)         | 日期参数提取、模板变量替换 `{{key}}`、日期格式化 `{YYYY}`、文件大小格式化 |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                 | 文件/目录复制、目录扫描、同步安全写入、文件变更检测                       |
-| [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)             | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                  |
-| [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)         | 回调函数体包装为安全的函数表达式（含 try-catch）                          |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                 | 终端 ANSI 颜色码常量                                                      |
-| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html) | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                      |
-| [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)             | 路径规范化、扩展名过滤、路径排除匹配、预压缩格式检测                      |
+| 子路径                                                                                      | 描述                                                                                  |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)           | 日期参数提取、模板变量替换 `{{key}}`、日期格式化 `{YYYY}`、文件大小格式化、压缩率计算 |
+| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/common/concurrency.html) | 带并发限制的批量异步执行                                                              |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                   | 文件/目录复制、目录扫描、同步安全写入、文件变更检测                                   |
+| [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)               | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                              |
+| [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)           | 回调函数体包装为安全的函数表达式（含 try-catch）                                      |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                   | 终端 ANSI 颜色码常量                                                                  |
+| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html)   | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                                  |
+| [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)               | 路径规范化、扩展名过滤、路径排除匹配、预压缩格式检测                                  |
 
 ## 子路径导出
 
@@ -173,6 +193,7 @@ import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } f
 | `@meng-xi/vite-plugin/plugins`                        | 所有插件                  |
 | `@meng-xi/vite-plugin/common`                         | 所有工具函数              |
 | `@meng-xi/vite-plugin/common/*`                       | 各工具子模块              |
+| `@meng-xi/vite-plugin/common/concurrency`             | 并发控制工具              |
 | `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport 插件           |
 | `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress 插件        |
 | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        | bundleAnalyzer 插件       |
@@ -185,6 +206,7 @@ import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } f
 | `@meng-xi/vite-plugin/plugins/html-inject`            | htmlInject 插件           |
 | `@meng-xi/vite-plugin/plugins/loading-manager`        | loadingManager 插件       |
 | `@meng-xi/vite-plugin/plugins/version-update-checker` | versionUpdateChecker 插件 |
+| `@meng-xi/vite-plugin/plugins/image-optimizer`        | imageOptimizer 插件       |
 
 ## License
 

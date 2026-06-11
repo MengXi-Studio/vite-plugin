@@ -86,6 +86,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/common/index.html'
 						},
 						{
+							text: 'Concurrency',
+							link: '/en/common/concurrency.html'
+						},
+						{
 							text: 'File System',
 							link: '/en/common/fs.html'
 						},
@@ -203,6 +207,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'htmlInject',
 							link: '/en/plugins/html-inject.html'
+						},
+						{
+							text: 'imageOptimizer',
+							link: '/en/plugins/image-optimizer.html'
 						},
 						{
 							text: 'loadingManager',
