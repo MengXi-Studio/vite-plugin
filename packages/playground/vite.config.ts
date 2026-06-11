@@ -11,6 +11,7 @@ import {
 	generateVersion,
 	faviconManager,
 	htmlInject,
+	imageOptimizer,
 	loadingManager,
 	versionUpdateChecker,
 	autoImport
@@ -211,6 +212,33 @@ export default defineConfig({
 				onShow: 'console.log("[Loading] shown")',
 				onHide: 'console.log("[Loading] hidden")'
 			}
+		}),
+
+		// 图片优化压缩
+		imageOptimizer({
+			quality: {
+				jpeg: 80,
+				png: 6,
+				webp: 75,
+				avif: 50,
+				gif: true,
+				tiff: 'deflate'
+			},
+			convertToWebp: { png: true, jpeg: true },
+			svgo: {
+				plugins: [
+					{ name: 'removeViewBox', active: false },
+					{ name: 'removeEmptyContainers', active: true }
+				],
+				multipass: false
+			},
+			includeExtensions: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.tiff', '.tif', '.svg'],
+			excludePaths: [],
+			threshold: 0,
+			keepOriginal: true,
+			reportOutput: 'image-optimize-report.json',
+			parallelLimit: 5,
+			maxPixels: 0
 		})
 	] as PluginOption[]
 })

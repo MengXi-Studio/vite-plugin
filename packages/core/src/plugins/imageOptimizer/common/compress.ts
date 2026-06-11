@@ -1,5 +1,5 @@
 import { promises as fsp } from 'node:fs'
-import type { ImageFormat, FormatQualityOptions, ImageOptimizeStats } from '../types'
+import type { ImageFormat, FormatQualityOptions, ImageOptimizeStats, SvgoPlugin } from '../types'
 import { getOutputExtension } from './filter'
 import { calcRatio } from '@/common/format'
 
@@ -304,7 +304,7 @@ export async function convertImage(
  * console.log(`SVG 优化率: ${stats.ratio}%`)
  * ```
  */
-export async function optimizeSvg(filePath: string, svgoConfig: { plugins?: Record<string, object>[]; multipass?: boolean }): Promise<ImageOptimizeStats> {
+export async function optimizeSvg(filePath: string, svgoConfig: { plugins?: SvgoPlugin[]; multipass?: boolean }): Promise<ImageOptimizeStats> {
 	const startTime = Date.now()
 	const { optimize } = await getSvgo()
 	const originalSize = (await fsp.stat(filePath)).size

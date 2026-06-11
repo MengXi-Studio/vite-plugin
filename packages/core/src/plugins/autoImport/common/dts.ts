@@ -2,6 +2,89 @@ import type { ResolvedImport } from '../types'
 import { writeFileSyncSafely, shouldUpdateFileContent } from '@/common/fs'
 
 /**
+ * JavaScript/TypeScript 保留关键字列表
+ *
+ * @description 这些关键字不能用作变量标识符，
+ * 在生成类型声明时需要跳过，否则会产生语法错误。
+ */
+const RESERVED_KEYWORDS = new Set([
+	'break',
+	'case',
+	'catch',
+	'class',
+	'const',
+	'continue',
+	'debugger',
+	'default',
+	'delete',
+	'do',
+	'else',
+	'enum',
+	'export',
+	'extends',
+	'false',
+	'finally',
+	'for',
+	'function',
+	'if',
+	'import',
+	'in',
+	'instanceof',
+	'new',
+	'null',
+	'return',
+	'super',
+	'switch',
+	'this',
+	'throw',
+	'true',
+	'try',
+	'typeof',
+	'var',
+	'void',
+	'while',
+	'with',
+	'as',
+	'implements',
+	'interface',
+	'let',
+	'package',
+	'private',
+	'protected',
+	'public',
+	'static',
+	'yield',
+	'abstract',
+	'any',
+	'boolean',
+	'constructor',
+	'declare',
+	'get',
+	'infer',
+	'is',
+	'keyof',
+	'module',
+	'namespace',
+	'never',
+	'readonly',
+	'require',
+	'number',
+	'object',
+	'set',
+	'string',
+	'symbol',
+	'type',
+	'undefined',
+	'unique',
+	'unknown',
+	'from',
+	'of',
+	'async',
+	'await',
+	'global'
+])
+
+/**
  * 生成 TypeScript 类型声明文件内容
  *
  * @param imports 解析后的 {@link ResolvedImport} 导入映射列表
@@ -87,6 +170,7 @@ export function generateDtsContent(imports: ResolvedImport[]): string {
 		lines.push(`  // from '${mod}'`)
 
 		for (const item of dedupedItems) {
+			if (RESERVED_KEYWORDS.has(item.name)) continue
 			if (item.isDefault) {
 				lines.push(`  const ${item.name}: typeof import('${mod}')['default']`)
 			} else {

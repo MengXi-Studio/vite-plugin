@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import zlib from 'node:zlib'
 import { promisify } from 'node:util'
-import type { ModuleStats, ChunkStats, FileTypeDistribution, SizeWarning, BundleAnalysisResult } from '../types'
+import type { ModuleStats, ChunkStats, FileTypeDistribution, SizeWarning, BundleAnalysisResult, BundleAnalyzerOptions } from '../types'
 import { scanDirectory } from '@/common/fs'
 import type { ScannedFile } from '@/common/fs'
 import { normalizePath } from '@/common/path'
@@ -220,7 +220,7 @@ export async function buildChunkStats(outDir: string, files: ScannedFile[], opti
  *
  * @async
  * @param {string} outDir - 构建输出目录
- * @param {Required<import('../types').BundleAnalyzerOptions>} options - 插件配置
+ * @param {Required<BundleAnalyzerOptions>} options - 插件配置
  * @returns {Promise<BundleAnalysisResult>} 完整的分析结果
  *
  * @description 执行完整的构建产物分析流程：
@@ -231,7 +231,7 @@ export async function buildChunkStats(outDir: string, files: ScannedFile[], opti
  * 5. 检查体积阈值告警
  * 6. 汇总生成分析结果
  */
-export async function analyzeBundle(outDir: string, options: Required<import('../types').BundleAnalyzerOptions>): Promise<BundleAnalysisResult> {
+export async function analyzeBundle(outDir: string, options: Required<BundleAnalyzerOptions>): Promise<BundleAnalysisResult> {
 	const startTime = Date.now()
 
 	const files = await scanOutputDirectory(outDir, {

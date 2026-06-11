@@ -53,6 +53,19 @@ export interface FormatQualityOptions {
 }
 
 /**
+ * SVGO 单个插件配置
+ *
+ * @interface SvgoPlugin
+ * @description SVGO 插件配置项，name 为插件名称，其余为插件参数。
+ */
+export interface SvgoPlugin {
+	/** SVGO 插件名称 */
+	name: string
+	/** 插件参数 */
+	[key: string]: unknown
+}
+
+/**
  * SVG 优化配置
  *
  * @interface SvgoOptions
@@ -71,7 +84,7 @@ export interface FormatQualityOptions {
  */
 export interface SvgoOptions {
 	/** SVGO 插件列表 */
-	plugins?: Record<string, object>[]
+	plugins?: SvgoPlugin[]
 	/** 是否启用 SVGO 多进程优化（仅当 SVG 文件较多时建议开启） */
 	multipass?: boolean
 }

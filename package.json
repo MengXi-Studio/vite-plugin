@@ -20,6 +20,13 @@
 		"lint:fix": "pnpm lint --fix",
 		"clean": "rimraf --glob node_modules pnpm-lock.yaml packages/**/node_modules packages/**/pnpm-lock.yaml"
 	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"core-js",
+			"esbuild",
+			"sharp"
+		]
+	},
 	"devDependencies": {
 		"@eslint/js": "^9.38.0",
 		"bumpp": "^10.4.1",
