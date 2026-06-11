@@ -245,7 +245,9 @@ loadingManager({
 })
 ```
 
-::: warning The custom template must include an element with the `data-loading-text` attribute, otherwise `updateText()` will not work. :::
+::: warning
+The custom template must include an element with the `data-loading-text` attribute, otherwise `updateText()` will not work.
+:::
 
 ### Lifecycle Callbacks
 

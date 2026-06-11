@@ -44,7 +44,9 @@ import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
 import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
 ```
 
-::: tip Submodule imports allow bundlers to only include the plugin code you actually use, avoiding unnecessary dependencies. :::
+::: tip
+Submodule imports allow bundlers to only include the plugin code you actually use, avoiding unnecessary dependencies.
+:::
 
 ## Plugins
 

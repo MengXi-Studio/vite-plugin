@@ -24,7 +24,9 @@ import { ... } from '@meng-xi/vite-plugin/common/ui'
 import { ... } from '@meng-xi/vite-plugin/common/validation'
 ```
 
-::: tip 子模块独立导入可让打包工具仅打包使用到的模块代码，避免引入不需要的依赖（如 `common/fs` 依赖 Node.js `fs`/`path` 模块）。:::
+::: tip
+子模块独立导入可让打包工具仅打包使用到的模块代码，避免引入不需要的依赖（如 `common/fs` 依赖 Node.js `fs`/`path` 模块）。
+:::
 
 ## 模块列表
 

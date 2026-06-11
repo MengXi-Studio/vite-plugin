@@ -10,7 +10,7 @@ import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRat
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // Barrel import
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize } from '@meng-xi/vite-plugin/common'
+import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 

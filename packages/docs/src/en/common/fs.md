@@ -10,7 +10,7 @@ import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory,
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // Barrel import
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 

@@ -24,7 +24,9 @@ import { ... } from '@meng-xi/vite-plugin/common/ui'
 import { ... } from '@meng-xi/vite-plugin/common/validation'
 ```
 
-::: tip Submodule imports allow bundlers to only include the code you actually use, avoiding unnecessary dependencies (e.g., `common/fs` depends on Node.js `fs`/`path` modules). :::
+::: tip
+Submodule imports allow bundlers to only include the code you actually use, avoiding unnecessary dependencies (e.g., `common/fs` depends on Node.js `fs`/`path` modules).
+:::
 
 ## Modules
 

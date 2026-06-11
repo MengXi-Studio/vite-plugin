@@ -7,7 +7,7 @@
 ```typescript
 // 子模块独立导入（推荐）
 import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/image-optimizer'
-import type { ImageOptimizerOptions, ImageOptimizeStats, ImageOptimizeSummary, ImageFormat, FormatQualityOptions } from '@meng-xi/vite-plugin/plugins/image-optimizer'
+import type { ImageOptimizerOptions, ImageOptimizeStats, ImageOptimizeSummary, ImageFormat, FormatQualityOptions, SvgoPlugin, SvgoOptions } from '@meng-xi/vite-plugin/plugins/image-optimizer'
 
 // barrel 导入
 import { imageOptimizer } from '@meng-xi/vite-plugin'
@@ -83,6 +83,24 @@ npm install svgo -D
 | avif | `number`                           | `50`         | AVIF 质量（1-100）             |
 | gif  | `boolean`                          | `true`       | GIF 是否尝试调色板优化         |
 | tiff | `'none' \| 'lzw' \| 'deflate' \| 'packbits'` | `'deflate'` | TIFF 压缩算法 |
+
+### SvgoPlugin
+
+SVGO 单个插件配置项。
+
+| 属性 | 类型      | 说明           |
+| ---- | --------- | -------------- |
+| name | `string`  | SVGO 插件名称  |
+| ...  | `unknown` | 插件参数（如 `active: boolean`） |
+
+### SvgoOptions
+
+SVG 优化配置。
+
+| 属性     | 类型            | 默认值 | 说明                       |
+| -------- | --------------- | ------ | -------------------------- |
+| plugins  | `SvgoPlugin[]`  | `[]`   | SVGO 插件列表              |
+| multipass | `boolean`      | `false`| 是否启用多进程优化         |
 
 ### ImageOptimizeStats
 

@@ -221,6 +221,7 @@ autoImport({
 
 - 自动跳过已显式导入的标识符，避免重复
 - 自动跳过 shebang（`#!/usr/bin/env node`）和 `"use strict"` 声明
+- 自动跳过 JavaScript/TypeScript 保留关键字（如 `enum`、`class`、`function` 等），避免生成无效的类型声明
 - `transform` 钩子使用 `order: 'pre'` 确保在其他插件处理之前执行
 - 类型声明文件仅在内容变化时才写入，减少不必要的 IO
 - 用户配置的 `imports` 优先级高于 `dirs` 扫描结果

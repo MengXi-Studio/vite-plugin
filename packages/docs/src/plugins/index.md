@@ -44,7 +44,9 @@ import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
 import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
 ```
 
-::: tip 子模块独立导入可让打包工具仅打包使用到的插件代码，避免引入不需要的依赖。 :::
+::: tip
+子模块独立导入可让打包工具仅打包使用到的插件代码，避免引入不需要的依赖。
+:::
 
 ## 插件
 

@@ -246,7 +246,9 @@ loadingManager({
 })
 ```
 
-::: warning自定义模板中必须包含一个具有 `data-loading-text` 属性的元素，否则 `updateText()` 将无法工作。:::
+::: warning
+自定义模板中必须包含一个具有 `data-loading-text` 属性的元素，否则 `updateText()` 将无法工作。
+:::
 
 ### 生命周期回调
 

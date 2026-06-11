@@ -7,7 +7,7 @@ Automatically optimize images after Vite build, supporting compression and forma
 ```typescript
 // Submodule import (recommended)
 import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/image-optimizer'
-import type { ImageOptimizerOptions, ImageOptimizeStats, ImageOptimizeSummary, ImageFormat, FormatQualityOptions } from '@meng-xi/vite-plugin/plugins/image-optimizer'
+import type { ImageOptimizerOptions, ImageOptimizeStats, ImageOptimizeSummary, ImageFormat, FormatQualityOptions, SvgoPlugin, SvgoOptions } from '@meng-xi/vite-plugin/plugins/image-optimizer'
 
 // Barrel import
 import { imageOptimizer } from '@meng-xi/vite-plugin'
@@ -83,6 +83,24 @@ Compression quality parameters for each format.
 | avif     | `number`                           | `50`         | AVIF quality (1-100)                 |
 | gif      | `boolean`                          | `true`       | Whether to try palette optimization  |
 | tiff     | `'none' \| 'lzw' \| 'deflate' \| 'packbits'` | `'deflate'` | TIFF compression algorithm |
+
+### SvgoPlugin
+
+SVGO single plugin configuration.
+
+| Property | Type      | Description                            |
+| -------- | --------- | -------------------------------------- |
+| name     | `string`  | SVGO plugin name                       |
+| ...      | `unknown` | Plugin parameters (e.g., `active: boolean`) |
+
+### SvgoOptions
+
+SVG optimization configuration.
+
+| Property  | Type           | Default | Description                              |
+| --------- | -------------- | ------- | ---------------------------------------- |
+| plugins   | `SvgoPlugin[]` | `[]`    | SVGO plugin list                         |
+| multipass | `boolean`      | `false` | Whether to enable multi-pass optimization |
 
 ### ImageOptimizeStats
 

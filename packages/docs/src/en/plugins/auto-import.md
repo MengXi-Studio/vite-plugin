@@ -222,6 +222,7 @@ autoImport({
 
 - Automatically skips already explicitly imported identifiers to avoid duplicates
 - Automatically skips shebang (`#!/usr/bin/env node`) and `"use strict"` declarations
+- Automatically skips JavaScript/TypeScript reserved keywords (e.g., `enum`, `class`, `function`) to avoid generating invalid type declarations
 - The `transform` hook uses `order: 'pre'` to ensure execution before other plugins
 - Declaration files are only written when content changes, reducing unnecessary IO
 - User-configured `imports` take priority over `dirs` scan results
