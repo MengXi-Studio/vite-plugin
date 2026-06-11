@@ -13,8 +13,9 @@ import {
 	versionUpdateChecker,
 	htmlInject,
 	compressAssets,
-	autoImport
-} from './uni_modules/vite-plugin/js_sdk/index.mjs'
+	autoImport,
+	imageOptimizer
+} from './uni_modules/vite-plugin/js_sdk'
 import { resolve } from 'node:path'
 
 export default defineConfig(config => {
@@ -192,6 +193,16 @@ export default defineConfig(config => {
 				onUpdateAvailable: 'console.log("[VersionUpdate] 当前:", currentVersion, "最新:", newVersion); return true;',
 				onRefresh: 'console.log("[VersionUpdate] 用户选择刷新")',
 				onDismiss: 'console.log("[VersionUpdate] 用户选择忽略")',
+				enabled: isH5 && isProd
+			}),
+
+			// 图片优化压缩与格式转换
+			imageOptimizer({
+				quality: { jpeg: 80, png: 6, webp: 75, avif: 50 },
+				convertToWebp: { png: true, jpeg: true },
+				keepOriginal: true,
+				parallelLimit: 5,
+				reportOutput: 'image-optimize-report.json',
 				enabled: isH5 && isProd
 			})
 		]

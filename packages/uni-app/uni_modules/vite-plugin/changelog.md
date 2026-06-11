@@ -1,3 +1,124 @@
+## 0.1.8（2026-06-11）
+
+新增 imageOptimizer 图片优化插件，新增 common/concurrency 并发控制模块，恢复 common/path 路径工具模块，Common 工具模块新增多项通用函数
+
+### imageOptimizer（新增）
+
+图片优化压缩与格式转换插件，在 Vite 构建（`writeBundle`）完成后自动扫描输出目录中的图片文件，使用 sharp 和 svgo 进行压缩优化和格式转换。`enforce: 'post'`。
+
+**功能特性**：
+
+- **多格式压缩**：支持 JPEG（mozjpeg）、PNG（palette）、WebP、AVIF、GIF、TIFF、SVG（svgo）七种格式的压缩优化
+- **格式转换**：支持位图格式之间的相互转换（如 PNG → WebP、JPEG → AVIF），提供 `convertToWebp`、`convertToAvif` 简写配置和 `convertMapping` 自定义映射
+- **SVG 优化**：通过 svgo 插件体系优化 SVG 文件，支持自定义插件列表和多进程优化
+- **并发处理**：可配置 `parallelLimit` 并发数，充分利用多核 CPU
+- **内存控制**：使用流式处理和临时文件，避免大图片导致内存溢出
+- **原子写入**：先写临时文件再重命名，确保异常时原文件不损坏
+- **体积守恒**：仅当优化后体积更小时才替换原文件
+- **优雅降级**：sharp/svgo 不可用时提供清晰的错误提示，跳过对应格式的优化
+- **压缩报告**：生成 JSON 格式的优化统计报告，包含按格式分组统计和 Top 5 压缩率排名
+- **实例方法**：提供 `getStats()`、`getSummary()` 方法供外部访问优化统计数据
+
+**配置选项**：
+
+| 选项              | 类型                                                           | 默认值                                                                         | 描述                                   |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------- |
+| quality           | `FormatQualityOptions`                                         | `{ jpeg: 80, png: 6, webp: 75, avif: 50, gif: true, tiff: 'deflate' }`         | 各格式的压缩质量参数                   |
+| convertToWebp     | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>` | `{}`                                                                           | 需要转换为 WebP 的源格式映射           |
+| convertToAvif     | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>` | `{}`                                                                           | 需要转换为 AVIF 的源格式映射           |
+| convertMapping    | `ConvertMapping`                                               | `{}`                                                                           | 自定义格式转换映射，优先级高于上述简写 |
+| svgo              | `SvgoOptions`                                                  | `{ plugins: [], multipass: false }`                                            | SVG 优化配置                           |
+| includeExtensions | `string[]`                                                     | `['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.tiff', '.tif', '.svg']` | 需要优化的文件扩展名列表               |
+| excludePaths      | `string[]`                                                     | `[]`                                                                           | 需要排除的路径前缀列表                 |
+| threshold         | `number`                                                       | `0`                                                                            | 最小优化阈值（字节），小于此值跳过     |
+| keepOriginal      | `boolean`                                                      | `true`                                                                         | 格式转换时是否保留原始文件             |
+| reportOutput      | `string` \| `false`                                            | `'image-optimize-report.json'`                                                 | 压缩报告输出路径，`false` 不生成       |
+| parallelLimit     | `number`                                                       | `5`                                                                            | 并发优化的最大文件数                   |
+| maxPixels         | `number`                                                       | `0`                                                                            | 单个图片最大像素数，超过则缩放，0 不限 |
+
+**FormatQualityOptions 类型**：
+
+| 属性 | 类型                                         | 默认值      | 描述                   |
+| ---- | -------------------------------------------- | ----------- | ---------------------- |
+| jpeg | `number`                                     | `80`        | JPEG 质量，范围 1-100  |
+| png  | `number`                                     | `6`         | PNG 压缩级别，范围 1-9 |
+| webp | `number`                                     | `75`        | WebP 质量，范围 1-100  |
+| avif | `number`                                     | `50`        | AVIF 质量，范围 1-100  |
+| gif  | `boolean`                                    | `true`      | GIF 是否尝试调色板优化 |
+| tiff | `'none' \| 'lzw' \| 'deflate' \| 'packbits'` | `'deflate'` | TIFF 压缩算法          |
+
+**ImageOptimizeStats 类型**：
+
+| 属性          | 类型          | 描述                                           |
+| ------------- | ------------- | ---------------------------------------------- |
+| file          | `string`      | 原始文件路径                                   |
+| relativePath  | `string`      | 相对于输出目录的相对路径                       |
+| originalSize  | `number`      | 原始文件大小（字节）                           |
+| optimizedSize | `number`      | 优化后文件大小（字节）                         |
+| ratio         | `number`      | 压缩率百分比（0-100）                          |
+| sourceFormat  | `ImageFormat` | 源图片格式                                     |
+| outputFormat  | `ImageFormat` | 输出图片格式（与 sourceFormat 相同表示仅压缩） |
+| converted     | `boolean`     | 是否发生了格式转换                             |
+| duration      | `number`      | 优化耗时（毫秒）                               |
+
+**ImageOptimizeSummary 类型**：
+
+| 属性               | 类型                                                            | 描述                             |
+| ------------------ | --------------------------------------------------------------- | -------------------------------- |
+| totalFiles         | `number`                                                        | 优化的文件总数                   |
+| skippedFiles       | `number`                                                        | 跳过的文件数量                   |
+| failedFiles        | `number`                                                        | 失败的文件数量                   |
+| totalOriginalSize  | `number`                                                        | 所有文件的原始大小总和（字节）   |
+| totalOptimizedSize | `number`                                                        | 所有文件的优化后大小总和（字节） |
+| totalRatio         | `number`                                                        | 总体压缩率百分比                 |
+| byFormat           | `Record<string, { count, originalSize, optimizedSize, ratio }>` | 按格式分组的统计                 |
+| convertedFiles     | `number`                                                        | 格式转换的文件数量               |
+| executionTime      | `number`                                                        | 优化操作总耗时（毫秒）           |
+| stats              | `ImageOptimizeStats[]`                                          | 每个文件的详细优化统计           |
+
+### Common 工具模块（增强）
+
+**common/concurrency（新增）**：
+
+| 新增函数             | 描述                                                                       |
+| -------------------- | -------------------------------------------------------------------------- |
+| `runWithConcurrency` | 带并发限制的批量执行，使用工作池模式并发执行异步任务，结果顺序与输入项对应 |
+
+**common/path（恢复）**：
+
+0.1.5 版本中移除的 `common/path` 模块重新添加，提供更完善的路径工具函数：
+
+| 函数                  | 描述                                                                  |
+| --------------------- | --------------------------------------------------------------------- |
+| `normalizePath`       | 将路径中的反斜杠转换为正斜杠，确保跨平台一致性                        |
+| `isExtensionIncluded` | 检查文件扩展名是否通过包含/排除过滤条件                               |
+| `isPathExcluded`      | 检查文件路径是否匹配排除路径列表，支持 simple 和 segment 两种匹配模式 |
+| `isPreCompressed`     | 检查扩展名是否为已压缩格式（`.gz` 或 `.br`）                          |
+
+**common/format（增强）**：
+
+| 新增函数    | 描述                                                                             |
+| ----------- | -------------------------------------------------------------------------------- |
+| `calcRatio` | 计算压缩率百分比，公式 `(1 - compressedSize / originalSize) * 100`，保留一位小数 |
+
+**common/fs（增强）**：
+
+| 新增函数            | 描述                                                                              |
+| ------------------- | --------------------------------------------------------------------------------- |
+| `resolveReportPath` | 解析报告输出路径，相对路径基于 outDir 解析，绝对路径直接使用，`false` 返回 `null` |
+
+### 子路径导出（变更）
+
+- 新增 `@meng-xi/vite-plugin/plugins/image-optimizer` 子路径导出
+- 新增导出函数：`imageOptimizer`
+- 新增导出类型：`ImageOptimizerOptions`、`ImageFormat`、`ConvertMapping`、`FormatQualityOptions`、`SvgoOptions`、`SvgoPlugin`、`ImageOptimizeStats`、`ImageOptimizeSummary`
+- 新增 `@meng-xi/vite-plugin/common/concurrency` 子路径导出
+- 新增导出函数：`runWithConcurrency`
+- 恢复 `@meng-xi/vite-plugin/common/path` 子路径导出
+- 恢复导出函数：`normalizePath`、`isExtensionIncluded`、`isPathExcluded`、`isPreCompressed`
+- `@meng-xi/vite-plugin/common/format` 新增导出：`calcRatio`
+- `@meng-xi/vite-plugin/common/fs` 新增导出：`resolveReportPath`
+
 ## 0.1.7（2026-06-08）
 
 新增 assetManifest 资源清单生成插件
