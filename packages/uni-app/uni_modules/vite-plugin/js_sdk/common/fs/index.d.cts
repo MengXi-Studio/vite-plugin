@@ -160,6 +160,24 @@ declare function writeFileSyncSafely(filePath: string, content: string): void;
  * ```
  */
 declare function shouldUpdateFileContent(filePath: string, newContent: string): boolean;
+/**
+ * 解析报告输出路径
+ *
+ * @param {string} outDir - 构建输出目录路径
+ * @param {string | false} reportPath - 报告文件路径，为 false 时返回 null
+ * @returns {string | null} 解析后的绝对路径，reportPath 为 false 时返回 null
+ *
+ * @description 当 reportPath 为相对路径时，相对于 outDir 解析；
+ * 为绝对路径时直接使用；为 false 时返回 null。
+ *
+ * @example
+ * ```typescript
+ * resolveReportPath('dist', 'report.json')   // 'dist/report.json'
+ * resolveReportPath('dist', '/tmp/r.json')    // '/tmp/r.json'
+ * resolveReportPath('dist', false)            // null
+ * ```
+ */
+declare function resolveReportPath(outDir: string, reportPath: string | false): string | null;
 
-export { checkSourceExists, copySourceToTarget, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport };
+export { checkSourceExists, copySourceToTarget, resolveReportPath, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport };
 export type { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile };

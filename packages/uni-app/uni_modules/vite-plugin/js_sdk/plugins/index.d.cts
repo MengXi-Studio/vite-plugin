@@ -9,6 +9,7 @@ export { FaviconManagerOptions, Icon, faviconManager } from './faviconManager/in
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './generateRouter/index.cjs';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './generateVersion/index.cjs';
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './htmlInject/index.cjs';
+export { ConvertMapping, FormatQualityOptions, ImageFormat, ImageOptimizeStats, ImageOptimizeSummary, ImageOptimizerOptions, SvgoOptions, SvgoPlugin, imageOptimizer } from './imageOptimizer/index.cjs';
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './loadingManager/index.cjs';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './versionUpdateChecker/index.cjs';
 import '../factory/index.cjs';

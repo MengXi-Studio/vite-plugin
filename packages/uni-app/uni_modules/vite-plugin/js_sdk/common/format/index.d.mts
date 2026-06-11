@@ -88,6 +88,24 @@ declare function formatDate(date: Date, format: string): string;
  * ```
  */
 declare function formatFileSize(bytes: number): string;
+/**
+ * 计算压缩率百分比
+ *
+ * @param {number} originalSize - 原始大小（字节）
+ * @param {number} compressedSize - 压缩后大小（字节）
+ * @returns {number} 压缩率百分比（0-100），如 65.2 表示体积减少 65.2%
+ *
+ * @description 计算公式: (1 - compressedSize / originalSize) * 100，保留一位小数。
+ * 当 originalSize 为 0 时返回 0，避免除零错误。
+ *
+ * @example
+ * ```typescript
+ * calcRatio(10000, 6000)  // 40.0
+ * calcRatio(10000, 10000) // 0
+ * calcRatio(0, 0)         // 0
+ * ```
+ */
+declare function calcRatio(originalSize: number, compressedSize: number): number;
 
-export { formatDate, formatFileSize, getDateFormatParams, parseTemplate };
+export { calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate };
 export type { DateFormatOptions };

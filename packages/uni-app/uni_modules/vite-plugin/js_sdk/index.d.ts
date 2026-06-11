@@ -1,5 +1,6 @@
-export { DateFormatOptions, formatDate, formatFileSize, getDateFormatParams, parseTemplate } from './common/format/index.js';
-export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.js';
+export { runWithConcurrency } from './common/concurrency/index.js';
+export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate } from './common/format/index.js';
+export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, resolveReportPath, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.js';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './common/html/index.js';
 export { isExtensionIncluded, isPathExcluded, isPreCompressed, normalizePath } from './common/path/index.js';
 export { makeCallback } from './common/script/index.js';
@@ -19,6 +20,7 @@ export { FaviconManagerOptions, Icon, faviconManager } from './plugins/faviconMa
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './plugins/generateRouter/index.js';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './plugins/generateVersion/index.js';
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './plugins/htmlInject/index.js';
+export { ConvertMapping, FormatQualityOptions, ImageFormat, ImageOptimizeStats, ImageOptimizeSummary, ImageOptimizerOptions, SvgoOptions, SvgoPlugin, imageOptimizer } from './plugins/imageOptimizer/index.js';
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './plugins/loadingManager/index.js';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './plugins/versionUpdateChecker/index.js';
 export { C as ConditionType, D as DualInjectResult, H as HtmlInjectResult, I as InjectCondition, a as InjectPosition, S as SecurityConfig, b as SelectorMatch } from './shared/vite-plugin.BI9taN75.js';
