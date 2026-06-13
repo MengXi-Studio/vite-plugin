@@ -248,6 +248,50 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 
 		return `
 /**
+ * 导航动画类型
+ *
+ * 用于 uni.navigateTo / uni.navigateBack 的 animationType 参数，
+ * 仅 App 端生效，其他平台自动忽略。
+ *
+ * 显示动画（navigateTo）：slide-in-right / slide-in-left / slide-in-top / slide-in-bottom / pop-in / fade-in / zoom-out / zoom-fade-out / none / auto
+ * 关闭动画（navigateBack）：slide-out-right / slide-out-left / slide-out-top / slide-out-bottom / pop-out / fade-out / zoom-in / zoom-fade-in / none / auto
+ *
+ * @see https://en.uniapp.dcloud.io/api/router.html#animation
+ */
+export type UniAnimationType =
+	| 'auto'
+	| 'none'
+	| 'slide-in-right'
+	| 'slide-in-left'
+	| 'slide-in-top'
+	| 'slide-in-bottom'
+	| 'slide-out-right'
+	| 'slide-out-left'
+	| 'slide-out-top'
+	| 'slide-out-bottom'
+	| 'fade-in'
+	| 'fade-out'
+	| 'zoom-out'
+	| 'zoom-in'
+	| 'zoom-fade-out'
+	| 'zoom-fade-in'
+	| 'pop-in'
+	| 'pop-out'
+
+/**
+ * 导航动画配置
+ *
+ * 仅 App 端生效，其他平台自动忽略。
+ * 优先级：push/replace 调用时传入 > meta.animation > uni 默认值
+ */
+export interface NavigationAnimation {
+	/** 窗口动画类型 */
+	type: UniAnimationType
+	/** 动画持续时间（ms），默认 300 */
+	duration?: number
+}
+
+/**
  * 路由元信息
  */
 export interface RouteMeta {
@@ -257,6 +301,8 @@ export interface RouteMeta {
 	isTab?: boolean
 	/** 是否需要登录 */
 	requireAuth?: boolean
+	/** 默认导航动画（仅 App 端生效），可被 push/replace 时的 animation 参数覆盖 */
+	animation?: NavigationAnimation
 	/** 自定义扩展字段 */
 	[key: string]: unknown
 }
@@ -276,32 +322,183 @@ export interface RouteConfig {
 	}
 
 	/**
+	 * 将路由配置序列化为单行文本
+	 *
+	 * @param {RouteConfig} route - 路由配置对象
+	 * @returns {string} 序列化后的文本
+	 *
+	 * @description 将路由配置对象序列化为 TypeScript/JavaScript 代码文本，
+	 * 属性名去引号，字符串值使用单引号。
+	 */
+	private serializeRoute(route: RouteConfig): string {
+		return JSON.stringify(route, null, '\t')
+			.replace(/"(\w+)":/g, '$1:')
+			.replace(/: "([^"]+)"/g, ": '$1'")
+	}
+
+	/**
+	 * 将值序列化为紧凑的单行文本
+	 *
+	 * @param {unknown} value - 要序列化的值
+	 * @returns {string} 紧凑格式的文本
+	 *
+	 * @description 将值序列化为单行 TypeScript/JavaScript 代码文本，
+	 * 属性名去引号，字符串值使用单引号。适用于在原始文本中替换属性值，
+	 * 避免多行序列化导致的缩进不一致问题。
+	 */
+	private serializeValueCompact(value: unknown): string {
+		if (value === null) return 'null'
+		if (value === undefined) return 'undefined'
+		if (typeof value === 'string') return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+		if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+		if (Array.isArray(value)) {
+			return '[' + value.map(v => this.serializeValueCompact(v)).join(', ') + ']'
+		}
+		if (typeof value === 'object') {
+			const entries = Object.entries(value as Record<string, unknown>)
+				.map(([k, v]) => `${k}: ${this.serializeValueCompact(v)}`)
+				.join(', ')
+			return `{ ${entries} }`
+		}
+		return String(value)
+	}
+
+	/**
+	 * 从原始文本中移除指定属性
+	 *
+	 * @param {string} rawText - 路由对象的原始文本
+	 * @param {string} propertyName - 要移除的属性名
+	 * @returns {string} 移除属性后的原始文本
+	 *
+	 * @description 定位并移除指定属性及其值，正确处理尾随逗号和空白。
+	 */
+	private removeProperty(rawText: string, propertyName: string): string {
+		const regex = new RegExp(`,?\\s*\\b${propertyName}\\s*:\\s*`)
+		const match = rawText.match(regex)
+		if (!match || match.index === undefined) return rawText
+
+		const propStart = match.index
+		const valueStart = propStart + match[0].length
+
+		// 扫描值的边界
+		let depth = 0
+		let inStr = false
+		let strChar = ''
+		let valueEnd = valueStart
+
+		for (let i = valueStart; i < rawText.length; i++) {
+			const ch = rawText[i]
+
+			if (inStr) {
+				if (ch === strChar && rawText[i - 1] !== '\\') inStr = false
+				continue
+			}
+
+			if (ch === '/' && i + 1 < rawText.length && rawText[i + 1] === '/') {
+				const nl = rawText.indexOf('\n', i)
+				i = nl === -1 ? rawText.length - 1 : nl - 1
+				continue
+			}
+			if (ch === '/' && i + 1 < rawText.length && rawText[i + 1] === '*') {
+				const end = rawText.indexOf('*/', i + 2)
+				i = end === -1 ? rawText.length - 1 : end + 1
+				continue
+			}
+
+			if (ch === '"' || ch === "'" || ch === '`') {
+				inStr = true
+				strChar = ch
+				continue
+			}
+			if (ch === '{' || ch === '[' || ch === '(') {
+				depth++
+				continue
+			}
+			if (ch === '}' || ch === ']' || ch === ')') {
+				if (depth > 0) {
+					depth--
+					continue
+				}
+				valueEnd = i
+				break
+			}
+			if (depth === 0 && ch === ',') {
+				valueEnd = i
+				break
+			}
+		}
+
+		// 处理前导逗号：如果匹配包含前导逗号则从逗号开始删除，否则检查值后逗号
+		const leadingComma = match[0].startsWith(',')
+		if (leadingComma) {
+			return rawText.substring(0, propStart) + rawText.substring(valueEnd)
+		} else {
+			// 值后可能有逗号
+			let afterValue = valueEnd
+			if (rawText[afterValue] === ',') afterValue++
+			return rawText.substring(0, propStart) + rawText.substring(afterValue)
+		}
+	}
+
+	/**
 	 * 生成路由配置文件内容
 	 *
 	 * @param {RouteConfig[]} routes - 路由配置数组
+	 * @param {Map<string, string>} [existingRawTexts] - 已存在的路由对象原始文本映射
 	 * @returns {string} 完整的路由配置文件内容字符串
 	 *
 	 * @description 生成包含类型定义（如果需要）和路由配置数组的完整文件内容。
-	 * JSON 输出会经过美化处理：属性名去引号、字符串值使用单引号。
+	 * 当提供 existingRawTexts 时，对于已有原始文本的路由，保留用户添加的
+	 * 非标准属性（如 beforeEnter、component 等函数），仅更新 path 和 meta。
 	 */
-	private generateFileContent(routes: RouteConfig[]): string {
+	private generateFileContent(routes: RouteConfig[], existingRawTexts?: Map<string, string>): string {
 		const typeDefinitions = this.generateTypeDefinitions()
 		const isTS = this.options.outputFormat === 'ts'
-
-		const routesJson = JSON.stringify(routes, null, '\t')
-			// 美化 JSON 输出，去掉属性名的引号
-			.replace(/"(\w+)":/g, '$1:')
-			// 修复字符串值的引号
-			.replace(/: "([^"]+)"/g, ": '$1'")
-
 		const typeAnnotation = isTS ? ': RouteConfig[]' : ''
+
+		// 构建每个路由的文本表示
+		const routeStrings = routes.map(route => {
+			const rawText = existingRawTexts?.get(route.path)
+
+			if (rawText) {
+				// 有原始文本：保留用户添加的属性（beforeEnter 等），仅更新 path 和 meta
+				let updated = rawText
+
+				// 更新 path
+				updated = this.replacePropertyValue(updated, 'path', `'${route.path}'`)
+
+				// 更新 name
+				if (route.name !== undefined) {
+					updated = this.replacePropertyValue(updated, 'name', `'${route.name}'`)
+				}
+
+				// 更新 meta：使用紧凑序列化避免缩进不一致
+				if (route.meta && Object.keys(route.meta).length > 0) {
+					const metaText = this.serializeValueCompact(route.meta)
+					updated = this.replacePropertyValue(updated, 'meta', metaText)
+				} else if (route.meta && Object.keys(route.meta).length === 0) {
+					// meta 为空对象，移除 meta 属性
+					updated = this.removeProperty(updated, 'meta')
+				}
+
+				return updated
+			}
+
+			// 无原始文本：使用 JSON 序列化
+			return this.serializeRoute(route)
+		})
+
+		// 缩进每个路由对象
+		const indentedRoutes = routeStrings.map(s => '\t' + s.split('\n').join('\n\t')).join(',\n')
 
 		return `${typeDefinitions}
 /**
  * 路由配置列表
  * @description 由 pages.json 自动生成
  */
-export const routes${typeAnnotation} = ${routesJson}
+export const routes${typeAnnotation} = [
+${indentedRoutes}
+]
 
 export default routes
 `
@@ -336,6 +533,175 @@ export default routes
 	}
 
 	/**
+	 * 从数组文本中提取各个路由对象的原始文本
+	 *
+	 * @param {string} arrayText - routes 数组的文本内容
+	 * @returns {string[]} 每个路由对象的原始文本
+	 *
+	 * @description 使用花括号匹配算法提取数组中的每个顶层对象，
+	 * 正确处理嵌套对象、函数体和字符串中的花括号。
+	 */
+	private extractRouteObjects(arrayText: string): string[] {
+		const objects: string[] = []
+		let depth = 0
+		let start = -1
+		let inString = false
+		let stringChar = ''
+
+		for (let i = 0; i < arrayText.length; i++) {
+			const ch = arrayText[i]
+
+			if (inString) {
+				if (ch === stringChar && arrayText[i - 1] !== '\\') {
+					inString = false
+				}
+				continue
+			}
+
+			// 跳过单行注释
+			if (ch === '/' && i + 1 < arrayText.length && arrayText[i + 1] === '/') {
+				const newlineIdx = arrayText.indexOf('\n', i)
+				i = newlineIdx === -1 ? arrayText.length - 1 : newlineIdx - 1
+				continue
+			}
+
+			// 跳过多行注释
+			if (ch === '/' && i + 1 < arrayText.length && arrayText[i + 1] === '*') {
+				const endIdx = arrayText.indexOf('*/', i + 2)
+				i = endIdx === -1 ? arrayText.length - 1 : endIdx + 1
+				continue
+			}
+
+			if (ch === '"' || ch === "'" || ch === '`') {
+				inString = true
+				stringChar = ch
+				continue
+			}
+
+			if (ch === '{') {
+				if (depth === 0) start = i
+				depth++
+			} else if (ch === '}') {
+				depth--
+				if (depth === 0 && start >= 0) {
+					objects.push(arrayText.substring(start, i + 1))
+					start = -1
+				}
+			}
+		}
+
+		return objects
+	}
+
+	/**
+	 * 从已存在的路由配置文件中提取 routes 的原始文本
+	 *
+	 * @param {string} existingContent - 已存在的文件内容
+	 * @returns {Map<string, string>} 以路径为键的路由对象原始文本映射
+	 *
+	 * @description 提取每个路由对象的原始文本（保留函数等非 JSON 内容），
+	 * 用于在合并时保留用户添加的 beforeEnter、component 等属性。
+	 */
+	private extractExistingRawRoutes(existingContent: string): Map<string, string> {
+		const rawTextMap = new Map<string, string>()
+
+		const routesMatch = existingContent.match(/export const routes[^=]*=\s*(\[[\s\S]*?\](?=\s*\n|\s*$|\s*\/\/))/)
+		if (!routesMatch) return rawTextMap
+
+		const routeObjects = this.extractRouteObjects(routesMatch[1])
+
+		for (const rawText of routeObjects) {
+			// 提取 path 作为 key（兼容单引号和双引号）
+			const pathMatch = rawText.match(/path:\s*['"]([^'"]*)['"]/)
+			if (pathMatch) {
+				rawTextMap.set(pathMatch[1], rawText.trim())
+			}
+		}
+
+		return rawTextMap
+	}
+
+	/**
+	 * 在原始文本中替换指定属性的值
+	 *
+	 * @param {string} rawText - 路由对象的原始文本
+	 * @param {string} propertyName - 属性名
+	 * @param {string} newValue - 新的属性值文本
+	 * @returns {string} 替换后的原始文本
+	 *
+	 * @description 使用花括号匹配定位属性值的边界，替换整个属性值。
+	 * 如果属性不存在，则在对象末尾添加新属性。
+	 */
+	private replacePropertyValue(rawText: string, propertyName: string, newValue: string): string {
+		const regex = new RegExp(`(\\b${propertyName}\\s*:\\s*)`)
+		const match = rawText.match(regex)
+
+		if (!match || match.index === undefined) {
+			// 属性不存在，在对象末尾添加
+			// 检测现有缩进：取最后一个 } 前的非空行的前导空白
+			const lastBrace = rawText.lastIndexOf('}')
+			const beforeBrace = rawText.substring(0, lastBrace)
+			const lastNewline = beforeBrace.lastIndexOf('\n')
+			const indent = lastNewline >= 0 ? (beforeBrace.substring(lastNewline + 1).match(/^(\s*)/)?.[1] ?? '\t') : '\t'
+			const newProp = `\n${indent}${propertyName}: ${newValue},`
+			return rawText.substring(0, lastBrace) + newProp + '\n' + rawText.substring(lastBrace)
+		}
+
+		const valueStart = match.index + match[0].length
+		let depth = 0
+		let inStr = false
+		let strChar = ''
+		let valueEnd = valueStart
+
+		for (let i = valueStart; i < rawText.length; i++) {
+			const ch = rawText[i]
+
+			if (inStr) {
+				if (ch === strChar && rawText[i - 1] !== '\\') {
+					inStr = false
+				}
+				continue
+			}
+
+			// 跳过单行注释
+			if (ch === '/' && i + 1 < rawText.length && rawText[i + 1] === '/') {
+				const newlineIdx = rawText.indexOf('\n', i)
+				i = newlineIdx === -1 ? rawText.length - 1 : newlineIdx - 1
+				continue
+			}
+
+			// 跳过多行注释
+			if (ch === '/' && i + 1 < rawText.length && rawText[i + 1] === '*') {
+				const endIdx = rawText.indexOf('*/', i + 2)
+				i = endIdx === -1 ? rawText.length - 1 : endIdx + 1
+				continue
+			}
+
+			if (ch === '"' || ch === "'" || ch === '`') {
+				inStr = true
+				strChar = ch
+				continue
+			}
+
+			if (ch === '{' || ch === '[' || ch === '(') {
+				depth++
+			} else if (ch === '}' || ch === ']' || ch === ')') {
+				if (depth > 0) {
+					depth--
+				} else {
+					valueEnd = i
+					break
+				}
+			} else if (depth === 0 && ch === ',') {
+				valueEnd = i
+				break
+			}
+		}
+
+		return rawText.substring(0, match.index!) + `${propertyName}: ${newValue}` + rawText.substring(valueEnd)
+	}
+
+	/**
 	 * 从已存在的路由配置文件中提取 routes 配置
 	 *
 	 * @param {string} existingContent - 已存在的文件内容
@@ -343,6 +709,7 @@ export default routes
 	 *
 	 * @description 使用正则表达式从已存在的文件中提取 routes 数组，
 	 * 解析为 RouteConfig 对象映射。解析失败时返回空 Map 并输出警告日志。
+	 * 注意：JSON.parse 会丢失函数属性，函数属性的保留由 extractExistingRawRoutes 处理。
 	 */
 	private extractExistingRoutes(existingContent: string): Map<string, RouteConfig> {
 		const routesMap = new Map<string, RouteConfig>()
@@ -431,12 +798,14 @@ export default routes
 		if (!pagesJson) return
 
 		let routes = this.parsePagesJson(pagesJson)
+		let existingRawTexts: Map<string, string> | undefined
 		const outputPath = resolve(this.projectRoot, this.options.outputPath!)
 
 		if (this.options.preserveRouteChanges && existsSync(outputPath)) {
 			try {
 				const existingContent = await fsp.readFile(outputPath, 'utf-8')
 				const existingRoutesMap = this.extractExistingRoutes(existingContent)
+				existingRawTexts = this.extractExistingRawRoutes(existingContent)
 				if (existingRoutesMap.size > 0) {
 					routes = this.mergeRoutes(routes, existingRoutesMap)
 					this.logger.info('已合并用户对路由配置的修改')
@@ -446,7 +815,7 @@ export default routes
 			}
 		}
 
-		const content = this.generateFileContent(routes)
+		const content = this.generateFileContent(routes, existingRawTexts)
 		await writeFileContent(outputPath, content)
 
 		this.logger.success(`路由配置文件已生成: ${outputPath}`)
