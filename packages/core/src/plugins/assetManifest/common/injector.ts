@@ -1,3 +1,5 @@
+import path from 'node:path'
+import fs from 'node:fs'
 import type { AssetMap } from '../types'
 import { injectBeforeTag } from '@/common/html'
 
@@ -56,4 +58,32 @@ export function generateRuntimeScript(assetMap: AssetMap, globalName: string): s
 export function injectRuntimeManifest(html: string, assetMap: AssetMap, globalName: string): { html: string; injected: boolean } {
 	const script = generateRuntimeScript(assetMap, globalName)
 	return injectBeforeTag(html, '</head>', script)
+}
+
+/**
+ * 递归查找目录中的所有 HTML 文件
+ *
+ * @param {string} dirPath - 目录路径
+ * @returns {Promise<string[]>} HTML 文件的绝对路径列表
+ *
+ * @description 递归扫描指定目录，收集所有 `.html` 文件的绝对路径。
+ * 用于在清单生成后找到需要注入运行时脚本的 HTML 文件。
+ */
+export async function findHtmlFiles(dirPath: string): Promise<string[]> {
+	const htmlFiles: string[] = []
+
+	async function walk(dir: string): Promise<void> {
+		const entries = await fs.promises.readdir(dir, { withFileTypes: true })
+		for (const entry of entries) {
+			const fullPath = path.join(dir, entry.name)
+			if (entry.isDirectory()) {
+				await walk(fullPath)
+			} else if (entry.isFile() && entry.name.endsWith('.html')) {
+				htmlFiles.push(fullPath)
+			}
+		}
+	}
+
+	await walk(dirPath)
+	return htmlFiles
 }

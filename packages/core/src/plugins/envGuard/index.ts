@@ -2,7 +2,7 @@ import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { EnvGuardOptions, EnvGuardResult } from './types'
 import type { EnvValidationResult } from './common'
-import { validateEnvironment, generateTemplate, generateRuntimeGuard } from './common'
+import { validateEnvironment, generateTemplate, generateRuntimeGuard, parseEnvContent } from './common'
 import { formatDate } from '@/common/format'
 import { injectBeforeTag } from '@/common/html'
 import { writeFileContent } from '@/common/fs'
@@ -232,24 +232,10 @@ class EnvGuardPlugin extends BasePlugin<EnvGuardOptions> {
 	 */
 	private parseAndLoadEnvFile(filePath: string): void {
 		const content = fs.readFileSync(filePath, 'utf-8')
-		const lines = content.split('\n')
+		const vars = parseEnvContent(content, { prefix: 'VITE_' })
 
-		for (const line of lines) {
-			const trimmed = line.trim()
-
-			if (!trimmed || trimmed.startsWith('#')) continue
-
-			const eqIndex = trimmed.indexOf('=')
-			if (eqIndex === -1) continue
-
-			const key = trimmed.slice(0, eqIndex).trim()
-			let value = trimmed.slice(eqIndex + 1).trim()
-
-			if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-				value = value.slice(1, -1)
-			}
-
-			if (key.startsWith('VITE_') && process.env[key] === undefined) {
+		for (const [key, value] of Object.entries(vars)) {
+			if (process.env[key] === undefined) {
 				process.env[key] = value
 			}
 		}

@@ -2,4 +2,4 @@ export { scanOutputDirectory, buildAssetMap, shouldIncludeAsset, extractOriginal
 export type { ScannedAsset } from './scanner'
 export { formatManifest } from './formatter'
 export { groupAssetsByEntry } from './grouper'
-export { generateRuntimeScript, injectRuntimeManifest } from './injector'
+export { generateRuntimeScript, injectRuntimeManifest, findHtmlFiles } from './injector'

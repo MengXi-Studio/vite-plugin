@@ -1,8 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateVersionOptions, VersionInfo } from './types'
-import { generateRandomHash, parseTemplate } from './common'
-import { getDateFormatParams } from '@/common/format'
+import { generateVersionString, generateVersionInfoObject } from './common'
 import { writeFileContent } from '@/common/fs'
 import { join } from 'path'
 
@@ -100,68 +99,15 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 	 * 生成的版本号会自动添加 prefix 和 suffix。
 	 */
 	private generateVersion(): string {
-		const params = getDateFormatParams(this.buildTime)
-		const hash = generateRandomHash(this.options.hashLength)
-
-		let version: string
-
-		switch (this.options.format) {
-			case 'timestamp':
-				version = `${params.YYYY}${params.MM}${params.DD}${params.HH}${params.mm}${params.ss}`
-				break
-
-			case 'date':
-				version = `${params.YYYY}.${params.MM}.${params.DD}`
-				break
-
-			case 'datetime':
-				version = `${params.YYYY}.${params.MM}.${params.DD}.${params.HH}${params.mm}${params.ss}`
-				break
-
-			case 'semver':
-				version = this.options.semverBase || '1.0.0'
-				break
-
-			case 'hash':
-				version = hash
-				break
-
-			case 'custom':
-				version = this.parseCustomFormat({ ...params, hash })
-				break
-
-			default:
-				version = params.timestamp
-		}
-
-		// 添加前缀和后缀
-		const prefix = this.options.prefix || ''
-		const suffix = this.options.suffix || ''
-
-		return `${prefix}${version}${suffix}`
-	}
-
-	/**
-	 * 解析自定义格式模板
-	 *
-	 * @param {Record<string, string>} values - 模板变量映射
-	 * @returns {string} 解析后的版本号字符串
-	 *
-	 * @description 使用 parseTemplate 工具函数解析自定义格式模板。
-	 * 如果配置了 semverBase，会额外解析 major、minor、patch 占位符。
-	 */
-	private parseCustomFormat(values: Record<string, string>): string {
-		const templateValues = { ...values }
-
-		// 解析语义化版本占位符
-		if (this.options.semverBase) {
-			const [major, minor, patch] = this.options.semverBase.split('.')
-			templateValues.major = major || '1'
-			templateValues.minor = minor || '0'
-			templateValues.patch = patch || '0'
-		}
-
-		return parseTemplate(this.options.customFormat || '', templateValues)
+		return generateVersionString({
+			format: this.options.format,
+			buildTime: this.buildTime,
+			hashLength: this.options.hashLength || 8,
+			semverBase: this.options.semverBase,
+			customFormat: this.options.customFormat,
+			prefix: this.options.prefix,
+			suffix: this.options.suffix
+		})
 	}
 
 	/**
@@ -173,13 +119,12 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 	 * 毫秒时间戳、版本格式类型以及通过 extra 选项附加的自定义字段。
 	 */
 	private generateVersionInfo(): VersionInfo {
-		return {
+		return generateVersionInfoObject({
 			version: this.version,
-			buildTime: this.buildTime.toISOString(),
-			timestamp: this.buildTime.getTime(),
+			buildTime: this.buildTime,
 			format: this.options.format,
-			...this.options.extra
-		}
+			extra: this.options.extra
+		})
 	}
 
 	/**

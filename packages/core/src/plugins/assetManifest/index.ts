@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { AssetManifestOptions, AssetMap, AssetGroup, AssetManifestResult } from './types'
-import { scanOutputDirectory, buildAssetMap, formatManifest, groupAssetsByEntry, injectRuntimeManifest } from './common'
+import { scanOutputDirectory, buildAssetMap, formatManifest, groupAssetsByEntry, injectRuntimeManifest, findHtmlFiles } from './common'
 import { writeFileContent } from '@/common/fs'
 import { validateGlobalName } from '@/common/validation'
 
@@ -245,7 +245,7 @@ class AssetManifestPlugin extends BasePlugin<AssetManifestOptions> {
 		const assetMap = this.manifest?.assets || this.assetMap
 
 		// 扫描输出目录中的 HTML 文件
-		const htmlFiles = await this.findHtmlFiles(outDir)
+		const htmlFiles = await findHtmlFiles(outDir)
 
 		if (htmlFiles.length === 0) {
 			this.logger.warn('未找到 HTML 文件，运行时清单注入跳过')
@@ -269,35 +269,6 @@ class AssetManifestPlugin extends BasePlugin<AssetManifestOptions> {
 		}
 
 		this.logger.info(`运行时清单全局变量: ${this.options.runtimeGlobalName}`)
-	}
-
-	/**
-	 * 查找输出目录中的所有 HTML 文件
-	 *
-	 * @async
-	 * @param {string} dirPath - 目录路径
-	 * @returns {Promise<string[]>} HTML 文件的绝对路径列表
-	 *
-	 * @description 递归扫描指定目录，收集所有 `.html` 文件的绝对路径。
-	 * 用于在清单生成后找到需要注入运行时脚本的 HTML 文件。
-	 */
-	private async findHtmlFiles(dirPath: string): Promise<string[]> {
-		const htmlFiles: string[] = []
-
-		async function walk(dir: string): Promise<void> {
-			const entries = await fs.promises.readdir(dir, { withFileTypes: true })
-			for (const entry of entries) {
-				const fullPath = path.join(dir, entry.name)
-				if (entry.isDirectory()) {
-					await walk(fullPath)
-				} else if (entry.isFile() && entry.name.endsWith('.html')) {
-					htmlFiles.push(fullPath)
-				}
-			}
-		}
-
-		await walk(dirPath)
-		return htmlFiles
 	}
 
 	/**
