@@ -315,7 +315,7 @@ export interface RouteMeta {
 	/** 默认导航动画（仅 App 端生效），可被 push/replace 时的 animation 参数覆盖 */
 	animation?: NavigationAnimation
 	/** 自定义扩展字段 */
-	[key: string]: unknown
+	[key: string]: any
 }
 
 /**
@@ -328,6 +328,8 @@ export interface RouteConfig {
 	name?: string
 	/** 路由元信息 */
 	meta?: RouteMeta
+	/** 用户自定义扩展属性（如 beforeEnter、component 等） */
+	[key: string]: any
 }
 `
 	}
