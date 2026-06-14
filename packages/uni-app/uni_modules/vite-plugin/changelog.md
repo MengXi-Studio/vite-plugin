@@ -1,3 +1,76 @@
+## 0.1.9（2026-06-14）
+
+generateRouter 新增导航动画支持与路由属性保留增强
+
+### generateRouter（增强）
+
+路由生成插件新增导航动画类型支持，增强 `preserveRouteChanges` 功能以保留用户自定义路由属性。
+
+**新增功能**：
+
+- **导航动画类型**：新增 `UniAnimationType` 和 `NavigationAnimation` 类型定义，支持 uni-app App 端的页面导航动画配置
+- **路由元信息扩展**：`RouteMeta` 新增 `animation` 字段，可配置页面默认导航动画
+- **路由配置扩展**：`RouteConfig` 新增索引签名 `[key: string]: unknown`，支持用户添加 `beforeEnter`、`component` 等自定义属性
+- **原始文本保留**：`preserveRouteChanges` 增强为基于原始文本的合并策略，保留用户添加的函数属性（如 `beforeEnter` 守卫）和自定义属性，仅更新 `path`、`name`、`meta` 字段
+
+**类型变更**：
+
+| 类型                       | 变更 | 说明                                        |
+| -------------------------- | ---- | ------------------------------------------- |
+| `UniAnimationType`         | 新增 | uni-app 导航动画类型，支持 18 种动画值      |
+| `NavigationAnimation`      | 新增 | 导航动画配置接口，包含 `type` 和 `duration` |
+| `RouteMeta.animation`      | 新增 | 默认导航动画字段（仅 App 端生效）           |
+| `RouteConfig[key: string]` | 新增 | 索引签名，支持用户自定义扩展属性            |
+
+**preserveRouteChanges 增强说明**：
+
+| 字段       | 行为                                                       |
+| ---------- | ---------------------------------------------------------- |
+| `path`     | 始终以 `pages.json` 为准，不可覆盖                         |
+| `name`     | 用户修改的值优先保留                                       |
+| `meta`     | 用户修改的值优先保留，`pages.json` 中新增的字段自动补充    |
+| 非标准属性 | 用户添加的 `beforeEnter`、`component` 等自定义属性完整保留 |
+
+**示例**：假设 `pages.json` 新增了一个页面，且用户在已有路由上添加了 `beforeEnter`：
+
+```typescript
+// 用户手动修改后的路由配置
+export const routes: RouteConfig[] = [
+	{
+		path: '/pages/index/index',
+		name: 'pagesIndexIndex',
+		meta: { title: '自定义标题' },
+		beforeEnter: (to, from, next) => {
+			next()
+		} // 用户添加的守卫
+	}
+]
+```
+
+重新生成后：
+
+```typescript
+export const routes: RouteConfig[] = [
+	{
+		path: '/pages/index/index',
+		name: 'pagesIndexIndex',
+		meta: { title: '自定义标题', isTab: true }, // 用户标题保留，新增 isTab 自动补充
+		beforeEnter: (to, from, next) => {
+			next()
+		} // 自定义属性保留
+	},
+	{
+		path: '/pages/new/page', // 新增页面自动生成
+		name: 'pagesNewPage',
+		meta: { title: '新页面' }
+	}
+]
+```
+
+### 子路径导出（变更）
+
+- `@meng-xi/vite-plugin/plugins/generate-router` 新增导出类型：`UniAnimationType`、`NavigationAnimation`
+
 ## 0.1.8（2026-06-11）
 
 新增 imageOptimizer 图片优化插件，新增 common/concurrency 并发控制模块，恢复 common/path 路径工具模块，Common 工具模块新增多项通用函数

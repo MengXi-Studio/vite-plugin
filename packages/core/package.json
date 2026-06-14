@@ -158,7 +158,7 @@
 	],
 	"scripts": {
 		"dev": "unbuild --watch",
-		"build": "tsx scripts/generate-exports.ts && unbuild",
+		"build": "tsx scripts/generate-exports.ts && NODE_OPTIONS='--max-old-space-size=4096' unbuild",
 		"generate-exports": "tsx scripts/generate-exports.ts"
 	},
 	"peerDependencies": {
