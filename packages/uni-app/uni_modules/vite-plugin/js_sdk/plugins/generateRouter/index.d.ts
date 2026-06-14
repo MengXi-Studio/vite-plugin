@@ -4,6 +4,30 @@ import '../../shared/vite-plugin.B8FuZce1.js';
 import '../../shared/vite-plugin.DRRlWY8P.js';
 
 /**
+ * 导航动画类型
+ *
+ * 用于 uni.navigateTo / uni.navigateBack 的 animationType 参数，
+ * 仅 App 端生效，其他平台自动忽略。
+ *
+ * 显示动画（navigateTo）：slide-in-right / slide-in-left / slide-in-top / slide-in-bottom / pop-in / fade-in / zoom-out / zoom-fade-out / none / auto
+ * 关闭动画（navigateBack）：slide-out-right / slide-out-left / slide-out-top / slide-out-bottom / pop-out / fade-out / zoom-in / zoom-fade-in / none / auto
+ *
+ * @see https://en.uniapp.dcloud.io/api/router.html#animation
+ */
+type UniAnimationType = 'auto' | 'none' | 'slide-in-right' | 'slide-in-left' | 'slide-in-top' | 'slide-in-bottom' | 'slide-out-right' | 'slide-out-left' | 'slide-out-top' | 'slide-out-bottom' | 'fade-in' | 'fade-out' | 'zoom-out' | 'zoom-in' | 'zoom-fade-out' | 'zoom-fade-in' | 'pop-in' | 'pop-out';
+/**
+ * 导航动画配置
+ *
+ * 仅 App 端生效，其他平台自动忽略。
+ * 优先级：push/replace 调用时传入 > meta.animation > uni 默认值
+ */
+interface NavigationAnimation {
+    /** 窗口动画类型 */
+    type: UniAnimationType;
+    /** 动画持续时间（ms），默认 300 */
+    duration?: number;
+}
+/**
  * 路由元信息
  *
  * @interface RouteMeta
@@ -17,6 +41,8 @@ interface RouteMeta {
     isTab?: boolean;
     /** 是否需要登录才能访问 */
     requireAuth?: boolean;
+    /** 默认导航动画（仅 App 端生效），可被 push/replace 时的 animation 参数覆盖 */
+    animation?: NavigationAnimation;
     /** 自定义扩展字段 */
     [key: string]: unknown;
 }
@@ -33,6 +59,8 @@ interface RouteConfig {
     name?: string;
     /** 路由元信息 */
     meta?: RouteMeta;
+    /** 用户自定义扩展属性（如 beforeEnter、component 等） */
+    [key: string]: unknown;
 }
 /**
  * uni-app pages.json 中的页面配置项
@@ -292,4 +320,4 @@ interface GenerateRouterOptions extends BasePluginOptions {
 declare const generateRouter: PluginFactory<GenerateRouterOptions, GenerateRouterOptions>;
 
 export { generateRouter };
-export type { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig };
+export type { GenerateRouterOptions, NameStrategy, NavigationAnimation, OutputFormat, RouteConfig, RouteMeta, UniAnimationType, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig };
