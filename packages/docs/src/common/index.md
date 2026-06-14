@@ -19,6 +19,7 @@ import { ... } from '@meng-xi/vite-plugin/common/concurrency'
 import { ... } from '@meng-xi/vite-plugin/common/fs'
 import { ... } from '@meng-xi/vite-plugin/common/format'
 import { ... } from '@meng-xi/vite-plugin/common/html'
+import { ... } from '@meng-xi/vite-plugin/common/path'
 import { ... } from '@meng-xi/vite-plugin/common/script'
 import { ... } from '@meng-xi/vite-plugin/common/ui'
 import { ... } from '@meng-xi/vite-plugin/common/validation'
@@ -36,6 +37,7 @@ import { ... } from '@meng-xi/vite-plugin/common/validation'
 | [fs](./fs)                 | 文件系统操作工具 | `@meng-xi/vite-plugin/common/fs`              |
 | [format](./format)         | 格式化工具       | `@meng-xi/vite-plugin/common/format`          |
 | [html](./html)             | HTML 注入工具    | `@meng-xi/vite-plugin/common/html`            |
+| [path](./path)             | 路径处理工具     | `@meng-xi/vite-plugin/common/path`            |
 | [script](./script)         | 脚本工具         | `@meng-xi/vite-plugin/common/script`          |
 | [ui](./ui)                 | 终端 UI 工具     | `@meng-xi/vite-plugin/common/ui`              |
 | [validation](./validation) | 参数验证器       | `@meng-xi/vite-plugin/common/validation`      |

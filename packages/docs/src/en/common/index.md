@@ -19,6 +19,7 @@ import { ... } from '@meng-xi/vite-plugin/common/concurrency'
 import { ... } from '@meng-xi/vite-plugin/common/fs'
 import { ... } from '@meng-xi/vite-plugin/common/format'
 import { ... } from '@meng-xi/vite-plugin/common/html'
+import { ... } from '@meng-xi/vite-plugin/common/path'
 import { ... } from '@meng-xi/vite-plugin/common/script'
 import { ... } from '@meng-xi/vite-plugin/common/ui'
 import { ... } from '@meng-xi/vite-plugin/common/validation'
@@ -36,6 +37,7 @@ Submodule imports allow bundlers to only include the code you actually use, avoi
 | [fs](./fs)                   | File system utilities    | `@meng-xi/vite-plugin/common/fs`                 |
 | [format](./format)           | Formatting utilities     | `@meng-xi/vite-plugin/common/format`             |
 | [html](./html)               | HTML injection utilities | `@meng-xi/vite-plugin/common/html`               |
+| [path](./path)               | Path utilities           | `@meng-xi/vite-plugin/common/path`               |
 | [script](./script)           | Script utilities         | `@meng-xi/vite-plugin/common/script`             |
 | [ui](./ui)                   | Terminal UI utilities    | `@meng-xi/vite-plugin/common/ui`                 |
 | [validation](./validation)   | Parameter validator      | `@meng-xi/vite-plugin/common/validation`         |

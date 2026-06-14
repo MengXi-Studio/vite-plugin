@@ -47,7 +47,9 @@ npm install sharp -D
 npm install svgo -D
 ```
 
-::: tip Both dependencies are optional. The plugin automatically detects installed dependencies and only performs the corresponding optimization tasks. :::
+::: tip
+Both dependencies are optional. The plugin automatically detects installed dependencies and only performs the corresponding optimization tasks.
+:::
 
 ## Options
 

@@ -33,6 +33,8 @@ const ZH_INDEX_PATH = join(ZH_PLUGINS_DIR, 'index.md')
 const EN_INDEX_PATH = join(EN_PLUGINS_DIR, 'index.md')
 
 const PLUGIN_DESCRIPTIONS_ZH: Record<string, string> = {
+	assetManifest: '构建产物资源清单生成，支持多种输出格式、按入口分组和运行时注入',
+	autoImport: '自动注入 import 语句，支持预设映射、目录扫描和 Vue 模板自动导入',
 	buildProgress: '在终端实时显示构建进度条',
 	bundleAnalyzer: '构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比',
 	compressAssets: '构建产物压缩，支持 gzip / brotli / both',
@@ -46,6 +48,8 @@ const PLUGIN_DESCRIPTIONS_ZH: Record<string, string> = {
 }
 
 const PLUGIN_DESCRIPTIONS_EN: Record<string, string> = {
+	assetManifest: 'Build artifact manifest generation with multiple output formats, entry grouping, and runtime injection',
+	autoImport: 'Auto-inject import statements with preset mappings, directory scanning, and Vue template support',
 	buildProgress: 'Display real-time build progress bar in terminal',
 	bundleAnalyzer: 'Build artifact size analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison',
 	compressAssets: 'Compress build artifacts with gzip / brotli / both',

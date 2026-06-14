@@ -102,6 +102,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/common/html.html'
 						},
 						{
+							text: '路径处理',
+							link: '/common/path.html'
+						},
+						{
 							text: '脚本工具',
 							link: '/common/script.html'
 						},

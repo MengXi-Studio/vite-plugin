@@ -102,6 +102,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/common/html.html'
 						},
 						{
+							text: 'Path',
+							link: '/en/common/path.html'
+						},
+						{
 							text: 'Script',
 							link: '/en/common/script.html'
 						},
