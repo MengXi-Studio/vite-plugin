@@ -37,7 +37,7 @@ export default defineConfig({
 | watch                | `boolean`                      | `true`                   | 监听文件变化自动重新生成 |
 | metaMapping          | `Record<string, string>`       | 见下方                   | style 字段到 meta 的映射 |
 | exportTypes          | `boolean`                      | `true`                   | 导出类型定义（仅 TS）    |
-| preserveRouteChanges | `boolean`                      | `true`                   | 保留用户对 routes 的修改 |
+| preserveRouteChanges | `boolean`                      | `true`                   | 保留用户对路由配置的修改 |
 | dts                  | `string \| boolean`            | `false`                  | 路由类型声明文件输出路径 |
 | enabled              | `boolean`                      | `true`                   | 启用插件                 |
 | verbose              | `boolean`                      | `true`                   | 显示详细日志             |
@@ -59,6 +59,51 @@ export default defineConfig({
   navigationBarTitleText: 'title',
   requireAuth: 'requireAuth'
 }
+```
+
+### preserveRouteChanges 路由修改保留
+
+开启后，插件重新生成路由配置时会读取已有文件，合并用户对路由的修改，避免覆盖用户手动添加的内容。
+
+**合并策略：**
+
+| 字段 | 行为 |
+| ---- | ---- |
+| `path` | 始终以 `pages.json` 为准，不可覆盖 |
+| `name` | 用户修改的值优先保留 |
+| `meta` | 用户修改的值优先保留，`pages.json` 中新增的字段自动补充 |
+| 非标准属性 | 用户添加的 `beforeEnter`、`component` 等自定义属性完整保留 |
+
+**示例：** 假设 `pages.json` 新增了一个页面，且用户在已有路由上添加了 `beforeEnter`：
+
+```typescript
+// 用户手动修改后的路由配置
+export const routes: RouteConfig[] = [
+  {
+    path: '/pages/index/index',
+    name: 'pagesIndexIndex',
+    meta: { title: '自定义标题' },
+    beforeEnter: (to, from, next) => { next() }  // 用户添加的守卫
+  }
+]
+```
+
+重新生成后：
+
+```typescript
+export const routes: RouteConfig[] = [
+  {
+    path: '/pages/index/index',
+    name: 'pagesIndexIndex',
+    meta: { title: '自定义标题', isTab: true },  // 用户标题保留，新增 isTab 自动补充
+    beforeEnter: (to, from, next) => { next() }   // 自定义属性保留
+  },
+  {
+    path: '/pages/new/page',                       // 新增页面自动生成
+    name: 'pagesNewPage',
+    meta: { title: '新页面' }
+  }
+]
 ```
 
 ### dts 类型声明

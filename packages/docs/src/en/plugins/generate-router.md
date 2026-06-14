@@ -36,7 +36,7 @@ export default defineConfig({
 | watch                | `boolean`                      | `true`                   | Watch for changes                       |
 | metaMapping          | `Record<string, string>`       | See below                | Style to meta field mapping             |
 | exportTypes          | `boolean`                      | `true`                   | Export type definitions (TS)            |
-| preserveRouteChanges | `boolean`                      | `true`                   | Preserve user route changes             |
+| preserveRouteChanges | `boolean`                      | `true`                   | Preserve user modifications to route configs |
 | dts                  | `string \| boolean`            | `false`                  | Route type declaration file output path |
 | enabled              | `boolean`                      | `true`                   | Enable the plugin                       |
 | verbose              | `boolean`                      | `true`                   | Show detailed logs                      |
@@ -58,6 +58,51 @@ export default defineConfig({
   navigationBarTitleText: 'title',
   requireAuth: 'requireAuth'
 }
+```
+
+### preserveRouteChanges Route Modification Preservation
+
+When enabled, the plugin reads the existing file during regeneration and merges user modifications, avoiding overwriting manually added content.
+
+**Merge Strategy:**
+
+| Field | Behavior |
+| ----- | -------- |
+| `path` | Always follows `pages.json`, cannot be overridden |
+| `name` | User-modified values take priority |
+| `meta` | User-modified values take priority, new fields from `pages.json` are auto-added |
+| Non-standard properties | User-added custom properties like `beforeEnter`, `component` are fully preserved |
+
+**Example:** Suppose `pages.json` adds a new page, and the user has added `beforeEnter` to an existing route:
+
+```typescript
+// User-modified route config
+export const routes: RouteConfig[] = [
+  {
+    path: '/pages/index/index',
+    name: 'pagesIndexIndex',
+    meta: { title: 'Custom Title' },
+    beforeEnter: (to, from, next) => { next() }  // User-added guard
+  }
+]
+```
+
+After regeneration:
+
+```typescript
+export const routes: RouteConfig[] = [
+  {
+    path: '/pages/index/index',
+    name: 'pagesIndexIndex',
+    meta: { title: 'Custom Title', isTab: true },  // User title preserved, new isTab auto-added
+    beforeEnter: (to, from, next) => { next() }     // Custom property preserved
+  },
+  {
+    path: '/pages/new/page',                         // New page auto-generated
+    name: 'pagesNewPage',
+    meta: { title: 'New Page' }
+  }
+]
 ```
 
 ### dts Type Declarations

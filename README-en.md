@@ -15,8 +15,8 @@
 
 ## Features
 
-- **Ready to Use** - 13 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
-	management, global Loading, image optimization, and more
+- **Ready to Use** - 14 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
+  management, global Loading, image optimization, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
 - **Common Utility Library** - Built-in 8 Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
@@ -42,6 +42,7 @@ pnpm add @meng-xi/vite-plugin -D
 ```typescript
 import { defineConfig } from 'vite'
 import {
+	assetManifest,
 	autoImport,
 	buildProgress,
 	bundleAnalyzer,
@@ -59,6 +60,7 @@ import {
 
 export default defineConfig({
 	plugins: [
+		assetManifest({ outputFormat: 'vite', groupByEntry: true }),
 		autoImport({ imports: { vue: ['ref', 'reactive', 'computed'] }, dts: 'src/auto-imports.d.ts' }),
 		buildProgress(),
 		bundleAnalyzer({ outputFormat: 'both' }),
@@ -80,6 +82,7 @@ export default defineConfig({
 
 | Plugin                                                                                                     | Description                                                                                                                           |
 | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [assetManifest](https://mengxi-studio.github.io/vite-plugin/en/plugins/asset-manifest.html)                | Build artifact manifest generation with multiple output formats, entry grouping, and runtime injection                                |
 | [autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)                      | Auto-inject import statements with preset mappings, directory scanning, and Vue template auto-import                                  |
 | [buildProgress](https://mengxi-studio.github.io/vite-plugin/en/plugins/build-progress.html)                | Real-time terminal build progress bar, supports bar / spinner / minimal                                                               |
 | [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/en/plugins/bundle-analyzer.html)              | Bundle volume analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build diff                                     |
@@ -195,6 +198,7 @@ import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } f
 | `@meng-xi/vite-plugin/common`                         | All utility functions                |
 | `@meng-xi/vite-plugin/common/*`                       | Utility sub-modules                  |
 | `@meng-xi/vite-plugin/common/concurrency`             | Concurrency control utilities        |
+| `@meng-xi/vite-plugin/plugins/asset-manifest`         | assetManifest plugin                 |
 | `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport plugin                    |
 | `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress plugin                 |
 | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        | bundleAnalyzer plugin                |

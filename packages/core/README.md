@@ -15,7 +15,7 @@
 
 ## 特性
 
-- **开箱即用** - 13 个实用插件，覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading、图片优化 等场景
+- **开箱即用** - 14 个实用插件，覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading、图片优化 等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
 - **通用工具库** - 内置 8 大 Common 工具模块，支持按需子路径导入
 - **类型安全** - 完整 TypeScript 类型定义与配置验证器
@@ -41,6 +41,7 @@ pnpm add @meng-xi/vite-plugin -D
 ```typescript
 import { defineConfig } from 'vite'
 import {
+	assetManifest,
 	autoImport,
 	buildProgress,
 	bundleAnalyzer,
@@ -58,6 +59,7 @@ import {
 
 export default defineConfig({
 	plugins: [
+		assetManifest({ outputFormat: 'vite', groupByEntry: true }),
 		autoImport({ imports: { vue: ['ref', 'reactive', 'computed'] }, dts: 'src/auto-imports.d.ts' }),
 		buildProgress(),
 		bundleAnalyzer({ outputFormat: 'both' }),
@@ -79,6 +81,7 @@ export default defineConfig({
 
 | 插件                                                                                                    | 说明                                                                             |
 | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [assetManifest](https://mengxi-studio.github.io/vite-plugin/plugins/asset-manifest.html)                | 构建产物资源清单生成，支持多种输出格式、按入口分组和运行时注入                   |
 | [autoImport](https://mengxi-studio.github.io/vite-plugin/plugins/auto-import.html)                      | 自动注入 import 语句，支持预设映射、目录扫描和 Vue 模板自动导入                  |
 | [buildProgress](https://mengxi-studio.github.io/vite-plugin/plugins/build-progress.html)                | 终端实时构建进度条，支持 bar / spinner / minimal                                 |
 | [bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/plugins/bundle-analyzer.html)              | 构建产物体积分析，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比             |
@@ -194,6 +197,7 @@ import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } f
 | `@meng-xi/vite-plugin/common`                         | 所有工具函数              |
 | `@meng-xi/vite-plugin/common/*`                       | 各工具子模块              |
 | `@meng-xi/vite-plugin/common/concurrency`             | 并发控制工具              |
+| `@meng-xi/vite-plugin/plugins/asset-manifest`         | assetManifest 插件        |
 | `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport 插件           |
 | `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress 插件        |
 | `@meng-xi/vite-plugin/plugins/bundle-analyzer`        | bundleAnalyzer 插件       |
