@@ -1,6 +1,5 @@
-import { promises as fsp } from 'node:fs'
 import type { ImageOptimizeStats, ImageOptimizeSummary } from '../types'
-import { writeJsonReport, resolveReportPath } from '@/common/fs'
+import { writeJsonReport, resolveReportPath, deleteFiles } from '@/common/fs'
 import { calcRatio } from '@/common/format'
 
 /**
@@ -124,13 +123,6 @@ export async function writeReport(outDir: string, reportPath: string | false, su
  */
 export async function deleteOriginalFiles(stats: ImageOptimizeStats[], originalPaths: string[]): Promise<void> {
 	const outputPaths = new Set(stats.map(s => s.file))
-	const uniqueFiles = [...new Set(originalPaths.filter(p => !outputPaths.has(p)))]
-
-	for (const file of uniqueFiles) {
-		try {
-			await fsp.unlink(file)
-		} catch {
-			// ignore deletion errors
-		}
-	}
+	const filesToDelete = originalPaths.filter(p => !outputPaths.has(p))
+	await deleteFiles(filesToDelete)
 }

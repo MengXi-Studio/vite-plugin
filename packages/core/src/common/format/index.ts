@@ -40,6 +40,39 @@ export function getDateFormatParams(date: Date = new Date()): DateFormatOptions 
 }
 
 /**
+ * 替换模板字符串中的变量占位符（自定义分隔符）
+ *
+ * @param template - 包含占位符的模板字符串
+ * @param values - 占位符键值映射
+ * @param leftDelimiter - 左分隔符，默认 `'{{'`
+ * @param rightDelimiter - 右分隔符，默认 `'}}'`
+ * @returns 替换占位符后的字符串
+ *
+ * @description 通用模板解析函数，支持自定义分隔符。
+ * 键名中的正则特殊字符会被自动转义，值中的 `$` 也会被安全处理。
+ *
+ * @example
+ * ```typescript
+ * parseTemplateWithDelimiter('Hello {{name}}!', { name: 'World' })
+ * // 'Hello World!'
+ *
+ * parseTemplateWithDelimiter('Hello {name}!', { name: 'World' }, '{', '}')
+ * // 'Hello World!'
+ * ```
+ */
+export function parseTemplateWithDelimiter(template: string, values: Record<string, string> | { [key: string]: string }, leftDelimiter: string = '{{', rightDelimiter: string = '}}'): string {
+	let result = template
+	for (const [key, value] of Object.entries(values)) {
+		const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+		const escapedLeft = leftDelimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+		const escapedRight = rightDelimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+		const escapedValue = value.replace(/\$/g, '$$$$')
+		result = result.replace(new RegExp(`${escapedLeft}${escapedKey}${escapedRight}`, 'g'), escapedValue)
+	}
+	return result
+}
+
+/**
  * 替换模板字符串中的变量占位符
  *
  * @param template - 包含 `{{key}}` 占位符的模板字符串
@@ -59,13 +92,7 @@ export function getDateFormatParams(date: Date = new Date()): DateFormatOptions 
  * ```
  */
 export function parseTemplate(template: string, values: Record<string, string>): string {
-	let result = template
-	for (const [key, value] of Object.entries(values)) {
-		const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-		const escapedValue = value.replace(/\$/g, '$$$$')
-		result = result.replace(new RegExp(`\\{\\{${escapedKey}\\}\\}`, 'g'), escapedValue)
-	}
-	return result
+	return parseTemplateWithDelimiter(template, values, '{{', '}}')
 }
 
 /**
@@ -83,11 +110,7 @@ export function parseTemplate(template: string, values: Record<string, string>):
  */
 export function formatDate(date: Date, format: string): string {
 	const params = getDateFormatParams(date)
-	let result = format
-	for (const [key, value] of Object.entries(params)) {
-		result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value)
-	}
-	return result
+	return parseTemplateWithDelimiter(format, params, '{', '}')
 }
 
 /**

@@ -1,6 +1,5 @@
 import path from 'node:path'
-import { scanDirectory as scanDirectoryFromCommon } from '@/common/fs'
-import type { ScannedFile } from '@/common/fs'
+import { scanAndMapFiles } from '@/common/fs'
 import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@/common/path'
 import type { AssetManifestOptions, AssetMap } from '../types'
 
@@ -100,19 +99,20 @@ export function shouldIncludeAsset(relativePath: string, ext: string, options: R
  * ```
  */
 export async function scanOutputDirectory(dirPath: string, options: Required<AssetManifestOptions>): Promise<ScannedAsset[]> {
-	const files: ScannedFile[] = await scanDirectoryFromCommon(dirPath, {
-		filter: (filePath, ext, _size) => {
-			const relativePath = normalizePath(path.relative(dirPath, filePath))
-			return shouldIncludeAsset(relativePath, ext, options)
-		}
+	return scanAndMapFiles(dirPath, {
+		scanOptions: {
+			filter: (filePath, ext, _size) => {
+				const relativePath = normalizePath(path.relative(dirPath, filePath))
+				return shouldIncludeAsset(relativePath, ext, options)
+			}
+		},
+		mapFn: (f, dir) => ({
+			filePath: f.filePath,
+			relativePath: normalizePath(path.relative(dir, f.filePath)),
+			size: f.size,
+			ext: f.extension
+		})
 	})
-
-	return files.map(f => ({
-		filePath: f.filePath,
-		relativePath: normalizePath(path.relative(dirPath, f.filePath)),
-		size: f.size,
-		ext: f.extension
-	}))
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { VersionFormat, VersionInfo } from '../types'
-import { generateRandomHash, parseTemplate } from './utils'
-import { getDateFormatParams } from '@/common/format'
+import { generateRandomHash } from './utils'
+import { getDateFormatParams, parseTemplateWithDelimiter } from '@/common/format'
 
 /**
  * 根据格式生成版本号
@@ -88,7 +88,7 @@ export function parseCustomFormat(template: string, values: Record<string, strin
 		templateValues.patch = patch || '0'
 	}
 
-	return parseTemplate(template, templateValues)
+	return parseTemplateWithDelimiter(template, templateValues, '{', '}')
 }
 
 /**

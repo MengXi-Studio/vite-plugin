@@ -3,7 +3,7 @@ import path from 'node:path'
 import zlib from 'node:zlib'
 import { promisify } from 'node:util'
 import type { ModuleStats, ChunkStats, FileTypeDistribution, SizeWarning, BundleAnalysisResult, BundleAnalyzerOptions } from '../types'
-import { scanDirectory } from '@/common/fs'
+import { scanAndMapFiles } from '@/common/fs'
 import type { ScannedFile } from '@/common/fs'
 import { normalizePath } from '@/common/path'
 
@@ -40,9 +40,12 @@ function isNodeModule(moduleId: string): boolean {
  * 内部委托给 common/fs 的通用 scanDirectory 函数。
  */
 export async function scanOutputDirectory(outDir: string, options: { includeExtensions?: string[]; excludePatterns?: string[] } = {}): Promise<ScannedFile[]> {
-	return scanDirectory(outDir, {
-		includeExtensions: options.includeExtensions,
-		excludePatterns: options.excludePatterns
+	return scanAndMapFiles(outDir, {
+		scanOptions: {
+			includeExtensions: options.includeExtensions,
+			excludePatterns: options.excludePatterns
+		},
+		mapFn: f => f
 	})
 }
 

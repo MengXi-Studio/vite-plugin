@@ -2,6 +2,7 @@
  * 日期格式化选项
  */
 export interface DateFormatOptions {
+	[key: string]: string
 	/** 四位年份 */
 	YYYY: string
 	/** 两位年份 */

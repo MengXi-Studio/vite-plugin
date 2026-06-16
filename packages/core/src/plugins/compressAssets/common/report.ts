@@ -1,6 +1,5 @@
-import { promises as fsp } from 'node:fs'
 import type { CompressStats, CompressSummary } from '../types'
-import { writeJsonReport, resolveReportPath } from '@/common/fs'
+import { writeJsonReport, resolveReportPath, deleteFiles } from '@/common/fs'
 import { calcRatio } from '@/common/format'
 
 /**
@@ -100,12 +99,5 @@ export async function writeReport(outDir: string, reportPath: string | false, su
  * ```
  */
 export async function deleteOriginalFiles(stats: CompressStats[]): Promise<void> {
-	const uniqueFiles = [...new Set(stats.map(s => s.file))]
-	for (const file of uniqueFiles) {
-		try {
-			await fsp.unlink(file)
-		} catch {
-			// ignore deletion errors
-		}
-	}
+	await deleteFiles(stats.map(s => s.file))
 }

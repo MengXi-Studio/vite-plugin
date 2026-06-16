@@ -1,7 +1,6 @@
 import path from 'node:path'
 import type { CompressAssetsOptions } from '../types'
-import { scanDirectory as scanDirectoryFromCommon } from '@/common/fs'
-import type { ScannedFile } from '@/common/fs'
+import { scanAndMapFiles } from '@/common/fs'
 import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@/common/path'
 
 /**
@@ -78,17 +77,18 @@ export function shouldCompressFile(relativePath: string, ext: string, size: numb
  * ```
  */
 export async function scanDirectory(dirPath: string, options: Required<CompressAssetsOptions>): Promise<FileCandidate[]> {
-	const files: ScannedFile[] = await scanDirectoryFromCommon(dirPath, {
-		filter: (filePath, ext, size) => {
-			const relativePath = path.relative(dirPath, filePath)
-			return shouldCompressFile(relativePath, ext, size, options)
-		}
+	return scanAndMapFiles(dirPath, {
+		scanOptions: {
+			filter: (filePath, ext, size) => {
+				const relativePath = path.relative(dirPath, filePath)
+				return shouldCompressFile(relativePath, ext, size, options)
+			}
+		},
+		mapFn: (f, dir) => ({
+			filePath: f.filePath,
+			relativePath: normalizePath(path.relative(dir, f.filePath)),
+			size: f.size,
+			ext: f.extension
+		})
 	})
-
-	return files.map(f => ({
-		filePath: f.filePath,
-		relativePath: normalizePath(path.relative(dirPath, f.filePath)),
-		size: f.size,
-		ext: f.extension
-	}))
 }

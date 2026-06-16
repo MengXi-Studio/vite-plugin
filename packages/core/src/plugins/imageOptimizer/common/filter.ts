@@ -1,7 +1,6 @@
 import path from 'node:path'
 import type { ImageOptimizerOptions, ImageFormat } from '../types'
-import { scanDirectory as scanDirectoryFromCommon } from '@/common/fs'
-import type { ScannedFile } from '@/common/fs'
+import { scanAndMapFiles } from '@/common/fs'
 import { normalizePath, isPathExcluded } from '@/common/path'
 
 /**
@@ -130,22 +129,23 @@ export function shouldOptimizeFile(relativePath: string, ext: string, size: numb
  * ```
  */
 export async function scanImageFiles(dirPath: string, options: Required<ImageOptimizerOptions>): Promise<ImageCandidate[]> {
-	const files: ScannedFile[] = await scanDirectoryFromCommon(dirPath, {
-		filter: (filePath, ext, size) => {
-			const relativePath = path.relative(dirPath, filePath)
-			return shouldOptimizeFile(relativePath, ext, size, options)
-		}
-	})
-
-	return files.map(f => {
-		const relativePath = normalizePath(path.relative(dirPath, f.filePath))
-		const format = getFormatByExtension(f.extension)!
-		return {
-			filePath: f.filePath,
-			relativePath,
-			size: f.size,
-			ext: f.extension,
-			format
+	return scanAndMapFiles(dirPath, {
+		scanOptions: {
+			filter: (filePath, ext, size) => {
+				const relativePath = path.relative(dirPath, filePath)
+				return shouldOptimizeFile(relativePath, ext, size, options)
+			}
+		},
+		mapFn: (f, dir) => {
+			const relativePath = normalizePath(path.relative(dir, f.filePath))
+			const format = getFormatByExtension(f.extension)!
+			return {
+				filePath: f.filePath,
+				relativePath,
+				size: f.size,
+				ext: f.extension,
+				format
+			}
 		}
 	})
 }
