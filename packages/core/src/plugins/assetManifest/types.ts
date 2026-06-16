@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory'
+import type { BasePluginOptions } from '@/factory/types'
 
 /**
  * 清单输出格式

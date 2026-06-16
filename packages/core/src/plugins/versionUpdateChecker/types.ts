@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory'
+import type { BasePluginOptions } from '@/factory/types'
 
 /**
  * 版本来源类型

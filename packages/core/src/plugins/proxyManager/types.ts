@@ -1,4 +1,4 @@
-import type { BasePluginOptions } from '@/factory'
+import type { BasePluginOptions } from '@/factory/types'
 import type { IncomingMessage } from 'node:http'
 
 /**
