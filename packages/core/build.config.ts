@@ -29,6 +29,7 @@ export default defineBuildConfig({
 		'src/plugins/htmlInject/index',
 		'src/plugins/imageOptimizer/index',
 		'src/plugins/loadingManager/index',
+		'src/plugins/proxyManager/index',
 		'src/plugins/versionUpdateChecker/index'
 	],
 	clean: true,

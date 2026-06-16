@@ -145,6 +145,11 @@
 			"import": "./dist/plugins/loadingManager/index.mjs",
 			"types": "./dist/plugins/loadingManager/index.d.ts"
 		},
+		"./plugins/proxy-manager": {
+			"require": "./dist/plugins/proxyManager/index.cjs",
+			"import": "./dist/plugins/proxyManager/index.mjs",
+			"types": "./dist/plugins/proxyManager/index.d.ts"
+		},
 		"./plugins/version-update-checker": {
 			"require": "./dist/plugins/versionUpdateChecker/index.cjs",
 			"import": "./dist/plugins/versionUpdateChecker/index.mjs",
