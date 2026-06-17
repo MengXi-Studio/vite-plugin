@@ -44,6 +44,7 @@ const PLUGIN_DESCRIPTIONS_ZH: Record<string, string> = {
 	generateVersion: '自动生成版本号，支持文件输出和全局变量注入',
 	htmlInject: 'HTML 内容注入，支持多种位置和条件注入',
 	loadingManager: '全局 Loading 状态管理，支持请求拦截',
+	proxyManager: '声明式开发代理管理，支持环境切换、规则文件、请求日志和延迟模拟',
 	versionUpdateChecker: '运行时版本更新检查，发现新版本时提示用户刷新'
 }
 
@@ -59,6 +60,7 @@ const PLUGIN_DESCRIPTIONS_EN: Record<string, string> = {
 	generateVersion: 'Generate version with file output or global variable',
 	htmlInject: 'HTML content injection with multiple positions and conditions',
 	loadingManager: 'Global Loading state management with request interception',
+	proxyManager: 'Declarative dev proxy management with environment switching, rule files, request logging, and delay simulation',
 	versionUpdateChecker: 'Runtime version update check with refresh prompt'
 }
 

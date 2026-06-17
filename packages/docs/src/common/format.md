@@ -6,11 +6,11 @@
 
 ```typescript
 // 子模块独立导入（推荐）
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
+import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // barrel 导入
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
+import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -94,6 +94,54 @@ parseTemplate('Hello {{name}}!', { name: 'World' })
 // 'Hello World!'
 
 parseTemplate('{{YYYY}}-{{MM}}-{{DD}}', getDateFormatParams())
+// '2026-06-06'
+```
+
+---
+
+## parseTemplateWithDelimiter
+
+替换模板字符串中的变量占位符（自定义分隔符），是 `parseTemplate` 的通用版本。
+
+```typescript
+function parseTemplateWithDelimiter(
+  template: string,
+  values: Record<string, string>,
+  leftDelimiter?: string,
+  rightDelimiter?: string
+): string
+```
+
+**参数**
+
+| 参数           | 类型                     | 默认值  | 说明                   |
+| -------------- | ------------------------ | ------- | ---------------------- |
+| template       | `string`                 | -       | 包含占位符的模板字符串 |
+| values         | `Record<string, string>` | -       | 占位符键值映射         |
+| leftDelimiter  | `string`                 | `'{{'`  | 左分隔符               |
+| rightDelimiter | `string`                 | `'}}'`  | 右分隔符               |
+
+**返回值**
+
+`string` - 替换占位符后的字符串
+
+**说明**
+
+- 通用模板解析函数，支持自定义分隔符
+- 键名中的正则特殊字符会被自动转义
+- 值中的 `$` 也会被安全处理，避免正则替换问题
+
+**示例**
+
+```typescript
+parseTemplateWithDelimiter('Hello {{name}}!', { name: 'World' })
+// 'Hello World!'
+
+parseTemplateWithDelimiter('Hello {name}!', { name: 'World' }, '{', '}')
+// 'Hello World!'
+
+// formatDate 内部使用此函数，分隔符为 { 和 }
+parseTemplateWithDelimiter('{YYYY}-{MM}-{DD}', getDateFormatParams(), '{', '}')
 // '2026-06-06'
 ```
 

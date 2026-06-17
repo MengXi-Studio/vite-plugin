@@ -1,16 +1,16 @@
 # fs
 
-File system utilities, providing file operations, directory scanning, safe writing, change detection, and report path resolution.
+File system utilities, providing file operations, directory scanning, safe writing, change detection, report path resolution, file mapping, and batch deletion.
 
 ## Import
 
 ```typescript
 // Submodule import (recommended)
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath } from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles } from '@meng-xi/vite-plugin/common/fs'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // Barrel import
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -313,4 +313,94 @@ function resolveReportPath(outDir: string, reportPath: string | false): string |
 resolveReportPath('dist', 'report.json')   // 'dist/report.json'
 resolveReportPath('dist', '/tmp/r.json')    // '/tmp/r.json'
 resolveReportPath('dist', false)            // null
+```
+
+---
+
+## scanAndMapFiles
+
+Scan a directory and build a file path mapping table for quick file lookup.
+
+```typescript
+async function scanAndMapFiles(
+  dirPath: string,
+  options?: ScanDirectoryOptions
+): Promise<Map<string, ScannedFile>>
+```
+
+**Parameters**
+
+| Parameter | Type                   | Default | Description                                  |
+| --------- | ---------------------- | ------- | -------------------------------------------- |
+| dirPath   | `string`               | -       | Directory path                               |
+| options   | `ScanDirectoryOptions` | `{}`    | Scan options (same as `scanDirectory`)       |
+
+**Returns**
+
+`Promise<Map<string, ScannedFile>>` - Map with file relative path as key and file info as value
+
+**Notes**
+
+- Built on `scanDirectory`, converts scan results to a `Map` structure for O(1) lookup
+- Keys are normalized relative paths (using forward slashes) relative to `dirPath`
+- Suitable for scenarios requiring quick file existence checks or file info retrieval
+
+**Example**
+
+```typescript
+// Build file mapping table
+const fileMap = await scanAndMapFiles('dist')
+
+// Check if file exists
+if (fileMap.has('assets/index.js')) {
+	const file = fileMap.get('assets/index.js')!
+	console.log(`File size: ${file.size} bytes`)
+}
+
+// Use with filter conditions
+const jsFileMap = await scanAndMapFiles('dist', { includeExtensions: ['.js'] })
+```
+
+---
+
+## deleteFiles
+
+Batch delete a list of files, ignoring non-existent files.
+
+```typescript
+async function deleteFiles(files: string[]): Promise<{ deleted: number; skipped: number }>
+```
+
+**Parameters**
+
+| Parameter | Type       | Description              |
+| --------- | ---------- | ------------------------ |
+| files     | `string[]` | List of file paths to delete |
+
+**Returns**
+
+`Promise<{ deleted: number; skipped: number }>` - Deletion result statistics
+
+| Property | Type     | Description                                  |
+| -------- | -------- | -------------------------------------------- |
+| deleted  | `number` | Number of files successfully deleted         |
+| skipped  | `number` | Number of files skipped (not found or failed) |
+
+**Notes**
+
+- Concurrently deletes files to improve batch operation efficiency
+- Skips non-existent files without throwing exceptions
+- Skips individual file deletion failures and continues processing other files
+
+**Example**
+
+```typescript
+// Batch delete files
+const result = await deleteFiles([
+	'dist/old-file.js',
+	'dist/old-file.css',
+	'dist/temp.txt'
+])
+
+console.log(`Deleted ${result.deleted}, skipped ${result.skipped}`)
 ```

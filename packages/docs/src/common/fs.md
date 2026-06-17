@@ -1,16 +1,16 @@
 # fs
 
-文件系统操作工具，提供文件复制、目录扫描、安全写入、变更检测和报告路径解析等功能。
+文件系统操作工具，提供文件复制、目录扫描、安全写入、变更检测、报告路径解析、文件映射和批量删除等功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath } from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles } from '@meng-xi/vite-plugin/common/fs'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // barrel 导入
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles } from '@meng-xi/vite-plugin/common'
 import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -313,4 +313,94 @@ function resolveReportPath(outDir: string, reportPath: string | false): string |
 resolveReportPath('dist', 'report.json')   // 'dist/report.json'
 resolveReportPath('dist', '/tmp/r.json')    // '/tmp/r.json'
 resolveReportPath('dist', false)            // null
+```
+
+---
+
+## scanAndMapFiles
+
+扫描目录并构建文件路径映射表，用于快速查找文件。
+
+```typescript
+async function scanAndMapFiles(
+  dirPath: string,
+  options?: ScanDirectoryOptions
+): Promise<Map<string, ScannedFile>>
+```
+
+**参数**
+
+| 参数    | 类型                   | 默认值 | 说明                       |
+| ------- | ---------------------- | ------ | -------------------------- |
+| dirPath | `string`               | -      | 目录路径                   |
+| options | `ScanDirectoryOptions` | `{}`   | 扫描选项（同 `scanDirectory`） |
+
+**返回值**
+
+`Promise<Map<string, ScannedFile>>` - 以文件相对路径为键、文件信息为值的映射表
+
+**说明**
+
+- 基于 `scanDirectory` 实现，将扫描结果转换为 `Map` 结构便于 O(1) 查找
+- 键为相对于 `dirPath` 的规范化相对路径（使用正斜杠）
+- 适用于需要快速判断文件是否存在或获取文件信息的场景
+
+**示例**
+
+```typescript
+// 构建文件映射表
+const fileMap = await scanAndMapFiles('dist')
+
+// 检查文件是否存在
+if (fileMap.has('assets/index.js')) {
+	const file = fileMap.get('assets/index.js')!
+	console.log(`文件大小: ${file.size} 字节`)
+}
+
+// 配合过滤条件使用
+const jsFileMap = await scanAndMapFiles('dist', { includeExtensions: ['.js'] })
+```
+
+---
+
+## deleteFiles
+
+批量删除文件列表，忽略不存在的文件。
+
+```typescript
+async function deleteFiles(files: string[]): Promise<{ deleted: number; skipped: number }>
+```
+
+**参数**
+
+| 参数  | 类型       | 说明               |
+| ----- | ---------- | ------------------ |
+| files | `string[]` | 待删除的文件路径列表 |
+
+**返回值**
+
+`Promise<{ deleted: number; skipped: number }>` - 删除结果统计
+
+| 属性     | 类型     | 说明           |
+| -------- | -------- | -------------- |
+| deleted  | `number` | 成功删除的文件数 |
+| skipped  | `number` | 跳过的文件数（不存在或删除失败） |
+
+**说明**
+
+- 并发删除文件，提高批量操作效率
+- 文件不存在时跳过，不抛出异常
+- 删除单个文件失败时跳过该文件，继续处理其他文件
+
+**示例**
+
+```typescript
+// 批量删除文件
+const result = await deleteFiles([
+	'dist/old-file.js',
+	'dist/old-file.css',
+	'dist/temp.txt'
+])
+
+console.log(`删除 ${result.deleted} 个，跳过 ${result.skipped} 个`)
 ```

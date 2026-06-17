@@ -221,6 +221,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/plugins/loading-manager.html'
 						},
 						{
+							text: 'proxyManager',
+							link: '/plugins/proxy-manager.html'
+						},
+						{
 							text: 'versionUpdateChecker',
 							link: '/plugins/version-update-checker.html'
 						}

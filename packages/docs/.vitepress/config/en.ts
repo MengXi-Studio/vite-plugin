@@ -221,6 +221,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/plugins/loading-manager.html'
 						},
 						{
+							text: 'proxyManager',
+							link: '/en/plugins/proxy-manager.html'
+						},
+						{
 							text: 'versionUpdateChecker',
 							link: '/en/plugins/version-update-checker.html'
 						}

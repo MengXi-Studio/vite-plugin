@@ -21,6 +21,7 @@ import {
 	htmlInject,
 	imageOptimizer,
 	loadingManager,
+	proxyManager,
 	versionUpdateChecker
 } from '@meng-xi/vite-plugin'
 ```
@@ -41,6 +42,7 @@ import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
 import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
 import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/image-optimizer'
 import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
+import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy-manager'
 import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
 ```
 
@@ -65,6 +67,7 @@ import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-updat
 | [htmlInject](./html-inject)                      | HTML 内容注入，支持多种位置和条件注入                                | `@meng-xi/vite-plugin/plugins/html-inject`            |
 | [imageOptimizer](./image-optimizer)              | 图片优化压缩与格式转换，支持 JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG        | `@meng-xi/vite-plugin/plugins/image-optimizer`        |
 | [loadingManager](./loading-manager)              | 全局 Loading 状态管理，支持请求拦截                                  | `@meng-xi/vite-plugin/plugins/loading-manager`        |
+| [proxyManager](./proxy-manager)                  | 声明式开发代理管理，支持环境切换、规则文件、请求日志和延迟模拟       | `@meng-xi/vite-plugin/plugins/proxy-manager`          |
 | [versionUpdateChecker](./version-update-checker) | 运行时版本更新检查，发现新版本时提示用户刷新                         | `@meng-xi/vite-plugin/plugins/version-update-checker` |
 
 ## 通用配置

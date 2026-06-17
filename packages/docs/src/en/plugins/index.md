@@ -21,6 +21,7 @@ import {
 	htmlInject,
 	imageOptimizer,
 	loadingManager,
+	proxyManager,
 	versionUpdateChecker
 } from '@meng-xi/vite-plugin'
 ```
@@ -41,6 +42,7 @@ import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
 import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
 import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/image-optimizer'
 import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
+import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy-manager'
 import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
 ```
 
@@ -65,6 +67,7 @@ Submodule imports allow bundlers to only include the plugin code you actually us
 | [htmlInject](./html-inject)                      | HTML content injection with multiple positions and conditions                                                 | `@meng-xi/vite-plugin/plugins/html-inject`            |
 | [imageOptimizer](./image-optimizer)              | Image optimization & format conversion, supports JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG                              | `@meng-xi/vite-plugin/plugins/image-optimizer`        |
 | [loadingManager](./loading-manager)              | Global Loading state management with request interception                                                     | `@meng-xi/vite-plugin/plugins/loading-manager`        |
+| [proxyManager](./proxy-manager)                  | Declarative dev proxy management with environment switching, rule files, request logging, and delay simulation | `@meng-xi/vite-plugin/plugins/proxy-manager`          |
 | [versionUpdateChecker](./version-update-checker) | Runtime version update check with refresh prompt                                                              | `@meng-xi/vite-plugin/plugins/version-update-checker` |
 
 ## Common Options

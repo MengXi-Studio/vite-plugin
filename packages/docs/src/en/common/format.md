@@ -6,11 +6,11 @@ Formatting utilities, providing date formatting parameters, template variable re
 
 ```typescript
 // Submodule import (recommended)
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
+import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // Barrel import
-import { getDateFormatParams, parseTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
+import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -94,6 +94,54 @@ parseTemplate('Hello {{name}}!', { name: 'World' })
 // 'Hello World!'
 
 parseTemplate('{{YYYY}}-{{MM}}-{{DD}}', getDateFormatParams())
+// '2026-06-06'
+```
+
+---
+
+## parseTemplateWithDelimiter
+
+Replace variable placeholders in a template string with custom delimiters. This is the generic version of `parseTemplate`.
+
+```typescript
+function parseTemplateWithDelimiter(
+  template: string,
+  values: Record<string, string>,
+  leftDelimiter?: string,
+  rightDelimiter?: string
+): string
+```
+
+**Parameters**
+
+| Parameter      | Type                     | Default | Description                        |
+| -------------- | ------------------------ | ------- | ---------------------------------- |
+| template       | `string`                 | -       | Template string with placeholders  |
+| values         | `Record<string, string>` | -       | Key-value mapping for placeholders |
+| leftDelimiter  | `string`                 | `'{{'`  | Left delimiter                     |
+| rightDelimiter | `string`                 | `'}}'`  | Right delimiter                    |
+
+**Returns**
+
+`string` - String with placeholders replaced
+
+**Notes**
+
+- Generic template parsing function supporting custom delimiters
+- Regex special characters in key names are automatically escaped
+- `$` in values is safely handled to avoid regex replacement issues
+
+**Example**
+
+```typescript
+parseTemplateWithDelimiter('Hello {{name}}!', { name: 'World' })
+// 'Hello World!'
+
+parseTemplateWithDelimiter('Hello {name}!', { name: 'World' }, '{', '}')
+// 'Hello World!'
+
+// formatDate internally uses this function with { and } delimiters
+parseTemplateWithDelimiter('{YYYY}-{MM}-{DD}', getDateFormatParams(), '{', '}')
 // '2026-06-06'
 ```
 
