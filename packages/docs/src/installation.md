@@ -35,7 +35,9 @@ import {
 	generateRouter,
 	generateVersion,
 	htmlInject,
+	imageOptimizer,
 	loadingManager,
+	proxyManager,
 	versionUpdateChecker,
 	autoImport
 } from '@meng-xi/vite-plugin'
@@ -110,10 +112,23 @@ export default defineConfig({
 			]
 		}),
 
+		// 图片优化
+		imageOptimizer({
+			quality: 80,
+			convert: { webp: { quality: 80 } }
+		}),
+
 		// 全局 Loading 状态管理
 		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
+		}),
+
+		// 开发代理管理
+		proxyManager({
+			rules: {
+				'/api': { target: 'http://localhost:3000', changeOrigin: true }
+			}
 		}),
 
 		// 版本更新检测
@@ -217,5 +232,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 - [generateRouter](/plugins/generate-router) - 路由生成
 - [generateVersion](/plugins/generate-version) - 版本管理
 - [htmlInject](/plugins/html-inject) - HTML 内容注入
+- [imageOptimizer](/plugins/image-optimizer) - 图片优化
 - [loadingManager](/plugins/loading-manager) - 全局 Loading 状态管理
+- [proxyManager](/plugins/proxy-manager) - 开发代理管理
 - [versionUpdateChecker](/plugins/version-update-checker) - 版本更新检测

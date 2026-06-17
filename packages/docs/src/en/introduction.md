@@ -4,7 +4,7 @@
 
 ## Built-in Plugins
 
-Thirteen ready-to-use plugins covering common build scenarios:
+Fifteen ready-to-use plugins covering common build scenarios:
 
 | Plugin                                                     | Description                                                                                                                                               |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -19,7 +19,9 @@ Thirteen ready-to-use plugins covering common build scenarios:
 | [generateRouter](/en/plugins/generate-router)              | Auto-generate router configuration and TypeScript type declarations from uni-app's pages.json                                                             |
 | [generateVersion](/en/plugins/generate-version)            | Auto-generate version numbers with file output and global variable injection                                                                              |
 | [htmlInject](/en/plugins/html-inject)                      | HTML content injection with multiple positions and conditions                                                                                             |
+| [imageOptimizer](/en/plugins/image-optimizer)              | Automatically optimize images after build, supporting JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG compression and format conversion                                   |
 | [loadingManager](/en/plugins/loading-manager)              | Global Loading state management with XHR/Fetch request interception, white-screen Loading, custom styles & animations, and lifecycle callbacks            |
+| [proxyManager](/en/plugins/proxy-manager)                  | Declarative dev proxy management with environment switching, rule file loading, request logging, delay simulation, and env variable override              |
 | [versionUpdateChecker](/en/plugins/version-update-checker) | Runtime version update check with refresh prompt                                                                                                          |
 
 ## Plugin Development Framework
@@ -53,20 +55,28 @@ interface BasePluginOptions {
 
 ## Common Utility Modules
 
-Six utility modules covering common scenarios in plugin development:
+Eight utility modules covering common scenarios in plugin development:
+
+### concurrency — Concurrency Control Utilities
+
+Provides batch async execution with concurrency limits:
+
+- `runWithConcurrency` — Concurrently execute async tasks using worker pool pattern, results match input order
 
 ### format — Formatting Utilities
 
-Provides date formatting parameters, template variable replacement, date formatting, and file size formatting:
+Provides date formatting parameters, template variable replacement, date formatting, file size formatting, and compression ratio calculation:
 
 - `getDateFormatParams` — Get date formatting parameter object
 - `parseTemplate` — Replace `{{key}}` placeholders in template strings
+- `parseTemplateWithDelimiter` — Replace variable placeholders in template strings with custom delimiters
 - `formatDate` — Format date strings using `{key}` placeholders
 - `formatFileSize` — Format bytes into a human-readable file size string
+- `calcRatio` — Calculate compression ratio percentage
 
 ### fs — File System Utilities
 
-Provides file operations, directory scanning, safe writing, and change detection:
+Provides file operations, directory scanning, safe writing, change detection, report path resolution, file mapping, and batch deletion:
 
 - `checkSourceExists` — Check if source path exists
 - `copySourceToTarget` — Copy files or directories with incremental copying
@@ -75,6 +85,9 @@ Provides file operations, directory scanning, safe writing, and change detection
 - `writeJsonReport` — Write data to a JSON file
 - `writeFileSyncSafely` — Synchronously write file, automatically creating non-existent directories
 - `shouldUpdateFileContent` — Check if file content needs updating, reducing unnecessary IO
+- `resolveReportPath` — Resolve report output path
+- `scanAndMapFiles` — Scan directory and build file path mapping table for quick lookup
+- `deleteFiles` — Batch delete file list, ignoring non-existent files
 
 ### html — HTML Injection Utilities
 
@@ -84,6 +97,15 @@ Provides multiple HTML content injection strategies, security filtering, and att
 - `injectHeadAndBody` — Dual-zone HTML injection (head + body)
 - `sanitizeContent` — Sanitize injected content to prevent XSS attacks
 - `escapeHtmlAttr` — Escape special characters in HTML attribute values
+
+### path — Path Processing Utilities
+
+Provides cross-platform path normalization, extension filtering, path exclusion matching, and compression format detection:
+
+- `normalizePath` — Convert backslashes to forward slashes for cross-platform consistency
+- `isExtensionIncluded` — Check if file extension passes include/exclude filter conditions
+- `isPathExcluded` — Check if file path matches exclude path list, supporting simple / segment matching modes
+- `isPreCompressed` — Check if extension is a pre-compressed format (`.gz` or `.br`)
 
 ### script — Script Utilities
 
@@ -114,7 +136,15 @@ Provides chainable validator and preset validation functions:
 - [buildProgress](/en/plugins/build-progress) - Build progress display
 - [bundleAnalyzer](/en/plugins/bundle-analyzer) - Build artifact size analysis
 - [compressAssets](/en/plugins/compress-assets) - Build artifact compression
+- [copyFile](/en/plugins/copy-file) - File copying
+- [envGuard](/en/plugins/env-guard) - Environment variable validation
+- [faviconManager](/en/plugins/favicon-manager) - Favicon management
+- [generateRouter](/en/plugins/generate-router) - Router generation
+- [generateVersion](/en/plugins/generate-version) - Version management
 - [htmlInject](/en/plugins/html-inject) - HTML content injection
+- [imageOptimizer](/en/plugins/image-optimizer) - Image optimization
 - [loadingManager](/en/plugins/loading-manager) - Global Loading state management
+- [proxyManager](/en/plugins/proxy-manager) - Dev proxy management
+- [versionUpdateChecker](/en/plugins/version-update-checker) - Version update detection
 - [Plugin Factory](/en/factory/index) - Develop custom plugins
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) - View source code and examples

@@ -4,7 +4,7 @@
 
 ## 内置插件
 
-开箱即用的十三款插件，覆盖常见构建场景：
+开箱即用的十五款插件，覆盖常见构建场景：
 
 | 插件                                                    | 功能                                                                                                      |
 | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
@@ -19,7 +19,9 @@
 | [generateRouter](/plugins/generate-router)              | 根据 uni-app 的 pages.json 自动生成路由配置与类型声明                                                     |
 | [generateVersion](/plugins/generate-version)            | 自动生成版本号，支持文件输出和全局变量注入                                                                |
 | [htmlInject](/plugins/html-inject)                      | HTML 内容注入，支持多种位置和条件注入                                                                     |
+| [imageOptimizer](/plugins/image-optimizer)              | 构建完成后自动优化图片，支持 JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG 压缩与格式转换                              |
 | [loadingManager](/plugins/loading-manager)              | 全局 Loading 状态管理，支持 XHR/Fetch 请求自动拦截、白屏 Loading、自定义样式与动画及生命周期回调          |
+| [proxyManager](/plugins/proxy-manager)                  | 声明式开发代理管理，支持环境切换、规则文件加载、请求日志、延迟模拟和环境变量覆盖                          |
 | [versionUpdateChecker](/plugins/version-update-checker) | 运行时版本更新检查，发现新版本时提示用户刷新                                                              |
 
 ## 插件开发框架
@@ -53,20 +55,28 @@ interface BasePluginOptions {
 
 ## 通用工具模块
 
-导出六大工具模块，覆盖插件开发中的常见场景：
+导出八大工具模块，覆盖插件开发中的常见场景：
+
+### concurrency — 并发控制工具
+
+提供带并发限制的批量异步执行能力：
+
+- `runWithConcurrency` — 使用工作池模式并发执行异步任务，结果顺序与输入项对应
 
 ### format — 格式化工具
 
-提供日期格式化参数、模板变量替换、日期格式化和文件大小格式化功能：
+提供日期格式化参数、模板变量替换、日期格式化、文件大小格式化和压缩率计算功能：
 
 - `getDateFormatParams` — 获取日期格式化参数对象
 - `parseTemplate` — 替换模板字符串中的 `{{key}}` 占位符
+- `parseTemplateWithDelimiter` — 替换模板字符串中的变量占位符（自定义分隔符）
 - `formatDate` — 使用 `{key}` 占位符格式化日期字符串
 - `formatFileSize` — 将字节数格式化为人类可读的文件大小字符串
+- `calcRatio` — 计算压缩率百分比
 
 ### fs — 文件系统工具
 
-提供文件操作、目录扫描、安全写入和变更检测等功能：
+提供文件操作、目录扫描、安全写入、变更检测、报告路径解析、文件映射和批量删除等功能：
 
 - `checkSourceExists` — 检查源路径是否存在
 - `copySourceToTarget` — 复制文件或目录，支持增量复制
@@ -75,6 +85,9 @@ interface BasePluginOptions {
 - `writeJsonReport` — 将数据写入 JSON 文件
 - `writeFileSyncSafely` — 同步写入文件，自动创建不存在的目录
 - `shouldUpdateFileContent` — 检查文件内容是否需要更新，减少不必要的 IO
+- `resolveReportPath` — 解析报告输出路径
+- `scanAndMapFiles` — 扫描目录并构建文件路径映射表，用于快速查找文件
+- `deleteFiles` — 批量删除文件列表，忽略不存在的文件
 
 ### html — HTML 注入工具
 
@@ -84,6 +97,15 @@ interface BasePluginOptions {
 - `injectHeadAndBody` — 双区域 HTML 注入（head + body）
 - `sanitizeContent` — 对注入内容进行安全过滤，防止 XSS 攻击
 - `escapeHtmlAttr` — 转义 HTML 属性值中的特殊字符
+
+### path — 路径处理工具
+
+提供跨平台路径规范化、扩展名过滤、路径排除匹配和压缩格式检测功能：
+
+- `normalizePath` — 将路径中的反斜杠转换为正斜杠，确保跨平台一致性
+- `isExtensionIncluded` — 检查文件扩展名是否通过包含/排除过滤条件
+- `isPathExcluded` — 检查文件路径是否匹配排除路径列表，支持 simple / segment 两种匹配模式
+- `isPreCompressed` — 检查扩展名是否为已压缩格式（`.gz` 或 `.br`）
 
 ### script — 脚本工具
 
@@ -114,7 +136,15 @@ interface BasePluginOptions {
 - [buildProgress](/plugins/build-progress) - 构建进度展示
 - [bundleAnalyzer](/plugins/bundle-analyzer) - 构建产物体积分析
 - [compressAssets](/plugins/compress-assets) - 构建产物压缩
+- [copyFile](/plugins/copy-file) - 文件复制
+- [envGuard](/plugins/env-guard) - 环境变量校验
+- [faviconManager](/plugins/favicon-manager) - 网站图标管理
+- [generateRouter](/plugins/generate-router) - 路由生成
+- [generateVersion](/plugins/generate-version) - 版本管理
 - [htmlInject](/plugins/html-inject) - HTML 内容注入
+- [imageOptimizer](/plugins/image-optimizer) - 图片优化
 - [loadingManager](/plugins/loading-manager) - 全局 Loading 状态管理
+- [proxyManager](/plugins/proxy-manager) - 开发代理管理
+- [versionUpdateChecker](/plugins/version-update-checker) - 版本更新检测
 - [插件工厂](/factory/index) - 开发自定义插件
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) - 查看源码和示例

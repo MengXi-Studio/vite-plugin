@@ -35,7 +35,9 @@ import {
 	generateRouter,
 	generateVersion,
 	htmlInject,
+	imageOptimizer,
 	loadingManager,
+	proxyManager,
 	versionUpdateChecker,
 	autoImport
 } from '@meng-xi/vite-plugin'
@@ -110,10 +112,23 @@ export default defineConfig({
 			]
 		}),
 
+		// Image optimization
+		imageOptimizer({
+			quality: 80,
+			convert: { webp: { quality: 80 } }
+		}),
+
 		// Global Loading state management
 		loadingManager({
 			defaultVisible: true,
 			autoHideOn: 'DOMContentLoaded'
+		}),
+
+		// Dev proxy management
+		proxyManager({
+			rules: {
+				'/api': { target: 'http://localhost:3000', changeOrigin: true }
+			}
 		}),
 
 		// Version update checker
@@ -217,5 +232,7 @@ export const myPlugin = createPluginFactory(MyPlugin)
 - [generateRouter](/en/plugins/generate-router) - Router generation
 - [generateVersion](/en/plugins/generate-version) - Version management
 - [htmlInject](/en/plugins/html-inject) - HTML content injection
+- [imageOptimizer](/en/plugins/image-optimizer) - Image optimization
 - [loadingManager](/en/plugins/loading-manager) - Global Loading state management
+- [proxyManager](/en/plugins/proxy-manager) - Dev proxy management
 - [versionUpdateChecker](/en/plugins/version-update-checker) - Version update detection
