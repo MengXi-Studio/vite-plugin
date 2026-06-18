@@ -2,6 +2,7 @@
  * 日期格式化选项
  */
 interface DateFormatOptions {
+    [key: string]: string;
     /** 四位年份 */
     YYYY: string;
     /** 两位年份 */
@@ -35,6 +36,30 @@ interface DateFormatOptions {
  * ```
  */
 declare function getDateFormatParams(date?: Date): DateFormatOptions;
+/**
+ * 替换模板字符串中的变量占位符（自定义分隔符）
+ *
+ * @param template - 包含占位符的模板字符串
+ * @param values - 占位符键值映射
+ * @param leftDelimiter - 左分隔符，默认 `'{{'`
+ * @param rightDelimiter - 右分隔符，默认 `'}}'`
+ * @returns 替换占位符后的字符串
+ *
+ * @description 通用模板解析函数，支持自定义分隔符。
+ * 键名中的正则特殊字符会被自动转义，值中的 `$` 也会被安全处理。
+ *
+ * @example
+ * ```typescript
+ * parseTemplateWithDelimiter('Hello {{name}}!', { name: 'World' })
+ * // 'Hello World!'
+ *
+ * parseTemplateWithDelimiter('Hello {name}!', { name: 'World' }, '{', '}')
+ * // 'Hello World!'
+ * ```
+ */
+declare function parseTemplateWithDelimiter(template: string, values: Record<string, string> | {
+    [key: string]: string;
+}, leftDelimiter?: string, rightDelimiter?: string): string;
 /**
  * 替换模板字符串中的变量占位符
  *
@@ -107,5 +132,5 @@ declare function formatFileSize(bytes: number): string;
  */
 declare function calcRatio(originalSize: number, compressedSize: number): number;
 
-export { calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate };
+export { calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate, parseTemplateWithDelimiter };
 export type { DateFormatOptions };

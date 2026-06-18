@@ -178,6 +178,54 @@ declare function shouldUpdateFileContent(filePath: string, newContent: string): 
  * ```
  */
 declare function resolveReportPath(outDir: string, reportPath: string | false): string | null;
+/**
+ * 扫描目录并将文件信息映射为自定义结构
+ *
+ * @async
+ * @template T - 映射后的条目类型
+ * @param {string} dirPath - 要扫描的目录路径
+ * @param {object} params - 扫描与映射参数
+ * @param {ScanDirectoryOptions} [params.scanOptions] - 传递给 scanDirectory 的选项
+ * @param {(file: ScannedFile, dirPath: string) => T} params.mapFn - 将 ScannedFile 映射为自定义结构的函数
+ * @returns {Promise<T[]>} 映射后的条目列表
+ *
+ * @description 递归扫描目录并对每个文件应用 mapFn 转换，
+ * 是多个插件中"扫描 + 过滤 + 映射"模式的通用封装。
+ * mapFn 接收原始 ScannedFile 和 dirPath，可自由计算 relativePath 等字段。
+ *
+ * @example
+ * ```typescript
+ * const candidates = await scanAndMapFiles('dist', {
+ *   scanOptions: { filter: (fp, ext, size) => size > 1024 },
+ *   mapFn: (f, dir) => ({
+ *     filePath: f.filePath,
+ *     relativePath: normalizePath(path.relative(dir, f.filePath)),
+ *     size: f.size,
+ *     ext: f.extension
+ *   })
+ * })
+ * ```
+ */
+declare function scanAndMapFiles<T>(dirPath: string, params: {
+    scanOptions?: ScanDirectoryOptions;
+    mapFn: (file: ScannedFile, dirPath: string) => T;
+}): Promise<T[]>;
+/**
+ * 批量删除文件列表中的文件
+ *
+ * @async
+ * @param {string[]} filePaths - 要删除的文件绝对路径列表（会自动去重）
+ * @returns {Promise<void>}
+ *
+ * @description 根据文件路径列表删除文件，自动去重后逐个删除。
+ * 删除失败时静默忽略错误（如文件已被删除或权限不足）。
+ *
+ * @example
+ * ```typescript
+ * await deleteFiles(['/dist/app.js', '/dist/app.js.gz'])
+ * ```
+ */
+declare function deleteFiles(filePaths: string[]): Promise<void>;
 
-export { checkSourceExists, copySourceToTarget, resolveReportPath, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport };
+export { checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport };
 export type { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile };

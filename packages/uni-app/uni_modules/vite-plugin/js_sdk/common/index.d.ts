@@ -1,6 +1,6 @@
 export { runWithConcurrency } from './concurrency/index.js';
-export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate } from './format/index.js';
-export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, resolveReportPath, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './fs/index.js';
+export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate, parseTemplateWithDelimiter } from './format/index.js';
+export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './fs/index.js';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './html/index.js';
 export { isExtensionIncluded, isPathExcluded, isPreCompressed, normalizePath } from './path/index.js';
 export { makeCallback } from './script/index.js';

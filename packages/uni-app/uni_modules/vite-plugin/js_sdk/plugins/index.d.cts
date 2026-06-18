@@ -11,9 +11,11 @@ export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generat
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './htmlInject/index.cjs';
 export { ConvertMapping, FormatQualityOptions, ImageFormat, ImageOptimizeStats, ImageOptimizeSummary, ImageOptimizerOptions, SvgoOptions, SvgoPlugin, imageOptimizer } from './imageOptimizer/index.cjs';
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './loadingManager/index.cjs';
+export { DelayConfig, ProxyLogEntry, ProxyLogLevel, ProxyManagerOptions, ProxyRule, ResolvedProxyRule, proxyManager } from './proxyManager/index.cjs';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './versionUpdateChecker/index.cjs';
 import '../factory/index.cjs';
 import 'vite';
 import '../shared/vite-plugin.B8FuZce1.cjs';
 import '../shared/vite-plugin.DRRlWY8P.cjs';
 import '../shared/vite-plugin.BI9taN75.cjs';
+import 'node:http';
