@@ -14,7 +14,8 @@ import {
 	imageOptimizer,
 	loadingManager,
 	versionUpdateChecker,
-	autoImport
+	autoImport,
+	proxyManager
 } from '@meng-xi/vite-plugin/plugins'
 
 export default defineConfig({
@@ -239,6 +240,30 @@ export default defineConfig({
 			reportOutput: 'image-optimize-report.json',
 			parallelLimit: 5,
 			maxPixels: 0
+		}),
+
+		// 开发代理管理
+		proxyManager({
+			rules: [
+				{
+					context: '/api',
+					target: 'https://httpbin.org',
+					changeOrigin: true,
+					rewrite: (path) => path.replace(/^\/api/, ''),
+					label: 'API 代理（httpbin.org）'
+				},
+				{
+					context: '/proxy-delay',
+					target: 'https://httpbin.org',
+					changeOrigin: true,
+					rewrite: (path) => path.replace(/^\/proxy-delay/, '/get'),
+					delay: { min: 200, max: 500 },
+					label: '延迟模拟测试'
+				}
+			],
+			logLevel: 'verbose',
+			defaultDelay: false,
+			envPrefix: 'PROXY_'
 		})
 	] as PluginOption[]
 })

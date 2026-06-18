@@ -69,6 +69,20 @@
 				<text class="value" :class="{ active: loadingVisible }">{{ loadingVisible ? '显示中' : '已隐藏' }}</text>
 			</view>
 		</view>
+
+		<!-- 代理交互演示 -->
+		<view class="card">
+			<text class="card-title">代理交互演示</text>
+			<text class="hint">proxyManager 已配置 /api 和 /proxy-delay 代理规则</text>
+			<view class="btn-group">
+				<button class="btn" @click="testProxy">测试代理请求</button>
+				<button class="btn" @click="testProxyDelay">测试延迟模拟</button>
+			</view>
+			<view v-if="proxyResult" class="status-bar">
+				<text class="label">结果</text>
+				<text class="value" :class="{ active: proxyResult.success }">{{ proxyResult.message }}</text>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -91,7 +105,8 @@ const tests = reactive<Record<string, boolean>>({
 	htmlInject: false,
 	versionUpdateChecker: false,
 	faviconManager: false,
-	loadingManager: false
+	loadingManager: false,
+	proxyManager: false
 })
 
 const testLabels: Record<string, string> = {
@@ -106,10 +121,12 @@ const testLabels: Record<string, string> = {
 	htmlInject: 'htmlInject - HTML 内容注入',
 	versionUpdateChecker: 'versionUpdateChecker - 版本更新检查',
 	faviconManager: 'faviconManager - 图标管理',
-	loadingManager: 'loadingManager - 全局 Loading'
+	loadingManager: 'loadingManager - 全局 Loading',
+	proxyManager: 'proxyManager - 开发代理'
 }
 
 const loadingVisible = ref(false)
+const proxyResult = ref<{ success: boolean; message: string } | null>(null)
 let statusTimer: ReturnType<typeof setInterval> | null = null
 
 function getManager(): LoadingManager | undefined {
@@ -183,6 +200,17 @@ async function runTests() {
 
 	const manager = getManager()
 	tests.loadingManager = !!manager && typeof manager.show === 'function'
+
+	// proxyManager 测试：通过代理请求 httpbin.org 验证代理是否生效
+	try {
+		const res = await fetch('/api/get')
+		if (res.ok) {
+			const data = await res.json()
+			tests.proxyManager = !!data && data.url !== undefined
+		}
+	} catch {
+		tests.proxyManager = false
+	}
 }
 
 function goToNavigation() {
@@ -222,6 +250,45 @@ function hideLoading() {
 function toggleLoading() {
 	const manager = getManager()
 	if (manager) manager.toggle('切换触发的 Loading')
+}
+
+async function testProxy() {
+	proxyResult.value = { success: false, message: '请求中...' }
+	try {
+		const start = Date.now()
+		const res = await fetch('/api/get')
+		const duration = Date.now() - start
+		if (res.ok) {
+			const data = await res.json()
+			proxyResult.value = {
+				success: true,
+				message: `代理成功 (${duration}ms) - 来源: ${data.url}`
+			}
+		} else {
+			proxyResult.value = { success: false, message: `代理失败 - HTTP ${res.status}` }
+		}
+	} catch (e) {
+		proxyResult.value = { success: false, message: `代理请求异常: ${e}` }
+	}
+}
+
+async function testProxyDelay() {
+	proxyResult.value = { success: false, message: '请求中（含延迟模拟）...' }
+	try {
+		const start = Date.now()
+		const res = await fetch('/proxy-delay')
+		const duration = Date.now() - start
+		if (res.ok) {
+			proxyResult.value = {
+				success: true,
+				message: `延迟代理成功 (${duration}ms) - 含 200~500ms 模拟延迟`
+			}
+		} else {
+			proxyResult.value = { success: false, message: `代理失败 - HTTP ${res.status}` }
+		}
+	} catch (e) {
+		proxyResult.value = { success: false, message: `代理请求异常: ${e}` }
+	}
 }
 </script>
 
