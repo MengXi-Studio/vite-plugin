@@ -65,7 +65,7 @@ const params = getDateFormatParams(new Date())
 
 ## parseTemplate
 
-替换模板字符串中的 `{{key}}` 占位符。
+替换模板字符串中的 <span v-pre>`{{key}}`</span> 占位符。
 
 ```typescript
 function parseTemplate(template: string, values: Record<string, string>): string
@@ -75,7 +75,7 @@ function parseTemplate(template: string, values: Record<string, string>): string
 
 | 参数     | 类型                     | 说明                                             |
 | -------- | ------------------------ | ------------------------------------------------ |
-| template | `string`                 | 包含 `{{key}}` 占位符的模板字符串                |
+| template | `string`                 | 包含 <span v-pre>`{{key}}`</span> 占位符的模板字符串                |
 | values   | `Record<string, string>` | 占位符键值映射，支持合并多组变量（后者覆盖前者） |
 
 **返回值**
@@ -118,8 +118,8 @@ function parseTemplateWithDelimiter(
 | -------------- | ------------------------ | ------- | ---------------------- |
 | template       | `string`                 | -       | 包含占位符的模板字符串 |
 | values         | `Record<string, string>` | -       | 占位符键值映射         |
-| leftDelimiter  | `string`                 | `'{{'`  | 左分隔符               |
-| rightDelimiter | `string`                 | `'}}'`  | 右分隔符               |
+| leftDelimiter  | `string`                 | <span v-pre>`'{{'`</span>  | 左分隔符               |
+| rightDelimiter | `string`                 | <span v-pre>`'}}'`</span>  | 右分隔符               |
 
 **返回值**
 

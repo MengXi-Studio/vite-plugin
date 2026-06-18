@@ -78,11 +78,11 @@ export default defineConfig({
 
 | 占位符               | 说明       |
 | -------------------- | ---------- |
-| `{{message}}`        | 提示消息   |
-| `{{currentVersion}}` | 当前版本号 |
-| `{{newVersion}}`     | 新版本号   |
-| `{{refreshButton}}`  | 刷新按钮   |
-| `{{dismissButton}}`  | 忽略按钮   |
+| <span v-pre>`{{message}}`</span>        | 提示消息   |
+| <span v-pre>`{{currentVersion}}`</span> | 当前版本号 |
+| <span v-pre>`{{newVersion}}`</span>     | 新版本号   |
+| <span v-pre>`{{refreshButton}}`</span>  | 刷新按钮   |
+| <span v-pre>`{{dismissButton}}`</span>  | 忽略按钮   |
 
 ### 回调函数
 

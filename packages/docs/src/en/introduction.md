@@ -68,7 +68,7 @@ Provides batch async execution with concurrency limits:
 Provides date formatting parameters, template variable replacement, date formatting, file size formatting, and compression ratio calculation:
 
 - `getDateFormatParams` — Get date formatting parameter object
-- `parseTemplate` — Replace `{{key}}` placeholders in template strings
+- `parseTemplate` — Replace <span v-pre>`{{key}}`</span> placeholders in template strings
 - `parseTemplateWithDelimiter` — Replace variable placeholders in template strings with custom delimiters
 - `formatDate` — Format date strings using `{key}` placeholders
 - `formatFileSize` — Format bytes into a human-readable file size string

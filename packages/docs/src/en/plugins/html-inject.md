@@ -137,7 +137,7 @@ htmlInject({
 
 ### Template Variables
 
-Use `{{variableName}}` syntax in content to reference variables. Rule-level `templateVars` override global `templateVars`:
+Use <span v-pre>`{{variableName}}`</span> syntax in content to reference variables. Rule-level `templateVars` override global `templateVars`:
 
 ```typescript
 htmlInject({
@@ -288,5 +288,5 @@ htmlInject({
 - To inject scripts, you must set `allowScriptInjection: true`. Ensure the injected content is from a trusted source
 - `targetFile` defaults to matching all `index.html` files, supports relative paths and filename matching
 - Rules execute in ascending order of `priority`. Rules with the same priority execute in array order
-- Template variables use `{{variableName}}` syntax. Rule-level variables override global variables
+- Template variables use <span v-pre>`{{variableName}}`</span> syntax. Rule-level variables override global variables
 - `condition.negate: true` negates the condition result

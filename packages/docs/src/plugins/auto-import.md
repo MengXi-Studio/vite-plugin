@@ -177,7 +177,7 @@ autoImport({
 
 检测范围：
 
-- 插值表达式 `{{ }}` 中的标识符
+- 插值表达式 <span v-pre>`{{ }}`</span> 中的标识符
 - 指令绑定 `v-if`、`v-show`、`v-model` 等中的表达式
 - 属性绑定 `:prop="expr"` 中的表达式
 - 事件绑定 `@event="handler"` 中的表达式

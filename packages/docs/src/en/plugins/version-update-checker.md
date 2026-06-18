@@ -78,11 +78,11 @@ When using `customPromptTemplate`, the following placeholders are available:
 
 | Placeholder          | Description     |
 | -------------------- | --------------- |
-| `{{message}}`        | Prompt message  |
-| `{{currentVersion}}` | Current version |
-| `{{newVersion}}`     | New version     |
-| `{{refreshButton}}`  | Refresh button  |
-| `{{dismissButton}}`  | Dismiss button  |
+| <span v-pre>`{{message}}`</span>        | Prompt message  |
+| <span v-pre>`{{currentVersion}}`</span> | Current version |
+| <span v-pre>`{{newVersion}}`</span>     | New version     |
+| <span v-pre>`{{refreshButton}}`</span>  | Refresh button  |
+| <span v-pre>`{{dismissButton}}`</span>  | Dismiss button  |
 
 ### Callbacks
 

@@ -68,7 +68,7 @@ interface BasePluginOptions {
 提供日期格式化参数、模板变量替换、日期格式化、文件大小格式化和压缩率计算功能：
 
 - `getDateFormatParams` — 获取日期格式化参数对象
-- `parseTemplate` — 替换模板字符串中的 `{{key}}` 占位符
+- `parseTemplate` — 替换模板字符串中的 <span v-pre>`{{key}}`</span> 占位符
 - `parseTemplateWithDelimiter` — 替换模板字符串中的变量占位符（自定义分隔符）
 - `formatDate` — 使用 `{key}` 占位符格式化日期字符串
 - `formatFileSize` — 将字节数格式化为人类可读的文件大小字符串

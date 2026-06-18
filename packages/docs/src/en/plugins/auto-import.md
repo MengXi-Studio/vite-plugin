@@ -178,7 +178,7 @@ autoImport({
 
 Detection scope:
 
-- Interpolation expressions `{{ }}`
+- Interpolation expressions <span v-pre>`{{ }}`</span>
 - Directive bindings `v-if`, `v-show`, `v-model`, etc.
 - Attribute bindings `:prop="expr"`
 - Event bindings `@event="handler"`

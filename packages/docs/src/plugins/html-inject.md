@@ -136,7 +136,7 @@ htmlInject({
 
 ### 模板变量
 
-使用 `{{变量名}}` 语法在 content 中引用变量，规则级 `templateVars` 会覆盖全局 `templateVars`：
+使用 <span v-pre>`{{变量名}}`</span> 语法在 content 中引用变量，规则级 `templateVars` 会覆盖全局 `templateVars`：
 
 ```typescript
 htmlInject({
@@ -287,5 +287,5 @@ htmlInject({
 - 如需注入脚本，必须设置 `allowScriptInjection: true`，请确保注入内容来源可信
 - `targetFile` 默认匹配所有 `index.html` 文件，支持相对路径和文件名匹配
 - 规则按 `priority` 升序执行，相同优先级的规则按数组顺序执行
-- 模板变量使用 `{{变量名}}` 语法，规则级变量覆盖全局变量
+- 模板变量使用 <span v-pre>`{{变量名}}`</span> 语法，规则级变量覆盖全局变量
 - `condition.negate: true` 可对条件结果取反

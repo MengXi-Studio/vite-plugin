@@ -65,7 +65,7 @@ const params = getDateFormatParams(new Date())
 
 ## parseTemplate
 
-Replace `{{key}}` placeholders in a template string.
+Replace <span v-pre>`{{key}}`</span> placeholders in a template string.
 
 ```typescript
 function parseTemplate(template: string, values: Record<string, string>): string
@@ -75,7 +75,7 @@ function parseTemplate(template: string, values: Record<string, string>): string
 
 | Parameter | Type                     | Description                                                                                             |
 | --------- | ------------------------ | ------------------------------------------------------------------------------------------------------- |
-| template  | `string`                 | Template string containing `{{key}}` placeholders                                                       |
+| template  | `string`                 | Template string containing <span v-pre>`{{key}}`</span> placeholders                                                       |
 | values    | `Record<string, string>` | Key-value mapping for placeholders, supports merging multiple variable groups (later overrides earlier) |
 
 **Returns**
@@ -118,8 +118,8 @@ function parseTemplateWithDelimiter(
 | -------------- | ------------------------ | ------- | ---------------------------------- |
 | template       | `string`                 | -       | Template string with placeholders  |
 | values         | `Record<string, string>` | -       | Key-value mapping for placeholders |
-| leftDelimiter  | `string`                 | `'{{'`  | Left delimiter                     |
-| rightDelimiter | `string`                 | `'}}'`  | Right delimiter                    |
+| leftDelimiter  | `string`                 | <span v-pre>`'{{'`</span>  | Left delimiter                     |
+| rightDelimiter | `string`                 | <span v-pre>`'}}'`</span>  | Right delimiter                    |
 
 **Returns**
 
