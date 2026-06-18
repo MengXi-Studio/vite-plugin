@@ -245,93 +245,19 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	}
 
 	/**
-	 * 生成类型定义代码
+	 * 生成类型导入语句
 	 *
-	 * @returns {string} TypeScript 类型定义代码字符串，如果不需要则返回空字符串
+	 * @returns {string} TypeScript 类型导入语句，如果不需要则返回空字符串
 	 *
-	 * @description 仅在 exportTypes 为 true 且 outputFormat 为 'ts' 时生成类型定义，
-	 * 包含 RouteMeta 和 RouteConfig 接口定义。
+	 * @description 仅在 exportTypes 为 true 且 outputFormat 为 'ts' 时生成类型导入语句，
+	 * 从 @meng-xi/uni-router 导入 RouteConfig 类型。
 	 */
-	private generateTypeDefinitions(): string {
+	private generateTypeImport(): string {
 		if (!this.options.exportTypes || this.options.outputFormat === 'js') {
 			return ''
 		}
 
-		return `
-/**
- * 导航动画类型
- *
- * 用于 uni.navigateTo / uni.navigateBack 的 animationType 参数，
- * 仅 App 端生效，其他平台自动忽略。
- *
- * 显示动画（navigateTo）：slide-in-right / slide-in-left / slide-in-top / slide-in-bottom / pop-in / fade-in / zoom-out / zoom-fade-out / none / auto
- * 关闭动画（navigateBack）：slide-out-right / slide-out-left / slide-out-top / slide-out-bottom / pop-out / fade-out / zoom-in / zoom-fade-in / none / auto
- *
- * @see https://en.uniapp.dcloud.io/api/router.html#animation
- */
-export type UniAnimationType =
-	| 'auto'
-	| 'none'
-	| 'slide-in-right'
-	| 'slide-in-left'
-	| 'slide-in-top'
-	| 'slide-in-bottom'
-	| 'slide-out-right'
-	| 'slide-out-left'
-	| 'slide-out-top'
-	| 'slide-out-bottom'
-	| 'fade-in'
-	| 'fade-out'
-	| 'zoom-out'
-	| 'zoom-in'
-	| 'zoom-fade-out'
-	| 'zoom-fade-in'
-	| 'pop-in'
-	| 'pop-out'
-
-/**
- * 导航动画配置
- *
- * 仅 App 端生效，其他平台自动忽略。
- * 优先级：push/replace 调用时传入 > meta.animation > uni 默认值
- */
-export interface NavigationAnimation {
-	/** 窗口动画类型 */
-	type: UniAnimationType
-	/** 动画持续时间（ms），默认 300 */
-	duration?: number
-}
-
-/**
- * 路由元信息
- */
-export interface RouteMeta {
-	/** 页面标题 */
-	title?: string
-	/** 是否为TabBar页面 */
-	isTab?: boolean
-	/** 是否需要登录 */
-	requireAuth?: boolean
-	/** 默认导航动画（仅 App 端生效），可被 push/replace 时的 animation 参数覆盖 */
-	animation?: NavigationAnimation
-	/** 自定义扩展字段 */
-	[key: string]: any
-}
-
-/**
- * 路由配置项
- */
-export interface RouteConfig {
-	/** 路由路径 */
-	path: string
-	/** 路由名称（用于命名路由导航） */
-	name?: string
-	/** 路由元信息 */
-	meta?: RouteMeta
-	/** 用户自定义扩展属性（如 beforeEnter、component 等） */
-	[key: string]: any
-}
-`
+		return `import type { RouteConfig } from '@meng-xi/uni-router'`
 	}
 
 	/**
@@ -346,7 +272,7 @@ export interface RouteConfig {
 	 * 非标准属性（如 beforeEnter、component 等函数），仅更新 path 和 meta。
 	 */
 	private generateFileContent(routes: RouteConfig[], existingRawTexts?: Map<string, string>): string {
-		const typeDefinitions = this.generateTypeDefinitions()
+		const typeImport = this.generateTypeImport()
 		const isTS = this.options.outputFormat === 'ts'
 		const typeAnnotation = isTS ? ': RouteConfig[]' : ''
 
@@ -378,15 +304,21 @@ export interface RouteConfig {
 				return updated
 			}
 
-			// 无原始文本：使用 JSON 序列化
+			// 无原始文本：使用多行格式序列化
 			return serializeRoute(route)
 		})
 
-		// 缩进每个路由对象
-		const indentedRoutes = routeStrings.map(s => '\t' + s.split('\n').join('\n\t')).join(',\n')
+		// 缩进每个路由对象：整体向右缩进一个 tab
+		const indentedRoutes = routeStrings
+			.map(s => {
+				const lines = s.split('\n')
+				return lines.map((line, i) => (i === 0 ? '\t' + line : '\t\t' + line)).join('\n')
+			})
+			.join(',\n')
 
-		return `${typeDefinitions}
-/**
+		const importLine = typeImport ? `${typeImport}\n\n` : ''
+
+		return `${importLine}/**
  * 路由配置列表
  * @description 由 pages.json 自动生成
  */

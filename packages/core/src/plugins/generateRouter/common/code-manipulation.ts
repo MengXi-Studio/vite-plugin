@@ -1,18 +1,60 @@
 import type { RouteConfig } from '../types'
 
 /**
- * 将路由配置序列化为文本
+ * 将路由配置序列化为多行文本
  *
  * @param {RouteConfig} route - 路由配置对象
  * @returns {string} 序列化后的文本
  *
- * @description 将路由配置对象序列化为 TypeScript/JavaScript 代码文本，
+ * @description 将路由配置对象序列化为多行 TypeScript/JavaScript 代码文本，
+ * 每个属性独占一行，使用 tab 缩进。meta 对象的属性也独占一行。
  * 属性名去引号，字符串值使用单引号。
+ *
+ * @example
+ * 输出格式：
+ * {
+ * 	path: '/pages/index/index',
+ * 	name: 'pagesIndexIndex',
+ * 	meta: { title: '首页', isTab: true }
+ * }
  */
 export function serializeRoute(route: RouteConfig): string {
-	return JSON.stringify(route, null, '\t')
-		.replace(/"(\w+)":/g, '$1:')
-		.replace(/: "([^"]+)"/g, ": '$1'")
+	const entries = Object.entries(route)
+	const lines: string[] = ['{']
+
+	for (const [key, value] of entries) {
+		const serializedValue = serializeValueMultiline(value)
+		lines.push(`\t${key}: ${serializedValue}`)
+	}
+
+	lines.push('}')
+	return lines.join('\n')
+}
+
+/**
+ * 将值序列化为多行文本（用于路由对象属性值）
+ *
+ * @param {unknown} value - 要序列化的值
+ * @returns {string} 序列化后的文本
+ *
+ * @description 对象类型序列化为单行紧凑格式（属性在同一行），
+ * 其他类型与 serializeValueCompact 行为一致。
+ */
+function serializeValueMultiline(value: unknown): string {
+	if (value === null) return 'null'
+	if (value === undefined) return 'undefined'
+	if (typeof value === 'string') return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+	if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+	if (Array.isArray(value)) {
+		return '[' + value.map(v => serializeValueMultiline(v)).join(', ') + ']'
+	}
+	if (typeof value === 'object') {
+		const entries = Object.entries(value as Record<string, unknown>)
+			.map(([k, v]) => `${k}: ${serializeValueMultiline(v)}`)
+			.join(', ')
+		return `{ ${entries} }`
+	}
+	return String(value)
 }
 
 /**
