@@ -1,0 +1,27 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"jsx": "preserve",
+		"sourceMap": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"lib": ["ES2020", "DOM", "DOM.Iterable"],
+		"skipLibCheck": true,
+		"noEmit": true,
+		"isolatedModules": true,
+		"useDefineForClassFields": true,
+		"types": ["@dcloudio/types", "vite/client"]
+	},
+	"include": [
+		"*.ts",
+		"*.d.ts",
+		"pages/**/*.vue",
+		"App.vue",
+		"main.js",
+		"uni_modules/vite-plugin/js_sdk/**/*.d.ts"
+	]
+}

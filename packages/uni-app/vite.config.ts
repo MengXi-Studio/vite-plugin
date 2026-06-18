@@ -14,7 +14,8 @@ import {
 	htmlInject,
 	compressAssets,
 	autoImport,
-	imageOptimizer
+	imageOptimizer,
+	proxyManager
 } from './uni_modules/vite-plugin/js_sdk'
 import { resolve } from 'node:path'
 
@@ -204,6 +205,31 @@ export default defineConfig(config => {
 				parallelLimit: 5,
 				reportOutput: 'image-optimize-report.json',
 				enabled: isH5 && isProd
+			}),
+
+			// 开发代理管理
+			proxyManager({
+				rules: [
+					{
+						context: '/api',
+						target: 'https://httpbin.org',
+						changeOrigin: true,
+						rewrite: path => path.replace(/^\/api/, ''),
+						label: 'API 代理（httpbin.org）'
+					},
+					{
+						context: '/proxy-delay',
+						target: 'https://httpbin.org',
+						changeOrigin: true,
+						rewrite: path => path.replace(/^\/proxy-delay/, '/get'),
+						delay: { min: 200, max: 500 },
+						label: '延迟模拟测试'
+					}
+				],
+				logLevel: 'verbose',
+				defaultDelay: false,
+				envPrefix: 'PROXY_',
+				enabled: isH5
 			})
 		]
 	}

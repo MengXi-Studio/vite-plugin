@@ -1,3 +1,74 @@
+## 0.2.0（2026-06-18）
+
+新增 proxyManager 开发代理管理插件，Common 工具模块提取多项通用函数，修复 proxyManager 四个关键缺陷
+
+### proxyManager（新增）
+
+开发服务器代理管理插件，在 Vite 开发服务器（`configureServer`）启动时注册代理中间件，支持路径匹配、目标转发、请求重写、响应修改、延迟模拟、环境变量覆盖等能力。
+
+**功能特性**：
+
+- **路径匹配**：支持字符串前缀和正则表达式两种匹配方式，满足精确与模糊场景
+- **请求重写**：通过 `rewrite` 函数自由改写请求路径，适配后端路由差异
+- **响应修改**：`modifyResponse` 回调可在代理响应返回客户端前修改 JSON 响应体
+- **延迟模拟**：支持固定毫秒数和随机范围（`{ min, max }`）两种延迟配置，便于测试 Loading 与超时场景
+- **环境变量覆盖**：通过 `envPrefix` 从 `process.env` 读取代理目标，实现一套代码多环境切换
+- **规则文件**：支持 `.proxyrc.ts` / `.proxyrc.js` / `.proxyrc.mjs` 外部规则文件，兼容 ESM 与 CJS
+- **请求日志**：`none` / `basic` / `verbose` 三级日志，`verbose` 模式输出方法、路径、状态码、耗时、目标地址
+- **WebSocket 代理**：规则支持 `ws: true` 启用 WebSocket 代理
+- **环境隔离**：规则可配置 `env` 字段限定生效环境，避免误代理生产请求
+
+**配置选项**：
+
+| 选项         | 类型                                 | 默认值          | 描述                                     |
+| ------------ | ------------------------------------ | --------------- | ---------------------------------------- |
+| rules        | `ProxyRule[]`                        | `[]`            | 代理规则列表                             |
+| configFile   | `string` \| `false`                  | `'.proxyrc.ts'` | 规则配置文件路径，`false` 不加载外部文件 |
+| logLevel     | `'none'` \| `'basic'` \| `'verbose'` | `'basic'`       | 日志级别                                 |
+| defaultDelay | `DelayConfig`                        | `false`         | 全局默认延迟，对未配置 delay 的规则生效  |
+| envPrefix    | `string`                             | `'PROXY_'`      | 环境变量前缀                             |
+
+**ProxyRule 类型**：
+
+| 属性           | 类型                                            | 描述                                |
+| -------------- | ----------------------------------------------- | ----------------------------------- |
+| context        | `string` \| `RegExp`                            | 匹配路径，字符串前缀或正则          |
+| target         | `string`                                        | 代理目标地址                        |
+| changeOrigin   | `boolean`                                       | 是否修改请求头 Origin，默认 true    |
+| secure         | `boolean`                                       | 是否验证 SSL 证书，默认 false       |
+| rewrite        | `(path: string) => string`                      | 请求路径重写函数                    |
+| headers        | `Record<string, string>`                        | 自定义请求头                        |
+| env            | `string[]`                                      | 限定生效的环境列表                  |
+| delay          | `number` \| `{ min: number; max: number }`      | 延迟模拟配置                        |
+| modifyResponse | `(body: any, proxyRes: IncomingMessage) => any` | 响应修改回调                        |
+| ws             | `boolean`                                       | 是否启用 WebSocket 代理，默认 false |
+| label          | `string`                                        | 规则备注                            |
+
+### Common 工具模块（增强）
+
+提取多个插件中重复出现的逻辑到 `common` 目录，消除冗余代码：
+
+**common/format（增强）**：
+
+| 新增函数                     | 描述                                                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------------------ |
+| `parseTemplateWithDelimiter` | 通用模板解析函数，支持自定义左右分隔符，键名与值中的正则特殊字符自动转义，从 envGuard 提取 |
+
+**common/fs（增强）**：
+
+| 新增函数          | 描述                                                                   |
+| ----------------- | ---------------------------------------------------------------------- |
+| `scanAndMapFiles` | 递归扫描目录并将文件信息映射为自定义结构，封装"扫描 + 过滤 + 映射"模式 |
+| `deleteFiles`     | 批量删除文件列表（自动去重，删除失败静默忽略），从 compressAssets 提取 |
+
+### 子路径导出（变更）
+
+- 新增 `@meng-xi/vite-plugin/plugins/proxy-manager` 子路径导出
+- 新增导出函数：`proxyManager`
+- 新增导出类型：`ProxyManagerOptions`、`ProxyRule`、`ProxyLogLevel`、`DelayConfig`、`ResolvedProxyRule`、`ProxyLogEntry`
+- `@meng-xi/vite-plugin/common/format` 新增导出：`parseTemplateWithDelimiter`
+- `@meng-xi/vite-plugin/common/fs` 新增导出：`scanAndMapFiles`、`deleteFiles`
+
 ## 0.1.9（2026-06-14）
 
 generateRouter 新增导航动画支持与路由属性保留增强

@@ -123,6 +123,26 @@
 			</view>
 		</view>
 
+		<!-- 代理交互演示 -->
+		<view class="card">
+			<text class="card-title">proxyManager - 开发代理</text>
+			<text class="hint">已配置 /api 和 /proxy-delay 代理规则</text>
+			<view class="btn-group">
+				<view class="btn btn-sm" @click="testProxy">
+					<text class="btn-text">测试代理</text>
+				</view>
+				<view class="btn btn-sm" @click="testProxyDelay">
+					<text class="btn-text">延迟模拟</text>
+				</view>
+			</view>
+			<view v-if="proxyResult" class="info-row">
+				<text class="info-label">结果</text>
+				<text :class="['info-value', proxyResult.passed ? 'active' : '']">
+					{{ proxyResult.message }}
+				</text>
+			</view>
+		</view>
+
 		<!-- 导航到其他页面 -->
 		<view class="card">
 			<text class="card-title">更多演示</text>
@@ -150,19 +170,23 @@ export default {
 				onMounted: false
 			},
 			testList: [
+				{ name: 'assetManifest - 资源清单生成', passed: false },
 				{ name: 'autoImport - 自动导入', passed: false },
 				{ name: 'buildProgress - 构建进度条', passed: false },
 				{ name: 'bundleAnalyzer - 构建产物体积分析', passed: false },
+				{ name: 'compressAssets - 构建产物压缩', passed: false },
+				{ name: 'copyFile - 文件复制', passed: false },
+				{ name: 'envGuard - 环境变量校验', passed: false },
+				{ name: 'faviconManager - 网站图标管理', passed: false },
 				{ name: 'generateRouter - 路由生成', passed: false },
 				{ name: 'generateVersion - 版本生成', passed: false },
 				{ name: 'htmlInject - HTML 注入', passed: false },
-				{ name: 'faviconManager - 网站图标管理', passed: false },
-				{ name: 'copyFile - 文件复制', passed: false },
-				{ name: 'compressAssets - 构建产物压缩', passed: false },
-				{ name: 'envGuard - 环境变量校验', passed: false },
+				{ name: 'imageOptimizer - 图片优化压缩', passed: false },
 				{ name: 'loadingManager - 全局 Loading', passed: false },
+				{ name: 'proxyManager - 开发代理', passed: false },
 				{ name: 'versionUpdateChecker - 版本更新检查', passed: false }
-			]
+			],
+			proxyResult: null
 		}
 	},
 	onLoad() {
@@ -201,60 +225,90 @@ export default {
 		},
 		runTests() {
 			// #ifdef H5
-			// autoImport: 验证 Vue API 已自动注入
-			this.testList[0].passed = typeof ref === 'function' && typeof reactive === 'function'
+			// assetManifest: 验证资源清单已生成
+			fetch('/manifest.json', { method: 'HEAD' })
+				.then(res => {
+					this.testList[0].passed = res.ok
+				})
+				.catch(() => {
+					this.testList[0].passed = false
+				})
 
-			this.testList[1].passed = true
+			// autoImport: 验证 Vue API 已自动注入
+			this.testList[1].passed = typeof ref === 'function' && typeof reactive === 'function'
+
+			// buildProgress: 构建进度条（构建期已展示）
+			this.testList[2].passed = true
 
 			// bundleAnalyzer: 验证分析报告已生成
 			fetch('/bundle-analysis.json', { method: 'HEAD' })
 				.then(res => {
-					this.testList[2].passed = res.ok
+					this.testList[3].passed = res.ok
 				})
 				.catch(() => {
-					this.testList[2].passed = false
+					this.testList[3].passed = false
 				})
 
-			// generateRouter: 验证路由配置已生成
-			this.testList[3].passed = true
-
-			this.testList[4].passed = !!this.appVersion && this.appVersion !== 'dev'
-
-			// htmlInject: 验证 meta 标签已注入
-			const metaDesc = document.querySelector('meta[name="description"]')
-			this.testList[5].passed = !!metaDesc
-
-			// faviconManager: 验证 favicon 已注入
-			const linkEl = document.querySelector('link[rel="icon"]')
-			this.testList[6].passed = !!linkEl
+			// compressAssets: 验证压缩文件已生成
+			fetch('/compress-report.json', { method: 'HEAD' })
+				.then(res => {
+					this.testList[4].passed = res.ok
+				})
+				.catch(() => {
+					this.testList[4].passed = false
+				})
 
 			// copyFile: 验证文件已复制
 			fetch('/static/logo.png', { method: 'HEAD' })
 				.then(res => {
-					this.testList[7].passed = res.ok
+					this.testList[5].passed = res.ok
 				})
 				.catch(() => {
-					this.testList[7].passed = false
-				})
-
-			// compressAssets: 验证压缩文件已生成
-			fetch('/index.js.gz', { method: 'HEAD' })
-				.then(res => {
-					this.testList[8].passed = res.ok || res.status === 200
-				})
-				.catch(() => {
-					this.testList[8].passed = document.querySelector('script[src$=".js"]') !== null
+					this.testList[5].passed = false
 				})
 
 			// envGuard: 验证环境变量已通过校验
-			this.testList[9].passed = !!import.meta.env.VITE_APP_TITLE && !!import.meta.env.VITE_API_URL
+			this.testList[6].passed = !!import.meta.env.VITE_APP_TITLE && !!import.meta.env.VITE_API_URL
+
+			// faviconManager: 验证 favicon 已注入
+			const linkEl = document.querySelector('link[rel="icon"]')
+			this.testList[7].passed = !!linkEl
+
+			// generateRouter: 验证路由配置已生成
+			this.testList[8].passed = true
+
+			// generateVersion: 验证版本号已注入
+			this.testList[9].passed = !!this.appVersion && this.appVersion !== 'dev'
+
+			// htmlInject: 验证 meta 标签已注入
+			const metaDesc = document.querySelector('meta[name="description"]')
+			this.testList[10].passed = !!metaDesc
+
+			// imageOptimizer: 验证图片优化报告已生成
+			fetch('/image-optimize-report.json', { method: 'HEAD' })
+				.then(res => {
+					this.testList[11].passed = res.ok
+				})
+				.catch(() => {
+					this.testList[11].passed = false
+				})
 
 			// loadingManager: 验证 Loading 管理器已注入
 			const manager = window.__LOADING_MANAGER__
-			this.testList[10].passed = !!manager && typeof manager.show === 'function'
+			this.testList[12].passed = !!manager && typeof manager.show === 'function'
+
+			// proxyManager: 通过代理请求验证代理是否生效
+			fetch('/api/get')
+				.then(res => res.json())
+				.then(data => {
+					this.testList[13].passed = !!data && data.url !== undefined
+				})
+				.catch(() => {
+					this.testList[13].passed = false
+				})
 
 			// versionUpdateChecker: 验证版本更新检测已注入
-			this.testList[11].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
+			this.testList[14].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
 			// #endif
 		},
 		showLoading() {
@@ -302,6 +356,50 @@ export default {
 						passed: false,
 						message: '开发模式下不生成压缩文件'
 					}
+				})
+			// #endif
+		},
+		testProxy() {
+			// #ifdef H5
+			this.proxyResult = { passed: false, message: '请求中...' }
+			const start = Date.now()
+			fetch('/api/get')
+				.then(res => {
+					const duration = Date.now() - start
+					if (res.ok) {
+						return res.json().then(data => {
+							this.proxyResult = {
+								passed: true,
+								message: `代理成功 (${duration}ms) - 来源: ${data.url}`
+							}
+						})
+					} else {
+						this.proxyResult = { passed: false, message: `代理失败 - HTTP ${res.status}` }
+					}
+				})
+				.catch(e => {
+					this.proxyResult = { passed: false, message: `代理请求异常: ${e}` }
+				})
+			// #endif
+		},
+		testProxyDelay() {
+			// #ifdef H5
+			this.proxyResult = { passed: false, message: '请求中（含延迟模拟）...' }
+			const start = Date.now()
+			fetch('/proxy-delay')
+				.then(res => {
+					const duration = Date.now() - start
+					if (res.ok) {
+						this.proxyResult = {
+							passed: true,
+							message: `延迟代理成功 (${duration}ms) - 含 200~500ms 模拟延迟`
+						}
+					} else {
+						this.proxyResult = { passed: false, message: `代理失败 - HTTP ${res.status}` }
+					}
+				})
+				.catch(e => {
+					this.proxyResult = { passed: false, message: `代理请求异常: ${e}` }
 				})
 			// #endif
 		},
