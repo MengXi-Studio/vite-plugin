@@ -1,6 +1,10 @@
 import type { RouteConfig, RouteMeta, GenerateRouterOptions } from '../types'
 import { serializeRoute, serializeValue, replacePropertyValue, removeProperty, extractPropertyValueText } from './code-manipulation'
 
+/** 插件版本号，由构建工具在打包时从 package.json 注入 */
+declare const __GENERATE_ROUTER_VERSION__: string
+const PLUGIN_VERSION: string = typeof __GENERATE_ROUTER_VERSION__ !== 'undefined' ? __GENERATE_ROUTER_VERSION__ : '0.0.0'
+
 /**
  * 生成路由配置文件内容
  *
@@ -8,7 +12,7 @@ import { serializeRoute, serializeValue, replacePropertyValue, removeProperty, e
  * @param options - 插件配置
  * @param existingRawTexts - 已存在的路由对象原始文本映射（用于保留用户自定义属性）
  */
-export function generateFileContent(routes: RouteConfig[], options: Pick<GenerateRouterOptions, 'exportTypes' | 'outputFormat'>, existingRawTexts?: Map<string, string>): string {
+export function generateFileContent(routes: RouteConfig[], options: Pick<GenerateRouterOptions, 'exportTypes' | 'outputFormat' | 'fileHeader'>, existingRawTexts?: Map<string, string>): string {
 	const typeImport = generateTypeImport(options)
 	const isTS = options.outputFormat === 'ts'
 	const typeAnnotation = isTS ? ': RouteConfig[]' : ''
@@ -32,8 +36,9 @@ export function generateFileContent(routes: RouteConfig[], options: Pick<Generat
 		.join(',\n')
 
 	const importLine = typeImport ? `${typeImport}\n\n` : ''
+	const headerLine = options.fileHeader ? generateFileHeader() + '\n\n' : ''
 
-	return `${importLine}/**
+	return `${headerLine}${importLine}/**
  * 路由配置列表
  * @description 由 pages.json 自动生成
  */
@@ -43,6 +48,22 @@ ${indentedRoutes}
 
 export default routes
 `
+}
+
+/**
+ * 生成标准化文件注释头
+ *
+ * @returns JSDoc 风格的注释头文本
+ */
+function generateFileHeader(): string {
+	const now = new Date()
+	const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+	const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
+	return `/**
+ * @plugin generate-router
+ * @date ${date} ${time}
+ * @version ${PLUGIN_VERSION}
+ */`
 }
 
 /**

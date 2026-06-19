@@ -242,4 +242,26 @@ export interface GenerateRouterOptions extends BasePluginOptions {
 	 * ```
 	 */
 	dts?: string | boolean
+
+	/**
+	 * 是否在生成文件顶部添加注释头
+	 *
+	 * @description 开启后，在生成的路由配置文件顶部添加标准化注释头，
+	 * 包含插件名称、生成日期和插件版本号。
+	 *
+	 * @default false
+	 *
+	 * @example
+	 * ```typescript
+	 * // 生成的注释头格式：
+	 * /**
+	 *  * @plugin generate-router
+	 *  * @date 2026-06-19 14:30:00
+	 *  * @version 0.2.0
+	 *  *\/
+	 *
+	 * generateRouter({ fileHeader: true })
+	 * ```
+	 */
+	fileHeader?: boolean
 }

@@ -24,7 +24,8 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 				navigationBarTitleText: 'title',
 				requireAuth: 'requireAuth'
 			},
-			dts: false
+			dts: false,
+			fileHeader: false
 		}
 	}
 
