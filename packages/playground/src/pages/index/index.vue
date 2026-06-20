@@ -105,6 +105,7 @@ const tests = reactive<Record<string, boolean>>({
 	htmlInject: false,
 	versionUpdateChecker: false,
 	faviconManager: false,
+	imageOptimizer: false,
 	loadingManager: false,
 	proxyManager: false
 })
@@ -121,6 +122,7 @@ const testLabels: Record<string, string> = {
 	htmlInject: 'htmlInject - HTML 内容注入',
 	versionUpdateChecker: 'versionUpdateChecker - 版本更新检查',
 	faviconManager: 'faviconManager - 图标管理',
+	imageOptimizer: 'imageOptimizer - 图片优化',
 	loadingManager: 'loadingManager - 全局 Loading',
 	proxyManager: 'proxyManager - 开发代理'
 }
@@ -197,6 +199,17 @@ async function runTests() {
 
 	const linkEl = document.querySelector('link[rel="icon"]')
 	tests.faviconManager = !!linkEl
+
+	// imageOptimizer 测试：检查优化报告是否生成
+	try {
+		const res = await fetch('/image-optimize-report.json')
+		if (res.ok) {
+			const report = await res.json()
+			tests.imageOptimizer = report && (report.totalFiles > 0 || report.totalFiles === 0)
+		}
+	} catch {
+		tests.imageOptimizer = false
+	}
 
 	const manager = getManager()
 	tests.loadingManager = !!manager && typeof manager.show === 'function'

@@ -21,7 +21,9 @@
 				<text class="plugin-item">generateRouter - 路由配置生成</text>
 				<text class="plugin-item">generateVersion - 版本生成</text>
 				<text class="plugin-item">htmlInject - HTML 内容注入</text>
+				<text class="plugin-item">imageOptimizer - 图片优化</text>
 				<text class="plugin-item">loadingManager - 全局 Loading</text>
+				<text class="plugin-item">proxyManager - 开发代理</text>
 				<text class="plugin-item">versionUpdateChecker - 版本更新检查</text>
 			</view>
 		</view>

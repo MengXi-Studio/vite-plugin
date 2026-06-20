@@ -163,16 +163,10 @@ export default defineConfig({
 			onDismiss: 'console.log("[VersionUpdate] 用户选择忽略");'
 		}),
 
-		// 网站图标管理
+		// 网站图标管理（图标文件由 copyFile 插件统一复制）
 		faviconManager({
 			base: '/static',
-			icons: [{ rel: 'icon', href: '/static/favicon.ico', sizes: '32x32' }],
-			copyOptions: {
-				sourceDir: 'src/static',
-				targetDir: 'dist/static',
-				overwrite: true,
-				recursive: true
-			}
+			icons: [{ rel: 'icon', href: '/static/favicon.ico', sizes: '32x32' }]
 		}),
 
 		// 全局 Loading 状态管理
