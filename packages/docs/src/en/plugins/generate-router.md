@@ -29,18 +29,23 @@ export default defineConfig({
 | -------------------- | ------------------------------ | ------------------------ | --------------------------------------- |
 | pagesJsonPath        | `string`                       | `'src/pages.json'`       | Path to pages.json                      |
 | outputPath           | `string`                       | `'src/router.config.ts'` | Output file path                        |
-| outputFormat         | `'ts' \| 'js'`                 | `'ts'`                   | Output format                           |
 | nameStrategy         | `NameStrategy`                 | `'camelCase'`            | Route naming strategy                   |
-| customNameGenerator  | `(path: string) => string`     | -                        | Custom name generator                   |
 | includeSubPackages   | `boolean`                      | `true`                   | Include sub-package routes              |
-| watch                | `boolean`                      | `true`                   | Watch for changes                       |
-| metaMapping          | `Record<string, string>`       | See below                | Style to meta field mapping             |
-| exportTypes          | `boolean`                      | `true`                   | Export type definitions (TS)            |
-| preserveRouteChanges | `boolean`                      | `true`                   | Preserve user modifications to route configs |
 | dts                  | `string \| boolean`            | `false`                  | Route type declaration file output path |
-| enabled              | `boolean`                      | `true`                   | Enable the plugin                       |
-| verbose              | `boolean`                      | `true`                   | Show detailed logs                      |
-| errorStrategy        | `'throw' \| 'log' \| 'ignore'` | `'throw'`                | Error handling strategy                 |
+| preserveRouteChanges | `boolean`                      | `true`                   | Preserve user modifications to route configs |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option              | Type                       | Default      | Description                             |
+| ------------------- | -------------------------- | ------------ | --------------------------------------- |
+| outputFormat        | `'ts' \| 'js'`             | `'ts'`       | Output format                           |
+| customNameGenerator | `(path: string) => string` | -            | Custom name generator                   |
+| watch               | `boolean`                  | `true`       | Watch for changes                       |
+| metaMapping         | `Record<string, string>`   | See below    | Style to meta field mapping             |
+| exportTypes         | `boolean`                  | `true`       | Export type definitions (TS)            |
+| fileHeader          | `boolean`                  | `false`      | Add comment header at file top          |
 
 ### Route Naming Strategies
 

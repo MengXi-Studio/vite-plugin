@@ -1,6 +1,6 @@
 # BasePluginOptions
 
-所有插件的基础配置选项类型。
+所有插件的基础配置类型，定义了通用配置字段。
 
 ```typescript
 import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
@@ -10,114 +10,90 @@ import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
 
 ```typescript
 interface BasePluginOptions {
-	/** 是否启用插件 */
+	/** 是否启用插件，默认 true */
 	enabled?: boolean
-	/** 是否显示详细日志 */
-	verbose?: boolean
-	/** 错误处理策略 */
+	/** 错误处理策略，默认 'log' */
 	errorStrategy?: 'throw' | 'log' | 'ignore'
+	/** 插件日志级别，默认 'info' */
+	logLevel?: 'debug' | 'info' | 'warn' | 'error' | 'silent'
 }
 ```
 
-## 属性
+---
+
+## 配置字段说明
 
 ### enabled
 
-是否启用插件。
-
-| 类型      | 默认值 | 说明                            |
-| --------- | ------ | ------------------------------- |
-| `boolean` | `true` | 为 `false` 时插件不执行任何操作 |
-
-**示例**
+控制插件是否启用。设为 `false` 时，插件的所有钩子将被跳过。
 
 ```typescript
-myPlugin({
-	enabled: process.env.NODE_ENV === 'production'
-})
+// 禁用插件
+myPlugin({ enabled: false })
 ```
-
----
-
-### verbose
-
-是否显示详细日志。
-
-| 类型      | 默认值 | 说明                              |
-| --------- | ------ | --------------------------------- |
-| `boolean` | `true` | 为 `false` 时禁用该插件的日志输出 |
-
-**示例**
-
-```typescript
-myPlugin({
-	verbose: false // 静默模式
-})
-```
-
----
 
 ### errorStrategy
 
-错误处理策略。
+控制插件内部错误的处理方式。
 
-| 类型                           | 默认值    | 说明         |
-| ------------------------------ | --------- | ------------ |
-| `'throw' \| 'log' \| 'ignore'` | `'throw'` | 错误处理方式 |
+| 值        | 说明                                   |
+| --------- | -------------------------------------- |
+| `throw`   | 记录错误日志并抛出异常，中断构建       |
+| `log`     | 记录错误日志，继续执行（默认）         |
+| `ignore`  | 记录错误日志，继续执行                 |
 
-**策略说明**
-
-| 策略     | 行为                             |
-| -------- | -------------------------------- |
-| `throw`  | 记录错误日志并抛出异常，中断构建 |
-| `log`    | 仅记录错误日志，继续执行         |
-| `ignore` | 仅记录错误日志，继续执行         |
-
-**示例**
+::: warning
+`throw` 策略会中断整个构建流程，仅在需要严格保证构建正确性时使用。
+:::
 
 ```typescript
-// 生产环境中断构建，开发环境仅记录日志
-myPlugin({
-	errorStrategy: process.env.NODE_ENV === 'production' ? 'throw' : 'log'
-})
+// 构建关键插件使用 throw 策略
+myPlugin({ errorStrategy: 'throw' })
+```
+
+### logLevel
+
+控制插件日志输出级别。低于设定级别的日志将被忽略。
+
+| 值       | 说明                     |
+| -------- | ------------------------ |
+| `debug`  | 输出所有级别日志         |
+| `info`   | 输出 info/warn/error 日志 |
+| `warn`   | 输出 warn/error 日志     |
+| `error`  | 仅输出 error 日志        |
+| `silent` | 不输出任何日志           |
+
+```typescript
+// 生产环境静默日志
+myPlugin({ logLevel: process.env.NODE_ENV === 'production' ? 'silent' : 'info' })
 ```
 
 ---
 
-## 扩展配置
+## 继承示例
 
-自定义插件配置应继承 `BasePluginOptions`。
+自定义插件配置时，继承 `BasePluginOptions` 即可自动获得通用字段。
 
 ```typescript
 import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
 
 interface MyPluginOptions extends BasePluginOptions {
-	// 插件特定配置
+	// 自定义字段
 	outputPath: string
-	format?: 'json' | 'yaml'
+	verbose?: boolean
 }
 ```
 
----
-
-## 完整示例
+使用时通用字段和自定义字段可一起传入：
 
 ```typescript
-import { defineConfig } from 'vite'
-import { myPlugin } from './my-plugin'
-
-export default defineConfig({
-	plugins: [
-		myPlugin({
-			// 基础配置
-			enabled: true,
-			verbose: true,
-			errorStrategy: 'throw',
-
-			// 插件特定配置
-			outputPath: 'dist/output.json',
-			format: 'json'
-		})
-	]
+myPlugin({
+	// 通用字段
+	enabled: true,
+	errorStrategy: 'log',
+	logLevel: 'info',
+	// 自定义字段
+	outputPath: 'dist/output.json',
+	verbose: true
 })
 ```

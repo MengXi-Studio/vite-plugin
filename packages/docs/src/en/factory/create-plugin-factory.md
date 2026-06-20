@@ -1,6 +1,6 @@
 # createPluginFactory
 
-Create plugin factory function for generating Vite plugin instances.
+Create a plugin factory function that converts a plugin class to a Vite plugin instance.
 
 ```typescript
 import { createPluginFactory } from '@meng-xi/vite-plugin/factory'
@@ -9,23 +9,26 @@ import { createPluginFactory } from '@meng-xi/vite-plugin/factory'
 ## Function Signature
 
 ```typescript
-function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>, R = T>(PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P, normalizer?: OptionsNormalizer<T, R>): PluginFactory<T, R>
+function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>, R = T>(
+  PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P,
+  normalizer?: OptionsNormalizer<T, R>
+): PluginFactory<T, R>
 ```
 
 **Generic Parameters**
 
-| Parameter | Constraint          | Description          |
-| --------- | ------------------- | -------------------- |
-| T         | `BasePluginOptions` | Plugin options type  |
-| P         | `BasePlugin<T>`     | Plugin instance type |
-| R         | `T` (default)       | Raw options type     |
+| Parameter | Constraint           | Description           |
+| --------- | -------------------- | --------------------- |
+| T         | `BasePluginOptions`  | Plugin options type   |
+| P         | `BasePlugin<T>`      | Plugin instance type  |
+| R         | `T` (default)        | Raw options type      |
 
 **Parameters**
 
-| Parameter   | Type                      | Description                   |
-| ----------- | ------------------------- | ----------------------------- |
-| PluginClass | Plugin class constructor  | Plugin class                  |
-| normalizer  | `OptionsNormalizer<T, R>` | Options normalizer (optional) |
+| Parameter    | Type                      | Description               |
+| ------------ | ------------------------- | ------------------------- |
+| PluginClass  | Plugin class constructor  | Plugin class              |
+| normalizer   | `OptionsNormalizer<T, R>` | Options normalizer (optional) |
 
 **Returns**
 
@@ -59,9 +62,7 @@ import { myPlugin } from './my-plugin'
 
 export default defineConfig({
 	plugins: [
-		myPlugin({
-			outputPath: 'dist/output.json'
-		})
+		myPlugin({ outputPath: 'dist/output.json' })
 	]
 })
 ```
@@ -70,7 +71,7 @@ export default defineConfig({
 
 ## With Options Normalizer
 
-Support simplified configuration (e.g., string parameter).
+Supports simplified configuration (e.g. string parameter).
 
 ```typescript
 interface MyPluginOptions extends BasePluginOptions {
@@ -81,61 +82,25 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 	// ... implementation
 }
 
-// Support string or object configuration
-export const myPlugin = createPluginFactory(MyPlugin, (opt?: string | MyPluginOptions) => (typeof opt === 'string' ? { path: opt } : (opt ?? { path: '' })))
+// Support string or object config
+export const myPlugin = createPluginFactory(
+	MyPlugin,
+	(opt?: string | MyPluginOptions) =>
+		typeof opt === 'string' ? { path: opt } : (opt ?? { path: '' })
+)
 ```
 
 **Usage**
 
 ```typescript
-// Both equivalent
+// Both are equivalent
 myPlugin('/path/to/file')
 myPlugin({ path: '/path/to/file' })
 ```
 
 ---
 
-## OptionsNormalizer
-
-Options normalizer type.
-
-```typescript
-type OptionsNormalizer<T, R> = (options?: R) => T
-```
-
-**Parameters**
-
-| Parameter | Type | Description       |
-| --------- | ---- | ----------------- |
-| options   | `R`  | Raw configuration |
-
-**Returns**
-
-`T` - Normalized configuration
-
----
-
-## PluginFactory
-
-Plugin factory function type.
-
-```typescript
-type PluginFactory<T extends BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>
-```
-
-**Parameters**
-
-| Parameter | Type | Description          |
-| --------- | ---- | -------------------- |
-| options   | `R`  | Plugin configuration |
-
-**Returns**
-
-`PluginWithInstance<T>` - Vite plugin object with `pluginInstance` property
-
----
-
-## Complete Example
+## Full Example
 
 ```typescript
 import type { Plugin } from 'vite'
@@ -155,9 +120,7 @@ class BuildInfoPlugin extends BasePlugin<BuildInfoOptions> {
 	}
 
 	protected getDefaultOptions() {
-		return {
-			outputPath: 'dist/build-info.json'
-		}
+		return { outputPath: 'dist/build-info.json' }
 	}
 
 	protected getEnforce(): Plugin['enforce'] {

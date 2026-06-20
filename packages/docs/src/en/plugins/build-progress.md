@@ -25,18 +25,22 @@ export default defineConfig({
 
 ## Options
 
-| Option          | Type                           | Default   | Description                        |
-| --------------- | ------------------------------ | --------- | ---------------------------------- |
-| width           | `number`                       | `30`      | Progress bar width (characters)    |
-| format          | `ProgressFormat`               | `'bar'`   | Progress bar display format        |
-| completeChar    | `string`                       | `'█'`     | Fill character for completed part  |
-| incompleteChar  | `string`                       | `'░'`     | Fill character for incomplete part |
-| clearOnComplete | `boolean`                      | `true`    | Clear progress bar on completion   |
-| showModuleName  | `boolean`                      | `true`    | Show current module name           |
-| theme           | `ProgressTheme`                | -         | Custom color theme                 |
-| enabled         | `boolean`                      | `true`    | Enable plugin                      |
-| verbose         | `boolean`                      | `true`    | Show detailed logs                 |
-| errorStrategy   | `'throw' \| 'log' \| 'ignore'` | `'throw'` | Error handling strategy            |
+| Option          | Type             | Default   | Description                        |
+| --------------- | ---------------- | --------- | ---------------------------------- |
+| format          | `ProgressFormat` | `'bar'`   | Progress bar display format        |
+| width           | `number`         | `30`      | Progress bar width (characters)    |
+| clearOnComplete | `boolean`        | `true`    | Clear progress bar on completion   |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option          | Type             | Default | Description                        |
+| --------------- | ---------------- | ------- | ---------------------------------- |
+| completeChar    | `string`         | `'█'`   | Fill character for completed part  |
+| incompleteChar  | `string`         | `'░'`   | Fill character for incomplete part |
+| showModuleName  | `boolean`        | `true`  | Show current module name           |
+| theme           | `ProgressTheme`  | -       | Custom color theme                 |
 
 ### Display Formats
 

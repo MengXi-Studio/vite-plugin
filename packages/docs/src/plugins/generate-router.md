@@ -1,16 +1,13 @@
 # generateRouter
 
-根据 uni-app 的 `pages.json` 自动生成路由配置文件和 TypeScript 类型声明。
+根据 uni-app 的 `pages.json` 自动生成路由配置文件和 TypeScript 类型声明，支持多种命名策略、元信息映射、路由修改保留和文件监听。
 
-## 导入方式
+## 导入
 
 ```typescript
-// 子模块独立导入（推荐）
-import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
-import type { GenerateRouterOptions, RouteConfig, RouteMeta, NameStrategy, OutputFormat } from '@meng-xi/vite-plugin/plugins/generate-router'
-
-// barrel 导入
 import { generateRouter } from '@meng-xi/vite-plugin'
+// 或子模块导入
+import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
 ```
 
 ## 快速开始
@@ -20,7 +17,7 @@ import { defineConfig } from 'vite'
 import { generateRouter } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [generateRouter()]
+  plugins: [generateRouter()]
 })
 ```
 
@@ -30,18 +27,23 @@ export default defineConfig({
 | -------------------- | ------------------------------ | ------------------------ | ------------------------ |
 | pagesJsonPath        | `string`                       | `'src/pages.json'`       | pages.json 文件路径      |
 | outputPath           | `string`                       | `'src/router.config.ts'` | 输出文件路径             |
-| outputFormat         | `'ts' \| 'js'`                 | `'ts'`                   | 输出文件格式             |
 | nameStrategy         | `NameStrategy`                 | `'camelCase'`            | 路由名称生成策略         |
-| customNameGenerator  | `(path: string) => string`     | -                        | 自定义名称生成函数       |
 | includeSubPackages   | `boolean`                      | `true`                   | 包含子包路由             |
-| watch                | `boolean`                      | `true`                   | 监听文件变化自动重新生成 |
-| metaMapping          | `Record<string, string>`       | 见下方                   | style 字段到 meta 的映射 |
-| exportTypes          | `boolean`                      | `true`                   | 导出类型定义（仅 TS）    |
-| preserveRouteChanges | `boolean`                      | `true`                   | 保留用户对路由配置的修改 |
 | dts                  | `string \| boolean`            | `false`                  | 路由类型声明文件输出路径 |
-| enabled              | `boolean`                      | `true`                   | 启用插件                 |
-| verbose              | `boolean`                      | `true`                   | 显示详细日志             |
-| errorStrategy        | `'throw' \| 'log' \| 'ignore'` | `'throw'`                | 错误处理策略             |
+| preserveRouteChanges | `boolean`                      | `true`                   | 保留用户对路由配置的修改 |
+
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+
+### 高级选项
+
+| 选项                | 类型                       | 默认值             | 说明                     |
+| ------------------- | -------------------------- | ------------------ | ------------------------ |
+| outputFormat        | `'ts' \| 'js'`             | `'ts'`             | 输出文件格式             |
+| customNameGenerator | `(path: string) => string` | -                  | 自定义名称生成函数       |
+| watch               | `boolean`                  | `true`             | 监听文件变化自动重新生成 |
+| metaMapping         | `Record<string, string>`   | 见下方             | style 字段到 meta 的映射 |
+| exportTypes         | `boolean`                  | `true`             | 导出类型定义（仅 TS）    |
+| fileHeader          | `boolean`                  | `false`            | 是否在文件顶部添加注释头 |
 
 ### 路由名称生成策略
 
@@ -122,14 +124,46 @@ export const routes: RouteConfig[] = [
 import '@meng-xi/uni-router'
 
 declare module '@meng-xi/uni-router' {
-	interface RouteNameMap {
-		/** 首页 */
-		pagesIndexIndex: { path: '/pages/index/index'; meta: { title: string; isTab: true } }
-		/** 个人中心 */
-		pagesUserProfile: { path: '/pages/user/profile'; meta: { title: string; requireAuth: true } }
-	}
+  interface RouteNameMap {
+    /** 首页 */
+    pagesIndexIndex: { path: '/pages/index/index'; meta: { title: string; isTab: true } }
+    /** 个人中心 */
+    pagesUserProfile: { path: '/pages/user/profile'; meta: { title: string; requireAuth: true } }
+  }
 }
 ```
+
+## 类型导出
+
+### RouteMeta
+
+路由附加的元数据，支持通过索引签名扩展自定义字段。
+
+| 属性         | 类型      | 说明                                     |
+| ------------ | --------- | ---------------------------------------- |
+| title        | `string`  | 页面标题，对应 `navigationBarTitleText`  |
+| isTab        | `boolean` | 是否为 TabBar 页面，由插件自动推断       |
+| requireAuth  | `boolean` | 是否需要登录才能访问                     |
+| `[key: any]` | `any`     | 自定义扩展字段                           |
+
+### RouteConfig
+
+单条路由的完整配置。
+
+| 属性        | 类型      | 说明                                       |
+| ----------- | --------- | ------------------------------------------ |
+| path        | `string`  | 路由路径，以 `/` 开头                      |
+| name        | `string`  | 路由名称，根据 `nameStrategy` 自动生成     |
+| meta        | `RouteMeta` | 路由元信息                               |
+| `[key: any]` | `any`    | 用户自定义扩展属性（如 `beforeEnter` 等）  |
+
+### NameStrategy
+
+路由名称生成策略类型：`'path' | 'camelCase' | 'pascalCase' | 'custom'`
+
+### OutputFormat
+
+输出文件格式类型：`'ts' | 'js'`
 
 ## 示例
 
@@ -137,8 +171,8 @@ declare module '@meng-xi/uni-router' {
 
 ```typescript
 generateRouter({
-	outputFormat: 'js',
-	outputPath: 'src/router.config.js'
+  outputFormat: 'js',
+  outputPath: 'src/router.config.js'
 })
 ```
 
@@ -146,8 +180,8 @@ generateRouter({
 
 ```typescript
 generateRouter({
-	nameStrategy: 'custom',
-	customNameGenerator: path => `route_${path.replace(/\//g, '_')}`
+  nameStrategy: 'custom',
+  customNameGenerator: path => `route_${path.replace(/\//g, '_')}`
 })
 ```
 
@@ -155,62 +189,57 @@ generateRouter({
 
 ```typescript
 generateRouter({
-	metaMapping: {
-		navigationBarTitleText: 'title',
-		requireAuth: 'requireAuth',
-		customField: 'custom'
-	}
-})
-```
-
-### 不包含子包
-
-```typescript
-generateRouter({
-	includeSubPackages: false
+  metaMapping: {
+    navigationBarTitleText: 'title',
+    requireAuth: 'requireAuth',
+    customField: 'custom'
+  }
 })
 ```
 
 ### 生成路由类型声明
 
 ```typescript
-generateRouter({
-	dts: true // 使用默认路径 src/router.d.ts
-})
+generateRouter({ dts: true }) // 使用默认路径 src/router.d.ts
 
 // 或自定义路径
-generateRouter({
-	dts: 'src/types/router.d.ts'
-})
+generateRouter({ dts: 'src/types/router.d.ts' })
+```
+
+### 添加文件注释头
+
+```typescript
+generateRouter({ fileHeader: true })
+// 生成的文件顶部包含插件名称、生成日期和版本号
 ```
 
 ## 输出示例
 
 ```typescript
 export interface RouteMeta {
-	title?: string
-	isTab?: boolean
-	requireAuth?: boolean
-	[key: string]: unknown
+  title?: string
+  isTab?: boolean
+  requireAuth?: boolean
+  [key: string]: unknown
 }
 
 export interface RouteConfig {
-	path: string
-	name?: string
-	meta?: RouteMeta
+  path: string
+  name?: string
+  meta?: RouteMeta
 }
 
 export const routes: RouteConfig[] = [
-	{
-		path: '/pages/index/index',
-		name: 'pagesIndexIndex',
-		meta: { title: '首页', isTab: true }
-	},
-	{
-		path: '/pages/user/profile',
-		name: 'pagesUserProfile',
-		meta: { title: '个人中心', requireAuth: true }
-	}
+  {
+    path: '/pages/index/index',
+    name: 'pagesIndexIndex',
+    meta: { title: '首页', isTab: true }
+  },
+  {
+    path: '/pages/user/profile',
+    name: 'pagesUserProfile',
+    meta: { title: '个人中心', requireAuth: true }
+  }
 ]
 
 export default routes
@@ -219,6 +248,7 @@ export default routes
 ## 注意事项
 
 - 当 `nameStrategy` 为 `'custom'` 时必须提供 `customNameGenerator`
-- TabBar 页面自动添加 `isTab: true`
-- `preserveRouteChanges: true` 时保留用户对 routes 数组的修改
+- TabBar 页面自动添加 `isTab: true` 到 meta 中
 - 支持解析带注释的 `pages.json`
+- 开发模式下 `watch: true` 会监听 `pages.json` 变化并自动重新生成
+- `preserveRouteChanges` 通过读取已有路由文件并合并用户修改，确保手动添加的内容不被覆盖

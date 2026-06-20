@@ -19,15 +19,15 @@ class Logger {
 
 ---
 
-## create
+## 静态方法
 
-创建日志记录器（工厂方法）。
+### create
+
+创建日志记录器（工厂方法），注册插件配置并返回单例实例。
 
 ```typescript
 static create(options: LoggerOptions): Logger
 ```
-
-**参数**
 
 | 参数    | 类型            | 说明     |
 | ------- | --------------- | -------- |
@@ -37,23 +37,19 @@ static create(options: LoggerOptions): Logger
 
 `Logger` - 单例实例
 
-**说明**
-
-- 采用单例模式，多次调用返回同一实例
-- 为每个插件注册独立的日志配置
+::: tip
+多次调用 `create` 返回同一实例，但每次调用都会注册对应插件的日志配置。
+:::
 
 **示例**
 
 ```typescript
-const logger = Logger.create({
-	name: 'my-plugin',
-	enabled: true
-})
+const logger = Logger.create({ name: 'my-plugin', enabled: true })
 ```
 
 ---
 
-## unregister
+### unregister
 
 注销指定插件的日志配置。
 
@@ -61,17 +57,11 @@ const logger = Logger.create({
 static unregister(pluginName: string): void
 ```
 
-**参数**
-
 | 参数       | 类型     | 说明             |
 | ---------- | -------- | ---------------- |
 | pluginName | `string` | 要注销的插件名称 |
 
-**说明**
-
-- 从单例中移除指定插件的日志配置
-- 通常在插件销毁时由 `BasePlugin.destroy()` 自动调用
-- 调用后该插件的日志将不再输出
+通常在插件销毁时由 `BasePlugin.destroy()` 自动调用。
 
 **示例**
 
@@ -81,7 +71,7 @@ Logger.unregister('my-plugin')
 
 ---
 
-## destroy
+### destroy
 
 销毁单例实例，释放所有资源。
 
@@ -89,16 +79,11 @@ Logger.unregister('my-plugin')
 static destroy(): void
 ```
 
-**说明**
-
-- 清除所有已注册的插件配置
-- 重置单例实例为 `null`
-- 主要用于测试场景，在测试之间重置 Logger 状态
+清除所有已注册的插件配置，重置单例实例。主要用于测试场景。
 
 **示例**
 
 ```typescript
-// 测试结束后重置 Logger
 afterEach(() => {
 	Logger.destroy()
 })
@@ -106,7 +91,9 @@ afterEach(() => {
 
 ---
 
-## createPluginLogger
+## 实例方法
+
+### createPluginLogger
 
 创建插件日志代理对象。
 
@@ -114,19 +101,17 @@ afterEach(() => {
 createPluginLogger(pluginName: string): PluginLogger
 ```
 
-**参数**
-
 | 参数       | 类型     | 说明     |
-| ---------- | -------- | -------- |
+| ---------- | -------- | ---------------- |
 | pluginName | `string` | 插件名称 |
 
 **返回值**
 
 `PluginLogger` - 插件日志代理对象
 
-**说明**
-
-该方法供 `BasePlugin` 内部使用，为每个插件提供独立的日志接口。
+::: warning
+此方法供 `BasePlugin` 内部使用，一般不需要直接调用。
+:::
 
 **示例**
 
@@ -136,8 +121,6 @@ const pluginLogger = logger.createPluginLogger('my-plugin')
 
 pluginLogger.info('信息日志')
 pluginLogger.success('成功日志')
-pluginLogger.warn('警告日志')
-pluginLogger.error('错误日志')
 ```
 
 ---
@@ -147,7 +130,6 @@ pluginLogger.error('错误日志')
 Logger 采用单例模式，确保全局只有一个日志管理器实例。
 
 ```typescript
-// 多次调用返回同一实例
 const logger1 = Logger.create({ name: 'plugin-a', enabled: true })
 const logger2 = Logger.create({ name: 'plugin-b', enabled: false })
 
@@ -162,10 +144,7 @@ const logger2 = Logger.create({ name: 'plugin-b', enabled: false })
 每个插件的日志可以独立控制。
 
 ```typescript
-// plugin-a 启用日志
 Logger.create({ name: 'plugin-a', enabled: true })
-
-// plugin-b 禁用日志
 Logger.create({ name: 'plugin-b', enabled: false })
 
 const logger = Logger.create({ name: 'plugin-a', enabled: true })
@@ -174,45 +153,4 @@ const loggerB = logger.createPluginLogger('plugin-b')
 
 loggerA.info('这条会输出')
 loggerB.info('这条不会输出')
-```
-
----
-
-## 日志输出格式
-
-```
-ℹ️ [@meng-xi/vite-plugin:my-plugin] 信息日志
-✅ [@meng-xi/vite-plugin:my-plugin] 成功日志
-⚠️ [@meng-xi/vite-plugin:my-plugin] 警告日志
-❌ [@meng-xi/vite-plugin:my-plugin] 错误日志
-```
-
----
-
-## 与 BasePlugin 集成
-
-在 `BasePlugin` 中自动集成日志功能。
-
-```typescript
-class MyPlugin extends BasePlugin<MyOptions> {
-	protected addPluginHooks(plugin: Plugin) {
-		plugin.buildStart = () => {
-			// 直接使用 this.logger
-			this.logger.info('构建开始')
-			this.logger.success('初始化完成')
-		}
-
-		plugin.buildEnd = () => {
-			this.logger.warn('构建即将结束')
-		}
-	}
-}
-```
-
-日志开关由 `options.verbose` 控制：
-
-```typescript
-myPlugin({
-	verbose: false // 禁用该插件的日志输出
-})
 ```

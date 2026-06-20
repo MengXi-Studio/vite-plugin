@@ -12,35 +12,27 @@ import type { LoggerOptions } from '@meng-xi/vite-plugin/logger'
 interface LoggerOptions {
 	/** 插件名称 */
 	name: string
-	/** 是否启用日志 */
+	/** 是否启用日志，默认 true */
 	enabled?: boolean
 }
 ```
 
-## 属性
+---
+
+## 属性说明
 
 ### name
 
-插件名称。
+插件名称，用于日志前缀标识。
 
-| 类型     | 必填 | 说明                 |
-| -------- | ---- | -------------------- |
-| `string` | 是   | 用于日志前缀标识插件 |
-
-**说明**
-
-插件名称会显示在日志前缀中：`[@meng-xi/vite-plugin:name]`
-
-**示例**
+| 类型     | 必填 | 说明                                    |
+| -------- | ---- | --------------------------------------- |
+| `string` | 是   | 显示在日志前缀 `[@meng-xi/vite-plugin:name]` 中 |
 
 ```typescript
-Logger.create({
-	name: 'my-plugin'
-})
+Logger.create({ name: 'my-plugin' })
 // 输出: ℹ️ [@meng-xi/vite-plugin:my-plugin] ...
 ```
-
----
 
 ### enabled
 
@@ -50,43 +42,10 @@ Logger.create({
 | --------- | ------ | ----------------------------- |
 | `boolean` | `true` | 为 `false` 时不输出该插件日志 |
 
-**示例**
-
 ```typescript
-// 启用日志
-Logger.create({
-	name: 'plugin-a',
-	enabled: true
-})
-
 // 禁用日志
-Logger.create({
-	name: 'plugin-b',
-	enabled: false
-})
-```
-
----
-
-## 使用示例
-
-```typescript
-import { Logger } from '@meng-xi/vite-plugin/logger'
-
-// 基本使用
-const logger = Logger.create({
-	name: 'my-plugin'
-})
-
-// 禁用日志
-const silentLogger = Logger.create({
-	name: 'silent-plugin',
-	enabled: false
-})
+Logger.create({ name: 'my-plugin', enabled: false })
 
 // 根据环境控制
-const envLogger = Logger.create({
-	name: 'env-plugin',
-	enabled: process.env.DEBUG === 'true'
-})
+Logger.create({ name: 'my-plugin', enabled: process.env.DEBUG === 'true' })
 ```

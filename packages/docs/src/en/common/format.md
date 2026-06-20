@@ -22,14 +22,15 @@ Date formatting parameters interface.
 
 ```typescript
 interface DateFormatOptions {
+	[key: string]: string // Supports arbitrary key names for custom placeholders
 	YYYY: string // Four-digit year
-	YY: string // Two-digit year
-	MM: string // Two-digit month
-	DD: string // Two-digit day
-	HH: string // Two-digit hour
-	mm: string // Two-digit minute
-	ss: string // Two-digit second
-	SSS: string // Three-digit millisecond
+	YY: string   // Two-digit year
+	MM: string   // Two-digit month
+	DD: string   // Two-digit day
+	HH: string   // Two-digit hour (24-hour format)
+	mm: string   // Two-digit minute
+	ss: string   // Two-digit second
+	SSS: string  // Three-digit millisecond
 	timestamp: string // Timestamp in milliseconds
 }
 ```

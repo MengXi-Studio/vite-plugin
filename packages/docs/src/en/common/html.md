@@ -14,8 +14,6 @@ import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } f
 import type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig, SanitizeRuleOptions } from '@meng-xi/vite-plugin/common'
 ```
 
----
-
 ## Type Exports
 
 ### HtmlInjectResult
@@ -47,6 +45,64 @@ interface DualInjectResult {
 	usedFallback: boolean
 }
 ```
+
+### InjectPosition
+
+HTML injection position type.
+
+```typescript
+type InjectPosition =
+	| 'head-start'       // After <head> tag
+	| 'head-end'         // Before </head> tag
+	| 'body-start'       // After <body> tag
+	| 'body-end'         // Before </body> tag
+	| 'before-selector'  // Before selector match
+	| 'after-selector'   // After selector match
+	| 'replace-selector' // Replace selector match
+```
+
+### InjectCondition
+
+Injection condition configuration.
+
+```typescript
+interface InjectCondition {
+	/** Condition type */
+	type: 'env' | 'file-contains' | 'custom'
+	/**
+	 * Condition value:
+	 * - env: environment variable name
+	 * - file-contains: string to search for
+	 * - custom: custom function returning boolean
+	 */
+	value: string | ((...args: any[]) => boolean)
+	/** Whether to negate the condition result, default false */
+	negate?: boolean
+}
+```
+
+### SecurityConfig
+
+HTML security configuration, controlling the security filtering strategy for injected content.
+
+```typescript
+interface SecurityConfig {
+	/** Whether to block dangerous HTML tags (e.g. script, iframe), default true */
+	blockDangerousTags?: boolean
+	/** Whether to block dangerous HTML attributes (e.g. onclick, onerror), default true */
+	blockDangerousAttributes?: boolean
+	/** Allowed tags list, excluded from default block list when set */
+	allowedTags?: string[]
+	/** Custom blocked tags list, overrides default block list */
+	blockedTags?: string[]
+	/** Custom blocked attributes list, overrides default blocked attributes list */
+	blockedAttributes?: string[]
+}
+```
+
+**Default blocked tags:** `script`, `iframe`, `object`, `embed`, `applet`, `form`, `input`, `textarea`, `select`, `button`
+
+**Default blocked attributes:** `onclick`, `ondblclick`, `onmouseover`, `onerror`, `onload` and other HTML event attributes
 
 ### SanitizeRuleOptions
 
@@ -122,6 +178,10 @@ function injectHeadAndBody(html: string, headCode: string | undefined, bodyCode:
 
 `DualInjectResult` - Dual-zone injection result object
 
+**Fallback Strategy**
+
+Body injection tries in order: `</body>` → `</html>` → append to end
+
 **Example**
 
 ```typescript
@@ -179,7 +239,7 @@ const safe = sanitizeContent(
 	{ id: 'my-rule' },
 	{
 		blockDangerousTags: true,
-		allowedTags: ['div', 'span']
+		allowedTags: ['iframe']
 	}
 )
 ```

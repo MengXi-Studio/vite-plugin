@@ -25,21 +25,25 @@ export default defineConfig({
 
 ## Options
 
-| Option        | Type                           | Default             | Description             |
-| ------------- | ------------------------------ | ------------------- | ----------------------- |
-| format        | `VersionFormat`                | `'timestamp'`       | Version format          |
-| customFormat  | `string`                       | -                   | Custom format template  |
-| semverBase    | `string`                       | `'1.0.0'`           | Semantic version base   |
-| outputType    | `OutputType`                   | `'file'`            | Output type             |
-| outputFile    | `string`                       | `'version.json'`    | Output file path        |
-| defineName    | `string`                       | `'__APP_VERSION__'` | Global variable name    |
-| hashLength    | `number`                       | `8`                 | Hash length (1-32)      |
-| prefix        | `string`                       | `''`                | Version prefix          |
-| suffix        | `string`                       | `''`                | Version suffix          |
-| extra         | `Record<string, unknown>`      | -                   | Extra info (JSON only)  |
-| enabled       | `boolean`                      | `true`              | Enable the plugin       |
-| verbose       | `boolean`                      | `true`              | Show detailed logs      |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'`           | Error handling strategy |
+| Option      | Type                           | Default             | Description             |
+| ----------- | ------------------------------ | ------------------- | ----------------------- |
+| format      | `VersionFormat`                | `'timestamp'`       | Version format          |
+| outputType  | `OutputType`                   | `'file'`            | Output type             |
+| outputFile  | `string`                       | `'version.json'`    | Output file path        |
+| defineName  | `string`                       | `'__APP_VERSION__'` | Global variable name    |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option       | Type                      | Default    | Description             |
+| ------------ | ------------------------- | ---------- | ----------------------- |
+| customFormat | `string`                  | -          | Custom format template  |
+| semverBase   | `string`                  | `'1.0.0'`  | Semantic version base   |
+| hashLength   | `number`                  | `8`        | Hash length (1-32)      |
+| prefix       | `string`                  | `''`       | Version prefix          |
+| suffix       | `string`                  | `''`       | Version suffix          |
+| extra        | `Record<string, unknown>` | -          | Extra info (JSON only)  |
 
 ### Version Formats
 

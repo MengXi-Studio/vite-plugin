@@ -1,16 +1,13 @@
 # copyFile
 
-在 Vite 构建完成后复制文件或目录到指定位置。
+在 Vite 构建完成后复制文件或目录到指定位置，支持增量复制、递归复制和覆盖控制。
 
-## 导入方式
+## 导入
 
 ```typescript
-// 子模块独立导入（推荐）
-import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
-import type { CopyFileOptions } from '@meng-xi/vite-plugin/plugins/copy-file'
-
-// barrel 导入
 import { copyFile } from '@meng-xi/vite-plugin'
+// 或子模块导入
+import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
 ```
 
 ## 快速开始
@@ -20,27 +17,26 @@ import { defineConfig } from 'vite'
 import { copyFile } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [
-		copyFile({
-			sourceDir: 'src/assets',
-			targetDir: 'dist/assets'
-		})
-	]
+  plugins: [
+    copyFile({
+      sourceDir: 'src/assets',
+      targetDir: 'dist/assets'
+    })
+  ]
 })
 ```
 
 ## 配置选项
 
-| 选项          | 类型                           | 默认值    | 说明               |
-| ------------- | ------------------------------ | --------- | ------------------ |
-| sourceDir     | `string`                       | 必填      | 源目录路径         |
-| targetDir     | `string`                       | 必填      | 目标目录路径       |
-| overwrite     | `boolean`                      | `true`    | 覆盖已存在的文件   |
-| recursive     | `boolean`                      | `true`    | 递归复制子目录     |
-| incremental   | `boolean`                      | `true`    | 仅复制修改过的文件 |
-| enabled       | `boolean`                      | `true`    | 启用插件           |
-| verbose       | `boolean`                      | `true`    | 显示详细日志       |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'` | 错误处理策略       |
+| 选项        | 类型      | 默认值 | 说明               |
+| ----------- | --------- | ------ | ------------------ |
+| sourceDir   | `string`  | 必填   | 源目录路径         |
+| targetDir   | `string`  | 必填   | 目标目录路径       |
+| overwrite   | `boolean` | `true` | 覆盖已存在的文件   |
+| recursive   | `boolean` | `true` | 递归复制子目录     |
+| incremental | `boolean` | `true` | 仅复制修改过的文件 |
+
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
 
 ## 示例
 
@@ -48,30 +44,20 @@ export default defineConfig({
 
 ```typescript
 copyFile({
-	sourceDir: 'src/static',
-	targetDir: 'dist/static',
-	recursive: false,
-	incremental: false
+  sourceDir: 'src/static',
+  targetDir: 'dist/static',
+  recursive: false,
+  incremental: false
 })
 ```
 
-### 仅生产环境启用
+### 不覆盖已有文件
 
 ```typescript
 copyFile({
-	sourceDir: 'src/assets',
-	targetDir: 'dist/assets',
-	enabled: process.env.NODE_ENV === 'production'
-})
-```
-
-### 记录错误但不中断构建
-
-```typescript
-copyFile({
-	sourceDir: 'src/assets',
-	targetDir: 'dist/assets',
-	errorStrategy: 'log'
+  sourceDir: 'src/assets',
+  targetDir: 'dist/assets',
+  overwrite: false
 })
 ```
 

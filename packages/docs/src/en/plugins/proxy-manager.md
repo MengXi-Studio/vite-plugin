@@ -32,16 +32,24 @@ export default defineConfig({
 
 ## Options
 
-| Option        | Type                           | Default        | Description                                          |
-| ------------- | ------------------------------ | -------------- | ---------------------------------------------------- |
-| rules         | `ProxyRule[]`                  | `[]`           | Proxy rule list                                      |
-| configFile    | `string \| false`              | `'.proxyrc.ts'` | Proxy rule config file path, `false` to disable      |
-| logLevel      | `'none' \| 'basic' \| 'verbose'` | `'basic'`    | Proxy log level                                      |
-| defaultDelay  | `DelayConfig`                  | `false`        | Global default delay, applies to rules without delay |
-| envPrefix     | `string`                       | `'PROXY_'`     | Environment variable prefix for overriding targets   |
-| enabled       | `boolean`                      | `true`         | Enable the plugin                                    |
-| verbose       | `boolean`                      | `true`         | Show detailed logs                                   |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'`      | Error handling strategy                              |
+| Option        | Type                              | Default        | Description                                          |
+| ------------- | --------------------------------- | -------------- | ---------------------------------------------------- |
+| rules         | `ProxyRule[]`                     | `[]`           | Proxy rule list                                      |
+| configFile    | `string \| false`                 | `'.proxyrc.ts'` | Proxy rule config file path, `false` to disable     |
+| logLevel      | `'none' \| 'basic' \| 'verbose'` | `'basic'`      | Proxy log level                                      |
+| defaultDelay  | `DelayConfig`                     | `false`        | Global default delay, applies to rules without delay |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `errorStrategy`
+
+::: tip
+`logLevel` is a plugin-specific option controlling proxy request log level (`'none' | 'basic' | 'verbose'`), different from the inherited `BasePluginOptions.logLevel`.
+:::
+
+### Advanced Options
+
+| Option     | Type     | Default    | Description                                        |
+| ---------- | -------- | ---------- | -------------------------------------------------- |
+| envPrefix  | `string` | `'PROXY_'` | Environment variable prefix for overriding targets |
 
 ## ProxyRule Type
 

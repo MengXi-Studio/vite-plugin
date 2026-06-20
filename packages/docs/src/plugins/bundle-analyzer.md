@@ -2,15 +2,12 @@
 
 构建产物体积分析插件，支持 JSON/HTML 报告、gzip 计算、阈值告警和构建对比。
 
-## 导入方式
+## 导入
 
 ```typescript
-// 子模块独立导入（推荐）
-import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
-import type { BundleAnalyzerOptions, BundleAnalysisResult, BundleOutputFormat } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
-
-// barrel 导入
 import { bundleAnalyzer } from '@meng-xi/vite-plugin'
+// 或子模块导入
+import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
 ```
 
 ## 快速开始
@@ -20,19 +17,9 @@ import { defineConfig } from 'vite'
 import { bundleAnalyzer } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [bundleAnalyzer()]
+  plugins: [bundleAnalyzer()]
 })
 ```
-
-## 功能特点
-
-- **多格式报告输出**：支持 JSON、HTML 或同时输出两种格式
-- **体积分析**：计算原始大小和 gzip 压缩大小
-- **阈值告警**：超过指定大小的 chunk 自动产生告警
-- **构建对比**：与历史报告对比体积变化趋势
-- **可视化图表**：HTML 报告支持树状图（treemap）、旭日图（sunburst）和列表视图
-- **模块排行**：Top N 大模块排行，区分源码和 node_modules
-- **文件类型分布**：按扩展名统计体积占比
 
 ## 配置选项
 
@@ -42,30 +29,26 @@ export default defineConfig({
 | outputFile         | `string`                            | `'bundle-analysis'` | 报告输出文件名（不含扩展名）             |
 | openAnalyzer       | `boolean`                           | `false`             | 是否在生成 HTML 报告后自动打开浏览器     |
 | sizeThreshold      | `number`                            | `100`               | 体积告警阈值（KB）                       |
-| topModules         | `number`                            | `20`                | Top N 大模块排行数量                     |
 | compareWith        | `string \| null`                    | `null`              | 用于对比的历史报告路径                   |
-| gzipSize           | `boolean`                           | `true`              | 是否计算 gzip 大小                       |
-| excludeNodeModules | `boolean`                           | `false`             | 是否排除 node_modules 中的模块           |
-| excludePatterns    | `string[]`                          | `[]`                | 需要排除的文件路径模式列表               |
-| includeExtensions  | `string[]`                          | `[]`                | 需要包含的文件扩展名列表，为空则包含所有 |
-| defaultChartType   | `'treemap' \| 'sunburst' \| 'list'` | `'treemap'`         | HTML 报告中图表的默认展示形式            |
-| enabled            | `boolean`                           | `true`              | 启用插件                                 |
-| verbose            | `boolean`                           | `true`              | 显示详细日志                             |
-| errorStrategy      | `'throw' \| 'log' \| 'ignore'`      | `'throw'`           | 错误处理策略                             |
+
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+
+### 高级选项
+
+| 选项               | 类型                                | 默认值     | 说明                                     |
+| ------------------ | ----------------------------------- | ---------- | ---------------------------------------- |
+| topModules         | `number`                            | `20`       | Top N 大模块排行数量                     |
+| gzipSize           | `boolean`                           | `true`     | 是否计算 gzip 大小                       |
+| excludeNodeModules | `boolean`                           | `false`    | 是否排除 node_modules 中的模块           |
+| excludePatterns    | `string[]`                          | `[]`       | 需要排除的文件路径模式列表               |
+| includeExtensions  | `string[]`                          | `[]`       | 需要包含的文件扩展名列表，为空则包含所有 |
+| defaultChartType   | `'treemap' \| 'sunburst' \| 'list'` | `'treemap'` | HTML 报告中图表的默认展示形式           |
 
 ## 类型导出
 
-### BundleOutputFormat
-
-```typescript
-type BundleOutputFormat = 'json' | 'html' | 'both'
-```
-
-报告输出格式类型。
-
 ### BundleAnalysisResult
 
-分析结果接口，包含以下字段：
+分析结果接口。
 
 | 字段                 | 类型                     | 说明                   |
 | -------------------- | ------------------------ | ---------------------- |
@@ -81,7 +64,7 @@ type BundleOutputFormat = 'json' | 'html' | 'both'
 
 ### ChunkStats
 
-单个 chunk 的统计信息：
+单个 chunk 的统计信息。
 
 | 字段      | 类型                            | 说明                  |
 | --------- | ------------------------------- | --------------------- |
@@ -94,7 +77,7 @@ type BundleOutputFormat = 'json' | 'html' | 'both'
 
 ### SizeWarning
 
-体积告警信息：
+体积告警信息。
 
 | 字段        | 类型                  | 说明           |
 | ----------- | --------------------- | -------------- |
@@ -106,7 +89,7 @@ type BundleOutputFormat = 'json' | 'html' | 'both'
 
 ### ComparisonDiff
 
-构建对比差异项：
+构建对比差异项。
 
 | 字段           | 类型                                                                | 说明            |
 | -------------- | ------------------------------------------------------------------- | --------------- |
@@ -119,18 +102,12 @@ type BundleOutputFormat = 'json' | 'html' | 'both'
 
 ## 示例
 
-### 基本用法
-
-```typescript
-bundleAnalyzer()
-```
-
 ### 生成 HTML 可视化报告
 
 ```typescript
 bundleAnalyzer({
-	outputFormat: 'html',
-	openAnalyzer: true
+  outputFormat: 'html',
+  openAnalyzer: true
 })
 ```
 
@@ -138,8 +115,8 @@ bundleAnalyzer({
 
 ```typescript
 bundleAnalyzer({
-	outputFormat: 'both',
-	outputFile: 'bundle-report'
+  outputFormat: 'both',
+  outputFile: 'bundle-report'
 })
 ```
 
@@ -147,8 +124,8 @@ bundleAnalyzer({
 
 ```typescript
 bundleAnalyzer({
-	sizeThreshold: 200,
-	gzipSize: true
+  sizeThreshold: 200,
+  gzipSize: true
 })
 ```
 
@@ -158,8 +135,8 @@ bundleAnalyzer({
 
 ```typescript
 bundleAnalyzer({
-	compareWith: 'dist/bundle-analysis.json',
-	outputFormat: 'json'
+  compareWith: 'dist/bundle-analysis.json',
+  outputFormat: 'json'
 })
 ```
 
@@ -169,25 +146,9 @@ bundleAnalyzer({
 
 ```typescript
 bundleAnalyzer({
-	excludeNodeModules: true,
-	excludePatterns: ['vendor', 'polyfill'],
-	includeExtensions: ['.js', '.css']
-})
-```
-
-### 仅生产环境启用
-
-```typescript
-bundleAnalyzer({
-	enabled: process.env.NODE_ENV === 'production'
-})
-```
-
-### 记录错误但不中断构建
-
-```typescript
-bundleAnalyzer({
-	errorStrategy: 'log'
+  excludeNodeModules: true,
+  excludePatterns: ['vendor', 'polyfill'],
+  includeExtensions: ['.js', '.css']
 })
 ```
 

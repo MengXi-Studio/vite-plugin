@@ -33,16 +33,15 @@ export default defineConfig({
 
 ## Options
 
-| Option        | Type                           | Default   | Description                                  |
-| ------------- | ------------------------------ | --------- | -------------------------------------------- |
-| base          | `string`                       | `'/'`     | Icon base path                               |
-| url           | `string`                       | -         | Full icon URL (overrides base + favicon.ico) |
-| link          | `string`                       | -         | Custom link tag HTML (highest priority)      |
-| icons         | `Icon[]`                       | -         | Custom icon array                            |
-| copyOptions   | `CopyOptions`                  | -         | Icon file copy config                        |
-| enabled       | `boolean`                      | `true`    | Enable the plugin                            |
-| verbose       | `boolean`                      | `true`    | Show detailed logs                           |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'` | Error handling strategy                      |
+| Option      | Type          | Default | Description                                  |
+| ----------- | ------------- | ------- | -------------------------------------------- |
+| base        | `string`      | `'/'`   | Icon base path                               |
+| url         | `string`      | -       | Full icon URL (overrides base + favicon.ico) |
+| link        | `string`      | -       | Custom link tag HTML (highest priority)      |
+| icons       | `Icon[]`      | -       | Custom icon array                            |
+| copyOptions | `CopyOptions` | -       | Icon file copy config                        |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
 
 ### copyOptions
 

@@ -42,16 +42,20 @@ export default defineConfig({
 | outputFile         | `string`                            | `'bundle-analysis'` | Report output filename (without extension)     |
 | openAnalyzer       | `boolean`                           | `false`             | Whether to auto-open browser after HTML report |
 | sizeThreshold      | `number`                            | `100`               | Size alert threshold (KB)                      |
-| topModules         | `number`                            | `20`                | Top N largest modules count                    |
 | compareWith        | `string \| null`                    | `null`              | Path to historical report for comparison       |
-| gzipSize           | `boolean`                           | `true`              | Whether to calculate gzip size                 |
-| excludeNodeModules | `boolean`                           | `false`             | Whether to exclude node_modules modules        |
-| excludePatterns    | `string[]`                          | `[]`                | File path patterns to exclude                  |
-| includeExtensions  | `string[]`                          | `[]`                | File extensions to include, empty for all      |
-| defaultChartType   | `'treemap' \| 'sunburst' \| 'list'` | `'treemap'`         | Default chart type in HTML report              |
-| enabled            | `boolean`                           | `true`              | Enable the plugin                              |
-| verbose            | `boolean`                           | `true`              | Show detailed logs                             |
-| errorStrategy      | `'throw' \| 'log' \| 'ignore'`      | `'throw'`           | Error handling strategy                        |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option             | Type                                | Default      | Description                                    |
+| ------------------ | ----------------------------------- | ------------ | ---------------------------------------------- |
+| topModules         | `number`                            | `20`         | Top N largest modules count                    |
+| gzipSize           | `boolean`                           | `true`       | Whether to calculate gzip size                 |
+| excludeNodeModules | `boolean`                           | `false`      | Whether to exclude node_modules modules        |
+| excludePatterns    | `string[]`                          | `[]`         | File path patterns to exclude                  |
+| includeExtensions  | `string[]`                          | `[]`         | File extensions to include, empty for all      |
+| defaultChartType   | `'treemap' \| 'sunburst' \| 'list'` | `'treemap'`  | Default chart type in HTML report              |
 
 ## Type Exports
 

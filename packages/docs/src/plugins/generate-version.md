@@ -1,16 +1,13 @@
 # generateVersion
 
-在 Vite 构建过程中自动生成版本号，支持文件输出和全局变量注入。
+在 Vite 构建过程中自动生成版本号，支持多种格式（时间戳、日期、语义化版本、哈希、自定义）和多种输出方式（文件、全局变量、两者兼有）。
 
-## 导入方式
+## 导入
 
 ```typescript
-// 子模块独立导入（推荐）
-import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
-import type { GenerateVersionOptions, VersionFormat, OutputType } from '@meng-xi/vite-plugin/plugins/generate-version'
-
-// barrel 导入
 import { generateVersion } from '@meng-xi/vite-plugin'
+// 或子模块导入
+import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
 ```
 
 ## 快速开始
@@ -20,7 +17,7 @@ import { defineConfig } from 'vite'
 import { generateVersion } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [generateVersion()]
+  plugins: [generateVersion()]
 })
 ```
 
@@ -29,18 +26,22 @@ export default defineConfig({
 | 选项          | 类型                           | 默认值              | 说明                     |
 | ------------- | ------------------------------ | ------------------- | ------------------------ |
 | format        | `VersionFormat`                | `'timestamp'`       | 版本号格式               |
-| customFormat  | `string`                       | -                   | 自定义格式模板           |
-| semverBase    | `string`                       | `'1.0.0'`           | 语义化版本基础值         |
 | outputType    | `OutputType`                   | `'file'`            | 输出类型                 |
 | outputFile    | `string`                       | `'version.json'`    | 输出文件路径             |
 | defineName    | `string`                       | `'__APP_VERSION__'` | 全局变量名               |
-| hashLength    | `number`                       | `8`                 | 哈希长度（1-32）         |
-| prefix        | `string`                       | `''`                | 版本号前缀               |
-| suffix        | `string`                       | `''`                | 版本号后缀               |
-| extra         | `Record<string, unknown>`      | -                   | 附加信息（仅 JSON 文件） |
-| enabled       | `boolean`                      | `true`              | 启用插件                 |
-| verbose       | `boolean`                      | `true`              | 显示详细日志             |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'`           | 错误处理策略             |
+
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+
+### 高级选项
+
+| 选项         | 类型                      | 默认值    | 说明                     |
+| ------------ | ------------------------- | --------- | ------------------------ |
+| customFormat | `string`                  | -         | 自定义格式模板           |
+| semverBase   | `string`                  | `'1.0.0'` | 语义化版本基础值         |
+| hashLength   | `number`                  | `8`       | 哈希长度（1-32）         |
+| prefix       | `string`                  | `''`      | 版本号前缀               |
+| suffix       | `string`                  | `''`      | 版本号后缀               |
+| extra        | `Record<string, unknown>` | -         | 附加信息（仅 JSON 文件） |
 
 ### 版本号格式
 
@@ -63,21 +64,45 @@ export default defineConfig({
 
 ### 自定义格式占位符
 
+当 `format` 为 `'custom'` 时，`customFormat` 中可使用以下占位符：
+
 | 占位符      | 说明       | 示例       |
 | ----------- | ---------- | ---------- |
-| {YYYY}      | 四位年份   | 2026       |
-| {YY}        | 两位年份   | 26         |
-| {MM}        | 两位月份   | 02         |
-| {DD}        | 两位日期   | 03         |
-| {HH}        | 两位小时   | 15         |
-| {mm}        | 两位分钟   | 30         |
-| {ss}        | 两位秒数   | 00         |
-| {SSS}       | 三位毫秒   | 123        |
-| {timestamp} | 时间戳     | 1738567800 |
-| {hash}      | 随机哈希   | a1b2c3d4   |
-| {major}     | 主版本号   | 1          |
-| {minor}     | 次版本号   | 0          |
-| {patch}     | 补丁版本号 | 0          |
+| `{YYYY}`    | 四位年份   | 2026       |
+| `{YY}`      | 两位年份   | 26         |
+| `{MM}`      | 两位月份   | 02         |
+| `{DD}`      | 两位日期   | 03         |
+| `{HH}`      | 两位小时   | 15         |
+| `{mm}`      | 两位分钟   | 30         |
+| `{ss}`      | 两位秒数   | 00         |
+| `{SSS}`     | 三位毫秒   | 123        |
+| `{timestamp}` | 时间戳   | 1738567800 |
+| `{hash}`    | 随机哈希   | a1b2c3d4   |
+| `{major}`   | 主版本号   | 1          |
+| `{minor}`   | 次版本号   | 0          |
+| `{patch}`   | 补丁版本号 | 0          |
+
+## 类型导出
+
+### VersionFormat
+
+版本号格式类型：`'timestamp' | 'date' | 'datetime' | 'semver' | 'hash' | 'custom'`
+
+### OutputType
+
+输出类型：`'file' | 'define' | 'both'`
+
+### VersionInfo
+
+版本信息对象，输出到 JSON 文件中的完整数据结构。
+
+| 属性      | 类型            | 说明                       |
+| --------- | --------------- | -------------------------- |
+| version   | `string`        | 版本号字符串               |
+| buildTime | `string`        | 构建时间（ISO 8601 格式）  |
+| timestamp | `number`        | 构建时间戳（毫秒）         |
+| format    | `VersionFormat` | 版本号格式                 |
+| `[key]`   | `unknown`       | 通过 `extra` 附加的自定义字段 |
 
 ## 示例
 
@@ -85,8 +110,8 @@ export default defineConfig({
 
 ```typescript
 generateVersion({
-	format: 'date',
-	prefix: 'v'
+  format: 'date',
+  prefix: 'v'
 })
 // 输出: v2026.02.03
 ```
@@ -95,9 +120,9 @@ generateVersion({
 
 ```typescript
 generateVersion({
-	format: 'custom',
-	customFormat: '{YYYY}.{MM}.{DD}-{hash}',
-	hashLength: 6
+  format: 'custom',
+  customFormat: '{YYYY}.{MM}.{DD}-{hash}',
+  hashLength: 6
 })
 // 输出: 2026.02.03-a1b2c3
 ```
@@ -106,8 +131,8 @@ generateVersion({
 
 ```typescript
 generateVersion({
-	outputType: 'define',
-	defineName: '__VERSION__'
+  outputType: 'define',
+  defineName: '__VERSION__'
 })
 
 // 代码中使用
@@ -118,13 +143,13 @@ console.log(__VERSION__) // '20260203153000'
 
 ```typescript
 generateVersion({
-	outputType: 'both',
-	outputFile: 'build-info.json',
-	defineName: '__BUILD_VERSION__',
-	extra: {
-		environment: 'production',
-		author: 'MengXi Studio'
-	}
+  outputType: 'both',
+  outputFile: 'build-info.json',
+  defineName: '__BUILD_VERSION__',
+  extra: {
+    environment: 'production',
+    author: 'MengXi Studio'
+  }
 })
 ```
 
@@ -132,12 +157,12 @@ generateVersion({
 
 ```json
 {
-	"version": "v2026.02.03-a1b2c3",
-	"buildTime": "2026-02-03T15:30:00.000Z",
-	"timestamp": 1738567800000,
-	"format": "custom",
-	"environment": "production",
-	"author": "MengXi Studio"
+  "version": "v2026.02.03-a1b2c3",
+  "buildTime": "2026-02-03T15:30:00.000Z",
+  "timestamp": 1738567800000,
+  "format": "custom",
+  "environment": "production",
+  "author": "MengXi Studio"
 }
 ```
 
@@ -145,5 +170,6 @@ generateVersion({
 
 - 当 `format` 为 `'custom'` 时必须提供 `customFormat`
 - `hashLength` 范围为 1-32
-- `outputType` 为 `'define'` 或 `'both'` 时同时注入 `defineName` 和 `defineName_INFO`
+- `outputType` 为 `'define'` 或 `'both'` 时，同时注入 `defineName` 和 `defineName_INFO` 两个全局变量
 - `extra` 仅包含在 JSON 文件中，不影响版本号字符串
+- 全局变量通过 Vite 的 `config` 钩子注入，版本文件通过 `writeBundle` 钩子写入

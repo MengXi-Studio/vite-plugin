@@ -1,16 +1,13 @@
 # compressAssets
 
-在 Vite 构建完成后自动压缩输出目录中的文件，支持 gzip 和 brotli 两种压缩算法。
+在 Vite 构建完成后自动压缩输出目录中的文件，支持 gzip 和 brotli 两种压缩算法，支持并发压缩和压缩报告生成。
 
-## 导入方式
+## 导入
 
 ```typescript
-// 子模块独立导入（推荐）
-import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
-import type { CompressAssetsOptions, CompressStats, CompressSummary } from '@meng-xi/vite-plugin/plugins/compress-assets'
-
-// barrel 导入
 import { compressAssets } from '@meng-xi/vite-plugin'
+// 或子模块导入
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
 ```
 
 ## 快速开始
@@ -20,33 +17,33 @@ import { defineConfig } from 'vite'
 import { compressAssets } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [
-		compressAssets({
-			algorithm: 'gzip'
-		})
-	]
+  plugins: [compressAssets()]
 })
 ```
 
 ## 配置选项
 
-| 选项               | 类型                               | 默认值                                                      | 说明                           |
-| ------------------ | ---------------------------------- | ----------------------------------------------------------- | ------------------------------ |
-| algorithm          | `'gzip'` \| `'brotli'` \| `'both'` | `'gzip'`                                                    | 压缩算法                       |
-| threshold          | `number`                           | `1024`                                                      | 最小压缩阈值（字节）           |
-| deleteOriginalFile | `boolean`                          | `false`                                                     | 压缩后是否删除原始文件         |
-| includeExtensions  | `string[]`                         | `['.js', '.css', '.html', '.svg', '.json', '.xml', '.txt']` | 需要压缩的文件扩展名           |
-| excludeExtensions  | `string[]`                         | `[]`                                                        | 需要排除的文件扩展名           |
-| excludePaths       | `string[]`                         | `[]`                                                        | 需要排除的路径前缀             |
-| compressionLevel   | `number`                           | `9`                                                         | gzip 压缩级别（1-9）           |
-| brotliQuality      | `number`                           | `11`                                                        | brotli 压缩质量（1-11）        |
-| reportOutput       | `string` \| `false`                | `'compress-report.json'`                                    | 压缩报告输出路径，false 不生成 |
-| parallelLimit      | `number`                           | `10`                                                        | 并发压缩最大文件数             |
-| enabled            | `boolean`                          | `true`                                                      | 启用插件                       |
-| verbose            | `boolean`                          | `true`                                                      | 显示详细日志                   |
-| errorStrategy      | `'throw'` \| `'log'` \| `'ignore'` | `'throw'`                                                   | 错误处理策略                   |
+| 选项               | 类型                               | 默认值    | 说明                           |
+| ------------------ | ---------------------------------- | --------- | ------------------------------ |
+| algorithm          | `'gzip' \| 'brotli' \| 'both'`    | `'gzip'`  | 压缩算法                       |
+| threshold          | `number`                           | `1024`    | 最小压缩阈值（字节）           |
+| deleteOriginalFile | `boolean`                          | `false`   | 压缩后是否删除原始文件         |
 
-## 类型定义
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+
+### 高级选项
+
+| 选项              | 类型              | 默认值                                                      | 说明                           |
+| ----------------- | ----------------- | ----------------------------------------------------------- | ------------------------------ |
+| includeExtensions | `string[]`        | `['.js', '.css', '.html', '.svg', '.json', '.xml', '.txt']` | 需要压缩的文件扩展名           |
+| excludeExtensions | `string[]`        | `[]`                                                        | 需要排除的文件扩展名           |
+| excludePaths      | `string[]`        | `[]`                                                        | 需要排除的路径前缀             |
+| compressionLevel  | `number`          | `9`                                                         | gzip 压缩级别（1-9）           |
+| brotliQuality     | `number`          | `11`                                                        | brotli 压缩质量（1-11）        |
+| reportOutput      | `string \| false` | `'compress-report.json'`                                    | 压缩报告输出路径，false 不生成 |
+| parallelLimit     | `number`          | `10`                                                        | 并发压缩最大文件数             |
+
+## 类型导出
 
 ### CompressStats
 
@@ -58,7 +55,7 @@ export default defineConfig({
 | originalSize   | `number`               | 原始文件大小（字节）   |
 | compressedSize | `number`               | 压缩后文件大小（字节） |
 | ratio          | `number`               | 压缩率百分比（0-100）  |
-| algorithm      | `'gzip'` \| `'brotli'` | 使用的压缩算法         |
+| algorithm      | `'gzip' \| 'brotli'`   | 使用的压缩算法         |
 
 ### CompressSummary
 
@@ -87,10 +84,10 @@ compressAssets({ algorithm: 'brotli' })
 
 ```typescript
 compressAssets({
-	algorithm: 'both',
-	threshold: 2048,
-	compressionLevel: 9,
-	brotliQuality: 11
+  algorithm: 'both',
+  threshold: 2048,
+  compressionLevel: 9,
+  brotliQuality: 11
 })
 ```
 
@@ -98,8 +95,8 @@ compressAssets({
 
 ```typescript
 compressAssets({
-	deleteOriginalFile: true,
-	reportOutput: 'compress-report.json'
+  deleteOriginalFile: true,
+  reportOutput: 'compress-report.json'
 })
 ```
 
@@ -107,27 +104,9 @@ compressAssets({
 
 ```typescript
 compressAssets({
-	includeExtensions: ['.js', '.css'],
-	excludePaths: ['assets/images'],
-	parallelLimit: 5
-})
-```
-
-### 仅生产环境启用
-
-```typescript
-compressAssets({
-	algorithm: 'gzip',
-	enabled: process.env.NODE_ENV === 'production'
-})
-```
-
-### 记录错误但不中断构建
-
-```typescript
-compressAssets({
-	algorithm: 'gzip',
-	errorStrategy: 'log'
+  includeExtensions: ['.js', '.css'],
+  excludePaths: ['assets/images'],
+  parallelLimit: 5
 })
 ```
 

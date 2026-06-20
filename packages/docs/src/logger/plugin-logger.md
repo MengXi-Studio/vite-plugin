@@ -19,15 +19,15 @@ interface PluginLogger {
 
 ---
 
-## success
+## 方法说明
+
+### success
 
 输出成功日志。
 
 ```typescript
 success(message: string, data?: any): void
 ```
-
-**参数**
 
 | 参数    | 类型     | 说明             |
 | ------- | -------- | ---------------- |
@@ -40,24 +40,13 @@ success(message: string, data?: any): void
 ✅ [@meng-xi/vite-plugin:plugin-name] 消息内容
 ```
 
-**示例**
-
-```typescript
-logger.success('文件复制完成')
-logger.success('构建完成', { files: 10, time: '150ms' })
-```
-
----
-
-## info
+### info
 
 输出信息日志。
 
 ```typescript
 info(message: string, data?: any): void
 ```
-
-**参数**
 
 | 参数    | 类型     | 说明             |
 | ------- | -------- | ---------------- |
@@ -70,24 +59,13 @@ info(message: string, data?: any): void
 ℹ️ [@meng-xi/vite-plugin:plugin-name] 消息内容
 ```
 
-**示例**
-
-```typescript
-logger.info('开始处理文件')
-logger.info('配置解析完成', { mode: 'production' })
-```
-
----
-
-## warn
+### warn
 
 输出警告日志。
 
 ```typescript
 warn(message: string, data?: any): void
 ```
-
-**参数**
 
 | 参数    | 类型     | 说明             |
 | ------- | -------- | ---------------- |
@@ -100,24 +78,13 @@ warn(message: string, data?: any): void
 ⚠️ [@meng-xi/vite-plugin:plugin-name] 消息内容
 ```
 
-**示例**
-
-```typescript
-logger.warn('配置项已弃用')
-logger.warn('文件不存在，跳过处理', { path: '/path/to/file' })
-```
-
----
-
-## error
+### error
 
 输出错误日志。
 
 ```typescript
 error(message: string, data?: any): void
 ```
-
-**参数**
 
 | 参数    | 类型     | 说明             |
 | ------- | -------- | ---------------- |
@@ -128,13 +95,6 @@ error(message: string, data?: any): void
 
 ```
 ❌ [@meng-xi/vite-plugin:plugin-name] 消息内容
-```
-
-**示例**
-
-```typescript
-logger.error('文件写入失败')
-logger.error('处理错误', { error: 'EACCES' })
 ```
 
 ---

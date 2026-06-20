@@ -30,16 +30,15 @@ export default defineConfig({
 
 ## Options
 
-| Option        | Type                           | Default   | Description              |
-| ------------- | ------------------------------ | --------- | ------------------------ |
-| sourceDir     | `string`                       | Required  | Source directory path    |
-| targetDir     | `string`                       | Required  | Target directory path    |
-| overwrite     | `boolean`                      | `true`    | Overwrite existing files |
-| recursive     | `boolean`                      | `true`    | Recursively copy subdirs |
-| incremental   | `boolean`                      | `true`    | Copy only modified files |
-| enabled       | `boolean`                      | `true`    | Enable the plugin        |
-| verbose       | `boolean`                      | `true`    | Show detailed logs       |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'` | Error handling strategy  |
+| Option        | Type      | Default   | Description              |
+| ------------- | --------- | --------- | ------------------------ |
+| sourceDir     | `string`  | Required  | Source directory path    |
+| targetDir     | `string`  | Required  | Target directory path    |
+| overwrite     | `boolean` | `true`    | Overwrite existing files |
+| recursive     | `boolean` | `true`    | Recursively copy subdirs |
+| incremental   | `boolean` | `true`    | Copy only modified files |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
 
 ## Examples
 

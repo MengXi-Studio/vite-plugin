@@ -1,6 +1,6 @@
 # createPluginFactory
 
-创建插件工厂函数，用于生成 Vite 插件实例。
+创建插件工厂函数，将插件类转换为 Vite 插件实例。
 
 ```typescript
 import { createPluginFactory } from '@meng-xi/vite-plugin/factory'
@@ -9,7 +9,10 @@ import { createPluginFactory } from '@meng-xi/vite-plugin/factory'
 ## 函数签名
 
 ```typescript
-function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>, R = T>(PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P, normalizer?: OptionsNormalizer<T, R>): PluginFactory<T, R>
+function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>, R = T>(
+  PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P,
+  normalizer?: OptionsNormalizer<T, R>
+): PluginFactory<T, R>
 ```
 
 **泛型参数**
@@ -59,9 +62,7 @@ import { myPlugin } from './my-plugin'
 
 export default defineConfig({
 	plugins: [
-		myPlugin({
-			outputPath: 'dist/output.json'
-		})
+		myPlugin({ outputPath: 'dist/output.json' })
 	]
 })
 ```
@@ -82,7 +83,11 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 }
 
 // 支持字符串或对象配置
-export const myPlugin = createPluginFactory(MyPlugin, (opt?: string | MyPluginOptions) => (typeof opt === 'string' ? { path: opt } : (opt ?? { path: '' })))
+export const myPlugin = createPluginFactory(
+	MyPlugin,
+	(opt?: string | MyPluginOptions) =>
+		typeof opt === 'string' ? { path: opt } : (opt ?? { path: '' })
+)
 ```
 
 **使用**
@@ -92,46 +97,6 @@ export const myPlugin = createPluginFactory(MyPlugin, (opt?: string | MyPluginOp
 myPlugin('/path/to/file')
 myPlugin({ path: '/path/to/file' })
 ```
-
----
-
-## OptionsNormalizer
-
-选项标准化器类型。
-
-```typescript
-type OptionsNormalizer<T, R> = (options?: R) => T
-```
-
-**参数**
-
-| 参数    | 类型 | 说明     |
-| ------- | ---- | -------- |
-| options | `R`  | 原始配置 |
-
-**返回值**
-
-`T` - 标准化后的配置
-
----
-
-## PluginFactory
-
-插件工厂函数类型。
-
-```typescript
-type PluginFactory<T extends BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>
-```
-
-**参数**
-
-| 参数    | 类型 | 说明     |
-| ------- | ---- | -------- |
-| options | `R`  | 插件配置 |
-
-**返回值**
-
-`PluginWithInstance<T>` - Vite 插件对象，包含 `pluginInstance` 属性
 
 ---
 
@@ -155,9 +120,7 @@ class BuildInfoPlugin extends BasePlugin<BuildInfoOptions> {
 	}
 
 	protected getDefaultOptions() {
-		return {
-			outputPath: 'dist/build-info.json'
-		}
+		return { outputPath: 'dist/build-info.json' }
 	}
 
 	protected getEnforce(): Plugin['enforce'] {

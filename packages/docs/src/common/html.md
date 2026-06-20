@@ -14,8 +14,6 @@ import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } f
 import type { HtmlInjectResult, DualInjectResult, InjectPosition, SelectorMatch, ConditionType, InjectCondition, SecurityConfig, SanitizeRuleOptions } from '@meng-xi/vite-plugin/common'
 ```
 
----
-
 ## 类型导出
 
 ### HtmlInjectResult
@@ -47,6 +45,64 @@ interface DualInjectResult {
 	usedFallback: boolean
 }
 ```
+
+### InjectPosition
+
+HTML 注入位置类型。
+
+```typescript
+type InjectPosition =
+	| 'head-start'       // <head> 标签开始后
+	| 'head-end'         // </head> 标签前
+	| 'body-start'       // <body> 标签开始后
+	| 'body-end'         // </body> 标签前
+	| 'before-selector'  // 选择器匹配位置前
+	| 'after-selector'   // 选择器匹配位置后
+	| 'replace-selector' // 替换选择器匹配的内容
+```
+
+### InjectCondition
+
+注入条件配置。
+
+```typescript
+interface InjectCondition {
+	/** 条件类型 */
+	type: 'env' | 'file-contains' | 'custom'
+	/**
+	 * 条件值：
+	 * - env：环境变量名
+	 * - file-contains：要搜索的字符串
+	 * - custom：返回布尔值的自定义函数
+	 */
+	value: string | ((...args: any[]) => boolean)
+	/** 是否取反条件结果，默认 false */
+	negate?: boolean
+}
+```
+
+### SecurityConfig
+
+HTML 安全配置，控制注入内容的安全过滤策略。
+
+```typescript
+interface SecurityConfig {
+	/** 是否阻止危险 HTML 标签（如 script、iframe），默认 true */
+	blockDangerousTags?: boolean
+	/** 是否阻止危险 HTML 属性（如 onclick、onerror），默认 true */
+	blockDangerousAttributes?: boolean
+	/** 允许的标签列表，设置后将从默认阻止列表中排除这些标签 */
+	allowedTags?: string[]
+	/** 自定义阻止的标签列表，覆盖默认阻止列表 */
+	blockedTags?: string[]
+	/** 自定义阻止的属性列表，覆盖默认阻止属性列表 */
+	blockedAttributes?: string[]
+}
+```
+
+**默认阻止的标签：** `script`、`iframe`、`object`、`embed`、`applet`、`form`、`input`、`textarea`、`select`、`button`
+
+**默认阻止的属性：** `onclick`、`ondblclick`、`onmouseover`、`onerror`、`onload` 等 HTML 事件属性
 
 ### SanitizeRuleOptions
 
@@ -122,6 +178,10 @@ function injectHeadAndBody(html: string, headCode: string | undefined, bodyCode:
 
 `DualInjectResult` - 双区域注入结果对象
 
+**回退策略**
+
+body 注入按以下顺序尝试：`</body>` → `</html>` → 追加到末尾
+
 **示例**
 
 ```typescript
@@ -179,7 +239,7 @@ const safe = sanitizeContent(
 	{ id: 'my-rule' },
 	{
 		blockDangerousTags: true,
-		allowedTags: ['div', 'span']
+		allowedTags: ['iframe']
 	}
 )
 ```

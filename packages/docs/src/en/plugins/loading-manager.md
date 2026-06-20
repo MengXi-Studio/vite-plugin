@@ -47,23 +47,27 @@ loadingManager({ autoBind: 'fetch' })
 | Option         | Type                                       | Default                   | Description                    |
 | -------------- | ------------------------------------------ | ------------------------- | ------------------------------ |
 | position       | `'center' \| 'top' \| 'bottom'`            | `'center'`                | Loading position               |
-| defaultText    | `string`                                   | `'加载中...'`             | Default display text           |
 | spinnerType    | `'spinner' \| 'dots' \| 'pulse' \| 'bar'`  | `'spinner'`               | Built-in spinner type          |
-| style          | [`LoadingStyle`](#loadingstyle)            | -                         | Custom style config            |
-| transition     | [`TransitionConfig`](#transitionconfig)    | `{ enabled: true, ... }`  | Transition animation config    |
-| minDisplayTime | [`MinDisplayTime`](#mindisplaytime)        | `{ enabled: true, ... }`  | Minimum display time config    |
-| delayShow      | [`DelayShow`](#delayshow)                  | `{ enabled: true, ... }`  | Delayed show config            |
-| debounceHide   | [`DebounceHide`](#debouncehide)            | `{ enabled: false, ... }` | Debounced hide config          |
+| defaultText    | `string`                                   | `'加载中...'`             | Default display text           |
 | autoBind       | `'fetch' \| 'xhr' \| 'all' \| 'none'`      | `'none'`                  | Auto-bind request interception |
-| requestFilter  | [`RequestFilter`](#requestfilter)          | -                         | Request filter config          |
-| globalName     | `string`                                   | `'__LOADING_MANAGER__'`   | Global variable name           |
-| customTemplate | `string`                                   | -                         | Custom HTML template           |
 | defaultVisible | `boolean`                                  | `false`                   | Initial visibility             |
 | autoHideOn     | `'DOMContentLoaded' \| 'load' \| 'manual'` | `'DOMContentLoaded'`      | Auto-hide timing               |
-| callbacks      | [`LoadingCallbacks`](#loadingcallbacks)    | -                         | Lifecycle callbacks            |
-| enabled        | `boolean`                                  | `true`                    | Enable the plugin              |
-| verbose        | `boolean`                                  | `true`                    | Show detailed logs             |
-| errorStrategy  | `'throw' \| 'log' \| 'ignore'`             | `'throw'`                 | Error handling strategy        |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option         | Type                                    | Default                   | Description                    |
+| -------------- | --------------------------------------- | ------------------------- | ------------------------------ |
+| style          | [`LoadingStyle`](#loadingstyle)         | -                         | Custom style config            |
+| transition     | [`TransitionConfig`](#transitionconfig) | `{ enabled: true, ... }`  | Transition animation config    |
+| minDisplayTime | [`MinDisplayTime`](#mindisplaytime)     | `{ enabled: true, ... }`  | Minimum display time config    |
+| delayShow      | [`DelayShow`](#delayshow)               | `{ enabled: true, ... }`  | Delayed show config            |
+| debounceHide   | [`DebounceHide`](#debouncehide)         | `{ enabled: false, ... }` | Debounced hide config          |
+| requestFilter  | [`RequestFilter`](#requestfilter)       | -                         | Request filter config          |
+| globalName     | `string`                                | `'__LOADING_MANAGER__'`   | Global variable name           |
+| customTemplate | `string`                                | -                         | Custom HTML template           |
+| callbacks      | [`LoadingCallbacks`](#loadingcallbacks) | -                         | Lifecycle callbacks            |
 
 ### LoadingStyle
 

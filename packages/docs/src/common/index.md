@@ -1,6 +1,6 @@
 # common
 
-公共工具模块，提供并发控制、文件系统操作、格式化、HTML 注入、脚本工具、终端 UI、参数验证等通用功能。
+公共工具模块，提供 8 个子模块，涵盖并发控制、文件系统操作、格式化、HTML 注入、路径处理、脚本工具、终端 UI 和参数验证等通用功能。
 
 所有子模块均支持按需导入，内部插件也通过这些公共模块复用逻辑。
 
@@ -29,15 +29,32 @@ import { ... } from '@meng-xi/vite-plugin/common/validation'
 子模块独立导入可让打包工具仅打包使用到的模块代码，避免引入不需要的依赖（如 `common/fs` 依赖 Node.js `fs`/`path` 模块）。
 :::
 
-## 模块列表
+## 模块分类
 
-| 模块                       | 说明             | 子模块路径                                    |
-| -------------------------- | ---------------- | --------------------------------------------- |
-| [concurrency](./concurrency) | 并发控制工具  | `@meng-xi/vite-plugin/common/concurrency`     |
-| [fs](./fs)                 | 文件系统操作工具 | `@meng-xi/vite-plugin/common/fs`              |
-| [format](./format)         | 格式化工具       | `@meng-xi/vite-plugin/common/format`          |
-| [html](./html)             | HTML 注入工具    | `@meng-xi/vite-plugin/common/html`            |
-| [path](./path)             | 路径处理工具     | `@meng-xi/vite-plugin/common/path`            |
-| [script](./script)         | 脚本工具         | `@meng-xi/vite-plugin/common/script`          |
-| [ui](./ui)                 | 终端 UI 工具     | `@meng-xi/vite-plugin/common/ui`              |
-| [validation](./validation) | 参数验证器       | `@meng-xi/vite-plugin/common/validation`      |
+### 文件与路径
+
+| 模块 | 说明 | 导出数量 | 子模块路径 |
+| ---- | ---- | -------- | ---------- |
+| [fs](./fs) | 文件系统操作工具 | 10 个函数 + 4 个类型 | `@meng-xi/vite-plugin/common/fs` |
+| [path](./path) | 路径处理工具 | 4 个函数 | `@meng-xi/vite-plugin/common/path` |
+
+### 格式化与模板
+
+| 模块 | 说明 | 导出数量 | 子模块路径 |
+| ---- | ---- | -------- | ---------- |
+| [format](./format) | 日期格式化、模板变量替换、文件大小格式化、压缩率计算 | 6 个函数 + 1 个类型 | `@meng-xi/vite-plugin/common/format` |
+
+### HTML 与脚本
+
+| 模块 | 说明 | 导出数量 | 子模块路径 |
+| ---- | ---- | -------- | ---------- |
+| [html](./html) | HTML 注入、安全过滤、属性转义 | 4 个函数 + 8 个类型 | `@meng-xi/vite-plugin/common/html` |
+| [script](./script) | 回调函数包装 | 1 个函数 | `@meng-xi/vite-plugin/common/script` |
+
+### 工具与验证
+
+| 模块 | 说明 | 导出数量 | 子模块路径 |
+| ---- | ---- | -------- | ---------- |
+| [concurrency](./concurrency) | 并发控制工具 | 1 个函数 | `@meng-xi/vite-plugin/common/concurrency` |
+| [validation](./validation) | 链式参数验证器 + 3 个验证函数 | 1 个类 + 3 个函数 | `@meng-xi/vite-plugin/common/validation` |
+| [ui](./ui) | 终端 ANSI 转义码工具 | 1 个对象 | `@meng-xi/vite-plugin/common/ui` |

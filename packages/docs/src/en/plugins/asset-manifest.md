@@ -27,21 +27,25 @@ export default defineConfig({
 
 ## Options
 
-| Option            | Type                              | Default                  | Description                                                  |
-| ----------------- | --------------------------------- | ------------------------ | ------------------------------------------------------------ |
-| outputFormat      | `'vite' \| 'webpack' \| 'custom'` | `'vite'`                 | Manifest output format                                       |
-| outputFile        | `string`                          | `'manifest.json'`        | Manifest output filename, relative to build output directory |
-| includeExtensions | `string[]`                        | `[]`                     | File extensions to include; empty means include all          |
-| publicPath        | `string`                          | `'/'`                    | Public path prefix prepended to all asset paths              |
-| injectRuntime     | `boolean`                         | `false`                  | Whether to inject manifest as a runtime global variable      |
-| runtimeGlobalName | `string`                          | `'__ASSET_MANIFEST__'`   | Runtime global variable name                                 |
-| customFormatter   | `CustomFormatter \| null`         | `null`                   | Custom formatter, only used when outputFormat is custom      |
-| groupByEntry      | `boolean`                         | `false`                  | Whether to group assets by entry point                       |
-| excludeExtensions | `string[]`                        | `['.map', '.gz', '.br']` | File extensions to exclude; takes precedence over include    |
-| excludePaths      | `string[]`                        | `[]`                     | Path patterns to exclude                                     |
-| enabled           | `boolean`                         | `true`                   | Enable the plugin                                            |
-| verbose           | `boolean`                         | `true`                   | Show detailed logs                                           |
-| errorStrategy     | `'throw' \| 'log' \| 'ignore'`    | `'throw'`                | Error handling strategy                                      |
+| Option           | Type                              | Default                  | Description                                                  |
+| ---------------- | --------------------------------- | ------------------------ | ------------------------------------------------------------ |
+| outputFormat     | `'vite' \| 'webpack' \| 'custom'` | `'vite'`                 | Manifest output format                                       |
+| outputFile       | `string`                          | `'manifest.json'`        | Manifest output filename, relative to build output directory |
+| publicPath       | `string`                          | `'/'`                    | Public path prefix prepended to all asset paths              |
+| groupByEntry     | `boolean`                         | `false`                  | Whether to group assets by entry point                       |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option            | Type                      | Default                  | Description                                                  |
+| ----------------- | ------------------------- | ------------------------ | ------------------------------------------------------------ |
+| includeExtensions | `string[]`                | `[]`                     | File extensions to include; empty means include all          |
+| injectRuntime     | `boolean`                 | `false`                  | Whether to inject manifest as a runtime global variable      |
+| runtimeGlobalName | `string`                  | `'__ASSET_MANIFEST__'`   | Runtime global variable name                                 |
+| customFormatter   | `CustomFormatter \| null` | `null`                   | Custom formatter, only used when outputFormat is custom      |
+| excludeExtensions | `string[]`                | `['.map', '.gz', '.br']` | File extensions to exclude; takes precedence over include    |
+| excludePaths      | `string[]`                | `[]`                     | Path patterns to exclude                                     |
 
 ### Output Format (outputFormat)
 

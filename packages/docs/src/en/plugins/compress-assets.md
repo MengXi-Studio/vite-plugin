@@ -30,21 +30,25 @@ export default defineConfig({
 
 ## Options
 
-| Option             | Type                               | Default                                                     | Description                                        |
-| ------------------ | ---------------------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
-| algorithm          | `'gzip'` \| `'brotli'` \| `'both'` | `'gzip'`                                                    | Compression algorithm                              |
-| threshold          | `number`                           | `1024`                                                      | Minimum compression threshold (bytes)              |
-| deleteOriginalFile | `boolean`                          | `false`                                                     | Whether to delete original files after compression |
-| includeExtensions  | `string[]`                         | `['.js', '.css', '.html', '.svg', '.json', '.xml', '.txt']` | File extensions to compress                        |
-| excludeExtensions  | `string[]`                         | `[]`                                                        | File extensions to exclude                         |
-| excludePaths       | `string[]`                         | `[]`                                                        | Path prefixes to exclude                           |
-| compressionLevel   | `number`                           | `9`                                                         | Gzip compression level (1-9)                       |
-| brotliQuality      | `number`                           | `11`                                                        | Brotli compression quality (1-11)                  |
-| reportOutput       | `string` \| `false`                | `'compress-report.json'`                                    | Compression report output path, false to skip      |
-| parallelLimit      | `number`                           | `10`                                                        | Maximum concurrent file compression count          |
-| enabled            | `boolean`                          | `true`                                                      | Enable the plugin                                  |
-| verbose            | `boolean`                          | `true`                                                      | Show detailed logs                                 |
-| errorStrategy      | `'throw'` \| `'log'` \| `'ignore'` | `'throw'`                                                   | Error handling strategy                            |
+| Option             | Type                               | Default    | Description                                        |
+| ------------------ | ---------------------------------- | ---------- | -------------------------------------------------- |
+| algorithm          | `'gzip'` \| `'brotli'` \| `'both'` | `'gzip'`   | Compression algorithm                              |
+| threshold          | `number`                           | `1024`     | Minimum compression threshold (bytes)              |
+| deleteOriginalFile | `boolean`                          | `false`    | Whether to delete original files after compression |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option            | Type              | Default                                                     | Description                                        |
+| ----------------- | ----------------- | ----------------------------------------------------------- | -------------------------------------------------- |
+| includeExtensions | `string[]`        | `['.js', '.css', '.html', '.svg', '.json', '.xml', '.txt']` | File extensions to compress                        |
+| excludeExtensions | `string[]`        | `[]`                                                        | File extensions to exclude                         |
+| excludePaths      | `string[]`        | `[]`                                                        | Path prefixes to exclude                           |
+| compressionLevel  | `number`          | `9`                                                         | Gzip compression level (1-9)                       |
+| brotliQuality     | `number`          | `11`                                                        | Brotli compression quality (1-11)                  |
+| reportOutput      | `string` \| `false` | `'compress-report.json'`                                  | Compression report output path, false to skip      |
+| parallelLimit     | `number`          | `10`                                                        | Maximum concurrent file compression count          |
 
 ## Type Definitions
 

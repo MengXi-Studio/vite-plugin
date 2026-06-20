@@ -34,13 +34,20 @@ export default defineConfig({
 
 ## Options
 
+| Option           | Type                                | Default    | Description                            |
+| ---------------- | ----------------------------------- | ---------- | -------------------------------------- |
+| required         | `Record<string, EnvFieldRule>`      | `{}`       | Environment variable validation rules  |
+| failAction       | `'error' \| 'warn' \| 'ignore'`     | `'error'`  | Action on validation failure           |
+| runtimeGuard     | `boolean`                           | `false`    | Inject runtime guard code              |
+| generateTemplate | `boolean`                           | `true`     | Auto-generate .env template file       |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
 | Option              | Type                                | Default                                                         | Description                            |
 | ------------------- | ----------------------------------- | --------------------------------------------------------------- | -------------------------------------- |
-| required            | `Record<string, EnvFieldRule>`      | `{}`                                                            | Environment variable validation rules  |
-| failAction          | `'error' \| 'warn' \| 'ignore'`     | `'error'`                                                       | Action on validation failure           |
-| generateTemplate    | `boolean`                           | `true`                                                          | Auto-generate .env template file       |
 | templateOutput      | `string`                            | `'.env.template'`                                               | Output path for .env template          |
-| runtimeGuard        | `boolean`                           | `false`                                                         | Inject runtime guard code              |
 | runtimeGlobalName   | `string`                            | `'__ENV_GUARD__'`                                               | Global variable name for runtime guard |
 | runtimeGuardMode    | `'console' \| 'throw' \| 'overlay'` | `'console'`                                                     | Runtime guard behavior mode            |
 | envFiles            | `string[]`                          | `['.env', '.env.local', '.env.production', '.env.development']` | .env file paths to load                |
@@ -48,9 +55,6 @@ export default defineConfig({
 | reportOutput        | `string \| false`                   | `false`                                                         | Validation report output path          |
 | validateBeforeBuild | `boolean`                           | `true`                                                          | Validate before build starts           |
 | showSummary         | `boolean`                           | `true`                                                          | Show validation summary log            |
-| enabled             | `boolean`                           | `true`                                                          | Enable the plugin                      |
-| verbose             | `boolean`                           | `true`                                                          | Show detailed logs                     |
-| errorStrategy       | `'throw' \| 'log' \| 'ignore'`      | `'throw'`                                                       | Error handling strategy                |
 
 ## EnvFieldRule
 

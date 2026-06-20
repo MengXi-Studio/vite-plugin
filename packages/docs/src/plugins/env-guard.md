@@ -2,15 +2,12 @@
 
 在 Vite 构建前校验环境变量的存在性和合法性，支持类型检查、范围验证、自定义规则和运行时守卫。
 
-## 导入方式
+## 导入
 
 ```typescript
-// 子模块独立导入（推荐）
-import { envGuard } from '@meng-xi/vite-plugin/plugins/env-guard'
-import type { EnvGuardOptions, EnvGuardResult, EnvFailAction, RuntimeGuardMode } from '@meng-xi/vite-plugin/plugins/env-guard'
-
-// barrel 导入
 import { envGuard } from '@meng-xi/vite-plugin'
+// 或子模块导入
+import { envGuard } from '@meng-xi/vite-plugin/plugins/env-guard'
 ```
 
 ## 快速开始
@@ -20,27 +17,34 @@ import { defineConfig } from 'vite'
 import { envGuard } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [
-		envGuard({
-			required: {
-				VITE_API_URL: { type: 'url', required: true },
-				VITE_APP_TITLE: { type: 'string', minLength: 1, maxLength: 50 }
-			},
-			failAction: 'error'
-		})
-	]
+  plugins: [
+    envGuard({
+      required: {
+        VITE_API_URL: { type: 'url', required: true },
+        VITE_APP_TITLE: { type: 'string', minLength: 1, maxLength: 50 }
+      },
+      failAction: 'error'
+    })
+  ]
 })
 ```
 
 ## 配置选项
 
+| 选项                | 类型                                | 默认值   | 说明                       |
+| ------------------- | ----------------------------------- | -------- | -------------------------- |
+| required            | `Record<string, EnvFieldRule>`      | `{}`     | 环境变量校验规则映射       |
+| failAction          | `'error' \| 'warn' \| 'ignore'`     | `'error'` | 校验失败时的处理动作      |
+| runtimeGuard        | `boolean`                           | `false`  | 是否注入运行时守卫代码     |
+| generateTemplate    | `boolean`                           | `true`   | 是否自动生成 .env 模板文件 |
+
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+
+### 高级选项
+
 | 选项                | 类型                                | 默认值                                                          | 说明                       |
 | ------------------- | ----------------------------------- | --------------------------------------------------------------- | -------------------------- |
-| required            | `Record<string, EnvFieldRule>`      | `{}`                                                            | 环境变量校验规则映射       |
-| failAction          | `'error' \| 'warn' \| 'ignore'`     | `'error'`                                                       | 校验失败时的处理动作       |
-| generateTemplate    | `boolean`                           | `true`                                                          | 是否自动生成 .env 模板文件 |
 | templateOutput      | `string`                            | `'.env.template'`                                               | .env 模板文件的输出路径    |
-| runtimeGuard        | `boolean`                           | `false`                                                         | 是否注入运行时守卫代码     |
 | runtimeGlobalName   | `string`                            | `'__ENV_GUARD__'`                                               | 运行时守卫的全局变量名     |
 | runtimeGuardMode    | `'console' \| 'throw' \| 'overlay'` | `'console'`                                                     | 运行时守卫的行为模式       |
 | envFiles            | `string[]`                          | `['.env', '.env.local', '.env.production', '.env.development']` | 需要加载的 .env 文件路径   |
@@ -48,11 +52,8 @@ export default defineConfig({
 | reportOutput        | `string \| false`                   | `false`                                                         | 校验报告输出路径           |
 | validateBeforeBuild | `boolean`                           | `true`                                                          | 是否在构建前执行校验       |
 | showSummary         | `boolean`                           | `true`                                                          | 是否输出校验摘要日志       |
-| enabled             | `boolean`                           | `true`                                                          | 启用插件                   |
-| verbose             | `boolean`                           | `true`                                                          | 显示详细日志               |
-| errorStrategy       | `'throw' \| 'log' \| 'ignore'`      | `'throw'`                                                       | 错误处理策略               |
 
-## EnvFieldRule
+### EnvFieldRule
 
 每个环境变量的校验规则配置。
 
@@ -70,7 +71,7 @@ export default defineConfig({
 | maxLength  | `number`                                                                               | 最大长度（string 类型）       |
 | enumValues | `string[]`                                                                             | 允许的枚举值列表（enum 类型） |
 
-## EnvFailAction
+### failAction
 
 校验失败时的处理动作：
 
@@ -80,7 +81,7 @@ export default defineConfig({
 | `warn`   | 输出警告日志，继续构建   |
 | `ignore` | 静默忽略，不输出任何信息 |
 
-## RuntimeGuardMode
+### runtimeGuardMode
 
 运行时守卫的行为模式：
 
@@ -90,7 +91,9 @@ export default defineConfig({
 | `throw`   | 抛出运行时错误，阻止应用启动 |
 | `overlay` | 在页面顶部显示警告横幅       |
 
-## EnvGuardResult
+## 类型导出
+
+### EnvGuardResult
 
 校验结果汇总对象。
 
@@ -110,19 +113,19 @@ export default defineConfig({
 
 ```typescript
 envGuard({
-	required: {
-		VITE_API_BASE_URL: {
-			type: 'url',
-			required: true,
-			message: 'API 基础地址必须为合法 URL'
-		},
-		VITE_APP_TITLE: {
-			type: 'string',
-			required: true,
-			minLength: 1,
-			maxLength: 50
-		}
-	}
+  required: {
+    VITE_API_BASE_URL: {
+      type: 'url',
+      required: true,
+      message: 'API 基础地址必须为合法 URL'
+    },
+    VITE_APP_TITLE: {
+      type: 'string',
+      required: true,
+      minLength: 1,
+      maxLength: 50
+    }
+  }
 })
 ```
 
@@ -130,19 +133,19 @@ envGuard({
 
 ```typescript
 envGuard({
-	required: {
-		VITE_API_TIMEOUT: {
-			type: 'number',
-			minValue: 1000,
-			maxValue: 60000,
-			message: 'API 超时时间必须在 1000-60000ms 之间'
-		},
-		VITE_LOG_LEVEL: {
-			type: 'enum',
-			enumValues: ['debug', 'info', 'warn', 'error'],
-			default: 'info'
-		}
-	}
+  required: {
+    VITE_API_TIMEOUT: {
+      type: 'number',
+      minValue: 1000,
+      maxValue: 60000,
+      message: 'API 超时时间必须在 1000-60000ms 之间'
+    },
+    VITE_LOG_LEVEL: {
+      type: 'enum',
+      enumValues: ['debug', 'info', 'warn', 'error'],
+      default: 'info'
+    }
+  }
 })
 ```
 
@@ -150,11 +153,11 @@ envGuard({
 
 ```typescript
 envGuard({
-	required: {
-		VITE_API_URL: { type: 'url', required: true }
-	},
-	runtimeGuard: true,
-	runtimeGuardMode: 'console'
+  required: {
+    VITE_API_URL: { type: 'url', required: true }
+  },
+  runtimeGuard: true,
+  runtimeGuardMode: 'console'
 })
 ```
 
@@ -162,13 +165,13 @@ envGuard({
 
 ```typescript
 envGuard({
-	required: {
-		VITE_API_URL: { type: 'url', required: true },
-		VITE_APP_TITLE: { type: 'string', required: true }
-	},
-	generateTemplate: true,
-	templateOutput: '.env.example',
-	reportOutput: 'env-guard-report.json'
+  required: {
+    VITE_API_URL: { type: 'url', required: true },
+    VITE_APP_TITLE: { type: 'string', required: true }
+  },
+  generateTemplate: true,
+  templateOutput: '.env.example',
+  reportOutput: 'env-guard-report.json'
 })
 ```
 
@@ -176,10 +179,10 @@ envGuard({
 
 ```typescript
 envGuard({
-	required: {
-		VITE_ENABLE_ANALYTICS: { type: 'boolean', default: 'false' }
-	},
-	failAction: 'warn'
+  required: {
+    VITE_ENABLE_ANALYTICS: { type: 'boolean', default: 'false' }
+  },
+  failAction: 'warn'
 })
 ```
 

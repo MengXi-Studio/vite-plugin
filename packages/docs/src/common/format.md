@@ -22,14 +22,15 @@ import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 
 ```typescript
 interface DateFormatOptions {
+	[key: string]: string // 支持任意键名，便于自定义占位符
 	YYYY: string // 四位年份
-	YY: string // 两位年份
-	MM: string // 两位月份
-	DD: string // 两位日期
-	HH: string // 两位小时
-	mm: string // 两位分钟
-	ss: string // 两位秒数
-	SSS: string // 三位毫秒
+	YY: string   // 两位年份
+	MM: string   // 两位月份
+	DD: string   // 两位日期
+	HH: string   // 两位小时（24小时制）
+	mm: string   // 两位分钟
+	ss: string   // 两位秒数
+	SSS: string  // 三位毫秒
 	timestamp: string // 时间戳（毫秒）
 }
 ```

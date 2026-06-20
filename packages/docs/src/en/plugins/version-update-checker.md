@@ -35,26 +35,30 @@ export default defineConfig({
 
 ## Options
 
-| Option                  | Type                             | Default                                    | Description                          |
-| ----------------------- | -------------------------------- | ------------------------------------------ | ------------------------------------ |
-| versionSource           | `'define' \| 'file' \| 'auto'`   | `'auto'`                                   | Source of the current version number |
-| defineName              | `string`                         | `'__APP_VERSION__'`                        | Global variable name in define mode  |
-| checkUrl                | `string`                         | `'/version.json'`                          | URL path for version check file      |
-| checkInterval           | `number`                         | `300000`                                   | Version check interval (ms)          |
-| checkOnVisibilityChange | `boolean`                        | `true`                                     | Check on page visibility change      |
-| enableInDev             | `boolean`                        | `false`                                    | Enable in development mode           |
-| promptStyle             | `'modal' \| 'banner' \| 'toast'` | `'modal'`                                  | Update prompt UI style               |
-| promptMessage           | `string`                         | `'发现新版本，是否立即刷新获取最新内容？'` | Update prompt message text           |
-| refreshButtonText       | `string`                         | `'立即刷新'`                               | Refresh button text                  |
-| dismissButtonText       | `string`                         | `'稍后再说'`                               | Dismiss button text                  |
-| customPromptTemplate    | `string`                         | -                                          | Custom prompt UI HTML template       |
-| customStyle             | `string`                         | -                                          | Custom style string                  |
-| onUpdateAvailable       | `string`                         | -                                          | Callback when new version is found   |
-| onRefresh               | `string`                         | -                                          | Callback when user chooses refresh   |
-| onDismiss               | `string`                         | -                                          | Callback when user chooses dismiss   |
-| enabled                 | `boolean`                        | `true`                                     | Enable the plugin                    |
-| verbose                 | `boolean`                        | `true`                                     | Show detailed logs                   |
-| errorStrategy           | `'throw' \| 'log' \| 'ignore'`   | `'throw'`                                  | Error handling strategy              |
+| Option          | Type                             | Default                                    | Description                          |
+| --------------- | -------------------------------- | ------------------------------------------ | ------------------------------------ |
+| versionSource   | `'define' \| 'file' \| 'auto'`   | `'auto'`                                   | Source of the current version number |
+| checkUrl        | `string`                         | `'/version.json'`                          | URL path for version check file      |
+| checkInterval   | `number`                         | `300000`                                   | Version check interval (ms)          |
+| promptStyle     | `'modal' \| 'banner' \| 'toast'` | `'modal'`                                  | Update prompt UI style               |
+| enableInDev     | `boolean`                        | `false`                                    | Enable in development mode           |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option                  | Type     | Default                                    | Description                          |
+| ----------------------- | -------- | ------------------------------------------ | ------------------------------------ |
+| defineName              | `string` | `'__APP_VERSION__'`                        | Global variable name in define mode  |
+| checkOnVisibilityChange | `boolean` | `true`                                    | Check on page visibility change      |
+| promptMessage           | `string` | `'发现新版本，是否立即刷新获取最新内容？'` | Update prompt message text           |
+| refreshButtonText       | `string` | `'立即刷新'`                               | Refresh button text                  |
+| dismissButtonText       | `string` | `'稍后再说'`                               | Dismiss button text                  |
+| customPromptTemplate    | `string` | -                                          | Custom prompt UI HTML template       |
+| customStyle             | `string` | -                                          | Custom style string                  |
+| onUpdateAvailable       | `string` | -                                          | Callback when new version is found   |
+| onRefresh               | `string` | -                                          | Callback when user chooses refresh   |
+| onDismiss               | `string` | -                                          | Callback when user chooses dismiss   |
 
 ### Version Source Types (versionSource)
 

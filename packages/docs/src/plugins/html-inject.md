@@ -1,16 +1,13 @@
 # htmlInject
 
-HTML 内容注入插件，在 Vite 构建过程中根据配置规则将 HTML 内容注入到目标 HTML 文件中。支持多种注入位置（head/body 首尾、选择器前后/替换）、条件注入、模板变量替换和安全过滤。
+HTML 内容注入插件，根据配置规则将 HTML 内容注入到目标 HTML 文件中。支持多种注入位置、条件注入、模板变量替换和安全过滤。
 
-## 导入方式
+## 导入
 
 ```typescript
-// 子模块独立导入（推荐）
-import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
-import type { HtmlInjectOptions, InjectRule, InjectPosition, InjectCondition, SecurityConfig, InjectionLogEntry } from '@meng-xi/vite-plugin/plugins/html-inject'
-
-// barrel 导入
 import { htmlInject } from '@meng-xi/vite-plugin'
+// 或子模块导入
+import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
 ```
 
 ## 快速开始
@@ -20,25 +17,18 @@ import { defineConfig } from 'vite'
 import { htmlInject } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [
-		htmlInject({
-			rules: [
-				{
-					id: 'meta-description',
-					content: '<meta name="description" content="{{appName}}">',
-					position: 'head-end',
-					templateVars: { appName: 'My Application' }
-				},
-				{
-					id: 'analytics',
-					content: '<script src="/analytics.js"></script>',
-					position: 'body-end',
-					condition: { type: 'env', value: 'PRODUCTION' },
-					allowScriptInjection: true
-				}
-			]
-		})
-	]
+  plugins: [
+    htmlInject({
+      rules: [
+        {
+          id: 'meta-description',
+          content: '<meta name="description" content="{{appName}}">',
+          position: 'head-end',
+          templateVars: { appName: 'My Application' }
+        }
+      ]
+    })
+  ]
 })
 ```
 
@@ -46,14 +36,18 @@ export default defineConfig({
 
 | 选项          | 类型                           | 默认值         | 说明               |
 | ------------- | ------------------------------ | -------------- | ------------------ |
-| targetFile    | `string`                       | `'index.html'` | 目标 HTML 文件路径 |
 | rules         | `InjectRule[]`                 | 必填           | 注入规则数组       |
+| targetFile    | `string`                       | `'index.html'` | 目标 HTML 文件路径 |
 | security      | `SecurityConfig`               | 见下方         | 安全配置           |
 | templateVars  | `Record<string, string>`       | -              | 全局模板变量       |
-| logInjection  | `boolean`                      | `true`         | 输出注入日志       |
-| enabled       | `boolean`                      | `true`         | 启用插件           |
-| verbose       | `boolean`                      | `true`         | 显示详细日志       |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'`      | 错误处理策略       |
+
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+
+### 高级选项
+
+| 选项         | 类型      | 默认值 | 说明           |
+| ------------ | --------- | ------ | -------------- |
+| logInjection | `boolean` | `true` | 输出注入日志   |
 
 ### InjectRule
 
@@ -89,7 +83,7 @@ export default defineConfig({
 | value  | `string \| ((...args: any[]) => boolean)` | 条件值                 |
 | negate | `boolean`                                 | 是否取反，默认 `false` |
 
-**条件类型说明**
+**条件类型说明：**
 
 | 类型          | value 类型                    | 说明                   |
 | ------------- | ----------------------------- | ---------------------- |
@@ -107,32 +101,26 @@ export default defineConfig({
 | blockedTags              | `string[]` | -      | 自定义阻止标签列表                 |
 | blockedAttributes        | `string[]` | -      | 自定义阻止属性列表                 |
 
+## 类型导出
+
+### InjectRule
+
+注入规则接口，定义单条 HTML 内容注入规则。
+
 ### InjectionLogEntry
 
-| 选项      | 类型             | 说明         |
-| --------- | ---------------- | ------------ |
-| ruleId    | `string`         | 规则标识符   |
-| position  | `InjectPosition` | 注入位置     |
-| selector  | `string`         | 使用的选择器 |
-| injected  | `boolean`        | 是否注入成功 |
-| reason    | `string`         | 注入失败原因 |
-| timestamp | `number`         | 日志时间戳   |
+注入日志条目，记录单条规则的执行结果。
+
+| 属性      | 类型             | 说明               |
+| --------- | ---------------- | ------------------ |
+| ruleId    | `string`         | 规则标识符         |
+| position  | `InjectPosition` | 注入位置           |
+| selector  | `string`         | 使用的选择器       |
+| injected  | `boolean`        | 是否注入成功       |
+| reason    | `string`         | 注入失败原因       |
+| timestamp | `number`         | 日志时间戳         |
 
 ## 示例
-
-### 基本注入
-
-```typescript
-htmlInject({
-	rules: [
-		{
-			id: 'meta-viewport',
-			content: '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
-			position: 'head-end'
-		}
-	]
-})
-```
 
 ### 模板变量
 
@@ -140,23 +128,20 @@ htmlInject({
 
 ```typescript
 htmlInject({
-	templateVars: {
-		appName: 'My App',
-		version: '1.0.0'
-	},
-	rules: [
-		{
-			id: 'meta-description',
-			content: '<meta name="description" content="{{appName}} v{{version}}">',
-			position: 'head-end'
-		},
-		{
-			id: 'custom-meta',
-			content: '<meta name="author" content="{{author}}">',
-			position: 'head-end',
-			templateVars: { author: 'MengXi Studio' }
-		}
-	]
+  templateVars: { appName: 'My App', version: '1.0.0' },
+  rules: [
+    {
+      id: 'meta-description',
+      content: '<meta name="description" content="{{appName}} v{{version}}">',
+      position: 'head-end'
+    },
+    {
+      id: 'custom-meta',
+      content: '<meta name="author" content="{{author}}">',
+      position: 'head-end',
+      templateVars: { author: 'MengXi Studio' }
+    }
+  ]
 })
 ```
 
@@ -164,27 +149,21 @@ htmlInject({
 
 ```typescript
 htmlInject({
-	rules: [
-		{
-			id: 'analytics',
-			content: '<script src="/analytics.js"></script>',
-			position: 'body-end',
-			condition: { type: 'env', value: 'PRODUCTION' },
-			allowScriptInjection: true
-		},
-		{
-			id: 'debug-banner',
-			content: '<div class="debug-banner">Debug Mode</div>',
-			position: 'body-start',
-			condition: { type: 'env', value: 'DEBUG' }
-		},
-		{
-			id: 'conditional-meta',
-			content: '<meta name="robots" content="noindex">',
-			position: 'head-end',
-			condition: { type: 'env', value: 'STAGING', negate: true }
-		}
-	]
+  rules: [
+    {
+      id: 'analytics',
+      content: '<script src="/analytics.js"></script>',
+      position: 'body-end',
+      condition: { type: 'env', value: 'PRODUCTION' },
+      allowScriptInjection: true
+    },
+    {
+      id: 'noindex',
+      content: '<meta name="robots" content="noindex">',
+      position: 'head-end',
+      condition: { type: 'env', value: 'STAGING', negate: true }
+    }
+  ]
 })
 ```
 
@@ -192,42 +171,21 @@ htmlInject({
 
 ```typescript
 htmlInject({
-	rules: [
-		{
-			id: 'before-app',
-			content: '<div class="wrapper">',
-			position: 'before-selector',
-			selector: '<div id="app">'
-		},
-		{
-			id: 'after-app',
-			content: '</div>',
-			position: 'after-selector',
-			selector: '<div id="app">'
-		},
-		{
-			id: 'replace-placeholder',
-			content: '<div class="real-content">Loaded</div>',
-			position: 'replace-selector',
-			selector: '<div class="placeholder">'
-		}
-	]
-})
-```
-
-### 正则选择器
-
-```typescript
-htmlInject({
-	rules: [
-		{
-			id: 'replace-old-meta',
-			content: '<meta name="description" content="New Description">',
-			position: 'replace-selector',
-			selector: '<meta\\s+name="description"[^>]*>',
-			selectorMatch: 'regex'
-		}
-	]
+  rules: [
+    {
+      id: 'replace-placeholder',
+      content: '<div class="real-content">Loaded</div>',
+      position: 'replace-selector',
+      selector: '<div class="placeholder">'
+    },
+    {
+      id: 'replace-old-meta',
+      content: '<meta name="description" content="New Description">',
+      position: 'replace-selector',
+      selector: '<meta\\s+name="description"[^>]*>',
+      selectorMatch: 'regex'
+    }
+  ]
 })
 ```
 
@@ -237,11 +195,11 @@ htmlInject({
 
 ```typescript
 htmlInject({
-	rules: [
-		{ id: 'charset', content: '<meta charset="UTF-8">', position: 'head-start', priority: 1 },
-		{ id: 'viewport', content: '<meta name="viewport" content="...">', position: 'head-end', priority: 10 },
-		{ id: 'analytics', content: '<script>...</script>', position: 'body-end', priority: 100 }
-	]
+  rules: [
+    { id: 'charset', content: '<meta charset="UTF-8">', position: 'head-start', priority: 1 },
+    { id: 'viewport', content: '<meta name="viewport" content="...">', position: 'head-end', priority: 10 },
+    { id: 'analytics', content: '<script>...</script>', position: 'body-end', priority: 100, allowScriptInjection: true }
+  ]
 })
 ```
 
@@ -249,35 +207,20 @@ htmlInject({
 
 ```typescript
 htmlInject({
-	security: {
-		blockDangerousTags: true,
-		blockDangerousAttributes: true,
-		allowedTags: ['iframe'],
-		blockedTags: ['object'],
-		blockedAttributes: ['data-custom']
-	},
-	rules: [
-		{
-			id: 'trusted-iframe',
-			content: '<iframe src="/widget.html"></iframe>',
-			position: 'body-end'
-		}
-	]
-})
-```
-
-### 自定义目标文件
-
-```typescript
-htmlInject({
-	targetFile: 'src/views/home.html',
-	rules: [
-		{
-			id: 'home-specific',
-			content: '<div class="home-banner">Welcome</div>',
-			position: 'body-start'
-		}
-	]
+  security: {
+    blockDangerousTags: true,
+    blockDangerousAttributes: true,
+    allowedTags: ['iframe'],
+    blockedTags: ['object'],
+    blockedAttributes: ['data-custom']
+  },
+  rules: [
+    {
+      id: 'trusted-iframe',
+      content: '<iframe src="/widget.html"></iframe>',
+      position: 'body-end'
+    }
+  ]
 })
 ```
 
@@ -289,3 +232,4 @@ htmlInject({
 - 规则按 `priority` 升序执行，相同优先级的规则按数组顺序执行
 - 模板变量使用 <span v-pre>`{{变量名}}`</span> 语法，规则级变量覆盖全局变量
 - `condition.negate: true` 可对条件结果取反
+- 插件通过 `transformIndexHtml` 钩子（`order: 'post'`）执行注入

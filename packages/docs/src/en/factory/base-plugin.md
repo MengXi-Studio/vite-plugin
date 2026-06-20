@@ -1,6 +1,6 @@
 # BasePlugin
 
-Plugin base class providing lifecycle management, logging, and validation.
+Plugin base class providing lifecycle management, logging, config validation and more. All plugins extend this class.
 
 ```typescript
 import { BasePlugin } from '@meng-xi/vite-plugin/factory'
@@ -12,48 +12,32 @@ import { BasePlugin } from '@meng-xi/vite-plugin/factory'
 abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions>
 ```
 
----
-
 ## Constructor
 
 ```typescript
 constructor(options: T, loggerConfig?: LoggerOptions)
 ```
 
-**Parameters**
-
-| Parameter    | Type            | Description              |
-| ------------ | --------------- | ------------------------ |
-| options      | `T`             | Plugin configuration     |
+| Parameter    | Type            | Description    |
+| ------------ | --------------- | -------------- |
+| options      | `T`             | Plugin options |
 | loggerConfig | `LoggerOptions` | Logger config (optional) |
+
+The constructor automatically: merges options → initializes logger → creates validator → runs validation.
 
 ---
 
 ## Abstract Methods
 
-Methods that subclasses must implement.
+Methods that subclasses **must** implement.
 
 ### getPluginName
 
-Return plugin name.
+Return the plugin name for Vite plugin system identification.
 
 ```typescript
 protected abstract getPluginName(): string
 ```
-
-**Returns**
-
-`string` - Plugin name for Vite plugin system identification
-
-**Example**
-
-```typescript
-protected getPluginName(): string {
-	return 'my-plugin'
-}
-```
-
----
 
 ### addPluginHooks
 
@@ -63,86 +47,33 @@ Add Vite plugin hooks.
 protected abstract addPluginHooks(plugin: Plugin): void
 ```
 
-**Parameters**
-
-| Parameter | Type     | Description        |
-| --------- | -------- | ------------------ |
+| Parameter | Type     | Description      |
+| --------- | -------- | ---------------- |
 | plugin    | `Plugin` | Vite plugin object |
-
-**Example**
-
-```typescript
-protected addPluginHooks(plugin: Plugin): void {
-	plugin.buildStart = () => {
-		if (!this.options.enabled) return
-		this.logger.info('Build started')
-	}
-
-	plugin.configResolved = async config => {
-		await this.safeExecute(async () => {
-			// Execute async operation
-		}, 'Execute operation')
-	}
-}
-```
 
 ---
 
-## Optional Override Methods
+## Overridable Methods
 
 ### getDefaultOptions
 
-Return plugin default options.
+Return default plugin options.
 
 ```typescript
 protected getDefaultOptions(): Partial<T>
 ```
 
-**Returns**
-
-`Partial<T>` - Plugin-specific default configuration
-
-**Default Behavior**
-
-Returns empty object `{}`, subclasses can override to provide plugin-specific default values
-
-**Example**
-
-```typescript
-protected getDefaultOptions(): Partial<MyPluginOptions> {
-	return {
-		outputPath: 'dist/output.json',
-		format: 'json'
-	}
-}
-```
-
----
+Default returns `{}`, subclasses can override to provide plugin-specific defaults.
 
 ### validateOptions
 
-Validate plugin configuration parameters.
+Validate plugin configuration.
 
 ```typescript
 protected validateOptions(): void
 ```
 
-**Default Behavior**
-
-No validation
-
-**Example**
-
-```typescript
-protected validateOptions(): void {
-	this.validator
-		.field('sourceDir').required().string()
-		.field('targetDir').required().string()
-		.validate()
-}
-```
-
----
+Default is no validation, subclasses can override to add custom validation logic.
 
 ### getEnforce
 
@@ -152,23 +83,7 @@ Get plugin execution timing.
 protected getEnforce(): Plugin['enforce']
 ```
 
-**Returns**
-
-`'pre' | 'post' | undefined` - Plugin execution timing
-
-**Default Value**
-
-`undefined`
-
-**Example**
-
-```typescript
-protected getEnforce(): Plugin['enforce'] {
-	return 'post' // Execute after build
-}
-```
-
----
+Default `undefined`, options: `'pre'`, `'post'`.
 
 ### onConfigResolved
 
@@ -178,17 +93,7 @@ Handle config resolved event.
 protected onConfigResolved(config: ResolvedConfig): void
 ```
 
-**Parameters**
-
-| Parameter | Type             | Description          |
-| --------- | ---------------- | -------------------- |
-| config    | `ResolvedConfig` | Resolved Vite config |
-
-**Default Behavior**
-
-Stores config to `this.viteConfig`
-
----
+Default behavior: stores config to `this.viteConfig`.
 
 ### destroy
 
@@ -198,75 +103,18 @@ Plugin destroy lifecycle, automatically called in `closeBundle` hook.
 protected destroy(): void
 ```
 
-**Default Behavior**
-
-Unregisters plugin's log config
-
-**Notes**
-
-- Base class automatically calls this method in `closeBundle` hook
-- Subclass should call `super.destroy()` first, then add custom cleanup logic
-- No need to manually register `closeBundle` hook for resource cleanup in subclass
-
-**Example**
-
-```typescript
-protected destroy(): void {
-	super.destroy()
-	this.stopWatching()
-}
-```
+Default behavior: unregisters plugin's logger config. Subclasses should call `super.destroy()` first when overriding.
 
 ---
 
 ## Built-in Properties
 
-### options
-
-Merged complete configuration.
-
-```typescript
-protected options: Required<T>
-```
-
----
-
-### logger
-
-Plugin logger.
-
-```typescript
-protected logger: PluginLogger
-```
-
-**Methods**
-
-| Method      | Description |
-| ----------- | ----------- |
-| `info()`    | Info log    |
-| `success()` | Success log |
-| `warn()`    | Warning log |
-| `error()`   | Error log   |
-
----
-
-### validator
-
-Configuration validator.
-
-```typescript
-protected validator: Validator<T>
-```
-
----
-
-### viteConfig
-
-Resolved Vite configuration.
-
-```typescript
-protected viteConfig: ResolvedConfig | null
-```
+| Property   | Type                     | Description                |
+| ---------- | ------------------------ | -------------------------- |
+| options    | `Required<T>`            | Merged full configuration  |
+| logger     | `PluginLogger`           | Plugin logger              |
+| validator  | `Validator<T>`           | Config validator           |
+| viteConfig | `ResolvedConfig \| null` | Vite resolved config       |
 
 ---
 
@@ -274,89 +122,33 @@ protected viteConfig: ResolvedConfig | null
 
 ### safeExecute
 
-Safely execute async functions with automatic error handling.
+Safely execute async function, automatically handling errors based on `errorStrategy`.
 
 ```typescript
-protected async safeExecute<T>(
-	fn: () => Promise<T>,
-	context: string
-): Promise<T | undefined>
+protected async safeExecute<T>(fn: () => Promise<T>, context: string): Promise<T | undefined>
 ```
-
-**Parameters**
-
-| Parameter | Type               | Description       |
-| --------- | ------------------ | ----------------- |
-| fn        | `() => Promise<T>` | Async function    |
-| context   | `string`           | Execution context |
-
-**Returns**
-
-`Promise<T | undefined>` - Function result or undefined
-
-**Example**
-
-```typescript
-const result = await this.safeExecute(async () => {
-	return await someAsyncOperation()
-}, 'Execute async operation')
-```
-
----
 
 ### safeExecuteSync
 
-Safely execute sync functions with automatic error handling.
+Safely execute sync function, automatically handling errors based on `errorStrategy`.
 
 ```typescript
 protected safeExecuteSync<T>(fn: () => T, context: string): T | undefined
 ```
 
-**Parameters**
-
-| Parameter | Type      | Description       |
-| --------- | --------- | ----------------- |
-| fn        | `() => T` | Sync function     |
-| context   | `string`  | Execution context |
-
-**Returns**
-
-`T | undefined` - Function result or undefined
-
-**Example**
-
-```typescript
-const result = this.safeExecuteSync(() => {
-	return someSyncOperation()
-}, 'Execute sync operation')
-```
-
----
-
 ### handleError
 
-Handle errors based on error strategy.
+Handle errors based on `errorStrategy`.
 
 ```typescript
 protected handleError<T>(error: unknown, context: string): T | undefined
 ```
 
-**Parameters**
-
-| Parameter | Type      | Description   |
-| --------- | --------- | ------------- |
-| error     | `unknown` | Error object  |
-| context   | `string`  | Error context |
-
-**Behavior**
-
-Based on `errorStrategy` configuration:
-
-- `'throw'`: Log error and throw
-- `'log'`: Log error, continue
-- `'ignore'`: Log error, continue
-
----
+| Strategy | Behavior                                      |
+| -------- | --------------------------------------------- |
+| `throw`  | Log error and throw exception, aborts build   |
+| `log`    | Log error only, continues execution           |
+| `ignore` | Log error only, continues execution           |
 
 ### toPlugin
 
@@ -366,26 +158,16 @@ Convert plugin instance to Vite plugin object.
 public toPlugin(): Plugin
 ```
 
-**Returns**
+**Auto-composed hooks**
 
-`Plugin` - Vite plugin object with `pluginInstance` property pointing to original plugin instance
+- `configResolved`: base class `onConfigResolved` first, then subclass hooks
+- `closeBundle`: subclass hooks first, then base class `destroy`
 
-**Notes**
-
-- Automatically composes `configResolved` hook: base class `onConfigResolved` runs first, then subclass hook
-- Automatically composes `closeBundle` hook: subclass hook runs first, then base class `destroy`
-- The returned plugin object has a `pluginInstance` property for accessing plugin internal state
-
-**Example**
-
-```typescript
-const plugin = new MyPlugin(options)
-const vitePlugin = plugin.toPlugin()
-```
+The returned plugin object has a `pluginInstance` property for accessing internal state.
 
 ---
 
-## Complete Example
+## Full Example
 
 ```typescript
 import type { Plugin } from 'vite'
@@ -403,10 +185,7 @@ class MyPlugin extends BasePlugin<MyPluginOptions> {
 	}
 
 	protected getDefaultOptions(): Partial<MyPluginOptions> {
-		return {
-			message: 'Hello',
-			count: 1
-		}
+		return { message: 'Hello', count: 1 }
 	}
 
 	protected validateOptions(): void {

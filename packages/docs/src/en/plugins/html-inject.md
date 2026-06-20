@@ -47,14 +47,18 @@ export default defineConfig({
 
 | Option        | Type                           | Default        | Description               |
 | ------------- | ------------------------------ | -------------- | ------------------------- |
-| targetFile    | `string`                       | `'index.html'` | Target HTML file path     |
 | rules         | `InjectRule[]`                 | Required       | Injection rules array     |
+| targetFile    | `string`                       | `'index.html'` | Target HTML file path     |
 | security      | `SecurityConfig`               | See below      | Security configuration    |
 | templateVars  | `Record<string, string>`       | -              | Global template variables |
-| logInjection  | `boolean`                      | `true`         | Output injection logs     |
-| enabled       | `boolean`                      | `true`         | Enable plugin             |
-| verbose       | `boolean`                      | `true`         | Show detailed logs        |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'`      | Error handling strategy   |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option        | Type      | Default | Description           |
+| ------------- | --------- | ------- | --------------------- |
+| logInjection  | `boolean` | `true`  | Output injection logs |
 
 ### InjectRule
 

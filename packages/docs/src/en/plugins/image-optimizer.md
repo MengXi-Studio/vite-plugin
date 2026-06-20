@@ -53,23 +53,27 @@ Both dependencies are optional. The plugin automatically detects installed depen
 
 ## Options
 
-| Option            | Type                                                                 | Default                                                                                          | Description                                                    |
-| ----------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| quality           | `FormatQualityOptions`                                               | `{ jpeg: 80, png: 6, webp: 75, avif: 50, gif: true, tiff: 'deflate' }`                           | Compression quality parameters for each format                 |
-| convertToWebp     | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>`       | `{}`                                                                                             | Convert specified formats to WebP                              |
-| convertToAvif     | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>`       | `{}`                                                                                             | Convert specified formats to AVIF                              |
-| convertMapping    | `ConvertMapping`                                                     | `{}`                                                                                             | Custom format conversion mapping, takes priority over the above |
-| svgo              | `SvgoOptions`                                                        | `{}`                                                                                             | SVG optimization configuration                                 |
-| includeExtensions | `string[]`                                                           | `['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.tiff', '.tif', '.svg']`                   | File extensions to optimize                                    |
-| excludePaths      | `string[]`                                                           | `[]`                                                                                             | Path prefixes to exclude                                       |
-| threshold         | `number`                                                             | `0`                                                                                              | Minimum optimization threshold (bytes), 0 for no limit         |
-| keepOriginal      | `boolean`                                                            | `false`                                                                                          | Whether to keep original files during format conversion         |
-| reportOutput      | `string` \| `false`                                                  | `'image-optimize-report.json'`                                                                   | Optimization report output path, false to skip                  |
-| parallelLimit     | `number`                                                             | `10`                                                                                             | Maximum concurrent file optimization count                      |
-| maxPixels         | `number`                                                             | `0`                                                                                              | Maximum pixels per image, 0 for no limit                       |
-| enabled           | `boolean`                                                            | `true`                                                                                           | Enable the plugin                                              |
-| verbose           | `boolean`                                                            | `true`                                                                                           | Show detailed logs                                             |
-| errorStrategy     | `'throw'` \| `'log'` \| `'ignore'`                                  | `'throw'`                                                                                        | Error handling strategy                                        |
+| Option          | Type                                                            | Default                                                                | Description                           |
+| --------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------- |
+| quality         | `FormatQualityOptions`                                          | `{ jpeg: 80, png: 6, webp: 75, avif: 50, gif: true, tiff: 'deflate' }` | Compression quality for each format   |
+| convertToWebp   | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>` | `{}`                                                                   | Convert specified formats to WebP     |
+| convertToAvif   | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>` | `{}`                                                                   | Convert specified formats to AVIF     |
+| keepOriginal    | `boolean`                                                       | `false`                                                                | Keep original files during conversion |
+
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+
+### Advanced Options
+
+| Option            | Type              | Default                                                                       | Description                                              |
+| ----------------- | ----------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------- |
+| convertMapping    | `ConvertMapping`  | `{}`                                                                          | Custom format conversion mapping, higher priority        |
+| svgo              | `SvgoOptions`     | `{}`                                                                          | SVG optimization configuration                           |
+| includeExtensions | `string[]`        | `['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.tiff', '.tif', '.svg']` | File extensions to optimize                             |
+| excludePaths      | `string[]`        | `[]`                                                                          | Path prefixes to exclude                                 |
+| threshold         | `number`          | `0`                                                                           | Minimum optimization threshold (bytes), 0 for no limit   |
+| reportOutput      | `string` \| `false` | `'image-optimize-report.json'`                                              | Optimization report output path, false to skip           |
+| parallelLimit     | `number`          | `10`                                                                          | Maximum concurrent file optimization count               |
+| maxPixels         | `number`          | `0`                                                                           | Maximum pixels per image, 0 for no limit                 |
 
 ## Type Definitions
 

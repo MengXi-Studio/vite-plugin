@@ -1,18 +1,13 @@
 # versionUpdateChecker
 
-版本更新检查器插件，在 Vite 构建过程中将版本更新检查代码注入到 HTML 中，运行时定期检查版本号变更，发现新版本时向用户显示刷新提示。
+版本更新检查器插件，注入版本更新检查代码到 HTML 中，运行时定期检查版本号变更，发现新版本时向用户显示刷新提示。通常与 `generateVersion` 插件配合使用。
 
-通常与 `generateVersion` 插件配合使用：`generateVersion` 负责在构建时生成版本号，`versionUpdateChecker` 负责在运行时检查版本号变更并提示用户刷新。
-
-## 导入方式
+## 导入
 
 ```typescript
-// 子模块独立导入（推荐）
-import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
-import type { VersionUpdateCheckerOptions, VersionSource, PromptStyle } from '@meng-xi/vite-plugin/plugins/version-update-checker'
-
-// barrel 导入
 import { versionUpdateChecker } from '@meng-xi/vite-plugin'
+// 或子模块导入
+import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
 ```
 
 ## 快速开始
@@ -22,14 +17,14 @@ import { defineConfig } from 'vite'
 import { generateVersion, versionUpdateChecker } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [
-		generateVersion({
-			format: 'datetime',
-			outputType: 'both',
-			defineName: '__APP_VERSION__'
-		}),
-		versionUpdateChecker()
-	]
+  plugins: [
+    generateVersion({
+      format: 'datetime',
+      outputType: 'both',
+      defineName: '__APP_VERSION__'
+    }),
+    versionUpdateChecker()
+  ]
 })
 ```
 
@@ -38,25 +33,29 @@ export default defineConfig({
 | 选项                    | 类型                             | 默认值                                     | 说明                       |
 | ----------------------- | -------------------------------- | ------------------------------------------ | -------------------------- |
 | versionSource           | `'define' \| 'file' \| 'auto'`   | `'auto'`                                   | 当前版本号的来源           |
-| defineName              | `string`                         | `'__APP_VERSION__'`                        | define 模式下的全局变量名  |
 | checkUrl                | `string`                         | `'/version.json'`                          | 版本检查文件的 URL 路径    |
 | checkInterval           | `number`                         | `300000`                                   | 版本检查间隔时间（毫秒）   |
-| checkOnVisibilityChange | `boolean`                        | `true`                                     | 页面可见性变化时是否检查   |
-| enableInDev             | `boolean`                        | `false`                                    | 是否在开发模式下启用       |
 | promptStyle             | `'modal' \| 'banner' \| 'toast'` | `'modal'`                                  | 更新提示 UI 样式           |
-| promptMessage           | `string`                         | `'发现新版本，是否立即刷新获取最新内容？'` | 更新提示消息文本           |
-| refreshButtonText       | `string`                         | `'立即刷新'`                               | 刷新按钮文本               |
-| dismissButtonText       | `string`                         | `'稍后再说'`                               | 忽略按钮文本               |
-| customPromptTemplate    | `string`                         | -                                          | 自定义提示 UI 的 HTML 模板 |
-| customStyle             | `string`                         | -                                          | 自定义样式字符串           |
-| onUpdateAvailable       | `string`                         | -                                          | 发现新版本时的回调         |
-| onRefresh               | `string`                         | -                                          | 用户选择刷新时的回调       |
-| onDismiss               | `string`                         | -                                          | 用户选择忽略时的回调       |
-| enabled                 | `boolean`                        | `true`                                     | 启用插件                   |
-| verbose                 | `boolean`                        | `true`                                     | 显示详细日志               |
-| errorStrategy           | `'throw' \| 'log' \| 'ignore'`   | `'throw'`                                  | 错误处理策略               |
+| enableInDev             | `boolean`                        | `false`                                    | 是否在开发模式下启用       |
 
-### 版本来源类型（versionSource）
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+
+### 高级选项
+
+| 选项                    | 类型     | 默认值                                     | 说明                       |
+| ----------------------- | -------- | ------------------------------------------ | -------------------------- |
+| defineName              | `string` | `'__APP_VERSION__'`                        | define 模式下的全局变量名  |
+| checkOnVisibilityChange | `boolean` | `true`                                    | 页面可见性变化时是否检查   |
+| promptMessage           | `string` | `'发现新版本，是否立即刷新获取最新内容？'` | 更新提示消息文本           |
+| refreshButtonText       | `string` | `'立即刷新'`                               | 刷新按钮文本               |
+| dismissButtonText       | `string` | `'稍后再说'`                               | 忽略按钮文本               |
+| customPromptTemplate    | `string` | -                                          | 自定义提示 UI 的 HTML 模板 |
+| customStyle             | `string` | -                                          | 自定义样式字符串           |
+| onUpdateAvailable       | `string` | -                                          | 发现新版本时的回调         |
+| onRefresh               | `string` | -                                          | 用户选择刷新时的回调       |
+| onDismiss               | `string` | -                                          | 用户选择忽略时的回调       |
+
+### 版本来源类型
 
 | 值     | 说明                                   |
 | ------ | -------------------------------------- |
@@ -64,7 +63,7 @@ export default defineConfig({
 | file   | 从版本文件（如 version.json）中读取    |
 | auto   | 自动检测，优先使用 define，回退到 file |
 
-### 提示样式（promptStyle）
+### 提示样式
 
 | 值     | 说明                     |
 | ------ | ------------------------ |
@@ -76,13 +75,13 @@ export default defineConfig({
 
 当使用 `customPromptTemplate` 时，可使用以下占位符：
 
-| 占位符               | 说明       |
-| -------------------- | ---------- |
-| <span v-pre>`{{message}}`</span>        | 提示消息   |
+| 占位符                                | 说明       |
+| ------------------------------------- | ---------- |
+| <span v-pre>`{{message}}`</span>      | 提示消息   |
 | <span v-pre>`{{currentVersion}}`</span> | 当前版本号 |
-| <span v-pre>`{{newVersion}}`</span>     | 新版本号   |
-| <span v-pre>`{{refreshButton}}`</span>  | 刷新按钮   |
-| <span v-pre>`{{dismissButton}}`</span>  | 忽略按钮   |
+| <span v-pre>`{{newVersion}}`</span>   | 新版本号   |
+| <span v-pre>`{{refreshButton}}`</span> | 刷新按钮   |
+| <span v-pre>`{{dismissButton}}`</span> | 忽略按钮   |
 
 ### 回调函数
 
@@ -94,27 +93,24 @@ export default defineConfig({
 | onRefresh         | `currentVersion`, `newVersion` | 用户选择刷新时触发                        |
 | onDismiss         | `currentVersion`, `newVersion` | 用户选择忽略时触发                        |
 
+## 类型导出
+
+### VersionSource
+
+版本来源类型：`'define' | 'file' | 'auto'`
+
+### PromptStyle
+
+提示样式类型：`'modal' | 'banner' | 'toast'`
+
 ## 示例
-
-### 基本使用
-
-配合 `generateVersion` 插件使用：
-
-```typescript
-;(generateVersion({
-	format: 'datetime',
-	outputType: 'both',
-	defineName: '__APP_VERSION__'
-}),
-	versionUpdateChecker())
-```
 
 ### 自定义检查间隔和提示样式
 
 ```typescript
 versionUpdateChecker({
-	checkInterval: 60000, // 1 分钟检查一次
-	promptStyle: 'banner' // 顶部横幅提示
+  checkInterval: 60000, // 1 分钟检查一次
+  promptStyle: 'banner' // 顶部横幅提示
 })
 ```
 
@@ -122,10 +118,10 @@ versionUpdateChecker({
 
 ```typescript
 versionUpdateChecker({
-	promptMessage: '系统已更新，请刷新页面',
-	onUpdateAvailable: 'console.log("新版本:", newVersion); return true;',
-	onRefresh: 'console.log("用户选择刷新");',
-	onDismiss: 'console.log("用户选择忽略");'
+  promptMessage: '系统已更新，请刷新页面',
+  onUpdateAvailable: 'console.log("新版本:", newVersion); return true;',
+  onRefresh: 'console.log("用户选择刷新");',
+  onDismiss: 'console.log("用户选择忽略");'
 })
 ```
 
@@ -133,8 +129,8 @@ versionUpdateChecker({
 
 ```typescript
 versionUpdateChecker({
-	enableInDev: true,
-	checkInterval: 10000
+  enableInDev: true,
+  checkInterval: 10000
 })
 ```
 
@@ -142,8 +138,8 @@ versionUpdateChecker({
 
 ```typescript
 versionUpdateChecker({
-	customPromptTemplate: '<div class="my-update-prompt">{{message}} {{refreshButton}}</div>',
-	customStyle: '.my-update-prompt { background: #333; color: #fff; padding: 16px; }'
+  customPromptTemplate: '<div class="my-update-prompt">{{message}} {{refreshButton}}</div>',
+  customStyle: '.my-update-prompt { background: #333; color: #fff; padding: 16px; }'
 })
 ```
 
@@ -151,20 +147,10 @@ versionUpdateChecker({
 
 ```typescript
 versionUpdateChecker({
-	promptStyle: 'banner',
-	promptMessage: '有新版本可用',
-	refreshButtonText: '更新',
-	dismissButtonText: '关闭'
-})
-```
-
-### 使用 toast 样式
-
-```typescript
-versionUpdateChecker({
-	promptStyle: 'toast',
-	promptMessage: '发现新版本',
-	refreshButtonText: '刷新'
+  promptStyle: 'banner',
+  promptMessage: '有新版本可用',
+  refreshButtonText: '更新',
+  dismissButtonText: '关闭'
 })
 ```
 
@@ -172,8 +158,8 @@ versionUpdateChecker({
 
 ```typescript
 versionUpdateChecker({
-	versionSource: 'file',
-	checkUrl: '/version.json'
+  versionSource: 'file',
+  checkUrl: '/version.json'
 })
 ```
 

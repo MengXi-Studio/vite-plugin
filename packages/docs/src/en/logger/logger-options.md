@@ -1,6 +1,6 @@
 # LoggerOptions
 
-Logger configuration options type.
+Log configuration options type.
 
 ```typescript
 import type { LoggerOptions } from '@meng-xi/vite-plugin/logger'
@@ -12,81 +12,40 @@ import type { LoggerOptions } from '@meng-xi/vite-plugin/logger'
 interface LoggerOptions {
 	/** Plugin name */
 	name: string
-	/** Enable logging */
+	/** Whether to enable logging, default true */
 	enabled?: boolean
 }
 ```
+
+---
 
 ## Properties
 
 ### name
 
-Plugin name.
+Plugin name, used for log prefix identification.
 
-| Type     | Required | Description                            |
-| -------- | -------- | -------------------------------------- |
-| `string` | Yes      | Used for log prefix to identify plugin |
-
-**Notes**
-
-Plugin name is displayed in log prefix: `[@meng-xi/vite-plugin:name]`
-
-**Example**
+| Type     | Required | Description                                           |
+| -------- | -------- | ----------------------------------------------------- |
+| `string` | Yes      | Displayed in log prefix `[@meng-xi/vite-plugin:name]` |
 
 ```typescript
-Logger.create({
-	name: 'my-plugin'
-})
+Logger.create({ name: 'my-plugin' })
 // Output: ℹ️ [@meng-xi/vite-plugin:my-plugin] ...
 ```
 
----
-
 ### enabled
 
-Enable logging.
+Whether to enable logging.
 
-| Type      | Default | Description                                     |
-| --------- | ------- | ----------------------------------------------- |
-| `boolean` | `true`  | When `false`, this plugin's logs are not output |
-
-**Example**
+| Type      | Default | Description                               |
+| --------- | ------- | ----------------------------------------- |
+| `boolean` | `true`  | When `false`, no logs are output for this plugin |
 
 ```typescript
-// Enable logs
-Logger.create({
-	name: 'plugin-a',
-	enabled: true
-})
-
-// Disable logs
-Logger.create({
-	name: 'plugin-b',
-	enabled: false
-})
-```
-
----
-
-## Usage Example
-
-```typescript
-import { Logger } from '@meng-xi/vite-plugin/logger'
-
-// Basic usage
-const logger = Logger.create({
-	name: 'my-plugin'
-})
-
-// Disable logs
-const silentLogger = Logger.create({
-	name: 'silent-plugin',
-	enabled: false
-})
+// Disable logging
+Logger.create({ name: 'my-plugin', enabled: false })
 
 // Control by environment
-const envLogger = Logger.create({
-	name: 'env-plugin',
-	enabled: process.env.DEBUG === 'true'
-})
+Logger.create({ name: 'my-plugin', enabled: process.env.DEBUG === 'true' })
 ```
