@@ -2,7 +2,7 @@ import type { RouteConfig, RouteMeta, GenerateRouterOptions } from '../types'
 import { serializeRoute, serializeValue, replacePropertyValue, removeProperty, extractPropertyValueText } from './code-manipulation'
 
 /** 插件版本号，由 scripts/generate-exports.ts 在构建时从 package.json 同步 */
-const PLUGIN_VERSION = '0.2.1'
+const PLUGIN_VERSION = '0.2.2'
 
 /**
  * 生成路由配置文件内容
@@ -26,11 +26,11 @@ export function generateFileContent(routes: RouteConfig[], options: Pick<Generat
 		return serializeRoute(route)
 	})
 
-	// 缩进：首行 \t，后续行 \t\t
+	// 缩进：所有行统一加 \t
 	const indentedRoutes = routeStrings
 		.map(s => {
 			const lines = s.split('\n')
-			return lines.map((line, i) => (i === 0 ? '\t' + line : '\t\t' + line)).join('\n')
+			return lines.map(line => '\t' + line).join('\n')
 		})
 		.join(',\n')
 

@@ -111,8 +111,10 @@ export function serializeRoute(route: RouteConfig): string {
 	const entries = Object.entries(route)
 	const lines: string[] = ['{']
 
-	for (const [key, value] of entries) {
-		lines.push(`\t${key}: ${serializeValue(value, true)}`)
+	for (let i = 0; i < entries.length; i++) {
+		const [key, value] = entries[i]
+		const comma = i < entries.length - 1 ? ',' : ''
+		lines.push(`\t${key}: ${serializeValue(value, true)}${comma}`)
 	}
 
 	lines.push('}')

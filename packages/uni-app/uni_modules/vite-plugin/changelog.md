@@ -1,3 +1,47 @@
+## 0.2.2（2026-06-21）
+
+generateRouter 修复多行格式输出属性间逗号缺失与缩进错误
+
+### generateRouter（修复）
+
+**Bug 修复**：
+
+- **多行格式属性间逗号缺失**：路由对象属性之间未添加逗号分隔符，导致生成的 `router.config.ts` 语法错误
+
+```typescript
+// 修复前：属性间缺少逗号
+{
+	path: '/pages/index/index'
+	name: 'pagesIndexIndex'
+	meta: { title: '首页', isTab: true }
+}
+
+// 修复后：属性间正确添加逗号
+{
+	path: '/pages/index/index',
+	name: 'pagesIndexIndex',
+	meta: { title: '首页', isTab: true }
+}
+```
+
+- **多行格式缩进多一层**：路由对象非首行属性缩进多了一个 tab，导致格式不统一
+
+```typescript
+// 修复前：非首行多一层缩进
+{
+		path: '/pages/index/index',
+		name: 'pagesIndexIndex',
+		meta: { title: '首页', isTab: true }
+	},
+
+// 修复后：缩进统一
+{
+	path: '/pages/index/index',
+	name: 'pagesIndexIndex',
+	meta: { title: '首页', isTab: true }
+},
+```
+
 ## 0.2.1（2026-06-21）
 
 generateRouter 新增文件注释头、输出格式优化，修复 preserveRouteChanges 合并丢失，移除冗余类型定义
