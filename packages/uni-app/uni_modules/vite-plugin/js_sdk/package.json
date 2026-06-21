@@ -1,0 +1,13 @@
+{
+	"type": "module",
+	"main": "index.cjs",
+	"module": "index.mjs",
+	"types": "index.d.ts",
+	"exports": {
+		".": {
+			"import": "./index.mjs",
+			"require": "./index.cjs",
+			"types": "./index.d.ts"
+		}
+	}
+}
