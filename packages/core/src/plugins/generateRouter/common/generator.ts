@@ -1,9 +1,8 @@
 import type { RouteConfig, RouteMeta, GenerateRouterOptions } from '../types'
 import { serializeRoute, serializeValue, replacePropertyValue, removeProperty, extractPropertyValueText } from './code-manipulation'
 
-/** 插件版本号，由构建工具在打包时从 package.json 注入 */
-declare const __GENERATE_ROUTER_VERSION__: string
-const PLUGIN_VERSION: string = typeof __GENERATE_ROUTER_VERSION__ !== 'undefined' ? __GENERATE_ROUTER_VERSION__ : '0.0.0'
+/** 插件版本号，由 scripts/generate-exports.ts 在构建时从 package.json 同步 */
+const PLUGIN_VERSION = '0.2.1'
 
 /**
  * 生成路由配置文件内容
