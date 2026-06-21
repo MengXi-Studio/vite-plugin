@@ -4,30 +4,6 @@ import '../../shared/vite-plugin.B8FuZce1.js';
 import '../../shared/vite-plugin.DRRlWY8P.js';
 
 /**
- * 导航动画类型
- *
- * 用于 uni.navigateTo / uni.navigateBack 的 animationType 参数，
- * 仅 App 端生效，其他平台自动忽略。
- *
- * 显示动画（navigateTo）：slide-in-right / slide-in-left / slide-in-top / slide-in-bottom / pop-in / fade-in / zoom-out / zoom-fade-out / none / auto
- * 关闭动画（navigateBack）：slide-out-right / slide-out-left / slide-out-top / slide-out-bottom / pop-out / fade-out / zoom-in / zoom-fade-in / none / auto
- *
- * @see https://en.uniapp.dcloud.io/api/router.html#animation
- */
-type UniAnimationType = 'auto' | 'none' | 'slide-in-right' | 'slide-in-left' | 'slide-in-top' | 'slide-in-bottom' | 'slide-out-right' | 'slide-out-left' | 'slide-out-top' | 'slide-out-bottom' | 'fade-in' | 'fade-out' | 'zoom-out' | 'zoom-in' | 'zoom-fade-out' | 'zoom-fade-in' | 'pop-in' | 'pop-out';
-/**
- * 导航动画配置
- *
- * 仅 App 端生效，其他平台自动忽略。
- * 优先级：push/replace 调用时传入 > meta.animation > uni 默认值
- */
-interface NavigationAnimation {
-    /** 窗口动画类型 */
-    type: UniAnimationType;
-    /** 动画持续时间（ms），默认 300 */
-    duration?: number;
-}
-/**
  * 路由元信息
  *
  * @interface RouteMeta
@@ -41,8 +17,6 @@ interface RouteMeta {
     isTab?: boolean;
     /** 是否需要登录才能访问 */
     requireAuth?: boolean;
-    /** 默认导航动画（仅 App 端生效），可被 push/replace 时的 animation 参数覆盖 */
-    animation?: NavigationAnimation;
     /** 自定义扩展字段 */
     [key: string]: any;
 }
@@ -78,10 +52,10 @@ interface UniAppPageConfig {
         /** 是否需要登录 */
         requireAuth?: boolean;
         /** 其他自定义属性 */
-        [key: string]: unknown;
+        [key: string]: any;
     };
     /** 其他属性 */
-    [key: string]: unknown;
+    [key: string]: any;
 }
 /**
  * uni-app pages.json 中的 tabBar 配置
@@ -102,7 +76,7 @@ interface UniAppTabBarConfig {
         selectedIconPath?: string;
     }>;
     /** 其他属性 */
-    [key: string]: unknown;
+    [key: string]: any;
 }
 /**
  * uni-app pages.json 结构
@@ -123,9 +97,9 @@ interface UniAppPagesJson {
     /** tabBar 配置 */
     tabBar?: UniAppTabBarConfig;
     /** 全局样式配置 */
-    globalStyle?: Record<string, unknown>;
+    globalStyle?: Record<string, any>;
     /** 其他属性 */
-    [key: string]: unknown;
+    [key: string]: any;
 }
 /**
  * 输出文件格式类型
@@ -254,70 +228,49 @@ interface GenerateRouterOptions extends BasePluginOptions {
      * ```
      */
     dts?: string | boolean;
+    /**
+     * 是否在生成文件顶部添加注释头
+     *
+     * @description 开启后，在生成的路由配置文件顶部添加标准化注释头，
+     * 包含插件名称、生成日期和插件版本号。
+     *
+     * @default false
+     *
+     * @example
+     * ```typescript
+     * // 生成的注释头格式：
+     * /**
+     *  * @plugin generate-router
+     *  * @date 2026-06-19 14:30:00
+     *  * @version 0.2.0
+     *  *\/
+     *
+     * generateRouter({ fileHeader: true })
+     * ```
+     */
+    fileHeader?: boolean;
 }
 
 /**
  * 生成路由配置插件
  *
- * @param {GenerateRouterOptions} options - 插件配置选项
- * @returns {Plugin} 一个 Vite 插件实例
+ * 读取 uni-app 项目的 pages.json 文件，自动生成路由配置文件。
+ * 支持主包和子包页面、tabBar 自动识别、多种命名策略、自定义元信息映射、
+ * 开发模式自动监听 pages.json 变化。
  *
  * @example
  * ```typescript
- * // 基本使用 - 使用默认配置
  * generateRouter()
- *
- * // 自定义 pages.json 路径
- * generateRouter({
- *   pagesJsonPath: 'pages.json'
- * })
- *
- * // 输出 JavaScript 文件
- * generateRouter({
- *   outputFormat: 'js',
- *   outputPath: 'src/router.config.js'
- * })
- *
- * // 使用帕斯卡命名策略
- * generateRouter({
- *   nameStrategy: 'pascalCase'
- * })
- *
- * // 自定义路由名称生成
- * generateRouter({
- *   nameStrategy: 'custom',
- *   customNameGenerator: (path) => `route_${path.replace(/\//g, '_')}`
- * })
- *
- * // 自定义元信息映射
- * generateRouter({
- *   metaMapping: {
- *     navigationBarTitleText: 'title',
- *     requireAuth: 'requireAuth',
- *     customField: 'custom'
- *   }
- * })
- *
- * // 生成路由类型声明文件
- * generateRouter({
- *   dts: true
- * })
- *
- * // 自定义类型声明文件路径
- * generateRouter({
- *   dts: 'src/types/router.d.ts'
- * })
+ * generateRouter({ pagesJsonPath: 'pages.json' })
+ * generateRouter({ outputFormat: 'js', outputPath: 'src/router.config.js' })
+ * generateRouter({ nameStrategy: 'pascalCase' })
+ * generateRouter({ nameStrategy: 'custom', customNameGenerator: (path) => `route_${path.replace(/\//g, '_')}` })
+ * generateRouter({ metaMapping: { navigationBarTitleText: 'title', requireAuth: 'requireAuth' } })
+ * generateRouter({ dts: true })
+ * generateRouter({ dts: 'src/types/router.d.ts' })
  * ```
- *
- * @remarks
- * 该插件会读取 uni-app 项目的 pages.json 文件，自动生成路由配置文件：
- * - 支持主包和子包页面
- * - 自动识别 tabBar 页面
- * - 支持多种路由名称生成策略
- * - 支持自定义元信息字段映射
- * - 开发模式下自动监听 pages.json 变化并重新生成
  */
 declare const generateRouter: PluginFactory<GenerateRouterOptions, GenerateRouterOptions>;
 
 export { generateRouter };
-export type { GenerateRouterOptions, NameStrategy, NavigationAnimation, OutputFormat, RouteConfig, RouteMeta, UniAnimationType, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig };
+export type { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig };

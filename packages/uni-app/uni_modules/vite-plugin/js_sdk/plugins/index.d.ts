@@ -6,7 +6,7 @@ export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummar
 export { CopyFileOptions, copyFile } from './copyFile/index.js';
 export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './envGuard/index.js';
 export { FaviconManagerOptions, Icon, faviconManager } from './faviconManager/index.js';
-export { GenerateRouterOptions, NameStrategy, NavigationAnimation, OutputFormat, RouteConfig, RouteMeta, UniAnimationType, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './generateRouter/index.js';
+export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './generateRouter/index.js';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './generateVersion/index.js';
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './htmlInject/index.js';
 export { ConvertMapping, FormatQualityOptions, ImageFormat, ImageOptimizeStats, ImageOptimizeSummary, ImageOptimizerOptions, SvgoOptions, SvgoPlugin, imageOptimizer } from './imageOptimizer/index.js';

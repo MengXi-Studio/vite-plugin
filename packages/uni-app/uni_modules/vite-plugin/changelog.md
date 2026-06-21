@@ -1,3 +1,71 @@
+## 0.2.1（2026-06-21）
+
+generateRouter 新增文件注释头、输出格式优化，修复 preserveRouteChanges 合并丢失，移除冗余类型定义
+
+### generateRouter（增强 + 修复）
+
+**新增功能**：
+
+- **文件注释头**（`fileHeader`）：开启后在生成文件顶部添加标准化注释头，包含插件名称、生成日期时间（`YYYY-MM-DD HH:mm:ss`）和插件版本号，版本号随 npm 包版本自动更新
+
+| 选项       | 类型      | 默认值  | 描述                                                                                   |
+| ---------- | --------- | ------- | -------------------------------------------------------------------------------------- |
+| fileHeader | `boolean` | `false` | 是否在生成文件顶部添加注释头，包含 `@plugin`、`@date`（含时分秒）、`@version` 三个标签 |
+
+```typescript
+generateRouter({ fileHeader: true })
+
+// 生成的文件顶部：
+/**
+ * @plugin generate-router
+ * @date 2026-06-19 14:30:00
+ * @version 0.2.1
+ */
+
+import type { RouteConfig } from '@meng-xi/uni-router'
+```
+
+- **多行格式输出**：路由对象从单行紧凑格式改为多行格式，每个属性独占一行，提升可读性
+
+```typescript
+// 0.2.0 单行格式
+{ path: '/pages/index/index', name: 'pagesIndexIndex', meta: { title: '首页', isTab: true } }
+
+// 0.2.1 多行格式
+{
+	path: '/pages/index/index',
+	name: 'pagesIndexIndex',
+	meta: { title: '首页', isTab: true }
+}
+```
+
+- **类型外部导入**：移除内联类型定义，改为 `import type { RouteConfig } from '@meng-xi/uni-router'`，类型由 `@meng-xi/uni-router` 统一提供
+
+**Bug 修复**：
+
+- **preserveRouteChanges 用户自定义 meta 字段丢失**：`meta` 从整体替换改为逐字段合并，仅更新/添加新字段，不删除用户自定义的 meta 字段
+- **preserveRouteChanges 含函数属性时合并全部失败**：单条路由含 `beforeEnter` 等函数属性时不再导致所有路由合并跳过，仅跳过该条，其余正常合并
+
+| 场景                               | 修复前           | 修复后                   |
+| ---------------------------------- | ---------------- | ------------------------ |
+| 用户修改 `meta.title`              | 可能丢失         | 保留                     |
+| 用户添加自定义 meta 字段           | 丢失（整体替换） | 保留（逐字段合并）       |
+| 用户添加 `beforeEnter` 函数        | 保留             | 保留                     |
+| 某条路由有函数导致 JSON.parse 失败 | 所有路由合并跳过 | 仅该条跳过，其余正常合并 |
+
+**Breaking Changes**：
+
+- 移除 `UniAnimationType` 类型导出，改由 `@meng-xi/uni-router` 提供
+- 移除 `NavigationAnimation` 类型导出，改由 `@meng-xi/uni-router` 提供
+- 移除 `RouteMeta.animation` 字段，改由 `@meng-xi/uni-router` 提供
+
+> 如果项目使用了上述类型，请从 `@meng-xi/uni-router` 导入替代。
+
+### 子路径导出（变更）
+
+- 移除导出类型：`UniAnimationType`、`NavigationAnimation`
+- `@meng-xi/vite-plugin/plugins/generate-router` 新增配置选项：`fileHeader`
+
 ## 0.2.0（2026-06-18）
 
 新增 proxyManager 开发代理管理插件，Common 工具模块提取多项通用函数，修复 proxyManager 四个关键缺陷
