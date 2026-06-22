@@ -221,7 +221,7 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * @returns {void} 无返回值
 	 * @description 添加插件钩子到 Vite 插件对象，用于在构建过程中执行插件逻辑
 	 */
-	protected abstract addPluginHooks(plugin: Plugin): void
+	protected addPluginHooks(_plugin: Plugin): void {}
 
 	/**
 	 * 安全执行同步函数，自动处理执行过程中可能出现的错误

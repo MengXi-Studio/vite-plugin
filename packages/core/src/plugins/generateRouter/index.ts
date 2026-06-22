@@ -1,6 +1,5 @@
-import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import type { GenerateRouterOptions, UniAppPagesJson } from './types'
+import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig } from './types'
 import { stripJsonComments, generateRouterDtsContent, parsePagesJson, mergeRoutes, generateFileContent, extractExistingRawRoutes, extractExistingRoutes } from './common'
 import { writeFileContent, shouldUpdateFileContent } from '@/common/fs'
 import { resolve } from 'path'
@@ -9,6 +8,10 @@ import { existsSync, watch as fsWatch, promises as fsp } from 'fs'
 class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	private projectRoot: string = process.cwd()
 	private watcher: ReturnType<typeof fsWatch> | null = null
+
+	protected getPluginName(): string {
+		return 'generate-router'
+	}
 
 	protected getDefaultOptions(): Partial<GenerateRouterOptions> {
 		return {
@@ -37,39 +40,18 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 		}
 	}
 
-	protected getPluginName(): string {
-		return 'generate-router'
-	}
-
-	/** 读取并解析 pages.json */
-	private async readPagesJson(): Promise<UniAppPagesJson | null> {
-		const pagesJsonPath = resolve(this.projectRoot, this.options.pagesJsonPath!)
-
-		if (!existsSync(pagesJsonPath)) {
-			this.logger.warn(`pages.json 文件不存在: ${pagesJsonPath}`)
-			return null
-		}
-
-		try {
-			const content = await fsp.readFile(pagesJsonPath, 'utf-8')
-			return JSON.parse(stripJsonComments(content)) as UniAppPagesJson
-		} catch (error) {
-			this.logger.error(`解析 pages.json 失败: ${(error as Error).message}`)
-			return null
+	protected onConfigResolved(config: import('vite').ResolvedConfig): void {
+		super.onConfigResolved(config)
+		this.projectRoot = config.root
+		this.safeExecute(() => this.generateRouterConfig(), '生成路由配置')
+		if (config.command === 'serve') {
+			this.startWatching()
 		}
 	}
 
-	/** 生成路由类型声明文件 */
-	private async generateDtsFile(routes: import('./types').RouteConfig[]): Promise<void> {
-		if (!this.options.dts) return
-
-		const dtsPath = resolve(this.projectRoot, typeof this.options.dts === 'string' ? this.options.dts : 'src/router.d.ts')
-		const content = generateRouterDtsContent(routes)
-
-		if (!shouldUpdateFileContent(dtsPath, content)) return
-
-		await writeFileContent(dtsPath, content)
-		this.logger.success(`路由类型声明文件已生成: ${dtsPath}`)
+	protected destroy(): void {
+		super.destroy()
+		this.stopWatching()
 	}
 
 	/** 完整的路由配置文件生成流程 */
@@ -109,6 +91,37 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 		await this.generateDtsFile(routes)
 	}
 
+	/** 读取并解析 pages.json */
+	private async readPagesJson(): Promise<UniAppPagesJson | null> {
+		const pagesJsonPath = resolve(this.projectRoot, this.options.pagesJsonPath!)
+
+		if (!existsSync(pagesJsonPath)) {
+			this.logger.warn(`pages.json 文件不存在: ${pagesJsonPath}`)
+			return null
+		}
+
+		try {
+			const content = await fsp.readFile(pagesJsonPath, 'utf-8')
+			return JSON.parse(stripJsonComments(content)) as UniAppPagesJson
+		} catch (error) {
+			this.logger.error(`解析 pages.json 失败: ${(error as Error).message}`)
+			return null
+		}
+	}
+
+	/** 生成路由类型声明文件 */
+	private async generateDtsFile(routes: RouteConfig[]): Promise<void> {
+		if (!this.options.dts) return
+
+		const dtsPath = resolve(this.projectRoot, typeof this.options.dts === 'string' ? this.options.dts : 'src/router.d.ts')
+		const content = generateRouterDtsContent(routes)
+
+		if (!shouldUpdateFileContent(dtsPath, content)) return
+
+		await writeFileContent(dtsPath, content)
+		this.logger.success(`路由类型声明文件已生成: ${dtsPath}`)
+	}
+
 	/** 启动 pages.json 文件监听 */
 	private startWatching(): void {
 		if (!this.options.watch) return
@@ -126,26 +139,12 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 		this.logger.info(`正在监听 pages.json 变化: ${pagesJsonPath}`)
 	}
 
+	/** 停止 pages.json 文件监听 */
 	private stopWatching(): void {
 		if (this.watcher) {
 			this.watcher.close()
 			this.watcher = null
 		}
-	}
-
-	protected addPluginHooks(plugin: Plugin): void {
-		plugin.configResolved = async config => {
-			this.projectRoot = config.root
-			await this.safeExecute(() => this.generateRouterConfig(), '生成路由配置')
-			if (config.command === 'serve') {
-				this.startWatching()
-			}
-		}
-	}
-
-	protected destroy(): void {
-		super.destroy()
-		this.stopWatching()
 	}
 }
 

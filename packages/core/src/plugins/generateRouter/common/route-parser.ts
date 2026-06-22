@@ -2,35 +2,6 @@ import type { RouteConfig, RouteMeta } from '../types'
 import { extractRouteObjects, extractPropertyValueText } from './code-manipulation'
 
 /**
- * 从已存在的路由配置文件中提取 routes 数组文本
- *
- * 使用花括号匹配定位 `export const routes` 后的数组内容，
- * 比正则惰性匹配更健壮，能正确处理嵌套数组。
- *
- * @param content - 路由配置文件完整内容
- * @returns routes 数组文本，未找到时返回 null
- */
-function extractRoutesArrayText(content: string): string | null {
-	const match = content.match(/export\s+const\s+routes[^=]*=\s*\[/)
-	if (!match || match.index === undefined) return null
-
-	const arrayStart = match.index + match[0].length - 1
-	if (arrayStart < 0) return null
-
-	let depth = 0
-	for (let i = arrayStart; i < content.length; i++) {
-		const ch = content[i]
-		if (ch === '[') depth++
-		else if (ch === ']') {
-			depth--
-			if (depth === 0) return content.substring(arrayStart, i + 1)
-		}
-	}
-
-	return null
-}
-
-/**
  * 从已存在的路由配置文件中提取 routes 的原始文本
  *
  * 提取每个路由对象的原始文本（保留函数等非 JSON 内容），
@@ -82,6 +53,35 @@ export function extractExistingRoutes(existingContent: string): Map<string, Rout
 	}
 
 	return routesMap
+}
+
+/**
+ * 从已存在的路由配置文件中提取 routes 数组文本
+ *
+ * 使用花括号匹配定位 `export const routes` 后的数组内容，
+ * 比正则惰性匹配更健壮，能正确处理嵌套数组。
+ *
+ * @param content - 路由配置文件完整内容
+ * @returns routes 数组文本，未找到时返回 null
+ */
+function extractRoutesArrayText(content: string): string | null {
+	const match = content.match(/export\s+const\s+routes[^=]*=\s*\[/)
+	if (!match || match.index === undefined) return null
+
+	const arrayStart = match.index + match[0].length - 1
+	if (arrayStart < 0) return null
+
+	let depth = 0
+	for (let i = arrayStart; i < content.length; i++) {
+		const ch = content[i]
+		if (ch === '[') depth++
+		else if (ch === ']') {
+			depth--
+			if (depth === 0) return content.substring(arrayStart, i + 1)
+		}
+	}
+
+	return null
 }
 
 /**

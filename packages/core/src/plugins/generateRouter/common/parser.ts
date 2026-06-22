@@ -92,6 +92,8 @@ function generateRouteName(path: string, options: Pick<GenerateRouterOptions, 'n
 /**
  * 从页面配置中提取路由元信息
  *
+ * 优先级：pageConfig.meta > metaMapping 映射 > tabBar 推断
+ *
  * @param pageConfig - pages.json 中的页面对象
  * @param fullPath - 不含前导 `/` 的页面路径，用于匹配 tabBar
  * @param metaMapping - style 字段到 meta 字段的映射
@@ -103,12 +105,21 @@ function extractMeta(pageConfig: UniAppPageConfig, fullPath: string, metaMapping
 	const style = pageConfig.style || {}
 	const mapping = metaMapping || {}
 
+	// 1. 先通过 metaMapping 从 style 中映射提取
 	for (const [sourceKey, targetKey] of Object.entries(mapping)) {
 		if (style[sourceKey] !== undefined) {
 			meta[targetKey] = style[sourceKey]
 		}
 	}
 
+	// 2. 再用 pageConfig.meta 覆盖，pages.json 中的 meta 优先级高于 metaMapping
+	if (pageConfig.meta && typeof pageConfig.meta === 'object') {
+		for (const [key, value] of Object.entries(pageConfig.meta)) {
+			meta[key] = value
+		}
+	}
+
+	// 3. tabBar 推断
 	if (tabBarPages.has(fullPath)) {
 		meta.isTab = true
 	}

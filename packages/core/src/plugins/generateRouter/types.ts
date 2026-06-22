@@ -53,6 +53,8 @@ export interface UniAppPageConfig {
 		/** 其他自定义属性 */
 		[key: string]: any
 	}
+	/** 页面元信息，优先级高于 metaMapping 映射 */
+	meta?: Record<string, any>
 	/** 其他属性 */
 	[key: string]: any
 }

@@ -145,6 +145,35 @@ export function extractRouteObjects(arrayText: string): string[] {
 }
 
 /**
+ * 提取原始文本中指定属性值的文本
+ *
+ * @param rawText - 原始对象文本
+ * @param propertyName - 属性名
+ * @returns 属性值文本，未找到时返回 null
+ */
+export function extractPropertyValueText(rawText: string, propertyName: string): string | null {
+	const regex = new RegExp(`\\b${propertyName}\\s*:\\s*`)
+	const match = rawText.match(regex)
+	if (!match || match.index === undefined) return null
+
+	const valueStart = match.index + match[0].length
+	let valueEnd = valueStart
+
+	scanText(rawText, valueStart, (ch, i, state) => {
+		if (state.depth < 0) {
+			valueEnd = i
+			return true
+		}
+		if (state.depth === 0 && ch === ',') {
+			valueEnd = i
+			return true
+		}
+	})
+
+	return rawText.substring(valueStart, valueEnd)
+}
+
+/**
  * 在原始文本中替换指定属性的值
  *
  * 如果属性不存在，则在对象末尾添加。
@@ -183,35 +212,6 @@ export function replacePropertyValue(rawText: string, propertyName: string, newV
 	})
 
 	return rawText.substring(0, match.index!) + `${propertyName}: ${newValue}` + rawText.substring(valueEnd)
-}
-
-/**
- * 提取原始文本中指定属性值的文本
- *
- * @param rawText - 原始对象文本
- * @param propertyName - 属性名
- * @returns 属性值文本，未找到时返回 null
- */
-export function extractPropertyValueText(rawText: string, propertyName: string): string | null {
-	const regex = new RegExp(`\\b${propertyName}\\s*:\\s*`)
-	const match = rawText.match(regex)
-	if (!match || match.index === undefined) return null
-
-	const valueStart = match.index + match[0].length
-	let valueEnd = valueStart
-
-	scanText(rawText, valueStart, (ch, i, state) => {
-		if (state.depth < 0) {
-			valueEnd = i
-			return true
-		}
-		if (state.depth === 0 && ch === ',') {
-			valueEnd = i
-			return true
-		}
-	})
-
-	return rawText.substring(valueStart, valueEnd)
 }
 
 /**
