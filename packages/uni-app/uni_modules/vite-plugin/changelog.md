@@ -1,3 +1,80 @@
+## 0.2.3（2026-06-23）
+
+完善插件基类与路由生成插件功能
+
+### BasePlugin（重构）
+
+**变更**：
+
+- **`addPluginHooks` 从抽象方法改为虚方法**：不再强制子类实现，默认提供空实现。不依赖 Vite 钩子的插件无需再写空的 `addPluginHooks` 方法
+
+```typescript
+// 0.2.2：子类必须实现
+protected abstract addPluginHooks(plugin: Plugin): void
+
+// 0.2.3：可选重写
+protected addPluginHooks(_plugin: Plugin): void {}
+```
+
+### generateRouter（增强）
+
+**新增功能**：
+
+- **页面元信息 `meta` 字段支持**：`UniAppPageConfig` 类型新增 `meta` 属性，支持在 `pages.json` 中直接为页面配置元信息。`meta` 字段优先级高于 `metaMapping` 映射，允许页面级覆盖
+
+| 类型                    | 变更 | 说明                                      |
+| ----------------------- | ---- | ----------------------------------------- |
+| `UniAppPageConfig.meta` | 新增 | 页面元信息，优先级高于 `metaMapping` 映射 |
+
+**元信息提取优先级**：
+
+| 优先级  | 来源               | 说明                                   |
+| ------- | ------------------ | -------------------------------------- |
+| 1（高） | `pageConfig.meta`  | pages.json 中页面直接配置的 meta 字段  |
+| 2       | `metaMapping` 映射 | 从 style 字段映射提取                  |
+| 3（低） | tabBar 推断        | 自动识别 tabBar 页面设置 `isTab: true` |
+
+```typescript
+// pages.json 中可直接配置 meta
+{
+  "path": "pages/index/index",
+  "style": { "navigationBarTitleText": "首页" },
+  "meta": { "requireAuth": true, "customField": "value" }
+}
+```
+
+**重构**：
+
+- **插件钩子迁移至 `onConfigResolved` 生命周期**：将路由生成逻辑从 `addPluginHooks` 中的 `configResolved` 钩子迁移至基类提供的 `onConfigResolved` 生命周期方法，统一生命周期管理
+
+```typescript
+// 0.2.2：手动在 addPluginHooks 中注册 configResolved
+protected addPluginHooks(plugin: Plugin): void {
+  plugin.configResolved = async config => {
+    this.projectRoot = config.root
+    await this.safeExecute(() => this.generateRouterConfig(), '生成路由配置')
+    if (config.command === 'serve') {
+      this.startWatching()
+    }
+  }
+}
+
+// 0.2.3：使用基类 onConfigResolved 生命周期
+protected onConfigResolved(config: ResolvedConfig): void {
+  super.onConfigResolved(config)
+  this.projectRoot = config.root
+  this.safeExecute(() => this.generateRouterConfig(), '生成路由配置')
+  if (config.command === 'serve') {
+    this.startWatching()
+  }
+}
+```
+
+### 子路径导出（变更）
+
+- `@meng-xi/vite-plugin/plugins/generate-router` 新增类型属性：`UniAppPageConfig.meta`
+- `@meng-xi/vite-plugin/factory` 变更：`addPluginHooks` 从抽象方法改为虚方法
+
 ## 0.2.2（2026-06-21）
 
 generateRouter 修复多行格式输出属性间逗号缺失与缩进错误

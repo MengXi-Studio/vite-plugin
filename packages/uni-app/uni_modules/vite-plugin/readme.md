@@ -162,9 +162,20 @@ export const myPlugin = createPluginFactory(MyPlugin)
 内置通用工具函数库，按功能模块组织，支持子路径按需导入。
 
 ```typescript
-import { formatFileSize, parseTemplate, formatDate } from './uni_modules/vite-plugin/js_sdk/common/format/index.mjs'
-import { scanDirectory, writeFileSyncSafely, shouldUpdateFileContent } from './uni_modules/vite-plugin/js_sdk/common/fs/index.mjs'
-import { injectBeforeTag, escapeHtmlAttr } from './uni_modules/vite-plugin/js_sdk/common/html/index.mjs'
+import { formatFileSize, parseTemplate, parseTemplateWithDelimiter, formatDate, getDateFormatParams, calcRatio } from './uni_modules/vite-plugin/js_sdk/common/format/index.mjs'
+import {
+	scanDirectory,
+	writeFileSyncSafely,
+	shouldUpdateFileContent,
+	checkSourceExists,
+	copySourceToTarget,
+	deleteFiles,
+	resolveReportPath,
+	scanAndMapFiles,
+	writeFileContent,
+	writeJsonReport
+} from './uni_modules/vite-plugin/js_sdk/common/fs/index.mjs'
+import { injectBeforeTag, injectHeadAndBody, escapeHtmlAttr, sanitizeContent } from './uni_modules/vite-plugin/js_sdk/common/html/index.mjs'
 ```
 
 | 子路径                                                                                      | 描述                                                                      |
