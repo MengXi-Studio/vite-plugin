@@ -39,18 +39,6 @@ Return the plugin name for Vite plugin system identification.
 protected abstract getPluginName(): string
 ```
 
-### addPluginHooks
-
-Add Vite plugin hooks.
-
-```typescript
-protected abstract addPluginHooks(plugin: Plugin): void
-```
-
-| Parameter | Type     | Description      |
-| --------- | -------- | ---------------- |
-| plugin    | `Plugin` | Vite plugin object |
-
 ---
 
 ## Overridable Methods
@@ -64,6 +52,20 @@ protected getDefaultOptions(): Partial<T>
 ```
 
 Default returns `{}`, subclasses can override to provide plugin-specific defaults.
+
+### addPluginHooks
+
+Add Vite plugin hooks.
+
+```typescript
+protected addPluginHooks(plugin: Plugin): void
+```
+
+| Parameter | Type     | Description      |
+| --------- | -------- | ---------------- |
+| plugin    | `Plugin` | Vite plugin object |
+
+Default empty implementation, subclasses can override to add custom Vite hooks (e.g., `buildStart`, `writeBundle`).
 
 ### validateOptions
 

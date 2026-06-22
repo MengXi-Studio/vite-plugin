@@ -319,88 +319,80 @@ resolveReportPath('dist', false)            // null
 
 ## scanAndMapFiles
 
-Scan a directory and build a file path mapping table for quick file lookup.
+Scan a directory and map file information to custom structures.
 
 ```typescript
-async function scanAndMapFiles(
+async function scanAndMapFiles<T>(
   dirPath: string,
-  options?: ScanDirectoryOptions
-): Promise<Map<string, ScannedFile>>
+  params: {
+    scanOptions?: ScanDirectoryOptions
+    mapFn: (file: ScannedFile, dirPath: string) => T
+  }
+): Promise<T[]>
 ```
 
 **Parameters**
 
-| Parameter | Type                   | Default | Description                                  |
-| --------- | ---------------------- | ------- | -------------------------------------------- |
-| dirPath   | `string`               | -       | Directory path                               |
-| options   | `ScanDirectoryOptions` | `{}`    | Scan options (same as `scanDirectory`)       |
+| Parameter | Type                   | Default | Description                  |
+| --------- | ---------------------- | ------- | ---------------------------- |
+| dirPath   | `string`               | -       | Directory path               |
+| params    | `object`               | -       | Scan and mapping parameters  |
+
+**params**
+
+| Property    | Type                                             | Default | Description                                      |
+| ----------- | ------------------------------------------------ | ------- | ------------------------------------------------ |
+| scanOptions | `ScanDirectoryOptions`                           | -       | Options passed to `scanDirectory`                |
+| mapFn       | `(file: ScannedFile, dirPath: string) => T`      | -       | Function to map ScannedFile to custom structure  |
 
 **Returns**
 
-`Promise<Map<string, ScannedFile>>` - Map with file relative path as key and file info as value
+`Promise<T[]>` - List of mapped entries
 
 **Notes**
 
-- Built on `scanDirectory`, converts scan results to a `Map` structure for O(1) lookup
-- Keys are normalized relative paths (using forward slashes) relative to `dirPath`
-- Suitable for scenarios requiring quick file existence checks or file info retrieval
+- Recursively scans directory and applies `mapFn` to each file
+- Generic wrapper for the "scan + filter + map" pattern used by multiple plugins
+- `mapFn` receives the original `ScannedFile` and `dirPath`, allowing free computation of `relativePath` etc.
 
 **Example**
 
 ```typescript
-// Build file mapping table
-const fileMap = await scanAndMapFiles('dist')
-
-// Check if file exists
-if (fileMap.has('assets/index.js')) {
-	const file = fileMap.get('assets/index.js')!
-	console.log(`File size: ${file.size} bytes`)
-}
-
-// Use with filter conditions
-const jsFileMap = await scanAndMapFiles('dist', { includeExtensions: ['.js'] })
+// Scan and map to custom structure
+const candidates = await scanAndMapFiles('dist', {
+  scanOptions: { filter: (fp, ext, size) => size > 1024 },
+  mapFn: (f, dir) => ({
+    filePath: f.filePath,
+    relativePath: normalizePath(path.relative(dir, f.filePath)),
+    size: f.size,
+    ext: f.extension
+  })
+})
 ```
 
 ---
 
 ## deleteFiles
 
-Batch delete a list of files, ignoring non-existent files.
+Batch delete a list of files.
 
 ```typescript
-async function deleteFiles(files: string[]): Promise<{ deleted: number; skipped: number }>
+async function deleteFiles(filePaths: string[]): Promise<void>
 ```
 
 **Parameters**
 
-| Parameter | Type       | Description              |
-| --------- | ---------- | ------------------------ |
-| files     | `string[]` | List of file paths to delete |
-
-**Returns**
-
-`Promise<{ deleted: number; skipped: number }>` - Deletion result statistics
-
-| Property | Type     | Description                                  |
-| -------- | -------- | -------------------------------------------- |
-| deleted  | `number` | Number of files successfully deleted         |
-| skipped  | `number` | Number of files skipped (not found or failed) |
+| Parameter  | Type       | Description                                              |
+| ---------- | ---------- | -------------------------------------------------------- |
+| filePaths  | `string[]` | List of absolute file paths to delete (auto-deduplicated) |
 
 **Notes**
 
-- Concurrently deletes files to improve batch operation efficiency
-- Skips non-existent files without throwing exceptions
-- Skips individual file deletion failures and continues processing other files
+- Deletes files by path list, auto-deduplicates then deletes one by one
+- Silently ignores deletion errors (e.g., file already deleted or insufficient permissions)
 
 **Example**
 
 ```typescript
-// Batch delete files
-const result = await deleteFiles([
-	'dist/old-file.js',
-	'dist/old-file.css',
-	'dist/temp.txt'
-])
-
-console.log(`Deleted ${result.deleted}, skipped ${result.skipped}`)
+await deleteFiles(['/dist/app.js', '/dist/app.js.gz'])
 ```

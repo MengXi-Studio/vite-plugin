@@ -157,8 +157,19 @@ import { runWithConcurrency } from '@meng-xi/vite-plugin/common/concurrency'
 // 格式化：日期参数、模板变量替换（支持自定义分隔符）、文件大小、日期格式化、压缩率计算
 import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 
-// 文件系统：文件复制、目录扫描、扫描+映射、批量删除、安全写入、变更检测、报告路径解析
-import { copySourceToTarget, scanDirectory, scanAndMapFiles, deleteFiles, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
+// 文件系统：源文件检查、文件/目录复制、目录扫描、扫描+映射、批量删除、文件写入、JSON报告、安全写入、变更检测、报告路径解析
+import {
+	checkSourceExists,
+	copySourceToTarget,
+	scanDirectory,
+	scanAndMapFiles,
+	deleteFiles,
+	writeFileContent,
+	writeJsonReport,
+	writeFileSyncSafely,
+	shouldUpdateFileContent,
+	resolveReportPath
+} from '@meng-xi/vite-plugin/common/fs'
 
 // HTML：标签注入、内容消毒、属性转义
 import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/html'
@@ -173,19 +184,19 @@ import { makeCallback } from '@meng-xi/vite-plugin/common/script'
 import { ANSI } from '@meng-xi/vite-plugin/common/ui'
 
 // 参数验证：链式验证器、通用校验函数
-import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng-xi/vite-plugin/common/validation'
+import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields } from '@meng-xi/vite-plugin/common/validation'
 ```
 
-| 子路径                                                                                      | 描述                                                                                                     |
-| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/common/concurrency.html) | 带并发限制的批量异步执行                                                                                 |
-| [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)           | 日期参数提取、模板变量替换 `{{key}}`/`{key}`（支持自定义分隔符）、日期格式化、文件大小格式化、压缩率计算 |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                   | 文件/目录复制、目录扫描、扫描+映射、批量删除、同步安全写入、文件变更检测                                 |
-| [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)               | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                                                 |
-| [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)               | 路径规范化、扩展名过滤、路径排除匹配、预压缩格式检测                                                     |
-| [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)           | 回调函数体包装为安全的函数表达式（含 try-catch）                                                         |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                   | 终端 ANSI 颜色码常量                                                                                     |
-| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html)   | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                                                     |
+| 子路径                                                                                      | 描述                                                                                                                   |
+| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/common/concurrency.html) | 带并发限制的批量异步执行                                                                                               |
+| [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)           | 日期参数提取、模板变量替换 `{{key}}`/`{key}`（支持自定义分隔符）、日期格式化、文件大小格式化、压缩率计算               |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                   | 源文件检查、文件/目录复制、目录扫描、扫描+映射、批量删除、文件写入、JSON报告、同步安全写入、文件变更检测、报告路径解析 |
+| [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)               | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                                                               |
+| [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)               | 路径规范化、扩展名过滤、路径排除匹配、预压缩格式检测                                                                   |
+| [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)           | 回调函数体包装为安全的函数表达式（含 try-catch）                                                                       |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                   | 终端 ANSI 颜色码常量                                                                                                   |
+| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html)   | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                                                                   |
 
 ## 子路径导出
 

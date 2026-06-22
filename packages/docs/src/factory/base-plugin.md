@@ -39,18 +39,6 @@ constructor(options: T, loggerConfig?: LoggerOptions)
 protected abstract getPluginName(): string
 ```
 
-### addPluginHooks
-
-添加 Vite 插件钩子。
-
-```typescript
-protected abstract addPluginHooks(plugin: Plugin): void
-```
-
-| 参数   | 类型     | 说明          |
-| ------ | -------- | ------------- |
-| plugin | `Plugin` | Vite 插件对象 |
-
 ---
 
 ## 可选重写方法
@@ -64,6 +52,20 @@ protected getDefaultOptions(): Partial<T>
 ```
 
 默认返回 `{}`，子类可重写以提供插件特定的默认值。
+
+### addPluginHooks
+
+添加 Vite 插件钩子。
+
+```typescript
+protected addPluginHooks(plugin: Plugin): void
+```
+
+| 参数   | 类型     | 说明          |
+| ------ | -------- | ------------- |
+| plugin | `Plugin` | Vite 插件对象 |
+
+默认空实现，子类可按需覆写以添加自定义 Vite 钩子（如 `buildStart`、`writeBundle` 等）。
 
 ### validateOptions
 

@@ -1,3 +1,4 @@
+import type { ResolvedConfig } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig } from './types'
 import { stripJsonComments, generateRouterDtsContent, parsePagesJson, mergeRoutes, generateFileContent, extractExistingRawRoutes, extractExistingRoutes } from './common'
@@ -40,7 +41,7 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 		}
 	}
 
-	protected onConfigResolved(config: import('vite').ResolvedConfig): void {
+	protected onConfigResolved(config: ResolvedConfig): void {
 		super.onConfigResolved(config)
 		this.projectRoot = config.root
 		this.safeExecute(() => this.generateRouterConfig(), '生成路由配置')

@@ -319,13 +319,16 @@ resolveReportPath('dist', false)            // null
 
 ## scanAndMapFiles
 
-扫描目录并构建文件路径映射表，用于快速查找文件。
+扫描目录并将文件信息映射为自定义结构。
 
 ```typescript
-async function scanAndMapFiles(
+async function scanAndMapFiles<T>(
   dirPath: string,
-  options?: ScanDirectoryOptions
-): Promise<Map<string, ScannedFile>>
+  params: {
+    scanOptions?: ScanDirectoryOptions
+    mapFn: (file: ScannedFile, dirPath: string) => T
+  }
+): Promise<T[]>
 ```
 
 **参数**
@@ -333,74 +336,63 @@ async function scanAndMapFiles(
 | 参数    | 类型                   | 默认值 | 说明                       |
 | ------- | ---------------------- | ------ | -------------------------- |
 | dirPath | `string`               | -      | 目录路径                   |
-| options | `ScanDirectoryOptions` | `{}`   | 扫描选项（同 `scanDirectory`） |
+| params  | `object`               | -      | 扫描与映射参数             |
+
+**params**
+
+| 属性       | 类型                                             | 默认值 | 说明                         |
+| ---------- | ------------------------------------------------ | ------ | ---------------------------- |
+| scanOptions | `ScanDirectoryOptions`                         | -      | 传递给 `scanDirectory` 的选项 |
+| mapFn      | `(file: ScannedFile, dirPath: string) => T`    | -      | 将 ScannedFile 映射为自定义结构的函数 |
 
 **返回值**
 
-`Promise<Map<string, ScannedFile>>` - 以文件相对路径为键、文件信息为值的映射表
+`Promise<T[]>` - 映射后的条目列表
 
 **说明**
 
-- 基于 `scanDirectory` 实现，将扫描结果转换为 `Map` 结构便于 O(1) 查找
-- 键为相对于 `dirPath` 的规范化相对路径（使用正斜杠）
-- 适用于需要快速判断文件是否存在或获取文件信息的场景
+- 递归扫描目录并对每个文件应用 `mapFn` 转换
+- 是多个插件中"扫描 + 过滤 + 映射"模式的通用封装
+- `mapFn` 接收原始 `ScannedFile` 和 `dirPath`，可自由计算 `relativePath` 等字段
 
 **示例**
 
 ```typescript
-// 构建文件映射表
-const fileMap = await scanAndMapFiles('dist')
-
-// 检查文件是否存在
-if (fileMap.has('assets/index.js')) {
-	const file = fileMap.get('assets/index.js')!
-	console.log(`文件大小: ${file.size} 字节`)
-}
-
-// 配合过滤条件使用
-const jsFileMap = await scanAndMapFiles('dist', { includeExtensions: ['.js'] })
+// 扫描并映射为自定义结构
+const candidates = await scanAndMapFiles('dist', {
+  scanOptions: { filter: (fp, ext, size) => size > 1024 },
+  mapFn: (f, dir) => ({
+    filePath: f.filePath,
+    relativePath: normalizePath(path.relative(dir, f.filePath)),
+    size: f.size,
+    ext: f.extension
+  })
+})
 ```
 
 ---
 
 ## deleteFiles
 
-批量删除文件列表，忽略不存在的文件。
+批量删除文件列表中的文件。
 
 ```typescript
-async function deleteFiles(files: string[]): Promise<{ deleted: number; skipped: number }>
+async function deleteFiles(filePaths: string[]): Promise<void>
 ```
 
 **参数**
 
-| 参数  | 类型       | 说明               |
-| ----- | ---------- | ------------------ |
-| files | `string[]` | 待删除的文件路径列表 |
-
-**返回值**
-
-`Promise<{ deleted: number; skipped: number }>` - 删除结果统计
-
-| 属性     | 类型     | 说明           |
-| -------- | -------- | -------------- |
-| deleted  | `number` | 成功删除的文件数 |
-| skipped  | `number` | 跳过的文件数（不存在或删除失败） |
+| 参数       | 类型       | 说明                       |
+| ---------- | ---------- | -------------------------- |
+| filePaths  | `string[]` | 要删除的文件绝对路径列表（会自动去重） |
 
 **说明**
 
-- 并发删除文件，提高批量操作效率
-- 文件不存在时跳过，不抛出异常
-- 删除单个文件失败时跳过该文件，继续处理其他文件
+- 根据文件路径列表删除文件，自动去重后逐个删除
+- 删除失败时静默忽略错误（如文件已被删除或权限不足）
 
 **示例**
 
 ```typescript
-// 批量删除文件
-const result = await deleteFiles([
-	'dist/old-file.js',
-	'dist/old-file.css',
-	'dist/temp.txt'
-])
-
-console.log(`删除 ${result.deleted} 个，跳过 ${result.skipped} 个`)
+await deleteFiles(['/dist/app.js', '/dist/app.js.gz'])
 ```

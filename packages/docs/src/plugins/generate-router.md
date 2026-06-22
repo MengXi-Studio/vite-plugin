@@ -63,6 +63,24 @@ export default defineConfig({
 }
 ```
 
+### pages.json 中的 meta 对象
+
+`pages.json` 中页面配置对象的 `meta` 字段会直接合并到路由的 `meta` 中，且**优先级高于 `metaMapping` 映射**。
+
+```json
+{
+  "pages": [
+    {
+      "path": "pages/user/profile",
+      "style": { "navigationBarTitleText": "个人中心" },
+      "meta": { "requireAuth": true, "customField": "value" }
+    }
+  ]
+}
+```
+
+上述配置中，`meta.requireAuth` 和 `meta.customField` 会直接写入路由 meta，`style.navigationBarTitleText` 通过 `metaMapping` 映射为 `title`。当两者存在同名字段时，`meta` 对象的值优先。
+
 ### preserveRouteChanges 路由修改保留
 
 开启后，插件重新生成路由配置时会读取已有文件，合并用户对路由的修改，避免覆盖用户手动添加的内容。
@@ -220,7 +238,7 @@ export interface RouteMeta {
   title?: string
   isTab?: boolean
   requireAuth?: boolean
-  [key: string]: unknown
+  [key: string]: any
 }
 
 export interface RouteConfig {

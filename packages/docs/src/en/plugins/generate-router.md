@@ -65,6 +65,24 @@ export default defineConfig({
 }
 ```
 
+### meta Object in pages.json
+
+The `meta` field in a page configuration object in `pages.json` is directly merged into the route's `meta`, and takes **priority over `metaMapping`**.
+
+```json
+{
+  "pages": [
+    {
+      "path": "pages/user/profile",
+      "style": { "navigationBarTitleText": "Profile" },
+      "meta": { "requireAuth": true, "customField": "value" }
+    }
+  ]
+}
+```
+
+In the above configuration, `meta.requireAuth` and `meta.customField` are written directly to the route meta, while `style.navigationBarTitleText` is mapped to `title` via `metaMapping`. When both have the same field name, the `meta` object value takes priority.
+
 ### preserveRouteChanges Route Modification Preservation
 
 When enabled, the plugin reads the existing file during regeneration and merges user modifications, avoiding overwriting manually added content.
@@ -195,7 +213,7 @@ export interface RouteMeta {
 	title?: string
 	isTab?: boolean
 	requireAuth?: boolean
-	[key: string]: unknown
+	[key: string]: any
 }
 
 export interface RouteConfig {

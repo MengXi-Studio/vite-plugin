@@ -160,8 +160,19 @@ import { runWithConcurrency } from '@meng-xi/vite-plugin/common/concurrency'
 // Formatting: date params, template variable replacement (custom delimiter supported), file size, date formatting, compression ratio
 import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 
-// File system: file copy, directory scan, scan+map, batch delete, safe write, change detection, report path resolution
-import { copySourceToTarget, scanDirectory, scanAndMapFiles, deleteFiles, writeFileSyncSafely, shouldUpdateFileContent } from '@meng-xi/vite-plugin/common/fs'
+// File system: source check, file/directory copy, directory scan, scan+map, batch delete, file write, JSON report, safe write, change detection, report path resolution
+import {
+	checkSourceExists,
+	copySourceToTarget,
+	scanDirectory,
+	scanAndMapFiles,
+	deleteFiles,
+	writeFileContent,
+	writeJsonReport,
+	writeFileSyncSafely,
+	shouldUpdateFileContent,
+	resolveReportPath
+} from '@meng-xi/vite-plugin/common/fs'
 
 // HTML: tag injection, content sanitization, attribute escaping
 import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/html'
@@ -176,19 +187,19 @@ import { makeCallback } from '@meng-xi/vite-plugin/common/script'
 import { ANSI } from '@meng-xi/vite-plugin/common/ui'
 
 // Validation: chain validator, common validation functions
-import { Validator, validateGlobalName, validateNoScriptInTemplate } from '@meng-xi/vite-plugin/common/validation'
+import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields } from '@meng-xi/vite-plugin/common/validation'
 ```
 
-| Sub-path                                                                                       | Description                                                                                                                                        |
-| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/en/common/concurrency.html) | Batch async execution with concurrency limit                                                                                                       |
-| [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)           | Date param extraction, template variable replacement `{{key}}`/`{key}` (custom delimiter supported), date formatting, file size, compression ratio |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                   | File/directory copy, directory scan, scan+map, batch delete, sync safe write, file change detection                                                |
-| [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)               | HTML tag injection, dual-zone injection, content sanitization, HTML attribute value escaping                                                       |
-| [`common/path`](https://mengxi-studio.github.io/vite-plugin/en/common/path.html)               | Path normalization, extension filtering, path exclusion matching, pre-compression format detection                                                 |
-| [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)           | Callback body wrapping into safe function expressions (with try-catch)                                                                             |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                   | Terminal ANSI color code constants                                                                                                                 |
-| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html)   | Chain-style config validator, global name validation, script detection, callback field validation                                                  |
+| Sub-path                                                                                       | Description                                                                                                                                                        |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/en/common/concurrency.html) | Batch async execution with concurrency limit                                                                                                                       |
+| [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)           | Date param extraction, template variable replacement `{{key}}`/`{key}` (custom delimiter supported), date formatting, file size, compression ratio                 |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                   | Source check, file/directory copy, directory scan, scan+map, batch delete, file write, JSON report, sync safe write, file change detection, report path resolution |
+| [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)               | HTML tag injection, dual-zone injection, content sanitization, HTML attribute value escaping                                                                       |
+| [`common/path`](https://mengxi-studio.github.io/vite-plugin/en/common/path.html)               | Path normalization, extension filtering, path exclusion matching, pre-compression format detection                                                                 |
+| [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)           | Callback body wrapping into safe function expressions (with try-catch)                                                                                             |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                   | Terminal ANSI color code constants                                                                                                                                 |
+| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html)   | Chain-style config validator, global name validation, script detection, callback field validation                                                                  |
 
 ## Sub-path Exports
 
