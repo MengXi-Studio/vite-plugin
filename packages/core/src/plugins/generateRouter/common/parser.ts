@@ -56,7 +56,8 @@ export function parsePagesJson(
  */
 function parsePageToRoute(pageConfig: UniAppPageConfig, rootPath: string, options: Pick<GenerateRouterOptions, 'nameStrategy' | 'customNameGenerator' | 'metaMapping'>, tabBarPages: Set<string>): RouteConfig {
 	const fullPath = rootPath ? `/${rootPath}/${pageConfig.path}` : `/${pageConfig.path}`
-	const name = generateRouteName(fullPath, options)
+	// 优先使用 pages.json 中配置的 name，否则根据 nameStrategy 自动生成
+	const name = pageConfig.name || generateRouteName(fullPath, options)
 	const meta = extractMeta(pageConfig, fullPath.replace(/^\//, ''), options.metaMapping, tabBarPages)
 
 	const route: RouteConfig = { path: fullPath, name }

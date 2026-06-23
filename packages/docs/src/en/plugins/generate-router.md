@@ -65,6 +65,24 @@ export default defineConfig({
 }
 ```
 
+### name Property in pages.json
+
+The `name` field in a page configuration object in `pages.json` is used directly as the route name, and takes **priority over `nameStrategy` auto-generation**.
+
+```json
+{
+  "pages": [
+    {
+      "path": "pages/user/profile",
+      "name": "UserProfile",
+      "style": { "navigationBarTitleText": "Profile" }
+    }
+  ]
+}
+```
+
+In the above configuration, the route name is `'UserProfile'` instead of the auto-generated `'pagesUserProfile'` from `nameStrategy`.
+
 ### meta Object in pages.json
 
 The `meta` field in a page configuration object in `pages.json` is directly merged into the route's `meta`, and takes **priority over `metaMapping`**.
@@ -92,11 +110,11 @@ When enabled, the plugin reads the existing file during regeneration and merges 
 | Field | Behavior |
 | ----- | -------- |
 | `path` | Always follows `pages.json`, cannot be overridden |
-| `name` | User-modified values take priority |
-| `meta` | User-modified values take priority, new fields from `pages.json` are auto-added |
+| `name` | Always follows `pages.json` (`pageConfig.name` or `nameStrategy` auto-generation) |
+| `meta` | Fields generated from `pages.json` always use new values, user custom fields are preserved |
 | Non-standard properties | User-added custom properties like `beforeEnter`, `component` are fully preserved |
 
-**Example:** Suppose `pages.json` adds a new page, and the user has added `beforeEnter` to an existing route:
+**Example:** Suppose `pages.json` has updated the page title, and the user has added `beforeEnter` to an existing route:
 
 ```typescript
 // User-modified route config
@@ -104,20 +122,20 @@ export const routes: RouteConfig[] = [
   {
     path: '/pages/index/index',
     name: 'pagesIndexIndex',
-    meta: { title: 'Custom Title' },
+    meta: { title: 'Custom Title', customField: 'value' },
     beforeEnter: (to, from, next) => { next() }  // User-added guard
   }
 ]
 ```
 
-After regeneration:
+After regeneration (`navigationBarTitleText` in `pages.json` has been changed to "Home"):
 
 ```typescript
 export const routes: RouteConfig[] = [
   {
     path: '/pages/index/index',
     name: 'pagesIndexIndex',
-    meta: { title: 'Custom Title', isTab: true },  // User title preserved, new isTab auto-added
+    meta: { title: 'Home', isTab: true, customField: 'value' },  // title synced from pages.json, customField preserved
     beforeEnter: (to, from, next) => { next() }     // Custom property preserved
   },
   {

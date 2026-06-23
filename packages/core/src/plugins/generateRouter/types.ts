@@ -44,6 +44,10 @@ export interface RouteConfig {
 export interface UniAppPageConfig {
 	/** 页面路径，相对于 pages.json 所在目录 */
 	path: string
+	/** 页面名称，优先级高于 nameStrategy */
+	name?: string
+	/** 页面元信息，优先级高于 metaMapping 映射 */
+	meta?: Record<string, any>
 	/** 页面样式配置 */
 	style?: {
 		/** 导航栏标题文本 */
@@ -53,8 +57,6 @@ export interface UniAppPageConfig {
 		/** 其他自定义属性 */
 		[key: string]: any
 	}
-	/** 页面元信息，优先级高于 metaMapping 映射 */
-	meta?: Record<string, any>
 	/** 其他属性 */
 	[key: string]: any
 }

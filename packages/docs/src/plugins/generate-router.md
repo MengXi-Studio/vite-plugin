@@ -63,6 +63,24 @@ export default defineConfig({
 }
 ```
 
+### pages.json 中的 name 属性
+
+`pages.json` 中页面配置对象的 `name` 字段会直接作为路由名称，且**优先级高于 `nameStrategy` 自动生成**。
+
+```json
+{
+  "pages": [
+    {
+      "path": "pages/user/profile",
+      "name": "UserProfile",
+      "style": { "navigationBarTitleText": "个人中心" }
+    }
+  ]
+}
+```
+
+上述配置中，路由名称为 `'UserProfile'`，而非 `nameStrategy` 自动生成的 `'pagesUserProfile'`。
+
 ### pages.json 中的 meta 对象
 
 `pages.json` 中页面配置对象的 `meta` 字段会直接合并到路由的 `meta` 中，且**优先级高于 `metaMapping` 映射**。
@@ -90,11 +108,11 @@ export default defineConfig({
 | 字段 | 行为 |
 | ---- | ---- |
 | `path` | 始终以 `pages.json` 为准，不可覆盖 |
-| `name` | 用户修改的值优先保留 |
-| `meta` | 用户修改的值优先保留，`pages.json` 中新增的字段自动补充 |
+| `name` | 始终以 `pages.json` 为准（`pageConfig.name` 或 `nameStrategy` 自动生成） |
+| `meta` | `pages.json` 生成的字段始终使用新值，用户自定义字段保留 |
 | 非标准属性 | 用户添加的 `beforeEnter`、`component` 等自定义属性完整保留 |
 
-**示例：** 假设 `pages.json` 新增了一个页面，且用户在已有路由上添加了 `beforeEnter`：
+**示例：** 假设 `pages.json` 中修改了页面标题，且用户在已有路由上添加了 `beforeEnter`：
 
 ```typescript
 // 用户手动修改后的路由配置
@@ -102,20 +120,20 @@ export const routes: RouteConfig[] = [
   {
     path: '/pages/index/index',
     name: 'pagesIndexIndex',
-    meta: { title: '自定义标题' },
+    meta: { title: '自定义标题', customField: 'value' },
     beforeEnter: (to, from, next) => { next() }  // 用户添加的守卫
   }
 ]
 ```
 
-重新生成后：
+重新生成后（`pages.json` 中 `navigationBarTitleText` 已改为"首页"）：
 
 ```typescript
 export const routes: RouteConfig[] = [
   {
     path: '/pages/index/index',
     name: 'pagesIndexIndex',
-    meta: { title: '自定义标题', isTab: true },  // 用户标题保留，新增 isTab 自动补充
+    meta: { title: '首页', isTab: true, customField: 'value' },  // title 同步为 pages.json 的值，customField 保留
     beforeEnter: (to, from, next) => { next() }   // 自定义属性保留
   },
   {
@@ -171,7 +189,7 @@ declare module '@meng-xi/uni-router' {
 | 属性        | 类型      | 说明                                       |
 | ----------- | --------- | ------------------------------------------ |
 | path        | `string`  | 路由路径，以 `/` 开头                      |
-| name        | `string`  | 路由名称，根据 `nameStrategy` 自动生成     |
+| name        | `string`  | 路由名称，由 `pageConfig.name` 或 `nameStrategy` 自动生成     |
 | meta        | `RouteMeta` | 路由元信息                               |
 | `[key: any]` | `any`    | 用户自定义扩展属性（如 `beforeEnter` 等）  |
 
