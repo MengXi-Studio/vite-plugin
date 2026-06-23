@@ -18,6 +18,12 @@ pnpm add @meng-xi/vite-plugin -D
 
 :::
 
+## uni-app Plugin Marketplace
+
+If you are using a uni-app project, you can install it directly from the plugin marketplace:
+
+[Plugin Marketplace](https://ext.dcloud.net.cn/plugin?id=26652)
+
 ## Quick Start
 
 ### Using Built-in Plugins

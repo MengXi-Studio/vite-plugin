@@ -2,7 +2,7 @@ import type { RouteConfig, RouteMeta, GenerateRouterOptions } from '../types'
 import { serializeRoute, serializeValue, replacePropertyValue, removeProperty, extractPropertyValueText } from './code-manipulation'
 
 /** 插件版本号，由 scripts/generate-exports.ts 在构建时从 package.json 同步 */
-const PLUGIN_VERSION = '0.2.3'
+const PLUGIN_VERSION = '0.2.4'
 
 /**
  * 生成路由配置文件内容

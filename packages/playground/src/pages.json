@@ -26,6 +26,8 @@
 		},
 		{
 			"path": "pages/protected/protected",
+			"name": "ProtectedPage",
+			"meta": { "requireAuth": true, "role": "admin" },
 			"style": {
 				"navigationBarTitleText": "受保护页面",
 				"requireAuth": true

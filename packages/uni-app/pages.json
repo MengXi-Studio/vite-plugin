@@ -8,6 +8,8 @@
 		},
 		{
 			"path": "pages/about/index",
+			"name": "AboutPage",
+			"meta": { "requireAuth": false },
 			"style": {
 				"navigationBarTitleText": "关于"
 			}

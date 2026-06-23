@@ -18,6 +18,12 @@ pnpm add @meng-xi/vite-plugin -D
 
 :::
 
+## uni-app 插件市场
+
+如果你使用 uni-app 项目，可以通过插件市场一键安装：
+
+[插件市场地址](https://ext.dcloud.net.cn/plugin?id=26652)
+
 ## 快速开始
 
 ### 使用内置插件

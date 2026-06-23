@@ -1,3 +1,64 @@
+## 0.2.4（2026-06-23）
+
+generateRouter 新增页面名称配置，优化路由合并策略
+
+### generateRouter（增强 + 优化）
+
+**新增功能**：
+
+- **页面名称 `name` 字段支持**：`UniAppPageConfig` 类型新增 `name` 属性，支持在 `pages.json` 中直接为页面配置路由名称。`name` 字段优先级高于 `nameStrategy` 自动生成
+
+| 类型                    | 变更 | 说明                                |
+| ----------------------- | ---- | ----------------------------------- |
+| `UniAppPageConfig.name` | 新增 | 页面名称，优先级高于 `nameStrategy` |
+
+```typescript
+// pages.json 中可直接配置 name
+{
+  "path": "pages/user/profile",
+  "name": "UserProfile",
+  "style": { "navigationBarTitleText": "个人中心" }
+}
+
+// 生成的路由中 name 为 'UserProfile'，而非 nameStrategy 自动生成的 'pagesUserProfile'
+```
+
+**优化**：
+
+- **`preserveRouteChanges` 合并策略优化**：`pages.json` 是自动生成字段的唯一来源，`name` 和 `meta` 中来自 `pages.json` 的字段始终使用新值，仅保留用户自定义的额外字段
+
+| 字段                  | 优化前               | 优化后                                                          |
+| --------------------- | -------------------- | --------------------------------------------------------------- |
+| `name`                | 用户修改的值优先保留 | 始终以 `pages.json` 为准（`pageConfig.name` 或 `nameStrategy`） |
+| `meta` 自动生成字段   | 用户修改的值优先保留 | `pages.json` 生成的字段始终使用新值                             |
+| `meta` 用户自定义字段 | 保留                 | 保留（不变）                                                    |
+
+```typescript
+// pages.json 中修改了标题
+{ "path": "pages/index/index", "style": { "navigationBarTitleText": "新标题" } }
+
+// 用户在 router.config.ts 中添加了自定义字段
+{
+  path: '/pages/index/index',
+  name: 'pagesIndexIndex',
+  meta: { title: '旧标题', customField: 'value' }, // 用户修改了 title，并添加了 customField
+  beforeEnter: (to, from, next) => { next() }
+}
+
+// 优化前：meta.title 保留 '旧标题'（用户修改优先）
+// 优化后：meta.title 更新为 '新标题'（pages.json 为准），customField 保留
+{
+  path: '/pages/index/index',
+  name: 'pagesIndexIndex',
+  meta: { title: '新标题', customField: 'value' },
+  beforeEnter: (to, from, next) => { next() }
+}
+```
+
+### 子路径导出（变更）
+
+- `@meng-xi/vite-plugin/plugins/generate-router` 新增类型属性：`UniAppPageConfig.name`
+
 ## 0.2.3（2026-06-23）
 
 完善插件基类与路由生成插件功能
