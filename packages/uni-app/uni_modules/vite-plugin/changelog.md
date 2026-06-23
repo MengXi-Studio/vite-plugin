@@ -1,3 +1,61 @@
+## 0.2.5（2026-06-24）
+
+generateRouter 注释头模板化升级，移除废弃函数
+
+### generateRouter（增强 + Breaking）
+
+**Breaking Changes**：
+
+- **`fileHeader` 参数移除，替换为 `headerTemplate`**：参数从 `boolean` 升级为 `boolean | string`，核心能力从"开关"变为"模板"，`headerTemplate` 更准确描述字符串模板功能
+
+| 0.2.4               | 0.2.5                                                  | 说明               |
+| ------------------- | ------------------------------------------------------ | ------------------ |
+| `fileHeader: true`  | `headerTemplate: true`                                 | 生成默认注释头     |
+| `fileHeader: false` | `headerTemplate: false` / 不传                         | 不生成注释头       |
+| -                   | `headerTemplate: '{name} {date:YYYY-MM-DD} {version}'` | 自定义模板（新增） |
+
+**新增功能**：
+
+- **注释头模板系统**：`headerTemplate` 支持字符串模板，通过占位符自由组合注释头内容，占位符顺序由模板中的位置决定
+
+| 占位符          | 替换值                                         | 示例                                |
+| --------------- | ---------------------------------------------- | ----------------------------------- |
+| `{name}`        | 插件名称                                       | `generate-router`                   |
+| `{date}`        | 生成日期时间（默认格式 `YYYY-MM-DD HH:mm:ss`） | `2026-06-24 14:30:00`               |
+| `{date:格式}`   | 按指定格式输出日期时间                         | `{date:YYYY-MM-DD}` → `2026-06-24`  |
+| `{version}`     | 插件版本号                                     | `0.2.5`                             |
+| `{custom:键名}` | 自定义字段，值从 `customFields` 读取           | `{custom:author}` → `MengXi Studio` |
+
+- **自定义字段 `customFields`**：供 `{custom:键名}` 占位符引用的自定义字段键值对
+
+| 选项           | 类型                     | 默认值 | 说明             |
+| -------------- | ------------------------ | ------ | ---------------- |
+| `customFields` | `Record<string, string>` | `{}`   | 自定义字段键值对 |
+
+```typescript
+// 默认注释头（与 0.2.x fileHeader: true 输出一致）
+generateRouter({ headerTemplate: true })
+
+// 自定义日期格式
+generateRouter({ headerTemplate: '{name} {date:YYYY-MM-DD} {version}' })
+
+// 自定义字段
+generateRouter({
+	headerTemplate: '{name} {custom:author} {date} {version}',
+	customFields: { author: 'MengXi Studio' }
+})
+```
+
+### Common 工具模块（移除）
+
+- 移除 `serializeValueCompact`（已废弃且无消费者），请使用 `serializeValue(value, true)` 替代
+
+### 子路径导出（变更）
+
+- `@meng-xi/vite-plugin/plugins/generate-router` 移除配置选项：`fileHeader`
+- `@meng-xi/vite-plugin/plugins/generate-router` 新增配置选项：`headerTemplate`、`customFields`
+- `@meng-xi/vite-plugin/common/code-manipulation` 移除导出函数：`serializeValueCompact`
+
 ## 0.2.4（2026-06-23）
 
 generateRouter 新增页面名称配置，优化路由合并策略

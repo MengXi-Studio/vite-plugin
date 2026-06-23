@@ -233,26 +233,60 @@ interface GenerateRouterOptions extends BasePluginOptions {
      */
     dts?: string | boolean;
     /**
-     * 是否在生成文件顶部添加注释头
+     * 文件头部注释模板
      *
-     * @description 开启后，在生成的路由配置文件顶部添加标准化注释头，
-     * 包含插件名称、生成日期和插件版本号。
+     * @description 在生成的路由配置文件顶部添加注释头。
+     * - `false` / 不传：不生成注释头
+     * - `true`：生成默认注释头（`{name} {date} {version}`）
+     * - `string`：根据模板字符串生成注释头，支持以下占位符：
+     *   - `{name}`：插件名称
+     *   - `{date}`：生成日期时间（默认格式 `YYYY-MM-DD HH:mm:ss`）
+     *   - `{date:格式}`：按指定格式输出日期时间，格式符与 `formatDate` 一致
+     *   - `{version}`：插件版本号
+     *   - `{custom:键名}`：自定义字段，值从 `customFields` 选项中读取
+     *
+     * 占位符的顺序由模板字符串中的位置决定，非占位符文本原样保留。
      *
      * @default false
      *
      * @example
      * ```typescript
-     * // 生成的注释头格式：
+     * // 默认注释头
+     * generateRouter({ headerTemplate: true })
      * /**
      *  * @plugin generate-router
      *  * @date 2026-06-19 14:30:00
-     *  * @version 0.2.0
+     *  * @version 0.2.4
      *  *\/
      *
-     * generateRouter({ fileHeader: true })
+     * // 自定义日期格式
+     * generateRouter({ headerTemplate: '{name} {date:YYYY-MM-DD} {version}' })
+     *
+     * // 自定义字段
+     * generateRouter({
+     *   headerTemplate: '{name} {custom:author} {date} {version}',
+     *   customFields: { author: 'MengXi Studio' }
+     * })
      * ```
      */
-    fileHeader?: boolean;
+    headerTemplate?: boolean | string;
+    /**
+     * 自定义字段键值对
+     *
+     * @description 供 `{custom:键名}` 占位符引用的自定义字段。
+     * 键名对应 `{custom:键名}` 中的键名，值为替换后的文本。
+     *
+     * @default {}
+     *
+     * @example
+     * ```typescript
+     * generateRouter({
+     *   headerTemplate: '{name} {custom:author} {custom:license} {version}',
+     *   customFields: { author: 'MengXi Studio', license: 'MIT' }
+     * })
+     * ```
+     */
+    customFields?: Record<string, string>;
 }
 
 /**

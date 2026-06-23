@@ -43,7 +43,8 @@ export default defineConfig({
 | watch               | `boolean`                  | `true`             | 监听文件变化自动重新生成 |
 | metaMapping         | `Record<string, string>`   | 见下方             | style 字段到 meta 的映射 |
 | exportTypes         | `boolean`                  | `true`             | 导出类型定义（仅 TS）    |
-| fileHeader          | `boolean`                  | `false`            | 是否在文件顶部添加注释头 |
+| headerTemplate      | `boolean \| string`        | `false`            | 文件头部注释模板         |
+| customFields        | `Record<string, string>`   | `{}`               | 自定义字段键值对         |
 
 ### 路由名称生成策略
 
@@ -245,9 +246,37 @@ generateRouter({ dts: 'src/types/router.d.ts' })
 ### 添加文件注释头
 
 ```typescript
-generateRouter({ fileHeader: true })
-// 生成的文件顶部包含插件名称、生成日期和版本号
+// 使用默认模板（{name} {date} {version}）
+generateRouter({ headerTemplate: true })
+// 生成：/**
+//  * generate-router 2026-06-23 14:30:00 0.2.4
+//  */
+
+// 自定义日期格式
+generateRouter({ headerTemplate: '{name} {date:YYYY-MM-DD} {version}' })
+// 生成：/**
+//  * generate-router 2026-06-23 0.2.4
+//  */
+
+// 自定义字段
+generateRouter({
+  headerTemplate: '{name} {custom:author} {date} {version}',
+  customFields: { author: 'MengXi Studio' }
+})
+// 生成：/**
+//  * generate-router MengXi Studio 2026-06-23 14:30:00 0.2.4
+//  */
 ```
+
+**占位符说明：**
+
+| 占位符 | 替换值 | 示例 |
+|--------|--------|------|
+| `{name}` | 插件名称 | `generate-router` |
+| `{date}` | 生成日期时间（默认格式 `YYYY-MM-DD HH:mm:ss`） | `2026-06-23 14:30:00` |
+| `{date:格式}` | 按指定格式输出日期时间 | `{date:YYYY-MM-DD}` → `2026-06-23` |
+| `{version}` | 插件版本号 | `0.2.4` |
+| `{custom:键名}` | 自定义字段，值从 `customFields` 读取 | `{custom:author}` → `MengXi Studio` |
 
 ## 输出示例
 

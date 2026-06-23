@@ -1,8 +1,15 @@
 import type { RouteConfig, RouteMeta, GenerateRouterOptions } from '../types'
+import { formatDate } from '@/common/format'
 import { serializeRoute, serializeValue, replacePropertyValue, removeProperty, extractPropertyValueText } from './code-manipulation'
 
 /** 插件版本号，由 scripts/generate-exports.ts 在构建时从 package.json 同步 */
-const PLUGIN_VERSION = '0.2.4'
+const PLUGIN_VERSION = '0.2.5'
+
+/** 默认注释头模板 */
+const DEFAULT_HEADER_TEMPLATE = '{name} {date} {version}'
+
+/** 默认日期格式 */
+const DEFAULT_DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 /**
  * 生成路由配置文件内容
@@ -11,7 +18,7 @@ const PLUGIN_VERSION = '0.2.4'
  * @param options - 插件配置
  * @param existingRawTexts - 已存在的路由对象原始文本映射（用于保留用户自定义属性）
  */
-export function generateFileContent(routes: RouteConfig[], options: Pick<GenerateRouterOptions, 'exportTypes' | 'outputFormat' | 'fileHeader'>, existingRawTexts?: Map<string, string>): string {
+export function generateFileContent(routes: RouteConfig[], options: Pick<GenerateRouterOptions, 'exportTypes' | 'outputFormat' | 'headerTemplate' | 'customFields'>, existingRawTexts?: Map<string, string>): string {
 	const typeImport = generateTypeImport(options)
 	const isTS = options.outputFormat === 'ts'
 	const typeAnnotation = isTS ? ': RouteConfig[]' : ''
@@ -35,7 +42,7 @@ export function generateFileContent(routes: RouteConfig[], options: Pick<Generat
 		.join(',\n')
 
 	const importLine = typeImport ? `${typeImport}\n\n` : ''
-	const headerLine = options.fileHeader ? generateFileHeader() + '\n\n' : ''
+	const headerLine = options.headerTemplate ? generateFileHeader(options.headerTemplate === true ? DEFAULT_HEADER_TEMPLATE : options.headerTemplate, options.customFields) + '\n\n' : ''
 
 	return `${headerLine}${importLine}/**
  * 路由配置列表
@@ -52,17 +59,53 @@ export default routes
 /**
  * 生成标准化文件注释头
  *
+ * @param headerTemplate - 注释头模板（true 使用默认模板，string 使用自定义模板）
+ * @param customFields - 自定义字段键值对
  * @returns JSDoc 风格的注释头文本
  */
-function generateFileHeader(): string {
-	const now = new Date()
-	const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-	const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
-	return `/**
- * @plugin generate-router
- * @date ${date} ${time}
- * @version ${PLUGIN_VERSION}
- */`
+function generateFileHeader(headerTemplate: string, customFields?: Record<string, string>): string {
+	const resolved = resolveHeaderTemplate(headerTemplate, customFields)
+
+	// 将解析后的模板包裹在 /** ... */ 注释块中
+	const lines = resolved.split('\n')
+	const body = lines.map(line => ` * ${line}`).join('\n')
+	return `/**\n${body}\n */`
+}
+
+/**
+ * 解析注释头模板中的占位符
+ *
+ * 处理顺序：
+ * 1. `{date:格式}` — 自定义日期格式
+ * 2. `{date}` — 默认日期格式
+ * 3. `{custom:键名}` — 自定义字段
+ * 4. `{name}` / `{version}` — 简单替换
+ *
+ * @param template - 模板字符串
+ * @param customFields - 自定义字段键值对
+ * @returns 解析后的字符串
+ */
+function resolveHeaderTemplate(template: string, customFields?: Record<string, string>): string {
+	let result = template
+
+	// 1. 处理 {date:格式} — 自定义日期格式
+	result = result.replace(/\{date:([^}]+)\}/g, (_, format) => {
+		return formatDate(new Date(), `{${format}}`)
+	})
+
+	// 2. 处理 {date} — 默认日期格式
+	result = result.replace(/\{date\}/g, formatDate(new Date(), `{${DEFAULT_DATE_FORMAT}}`))
+
+	// 3. 处理 {custom:键名} — 自定义字段
+	result = result.replace(/\{custom:([^}]+)\}/g, (_, key) => {
+		return customFields?.[key] ?? `{custom:${key}}`
+	})
+
+	// 4. 处理 {name} / {version} — 简单替换
+	result = result.replace(/\{name\}/g, 'generate-router')
+	result = result.replace(/\{version\}/g, PLUGIN_VERSION)
+
+	return result
 }
 
 /**
