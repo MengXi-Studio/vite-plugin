@@ -99,7 +99,7 @@ export default defineConfig({
 				navigationBarTitleText: 'title',
 				requireAuth: 'requireAuth'
 			},
-			fileHeader: true,
+			headerTemplate: true,
 			dts: true
 		}),
 
@@ -244,14 +244,14 @@ export default defineConfig({
 					context: '/api',
 					target: 'https://httpbin.org',
 					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/api/, ''),
+					rewrite: path => path.replace(/^\/api/, ''),
 					label: 'API 代理（httpbin.org）'
 				},
 				{
 					context: '/proxy-delay',
 					target: 'https://httpbin.org',
 					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/proxy-delay/, '/get'),
+					rewrite: path => path.replace(/^\/proxy-delay/, '/get'),
 					delay: { min: 200, max: 500 },
 					label: '延迟模拟测试'
 				}

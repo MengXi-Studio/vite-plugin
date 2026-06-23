@@ -91,11 +91,6 @@ export function serializeValue(value: unknown, compact: boolean = true, indent: 
 	return String(value)
 }
 
-/** @deprecated 使用 serializeValue(value, true) 代替 */
-export function serializeValueCompact(value: unknown): string {
-	return serializeValue(value, true)
-}
-
 /**
  * 将路由配置序列化为多行文本
  *

@@ -44,8 +44,9 @@ export default defineConfig({
 | customNameGenerator | `(path: string) => string` | -            | Custom name generator                   |
 | watch               | `boolean`                  | `true`       | Watch for changes                       |
 | metaMapping         | `Record<string, string>`   | See below    | Style to meta field mapping             |
-| exportTypes         | `boolean`                  | `true`       | Export type definitions (TS)            |
-| fileHeader          | `boolean`                  | `false`      | Add comment header at file top          |
+| exportTypes         | `boolean`                  | `true`       | Export type definitions (TS)       |
+| headerTemplate      | `boolean \| string`        | `false`      | File header comment template       |
+| customFields        | `Record<string, string>`   | `{}`         | Custom field key-value pairs       |
 
 ### Route Naming Strategies
 
@@ -223,6 +224,41 @@ generateRouter({
 	dts: 'src/types/router.d.ts'
 })
 ```
+
+### Add File Header Comment
+
+```typescript
+// Use default template ({name} {date} {version})
+generateRouter({ headerTemplate: true })
+// Generates: /**
+//  * generate-router 2026-06-23 14:30:00 0.2.4
+//  */
+
+// Custom date format
+generateRouter({ headerTemplate: '{name} {date:YYYY-MM-DD} {version}' })
+// Generates: /**
+//  * generate-router 2026-06-23 0.2.4
+//  */
+
+// Custom fields
+generateRouter({
+  headerTemplate: '{name} {custom:author} {date} {version}',
+  customFields: { author: 'MengXi Studio' }
+})
+// Generates: /**
+//  * generate-router MengXi Studio 2026-06-23 14:30:00 0.2.4
+//  */
+```
+
+**Placeholder Reference:**
+
+| Placeholder | Replacement | Example |
+|-------------|-------------|---------|
+| `{name}` | Plugin name | `generate-router` |
+| `{date}` | Generation datetime (default format `YYYY-MM-DD HH:mm:ss`) | `2026-06-23 14:30:00` |
+| `{date:format}` | Datetime in specified format | `{date:YYYY-MM-DD}` → `2026-06-23` |
+| `{version}` | Plugin version | `0.2.4` |
+| `{custom:key}` | Custom field, value from `customFields` | `{custom:author}` → `MengXi Studio` |
 
 ## Output Example
 

@@ -29,7 +29,8 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 				requireAuth: 'requireAuth'
 			},
 			dts: false,
-			fileHeader: false
+			headerTemplate: false,
+			customFields: {}
 		}
 	}
 
