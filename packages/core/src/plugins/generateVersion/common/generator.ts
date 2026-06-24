@@ -1,5 +1,5 @@
 import type { VersionFormat, VersionInfo } from '../types'
-import { generateRandomHash } from './utils'
+import { generateRandomHash } from '@/common/hash'
 import { getDateFormatParams, parseTemplateWithDelimiter } from '@/common/format'
 
 /**

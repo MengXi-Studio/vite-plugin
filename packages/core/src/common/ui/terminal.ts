@@ -1,4 +1,27 @@
 /**
+ * ANSI 转义码匹配正则
+ *
+ * @description 匹配所有 SGR（Select Graphic Rendition）序列，
+ * 用于从字符串中移除 ANSI 颜色和样式转义码。
+ */
+export const ANSI_REGEX = /\x1b\[[0-9;]*m/g
+
+/**
+ * 移除字符串中的所有 ANSI 转义码
+ *
+ * @param str - 包含 ANSI 转义码的字符串
+ * @returns 移除所有 ANSI 转义码后的纯文本字符串
+ *
+ * @example
+ * ```typescript
+ * stripAnsi('\x1b[32mgreen text\x1b[39m')  // 'green text'
+ * ```
+ */
+export function stripAnsi(str: string): string {
+	return str.replace(ANSI_REGEX, '')
+}
+
+/**
  * ANSI 转义码工具集
  */
 export const ANSI = {

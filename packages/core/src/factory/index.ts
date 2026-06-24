@@ -3,7 +3,7 @@ import type { BasePluginOptions, PluginFactory, OptionsNormalizer, PluginWithIns
 import { Logger, type PluginLogger } from '@/logger'
 import type { LoggerOptions } from '@/logger/types'
 import { Validator } from '@/common/validation'
-import { deepMerge } from './common'
+import { deepMerge } from '@/common/object'
 
 /**
  * 基础插件抽象类，提供插件开发的核心功能和生命周期管理

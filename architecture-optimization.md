@@ -1,20 +1,18 @@
 # packages/core 架构优化执行清单
 
-> 基于对 `packages/core` 架构的深入分析整理而成。每项问题包含：现状、风险、可执行步骤、验证方式。
-> 建议按优先级顺序推进，每完成一项即提交一次 commit，便于回滚。
+> 基于对 `packages/core` 架构的深入分析整理而成。每项问题包含：现状、风险、可执行步骤、验证方式。建议按优先级顺序推进，每完成一项即提交一次 commit，便于回滚。
 
 ---
 
 ## 目录
 
 - [P1 - 中优先级（影响架构一致性）](#p1---中优先级影响架构一致性)
-  - [1. deepMerge 迁移到 common](#1-deepmerge-迁移到-common)
-  - [2. 插件内 common/ 目录改名](#2-插件内-common-目录改名)
+  - [1. 插件内 common/ 目录改名](#1-插件内-common-目录改名)
 - [P2 - 低优先级（代码质量提升）](#p2---低优先级代码质量提升)
-  - [3. 钩子注册辅助方法](#3-钩子注册辅助方法)
-  - [4. Logger API 语义优化](#4-logger-api-语义优化)
-  - [5. 类型文件统一](#5-类型文件统一)
-  - [6. toPlugin 返回类型优化](#6-toplugin-返回类型优化)
+  - [2. 钩子注册辅助方法](#2-钩子注册辅助方法)
+  - [3. Logger API 语义优化](#3-logger-api-语义优化)
+  - [4. 类型文件统一](#4-类型文件统一)
+  - [5. toPlugin 返回类型优化](#5-toplugin-返回类型优化)
 - [架构亮点（保持现状）](#架构亮点保持现状)
 - [执行检查表](#执行检查表)
 
@@ -22,90 +20,7 @@
 
 ## P1 - 中优先级（影响架构一致性）
 
-### 1. deepMerge 迁移到 common
-
-**现状**
-
-- `deepMerge` 函数位于 `src/factory/common.ts`
-- 该文件仅包含此一个函数
-- `deepMerge` 是通用工具，语义上属于 `common/` 而非 `factory/`
-
-**执行步骤**
-
-1. 创建 `src/common/object/index.ts`：
-
-   ```typescript
-   // src/common/object/index.ts
-
-   /**
-    * 检查值是否为普通对象
-    */
-   function isPlainObject(value: unknown): value is Record<string, any> {
-     return typeof value === 'object' && value !== null && !Array.isArray(value) && Object.prototype.toString.call(value) === '[object Object]'
-   }
-
-   /**
-    * 深度合并对象
-    *
-    * @typeParam T - 目标对象类型
-    * @param sources - 待合并的源对象列表（从左到右，右侧优先级更高）
-    * @returns 合并后的完整对象
-    */
-   export function deepMerge<T extends Record<string, any>>(...sources: Partial<T>[]): T {
-     const result: any = {}
-
-     for (const source of sources) {
-       if (source) {
-         for (const key in source) {
-           if (!Object.prototype.hasOwnProperty.call(source, key)) continue
-
-           const sourceValue = source[key]
-           const targetValue = result[key]
-
-           if (sourceValue === undefined) continue
-
-           if (isPlainObject(sourceValue) && isPlainObject(targetValue)) {
-             result[key] = deepMerge(targetValue, sourceValue)
-           } else {
-             result[key] = sourceValue
-           }
-         }
-       }
-     }
-
-     return result as T
-   }
-   ```
-
-2. 在 `src/common/index.ts` 添加导出：
-
-   ```typescript
-   // src/common/index.ts
-   export * from './object'
-   ```
-
-3. 删除 `src/factory/common.ts` 文件
-
-4. 修改 `src/factory/index.ts` 的导入：
-
-   ```typescript
-   // src/factory/index.ts
-   // 替换：import { deepMerge } from './common'
-   // 为：
-   import { deepMerge } from '@/common'
-   ```
-
-5. 运行 `npm run generate-exports` 更新 `build.config.ts` 和 `package.json` 的 exports 字段（新增 `./common/object` 入口）
-
-**验证方式**
-
-- `npm run build` 无错误
-- 确认 `dist/common/object/index.mjs` 已生成
-- `package.json` 的 `exports` 字段包含 `"./common/object"`
-
----
-
-### 2. 插件内 common/ 目录改名
+### 1. 插件内 common/ 目录改名
 
 **现状**
 
@@ -124,6 +39,7 @@
 1. 将所有插件内的 `common/` 目录重命名为 `helpers/`：
 
    涉及插件列表（14 个）：
+
    ```
    assetManifest, autoImport, buildProgress, bundleAnalyzer,
    compressAssets, envGuard, faviconManager, generateRouter,
@@ -147,8 +63,8 @@
    ```typescript
    // scripts/generate-exports.ts
    const EXCLUDE_PATTERNS: RegExp[] = [
-     /factory\/plugin$/,
-     /plugins\/[^/]+\/helpers$/  // 替换 common 为 helpers
+   	/factory\/plugin$/,
+   	/plugins\/[^/]+\/helpers$/ // 替换 common 为 helpers
    ]
    ```
 
@@ -167,7 +83,7 @@
 
 ## P2 - 低优先级（代码质量提升）
 
-### 3. 钩子注册辅助方法
+### 2. 钩子注册辅助方法
 
 **现状**
 
@@ -268,7 +184,7 @@
 
 ---
 
-### 4. Logger API 语义优化
+### 3. Logger API 语义优化
 
 **现状**
 
@@ -322,7 +238,7 @@
 
 ---
 
-### 5. 类型文件统一
+### 4. 类型文件统一
 
 **现状**
 
@@ -356,7 +272,7 @@
 
 ---
 
-### 6. toPlugin 返回类型优化
+### 5. toPlugin 返回类型优化
 
 **现状**
 
@@ -406,14 +322,14 @@
 
    ```typescript
    export function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>, R = T>(
-     PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P,
-     normalizer?: OptionsNormalizer<T, R>
+   	PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P,
+   	normalizer?: OptionsNormalizer<T, R>
    ): PluginFactory<T, R> {
-     return (options?: R) => {
-       const normalizedOptions = (normalizer ? normalizer(options) : options) as T
-       const plugin = new PluginClass(normalizedOptions)
-       return plugin.toPlugin()
-     }
+   	return (options?: R) => {
+   		const normalizedOptions = (normalizer ? normalizer(options) : options) as T
+   		const plugin = new PluginClass(normalizedOptions)
+   		return plugin.toPlugin()
+   	}
    }
    ```
 
@@ -443,16 +359,17 @@
 完成每项后勾选，建议每项独立 commit。
 
 ### P1
-- [ ] 1. deepMerge 迁移到 common
-- [ ] 2. 插件内 common/ 目录改名
+
+- [ ] 1. 插件内 common/ 目录改名
 
 ### P2
-- [ ] 3. 钩子注册辅助方法
-- [ ] 4. Logger API 语义优化
-- [ ] 5. 类型文件统一
-  - [ ] 5.1 faviconManager 类型文件
-  - [ ] 5.2 proxyManager 类型文件
-- [ ] 6. toPlugin 返回类型优化
+
+- [ ] 2. 钩子注册辅助方法
+- [ ] 3. Logger API 语义优化
+- [ ] 4. 类型文件统一
+  - [ ] 4.1 faviconManager 类型文件
+  - [ ] 4.2 proxyManager 类型文件
+- [ ] 5. toPlugin 返回类型优化
 
 ---
 

@@ -1,22 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import zlib from 'node:zlib'
-import { promisify } from 'node:util'
 import type { ModuleStats, ChunkStats, FileTypeDistribution, SizeWarning, BundleAnalysisResult, BundleAnalyzerOptions } from '../types'
 import { scanAndMapFiles } from '@/common/fs'
 import type { ScannedFile } from '@/common/fs'
 import { normalizePath } from '@/common/path'
-
-const gzip = promisify(zlib.gzip)
-
-/**
- * 计算文件的 Gzip 压缩大小
- */
-async function calculateGzipSize(content: string | Buffer): Promise<number> {
-	const buffer = Buffer.isBuffer(content) ? content : Buffer.from(content, 'utf-8')
-	const compressed = await gzip(buffer)
-	return compressed.length
-}
+import { calculateGzipSize } from '@/common/compress'
 
 /**
  * 判断模块 ID 是否来自 node_modules

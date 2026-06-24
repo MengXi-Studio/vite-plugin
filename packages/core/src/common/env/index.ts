@@ -1,10 +1,10 @@
 /**
  * 解析 .env 文件内容为键值对映射
  *
- * @param {string} content - .env 文件的文本内容
- * @param {object} [options] - 解析选项
- * @param {string} [options.prefix] - 仅包含以此前缀开头的键（如 'VITE_'）
- * @returns {Record<string, string>} 解析后的键值对映射
+ * @param content - .env 文件的文本内容
+ * @param options - 解析选项
+ * @param options.prefix - 仅包含以此前缀开头的键（如 'VITE_'）
+ * @returns 解析后的键值对映射
  *
  * @description 解析 .env 文件内容，支持以下特性：
  * - 跳过空行和以 `#` 开头的注释行

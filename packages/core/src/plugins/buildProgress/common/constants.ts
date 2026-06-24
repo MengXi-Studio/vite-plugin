@@ -47,6 +47,3 @@ export const PHASE_LABELS: Record<BuildPhase, string> = {
 
 /** Spinner 动画帧序列 */
 export const SPINNER_FRAMES = process.platform === 'win32' ? ['|', '/', '-', '\\'] : ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
-
-/** ANSI 转义码匹配正则 */
-export const ANSI_REGEX = /\x1b\[[0-9;]*m/g

@@ -1,5 +1,5 @@
 import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig, UniAppPageConfig, RouteMeta } from '../types'
-import { toCamelCase, toPascalCase } from './utils'
+import { toCamelCase, toPascalCase } from '@/common/string'
 
 /**
  * 解析 pages.json 为路由配置数组
