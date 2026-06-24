@@ -5,7 +5,7 @@
 		<img alt="梦曦工作室 Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.png">
 	</a>
 	<a href="https://github.com/MengXi-Studio/vite-plugin">
-		<img alt="微信公众号" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/QR_code.jpg">
+		<img alt="微信公众号 二维码" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/QR_code.jpg">
 	</a>
 	<br>
 	<h1>@meng-xi/vite-plugin</h1>
