@@ -4,7 +4,9 @@
 	<a href="https://github.com/MengXi-Studio/vite-plugin">
 		<img alt="梦曦工作室 Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.png">
 	</a>
-	<img alt="梦曦工作室 Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/QR_code.jpg">
+	<a href="https://github.com/MengXi-Studio/vite-plugin">
+		<img alt="微信公众号" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/QR_code.jpg">
+	</a>
 	<br>
 	<h1>@meng-xi/vite-plugin</h1>
 	<p>一个为 Vite 提供实用插件的工具包，同时也是一个完整的插件开发框架</p>

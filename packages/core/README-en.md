@@ -4,6 +4,9 @@
 	<a href="https://github.com/MengXi-Studio/vite-plugin">
 		<img alt="MengXi Studio Logo" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/logo.png">
 	</a>
+	<a href="https://github.com/MengXi-Studio/vite-plugin">
+		<img alt="Wechat Public Account" width="215" src="https://github.com/MengXi-Studio/vite-plugin/blob/master/packages/docs/src/public/QR_code.jpg">
+	</a>
 	<br>
 	<h1>@meng-xi/vite-plugin</h1>
 	<p>A practical Vite plugin toolkit and a complete plugin development framework</p>
