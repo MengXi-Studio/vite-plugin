@@ -1,9 +1,9 @@
 import type { RouteConfig, RouteMeta, GenerateRouterOptions } from '../types'
-import { formatDate } from '@/common/format'
+import { parsePluginTemplate } from '@/common/format'
 import { serializeRoute, serializeValue, replacePropertyValue, removeProperty, extractPropertyValueText } from './code-manipulation'
 
-/** 插件版本号，由 scripts/generate-exports.ts 在构建时从 package.json 同步 */
-const PLUGIN_VERSION = '0.2.5'
+/** 插件版本号，由 unbuild 在构建时通过 replace 配置从 package.json 注入（类型声明见 src/types/global.d.ts） */
+const PLUGIN_VERSION = __PLUGIN_VERSION__
 
 /** 默认注释头模板 */
 const DEFAULT_HEADER_TEMPLATE = '{name} {date} {version}'
@@ -59,53 +59,22 @@ export default routes
 /**
  * 生成标准化文件注释头
  *
- * @param headerTemplate - 注释头模板（true 使用默认模板，string 使用自定义模板）
+ * @param headerTemplate - 注释头模板字符串
  * @param customFields - 自定义字段键值对
  * @returns JSDoc 风格的注释头文本
  */
 function generateFileHeader(headerTemplate: string, customFields?: Record<string, string>): string {
-	const resolved = resolveHeaderTemplate(headerTemplate, customFields)
+	const resolved = parsePluginTemplate(headerTemplate, {
+		name: 'generate-router',
+		version: PLUGIN_VERSION,
+		customFields,
+		defaultDateFormat: DEFAULT_DATE_FORMAT
+	})
 
 	// 将解析后的模板包裹在 /** ... */ 注释块中
 	const lines = resolved.split('\n')
 	const body = lines.map(line => ` * ${line}`).join('\n')
 	return `/**\n${body}\n */`
-}
-
-/**
- * 解析注释头模板中的占位符
- *
- * 处理顺序：
- * 1. `{date:格式}` — 自定义日期格式
- * 2. `{date}` — 默认日期格式
- * 3. `{custom:键名}` — 自定义字段
- * 4. `{name}` / `{version}` — 简单替换
- *
- * @param template - 模板字符串
- * @param customFields - 自定义字段键值对
- * @returns 解析后的字符串
- */
-function resolveHeaderTemplate(template: string, customFields?: Record<string, string>): string {
-	let result = template
-
-	// 1. 处理 {date:格式} — 自定义日期格式
-	result = result.replace(/\{date:([^}]+)\}/g, (_, format) => {
-		return formatDate(new Date(), `{${format}}`)
-	})
-
-	// 2. 处理 {date} — 默认日期格式
-	result = result.replace(/\{date\}/g, formatDate(new Date(), `{${DEFAULT_DATE_FORMAT}}`))
-
-	// 3. 处理 {custom:键名} — 自定义字段
-	result = result.replace(/\{custom:([^}]+)\}/g, (_, key) => {
-		return customFields?.[key] ?? `{custom:${key}}`
-	})
-
-	// 4. 处理 {name} / {version} — 简单替换
-	result = result.replace(/\{name\}/g, 'generate-router')
-	result = result.replace(/\{version\}/g, PLUGIN_VERSION)
-
-	return result
 }
 
 /**

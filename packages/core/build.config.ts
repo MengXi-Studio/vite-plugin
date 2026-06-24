@@ -37,6 +37,9 @@ export default defineBuildConfig({
 	alias: {
 		'@': resolve(__dirname, './src')
 	},
+	replace: {
+		__PLUGIN_VERSION__: "\"0.2.5\""
+	},
 	rollup: {
 		emitCJS: true,
 		esbuild: {

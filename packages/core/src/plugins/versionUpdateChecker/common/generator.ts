@@ -1,5 +1,6 @@
 import type { VersionUpdateCheckerOptions, PromptStyle } from '../types'
 import { makeCallback } from '@/common/script'
+import { parseTemplateWithDelimiter } from '@/common/format'
 
 /**
  * 生成内置 CSS 样式
@@ -77,12 +78,14 @@ export function generateHTMLTemplate(options: VersionUpdateCheckerOptions): stri
 	const dismissText = options.dismissButtonText || '稍后再说'
 
 	if (options.customPromptTemplate) {
-		return options.customPromptTemplate
-			.replace(/\{\{message\}\}/g, message)
-			.replace(/\{\{currentVersion\}\}/g, '<span id="__vuc-current__"></span>')
-			.replace(/\{\{newVersion\}\}/g, '<span id="__vuc-new__"></span>')
-			.replace(/\{\{refreshButton\}\}/g, `<button class="__vuc-btn-refresh__" onclick="window.__VUC_REFRESH__()">${refreshText}</button>`)
-			.replace(/\{\{dismissButton\}\}/g, `<button class="__vuc-btn-dismiss__" onclick="window.__VUC_DISMISS__()">${dismissText}</button>`)
+		const values: Record<string, string> = {
+			message,
+			currentVersion: '<span id="__vuc-current__"></span>',
+			newVersion: '<span id="__vuc-new__"></span>',
+			refreshButton: `<button class="__vuc-btn-refresh__" onclick="window.__VUC_REFRESH__()">${refreshText}</button>`,
+			dismissButton: `<button class="__vuc-btn-dismiss__" onclick="window.__VUC_DISMISS__()">${dismissText}</button>`
+		}
+		return parseTemplateWithDelimiter(options.customPromptTemplate, values, '{{', '}}')
 	}
 
 	switch (style) {

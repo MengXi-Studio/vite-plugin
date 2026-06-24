@@ -75,7 +75,7 @@ function scanEntries(srcDir: string): EntryInfo[] {
 	return results
 }
 
-function generateBuildConfig(entries: EntryInfo[]): string {
+function generateBuildConfig(entries: EntryInfo[], version: string): string {
 	const entryLines = entries.map(e => `\t\t'${e.entry}'`).join(',\n')
 
 	return `import { defineBuildConfig } from 'unbuild'
@@ -89,6 +89,9 @@ ${entryLines}
 	declaration: true,
 	alias: {
 		'@': resolve(__dirname, './src')
+	},
+	replace: {
+		__PLUGIN_VERSION__: ${JSON.stringify(JSON.stringify(version))}
 	},
 	rollup: {
 		emitCJS: true,
@@ -130,23 +133,13 @@ function updatePackageJson(pkgPath: string, newExports: Record<string, unknown>)
 	writeFileSync(pkgPath, JSON.stringify(pkg, null, '\t') + '\n')
 }
 
-function syncPluginVersion(projectRoot: string, version: string): void {
-	const generatorPath = join(projectRoot, 'src/plugins/generateRouter/common/generator.ts')
-	const content = readFileSync(generatorPath, 'utf-8')
-	const updated = content.replace(/const PLUGIN_VERSION = '[^']*'/, `const PLUGIN_VERSION = '${version}'`)
-	if (content !== updated) {
-		writeFileSync(generatorPath, updated)
-		console.log(`  ✓ generateRouter PLUGIN_VERSION 已同步为 ${version}`)
-	} else {
-		console.log(`  ℹ generateRouter PLUGIN_VERSION 已是 ${version}，跳过`)
-	}
-}
-
 function main(): void {
 	const projectRoot = resolve(import.meta.dirname ?? __dirname, '..')
 	const srcDir = join(projectRoot, 'src')
 	const buildConfigPath = join(projectRoot, 'build.config.ts')
 	const packageJsonPath = join(projectRoot, 'package.json')
+
+	const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
 
 	console.log('扫描 src/ 目录，发现入口文件...')
 	const entries = scanEntries(srcDir)
@@ -157,7 +150,7 @@ function main(): void {
 	}
 
 	console.log('\n生成 build.config.ts...')
-	const buildConfigContent = generateBuildConfig(entries)
+	const buildConfigContent = generateBuildConfig(entries, pkg.version)
 	writeFileSync(buildConfigPath, buildConfigContent)
 	console.log('  ✓ build.config.ts 已更新')
 
@@ -165,10 +158,6 @@ function main(): void {
 	const exports = generateExports(entries)
 	updatePackageJson(packageJsonPath, exports)
 	console.log('  ✓ package.json exports 已更新')
-
-	console.log('\n同步插件版本号...')
-	const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
-	syncPluginVersion(projectRoot, pkg.version)
 
 	console.log('\n✅ 自动生成完成！')
 }

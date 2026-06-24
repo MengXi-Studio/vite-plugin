@@ -114,6 +114,66 @@ export function formatDate(date: Date, format: string): string {
 }
 
 /**
+ * 解析插件文件头模板
+ *
+ * 支持以下占位符：
+ * - `{date}` - 默认格式 YYYY-MM-DD HH:mm:ss
+ * - `{date:FORMAT}` - 自定义日期格式（如 `{date:YYYY/MM/DD}`）
+ * - `{custom:KEY}` - 自定义字段（未提供时保留原占位符）
+ * - `{name}` - 插件名称
+ * - `{version}` - 插件版本
+ *
+ * @param template - 模板字符串
+ * @param params - 解析参数
+ * @returns 解析后的字符串
+ *
+ * @example
+ * ```typescript
+ * parsePluginTemplate('{name} v{version} ({date:YYYY-MM-DD})', {
+ *   name: 'generate-router',
+ *   version: '0.2.5',
+ *   customFields: { author: 'Alice' }
+ * })
+ * // 'generate-router v0.2.5 (2026-06-25)'
+ * ```
+ */
+export function parsePluginTemplate(
+	template: string,
+	params: {
+		name?: string
+		version?: string
+		customFields?: Record<string, string>
+		defaultDateFormat?: string
+	}
+): string {
+	const { name, version, customFields, defaultDateFormat = 'YYYY-MM-DD HH:mm:ss' } = params
+	let result = template
+
+	// 1. {date:FORMAT} - 自定义日期格式
+	result = result.replace(/\{date:([^}]+)\}/g, (_, format) => formatDate(new Date(), `{${format}}`))
+
+	// 2. {date} - 默认日期格式
+	result = result.replace(/\{date\}/g, formatDate(new Date(), `{${defaultDateFormat}}`))
+
+	// 3. {custom:KEY} - 自定义字段（未提供时保留原占位符）
+	if (customFields) {
+		result = result.replace(/\{custom:([^}]+)\}/g, (_, key) => customFields[key] ?? `{custom:${key}}`)
+	}
+
+	// 4. {name} - 插件名称
+	if (name) {
+		result = result.replace(/\{name\}/g, name)
+	}
+
+	// 5. {version} - 插件版本
+	if (version) {
+		result = result.replace(/\{version\}/g, version)
+	}
+
+	return result
+}
+
+/**
  * 将字节数格式化为人类可读的文件大小字符串
  *
  * @param {number} bytes - 文件大小（字节）
