@@ -86,8 +86,20 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/common/index.html'
 						},
 						{
+							text: '代码处理',
+							link: '/common/code.html'
+						},
+						{
+							text: '压缩工具',
+							link: '/common/compress.html'
+						},
+						{
 							text: '并发控制',
 							link: '/common/concurrency.html'
+						},
+						{
+							text: '环境变量',
+							link: '/common/env.html'
 						},
 						{
 							text: '文件系统',
@@ -98,8 +110,16 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/common/format.html'
 						},
 						{
+							text: '哈希工具',
+							link: '/common/hash.html'
+						},
+						{
 							text: 'HTML 注入',
 							link: '/common/html.html'
+						},
+						{
+							text: '对象合并',
+							link: '/common/object.html'
 						},
 						{
 							text: '路径处理',
@@ -108,6 +128,10 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: '脚本工具',
 							link: '/common/script.html'
+						},
+						{
+							text: '字符串处理',
+							link: '/common/string.html'
 						},
 						{
 							text: '终端 UI',

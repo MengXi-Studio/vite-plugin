@@ -1,8 +1,8 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { BuildProgressOptions, BuildPhase, ProgressTheme } from './types'
-import { DEFAULT_THEME, PHASE_LABELS, SPINNER_FRAMES, stripAnsi } from './common'
-import { ANSI } from '@/common/ui'
+import { DEFAULT_THEME, PHASE_LABELS, SPINNER_FRAMES } from './helpers'
+import { ANSI, stripAnsi } from '@/common/ui'
 
 /**
  * 构建进度条插件类，用于在终端实时显示构建进度

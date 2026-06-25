@@ -11,7 +11,7 @@ declare module '@meng-xi/uni-router' {
     /** 详情页 */
     pagesDetailDetail: { path: '/pages/detail/detail'; meta: { title: string } }
     /** 受保护页面 */
-    pagesProtectedProtected: { path: '/pages/protected/protected'; meta: { title: string; requireAuth: true } }
+    ProtectedPage: { path: '/pages/protected/protected'; meta: { title: string; requireAuth: true; role: string } }
     /** 登录 */
     pagesLoginLogin: { path: '/pages/login/login'; meta: { title: string } }
     /** 关于 */

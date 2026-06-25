@@ -1,6 +1,6 @@
 # common
 
-Common utilities module providing 8 submodules covering concurrency control, file system operations, formatting, HTML injection, path handling, script utilities, terminal UI, and validation.
+Common utilities module providing 14 submodules covering concurrency control, code processing, compression, environment variables, file system operations, formatting, hashing, HTML injection, object merging, path handling, script utilities, strings, terminal UI, and validation.
 
 All submodules support on-demand imports, and internal plugins also reuse logic through these common modules.
 
@@ -15,12 +15,18 @@ import { ... } from '@meng-xi/vite-plugin/common'
 ### Submodule import (recommended, supports tree-shaking)
 
 ```typescript
+import { ... } from '@meng-xi/vite-plugin/common/code'
+import { ... } from '@meng-xi/vite-plugin/common/compress'
 import { ... } from '@meng-xi/vite-plugin/common/concurrency'
+import { ... } from '@meng-xi/vite-plugin/common/env'
 import { ... } from '@meng-xi/vite-plugin/common/fs'
 import { ... } from '@meng-xi/vite-plugin/common/format'
+import { ... } from '@meng-xi/vite-plugin/common/hash'
 import { ... } from '@meng-xi/vite-plugin/common/html'
+import { ... } from '@meng-xi/vite-plugin/common/object'
 import { ... } from '@meng-xi/vite-plugin/common/path'
 import { ... } from '@meng-xi/vite-plugin/common/script'
+import { ... } from '@meng-xi/vite-plugin/common/string'
 import { ... } from '@meng-xi/vite-plugin/common/ui'
 import { ... } from '@meng-xi/vite-plugin/common/validation'
 ```
@@ -50,6 +56,27 @@ Submodule imports allow bundlers to only include the code you actually use, avoi
 | ------ | ----------- | ------- | -------------- |
 | [html](./html) | HTML injection, security filtering, attribute escaping | 4 functions + 8 types | `@meng-xi/vite-plugin/common/html` |
 | [script](./script) | Callback function wrapping | 1 function | `@meng-xi/vite-plugin/common/script` |
+
+### Code & String
+
+| Module | Description | Exports | Submodule Path |
+| ------ | ----------- | ------- | -------------- |
+| [code](./code) | JS keyword set, code comment & string stripping | 1 constant + 1 function | `@meng-xi/vite-plugin/common/code` |
+| [string](./string) | Case conversion, JSON comment removal, regex escaping | 4 functions | `@meng-xi/vite-plugin/common/string` |
+
+### Object & Environment
+
+| Module | Description | Exports | Submodule Path |
+| ------ | ----------- | ------- | -------------- |
+| [object](./object) | Deep object merging | 1 function | `@meng-xi/vite-plugin/common/object` |
+| [env](./env) | `.env` file content parsing | 1 function | `@meng-xi/vite-plugin/common/env` |
+
+### Hash & Compression
+
+| Module | Description | Exports | Submodule Path |
+| ------ | ----------- | ------- | -------------- |
+| [hash](./hash) | Random hash generation | 1 function | `@meng-xi/vite-plugin/common/hash` |
+| [compress](./compress) | gzip size calculation | 1 function | `@meng-xi/vite-plugin/common/compress` |
 
 ### Utilities & Validation
 

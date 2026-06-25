@@ -1,3 +1,86 @@
+## 0.2.6（2026-06-25）
+
+通用工具抽离与架构统一重构，版本号注入机制自动化
+
+### Common 工具模块（增强 + 新增）
+
+**新增 6 个子模块**：将各插件内部重复的工具函数提取到 `common` 目录统一管理，消除冗余代码
+
+| 子路径            | 新增导出                                                                                                     | 来源            |
+| ----------------- | ------------------------------------------------------------------------------------------------------------ | --------------- |
+| `common/code`     | `JS_KEYWORDS`（JS 关键字集合）、`stripCommentsAndStrings`（移除注释与字符串）                                | autoImport      |
+| `common/compress` | `calculateGzipSize`（gzip 压缩大小计算）                                                                     | bundleAnalyzer  |
+| `common/env`      | `parseEnvContent`（`.env` 文件解析，支持前缀过滤）                                                           | envGuard        |
+| `common/hash`     | `generateRandomHash`（加密级随机哈希生成）                                                                   | generateVersion |
+| `common/object`   | `deepMerge`（深度合并对象，跳过 undefined）                                                                  | factory         |
+| `common/string`   | `toCamelCase`、`toPascalCase`（大小写转换）、`stripJsonComments`（JSON 注释移除）、`escapeRegex`（正则转义） | autoImport      |
+
+**common/format（增强）**：
+
+| 新增函数              | 描述                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `parsePluginTemplate` | 插件专用模板解析函数，支持 `{name}`、`{date}`、`{date:FORMAT}`、`{version}`、`{custom:KEY}` 占位符，统一注释头模板处理 |
+
+```typescript
+import { parsePluginTemplate } from './uni_modules/vite-plugin/js_sdk/common/format/index.mjs'
+
+// 支持自定义日期格式和自定义字段
+parsePluginTemplate('{name} {custom:author} {date:YYYY-MM-DD} {version}', {
+	name: 'generate-router',
+	version: '0.2.6',
+	customFields: { author: 'MengXi Studio' }
+})
+// 输出：'generate-router MengXi Studio 2026-06-25 0.2.6'
+```
+
+### 版本号注入机制（重构）
+
+**变更**：移除手动版本同步逻辑，改为构建时自动注入
+
+| 0.2.5                          | 0.2.6                          | 说明                                       |
+| ------------------------------ | ------------------------------ | ------------------------------------------ |
+| `generate-exports.ts` 手动同步 | unbuild `replace` 配置自动注入 | 版本号来源从脚本维护改为构建期注入         |
+| 硬编码版本号字符串             | `__PLUGIN_VERSION__` 全局变量  | 插件内部统一使用全局变量，无需手动更新     |
+| 无类型声明                     | `src/types/global.d.ts`        | 新增全局类型声明，提供 TypeScript 类型支持 |
+
+**影响**：generateRouter 注释头中的 `{version}` 占位符现在通过 `__PLUGIN_VERSION__` 自动获取，版本号升级时无需修改插件源码
+
+### versionUpdateChecker（优化）
+
+**变更**：自定义提示模板解析改用通用工具函数
+
+| 0.2.5                                  | 0.2.6                        | 说明                                |
+| -------------------------------------- | ---------------------------- | ----------------------------------- |
+| 多次链式 `.replace(/\{\{key\}\}/g, …)` | `parseTemplateWithDelimiter` | 统一使用 common/format 模板解析函数 |
+| 手动拼接 5 个占位符替换                | 传入 values 对象一次解析     | 代码更简洁，支持键名自动转义        |
+
+### 插件目录结构（重构）
+
+**变更**：统一插件内部助手目录命名，提升代码可维护性
+
+| 0.2.5                           | 0.2.6                     | 说明                                         |
+| ------------------------------- | ------------------------- | -------------------------------------------- |
+| `plugins/*/common/`             | `plugins/*/helpers/`      | 所有插件内部 `common` 目录重命名为 `helpers` |
+| `faviconManager/common/type.ts` | `faviconManager/types.ts` | 类型文件统一到插件根目录                     |
+
+> 此变更仅影响插件内部结构，对用户导入路径无影响
+
+### 子路径导出（变更）
+
+- 新增 `@meng-xi/vite-plugin/common/code` 子路径导出
+- 新增 `@meng-xi/vite-plugin/common/compress` 子路径导出
+- 新增 `@meng-xi/vite-plugin/common/env` 子路径导出
+- 新增 `@meng-xi/vite-plugin/common/hash` 子路径导出
+- 新增 `@meng-xi/vite-plugin/common/object` 子路径导出
+- 新增 `@meng-xi/vite-plugin/common/string` 子路径导出
+- `@meng-xi/vite-plugin/common/format` 新增导出：`parsePluginTemplate`
+- `@meng-xi/vite-plugin/common/code` 新增导出：`JS_KEYWORDS`、`stripCommentsAndStrings`
+- `@meng-xi/vite-plugin/common/compress` 新增导出：`calculateGzipSize`
+- `@meng-xi/vite-plugin/common/env` 新增导出：`parseEnvContent`
+- `@meng-xi/vite-plugin/common/hash` 新增导出：`generateRandomHash`
+- `@meng-xi/vite-plugin/common/object` 新增导出：`deepMerge`
+- `@meng-xi/vite-plugin/common/string` 新增导出：`toCamelCase`、`toPascalCase`、`stripJsonComments`、`escapeRegex`
+
 ## 0.2.5（2026-06-24）
 
 generateRouter 注释头模板化升级，移除废弃函数

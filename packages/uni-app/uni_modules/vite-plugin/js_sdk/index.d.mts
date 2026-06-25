@@ -1,10 +1,16 @@
+export { JS_KEYWORDS, stripCommentsAndStrings } from './common/code/index.mjs';
+export { calculateGzipSize } from './common/compress/index.mjs';
 export { runWithConcurrency } from './common/concurrency/index.mjs';
-export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate, parseTemplateWithDelimiter } from './common/format/index.mjs';
+export { parseEnvContent } from './common/env/index.mjs';
+export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parsePluginTemplate, parseTemplate, parseTemplateWithDelimiter } from './common/format/index.mjs';
 export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.mjs';
+export { generateRandomHash } from './common/hash/index.mjs';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './common/html/index.mjs';
+export { deepMerge } from './common/object/index.mjs';
 export { isExtensionIncluded, isPathExcluded, isPreCompressed, normalizePath } from './common/path/index.mjs';
 export { makeCallback } from './common/script/index.mjs';
-export { ANSI } from './common/ui/index.mjs';
+export { escapeRegex, stripJsonComments, toCamelCase, toPascalCase } from './common/string/index.mjs';
+export { ANSI, ANSI_REGEX, stripAnsi } from './common/ui/index.mjs';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.mjs';
 export { validateCallbackFields, validateGlobalName, validateNoScriptInTemplate } from './common/validation/index.mjs';
 export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.mjs';
@@ -16,7 +22,7 @@ export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkS
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './plugins/compressAssets/index.mjs';
 export { CopyFileOptions, copyFile } from './plugins/copyFile/index.mjs';
 export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './plugins/envGuard/index.mjs';
-export { FaviconManagerOptions, Icon, faviconManager } from './plugins/faviconManager/index.mjs';
+export { FaviconManagerOptions, Icon, IconOptions, faviconManager } from './plugins/faviconManager/index.mjs';
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './plugins/generateRouter/index.mjs';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './plugins/generateVersion/index.mjs';
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './plugins/htmlInject/index.mjs';

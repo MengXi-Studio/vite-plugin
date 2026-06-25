@@ -1,10 +1,16 @@
+export { JS_KEYWORDS, stripCommentsAndStrings } from './common/code/index.js';
+export { calculateGzipSize } from './common/compress/index.js';
 export { runWithConcurrency } from './common/concurrency/index.js';
-export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate, parseTemplateWithDelimiter } from './common/format/index.js';
+export { parseEnvContent } from './common/env/index.js';
+export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parsePluginTemplate, parseTemplate, parseTemplateWithDelimiter } from './common/format/index.js';
 export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.js';
+export { generateRandomHash } from './common/hash/index.js';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './common/html/index.js';
+export { deepMerge } from './common/object/index.js';
 export { isExtensionIncluded, isPathExcluded, isPreCompressed, normalizePath } from './common/path/index.js';
 export { makeCallback } from './common/script/index.js';
-export { ANSI } from './common/ui/index.js';
+export { escapeRegex, stripJsonComments, toCamelCase, toPascalCase } from './common/string/index.js';
+export { ANSI, ANSI_REGEX, stripAnsi } from './common/ui/index.js';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.js';
 export { validateCallbackFields, validateGlobalName, validateNoScriptInTemplate } from './common/validation/index.js';
 export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.js';
@@ -16,7 +22,7 @@ export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkS
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './plugins/compressAssets/index.js';
 export { CopyFileOptions, copyFile } from './plugins/copyFile/index.js';
 export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './plugins/envGuard/index.js';
-export { FaviconManagerOptions, Icon, faviconManager } from './plugins/faviconManager/index.js';
+export { FaviconManagerOptions, Icon, IconOptions, faviconManager } from './plugins/faviconManager/index.js';
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './plugins/generateRouter/index.js';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './plugins/generateVersion/index.js';
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './plugins/htmlInject/index.js';

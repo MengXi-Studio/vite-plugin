@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { HtmlInjectOptions, InjectionLogEntry } from './types'
-import { validateAll, processRules } from './common'
+import { validateAll, processRules } from './helpers'
 import path from 'node:path'
 import { normalizePath } from '@/common/path'
 

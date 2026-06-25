@@ -1,7 +1,7 @@
 import type { Plugin, ViteDevServer } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { ProxyManagerOptions, ResolvedProxyRule } from './types'
-import { filterRulesByEnv, resolveProxyRules, buildViteProxyConfig, loadConfigFile, mergeRules, createLoggingMiddleware, createDelayMiddleware } from './common'
+import { filterRulesByEnv, resolveProxyRules, buildViteProxyConfig, loadConfigFile, mergeRules, createLoggingMiddleware, createDelayMiddleware } from './helpers'
 
 /**
  * 开发代理管理插件

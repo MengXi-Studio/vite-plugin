@@ -15,8 +15,16 @@
 				<text class="info-value">{{ versionInfo.buildTime || '-' }}</text>
 			</view>
 			<view class="info-row">
+				<text class="info-label">格式</text>
+				<text class="info-value">{{ versionInfo.format || '-' }}</text>
+			</view>
+			<view class="info-row">
 				<text class="info-label">环境</text>
 				<text class="info-value">{{ versionInfo.environment || '-' }}</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">作者</text>
+				<text class="info-value">{{ versionInfo.author || '-' }}</text>
 			</view>
 		</view>
 
@@ -143,6 +151,32 @@
 			</view>
 		</view>
 
+		<!-- 路由导航演示 -->
+		<view class="card">
+			<text class="card-title">路由导航演示</text>
+			<text class="hint">使用 generateRouter 生成的路由配置进行导航</text>
+			<view class="btn-group">
+				<view class="btn btn-sm" @click="navigateTo('/pages/navigation/index')">
+					<text class="btn-text">路由导航</text>
+				</view>
+				<view class="btn btn-sm" @click="navigateTo('/pages/guards/index')">
+					<text class="btn-text">路由守卫</text>
+				</view>
+				<view class="btn btn-sm" @click="navigateTo('/pages/detail/index?id=42&from=index')">
+					<text class="btn-text">详情页</text>
+				</view>
+				<view class="btn btn-sm" @click="navigateTo('/pages/resolve/index')">
+					<text class="btn-text">路由解析</text>
+				</view>
+				<view class="btn btn-sm" @click="navigateTo('/pages-sub/profile/index')">
+					<text class="btn-text">个人中心</text>
+				</view>
+				<view class="btn btn-sm" @click="navigateTo('/pages-sub/settings/index')">
+					<text class="btn-text">设置</text>
+				</view>
+			</view>
+		</view>
+
 		<!-- 导航到其他页面 -->
 		<view class="card">
 			<text class="card-title">更多演示</text>
@@ -225,13 +259,14 @@ export default {
 		},
 		runTests() {
 			// #ifdef H5
-			// assetManifest: 验证资源清单已生成
+			// assetManifest: 验证资源清单已生成（运行时注入 + 文件）
+			const assetManifestRuntime = !!window.__ASSET_MANIFEST__
 			fetch('/manifest.json', { method: 'HEAD' })
 				.then(res => {
-					this.testList[0].passed = res.ok
+					this.testList[0].passed = assetManifestRuntime || res.ok
 				})
 				.catch(() => {
-					this.testList[0].passed = false
+					this.testList[0].passed = assetManifestRuntime
 				})
 
 			// autoImport: 验证 Vue API 已自动注入
@@ -259,7 +294,7 @@ export default {
 				})
 
 			// copyFile: 验证文件已复制
-			fetch('/static/logo.png', { method: 'HEAD' })
+			fetch('/example.txt', { method: 'HEAD' })
 				.then(res => {
 					this.testList[5].passed = res.ok
 				})
@@ -280,9 +315,11 @@ export default {
 			// generateVersion: 验证版本号已注入
 			this.testList[9].passed = !!this.appVersion && this.appVersion !== 'dev'
 
-			// htmlInject: 验证 meta 标签已注入
+			// htmlInject: 验证 meta 标签已注入（检查多个注入项）
 			const metaDesc = document.querySelector('meta[name="description"]')
-			this.testList[10].passed = !!metaDesc
+			const metaKeywords = document.querySelector('meta[name="keywords"]')
+			const metaTheme = document.querySelector('meta[name="theme-color"]')
+			this.testList[10].passed = !!(metaDesc && metaKeywords && metaTheme)
 
 			// imageOptimizer: 验证图片优化报告已生成
 			fetch('/image-optimize-report.json', { method: 'HEAD' })
@@ -307,8 +344,10 @@ export default {
 					this.testList[13].passed = false
 				})
 
-			// versionUpdateChecker: 验证版本更新检测已注入
-			this.testList[14].passed = !!window.__VUC_REFRESH__ || !!window.__VUC_DISMISS__
+			// versionUpdateChecker: 验证版本更新检测已注入（检查 DOM 元素）
+			const vucRoot = document.getElementById('__vuc-root__')
+			const metaVersion = document.querySelector('meta[name="app-version"]')
+			this.testList[14].passed = !!vucRoot || !!metaVersion
 			// #endif
 		},
 		showLoading() {

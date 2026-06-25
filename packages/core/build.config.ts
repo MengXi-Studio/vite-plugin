@@ -5,12 +5,18 @@ export default defineBuildConfig({
 	entries: [
 		'src/index',
 		'src/common/index',
+		'src/common/code/index',
+		'src/common/compress/index',
 		'src/common/concurrency/index',
+		'src/common/env/index',
 		'src/common/format/index',
 		'src/common/fs/index',
+		'src/common/hash/index',
 		'src/common/html/index',
+		'src/common/object/index',
 		'src/common/path/index',
 		'src/common/script/index',
+		'src/common/string/index',
 		'src/common/ui/index',
 		'src/common/validation/index',
 		'src/factory/index',
@@ -36,6 +42,9 @@ export default defineBuildConfig({
 	declaration: true,
 	alias: {
 		'@': resolve(__dirname, './src')
+	},
+	replace: {
+		__PLUGIN_VERSION__: "\"0.2.6\""
 	},
 	rollup: {
 		emitCJS: true,

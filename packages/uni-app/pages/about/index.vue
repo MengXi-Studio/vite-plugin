@@ -3,6 +3,29 @@
 		<view class="card">
 			<text class="card-title">关于</text>
 			<text class="desc">本项目演示 @meng-xi/vite-plugin 在 uni-app 中的完整功能。</text>
+			<text class="desc">基于 uni-app CLI + Vite 构建，支持 H5 和小程序平台。</text>
+		</view>
+
+		<!-- 插件列表 -->
+		<view class="card">
+			<text class="card-title">插件列表（共 15 个）</text>
+			<view class="plugin-list">
+				<text class="plugin-item">assetManifest - 资源清单生成</text>
+				<text class="plugin-item">autoImport - 自动导入</text>
+				<text class="plugin-item">buildProgress - 构建进度条</text>
+				<text class="plugin-item">bundleAnalyzer - 产物体积分析</text>
+				<text class="plugin-item">compressAssets - 产物压缩</text>
+				<text class="plugin-item">copyFile - 文件复制</text>
+				<text class="plugin-item">envGuard - 环境变量校验</text>
+				<text class="plugin-item">faviconManager - 图标管理</text>
+				<text class="plugin-item">generateRouter - 路由配置生成</text>
+				<text class="plugin-item">generateVersion - 版本生成</text>
+				<text class="plugin-item">htmlInject - HTML 内容注入</text>
+				<text class="plugin-item">imageOptimizer - 图片优化</text>
+				<text class="plugin-item">loadingManager - 全局 Loading</text>
+				<text class="plugin-item">proxyManager - 开发代理</text>
+				<text class="plugin-item">versionUpdateChecker - 版本更新检查</text>
+			</view>
 		</view>
 
 		<!-- envGuard 验证 -->
@@ -29,6 +52,23 @@
 				<text class="info-label">当前路径</text>
 				<text class="info-value">{{ currentPath }}</text>
 			</view>
+			<view class="info-row">
+				<text class="info-label">路由名称</text>
+				<text class="info-value">pagesAboutIndex</text>
+			</view>
+		</view>
+
+		<!-- 版本信息 -->
+		<view class="card">
+			<text class="card-title">generateVersion - 版本信息</text>
+			<view class="info-row">
+				<text class="info-label">当前版本</text>
+				<text class="info-value">{{ appVersion }}</text>
+			</view>
+			<view class="info-row">
+				<text class="info-label">构建时间</text>
+				<text class="info-value">{{ versionInfo.buildTime || '-' }}</text>
+			</view>
 		</view>
 
 		<view class="btn" @click="goBack">
@@ -41,6 +81,8 @@
 export default {
 	data() {
 		return {
+			appVersion: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev',
+			versionInfo: typeof __APP_VERSION___INFO !== 'undefined' ? __APP_VERSION___INFO : {},
 			envTitle: '',
 			envApiUrl: '',
 			envDebug: '',
@@ -90,6 +132,22 @@ export default {
 	font-size: 26rpx;
 	color: #666;
 	line-height: 1.6;
+	margin-bottom: 8rpx;
+}
+
+.plugin-list {
+	padding: 10rpx 0;
+}
+
+.plugin-item {
+	font-size: 26rpx;
+	color: #666;
+	padding: 10rpx 0;
+	border-bottom: 1rpx solid #f0f0f0;
+}
+
+.plugin-item:last-child {
+	border-bottom: none;
 }
 
 .info-row {

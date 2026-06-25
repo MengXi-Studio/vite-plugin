@@ -11,7 +11,7 @@ Vite 实用插件集与插件开发框架（uni-app 版本）。
 
 - **开箱即用** - 15 个实用插件，覆盖构建进度、产物分析与压缩、图片优化、资源清单、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading、自动导入、开发代理等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
-- **通用工具库** - 内置 Common 工具模块，支持按需子路径导入
+- **通用工具库** - 内置 14 大 Common 工具模块，支持按需子路径导入
 - **类型安全** - 完整 TypeScript 类型定义与配置验证器
 - **uni-app 适配** - 通过 uni_modules 方式集成，无需 npm 安装
 
@@ -162,7 +162,22 @@ export const myPlugin = createPluginFactory(MyPlugin)
 内置通用工具函数库，按功能模块组织，支持子路径按需导入。
 
 ```typescript
+// 代码处理：JS 关键字集合、代码注释与字符串移除
+import { JS_KEYWORDS, stripCommentsAndStrings } from './uni_modules/vite-plugin/js_sdk/common/code/index.mjs'
+
+// 压缩工具：gzip 压缩大小计算
+import { calculateGzipSize } from './uni_modules/vite-plugin/js_sdk/common/compress/index.mjs'
+
+// 并发控制：带并发限制的批量异步执行
+import { runWithConcurrency } from './uni_modules/vite-plugin/js_sdk/common/concurrency/index.mjs'
+
+// 环境变量：.env 文件内容解析
+import { parseEnvContent } from './uni_modules/vite-plugin/js_sdk/common/env/index.mjs'
+
+// 格式化：日期参数、模板变量替换、日期格式化、文件大小、压缩率
 import { formatFileSize, parseTemplate, parseTemplateWithDelimiter, formatDate, getDateFormatParams, calcRatio } from './uni_modules/vite-plugin/js_sdk/common/format/index.mjs'
+
+// 文件系统：源文件检查、复制、扫描、写入、JSON 报告
 import {
 	scanDirectory,
 	writeFileSyncSafely,
@@ -175,19 +190,48 @@ import {
 	writeFileContent,
 	writeJsonReport
 } from './uni_modules/vite-plugin/js_sdk/common/fs/index.mjs'
+
+// 哈希工具：随机哈希生成
+import { generateRandomHash } from './uni_modules/vite-plugin/js_sdk/common/hash/index.mjs'
+
+// HTML：标签注入、双区域注入、内容消毒、属性转义
 import { injectBeforeTag, injectHeadAndBody, escapeHtmlAttr, sanitizeContent } from './uni_modules/vite-plugin/js_sdk/common/html/index.mjs'
+
+// 对象合并：深度合并对象
+import { deepMerge } from './uni_modules/vite-plugin/js_sdk/common/object/index.mjs'
+
+// 路径处理：规范化、扩展名过滤、路径排除、预压缩检测
+import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from './uni_modules/vite-plugin/js_sdk/common/path/index.mjs'
+
+// 脚本工具：回调函数体包装为安全的函数表达式（含 try-catch）
+import { makeCallback } from './uni_modules/vite-plugin/js_sdk/common/script/index.mjs'
+
+// 字符串处理：大小写转换、JSON 注释移除、正则转义
+import { toCamelCase, toPascalCase, stripJsonComments, escapeRegex } from './uni_modules/vite-plugin/js_sdk/common/string/index.mjs'
+
+// 终端 UI：ANSI 颜色码常量
+import { ANSI } from './uni_modules/vite-plugin/js_sdk/common/ui/index.mjs'
+
+// 验证器：链式配置验证、全局名称校验、脚本检测
+import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCallbackFields } from './uni_modules/vite-plugin/js_sdk/common/validation/index.mjs'
 ```
 
-| 子路径                                                                                      | 描述                                                                      |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/common/concurrency.html) | 并发控制，限制异步任务并行执行数量                                        |
-| [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)           | 日期参数提取、模板变量替换 `{{key}}`、日期格式化 `{YYYY}`、文件大小格式化 |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                   | 文件/目录复制、目录扫描、同步安全写入、文件变更检测                       |
-| [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)               | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                  |
-| [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)               | 路径工具：扩展名判断、路径排除、预压缩检测、路径规范化                    |
-| [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)           | 回调函数体包装为安全的函数表达式（含 try-catch）                          |
-| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                   | 终端 ANSI 颜色码常量                                                      |
-| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html)   | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                      |
+| 子路径                                                                                      | 描述                                                                                                                   |
+| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [`common/code`](https://mengxi-studio.github.io/vite-plugin/common/code.html)               | JS 关键字集合、代码注释与字符串移除（用于静态分析预处理）                                                              |
+| [`common/compress`](https://mengxi-studio.github.io/vite-plugin/common/compress.html)       | gzip 压缩大小计算                                                                                                      |
+| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/common/concurrency.html) | 带并发限制的批量异步执行                                                                                               |
+| [`common/env`](https://mengxi-studio.github.io/vite-plugin/common/env.html)                 | `.env` 文件内容解析（支持引号去除和前缀过滤）                                                                          |
+| [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)           | 日期参数提取、模板变量替换 `{{key}}`/`{key}`（支持自定义分隔符）、日期格式化、文件大小格式化、压缩率计算               |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                   | 源文件检查、文件/目录复制、目录扫描、扫描+映射、批量删除、文件写入、JSON报告、同步安全写入、文件变更检测、报告路径解析 |
+| [`common/hash`](https://mengxi-studio.github.io/vite-plugin/common/hash.html)               | 随机哈希生成（加密级随机数，用于版本标识、缓存破坏）                                                                   |
+| [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)               | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                                                               |
+| [`common/object`](https://mengxi-studio.github.io/vite-plugin/common/object.html)           | 深度合并对象（递归合并普通对象，跳过 undefined）                                                                       |
+| [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)               | 路径规范化、扩展名过滤、路径排除匹配、预压缩格式检测                                                                   |
+| [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)           | 回调函数体包装为安全的函数表达式（含 try-catch）                                                                       |
+| [`common/string`](https://mengxi-studio.github.io/vite-plugin/common/string.html)           | 大小写转换（camelCase/PascalCase）、JSON 注释移除、正则特殊字符转义                                                    |
+| [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                   | 终端 ANSI 颜色码常量                                                                                                   |
+| [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html)   | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                                                                   |
 
 ## 子路径导出
 
@@ -199,6 +243,20 @@ import { injectBeforeTag, injectHeadAndBody, escapeHtmlAttr, sanitizeContent } f
 | `./uni_modules/vite-plugin/js_sdk/plugins/index.mjs`                        | 所有插件                  |
 | `./uni_modules/vite-plugin/js_sdk/common/index.mjs`                         | 所有工具函数              |
 | `./uni_modules/vite-plugin/js_sdk/common/*/index.mjs`                       | 各工具子模块              |
+| `./uni_modules/vite-plugin/js_sdk/common/code/index.mjs`                    | code 工具子模块           |
+| `./uni_modules/vite-plugin/js_sdk/common/compress/index.mjs`                | compress 工具子模块       |
+| `./uni_modules/vite-plugin/js_sdk/common/concurrency/index.mjs`             | concurrency 工具子模块    |
+| `./uni_modules/vite-plugin/js_sdk/common/env/index.mjs`                     | env 工具子模块            |
+| `./uni_modules/vite-plugin/js_sdk/common/format/index.mjs`                  | format 工具子模块         |
+| `./uni_modules/vite-plugin/js_sdk/common/fs/index.mjs`                      | fs 工具子模块             |
+| `./uni_modules/vite-plugin/js_sdk/common/hash/index.mjs`                    | hash 工具子模块           |
+| `./uni_modules/vite-plugin/js_sdk/common/html/index.mjs`                    | html 工具子模块           |
+| `./uni_modules/vite-plugin/js_sdk/common/object/index.mjs`                  | object 工具子模块         |
+| `./uni_modules/vite-plugin/js_sdk/common/path/index.mjs`                    | path 工具子模块           |
+| `./uni_modules/vite-plugin/js_sdk/common/script/index.mjs`                  | script 工具子模块         |
+| `./uni_modules/vite-plugin/js_sdk/common/string/index.mjs`                  | string 工具子模块         |
+| `./uni_modules/vite-plugin/js_sdk/common/ui/index.mjs`                      | ui 工具子模块             |
+| `./uni_modules/vite-plugin/js_sdk/common/validation/index.mjs`              | validation 工具子模块     |
 | `./uni_modules/vite-plugin/js_sdk/plugins/asset-manifest/index.mjs`         | assetManifest 插件        |
 | `./uni_modules/vite-plugin/js_sdk/plugins/auto-import/index.mjs`            | autoImport 插件           |
 | `./uni_modules/vite-plugin/js_sdk/plugins/build-progress/index.mjs`         | buildProgress 插件        |

@@ -25,10 +25,25 @@
 			"import": "./dist/common/index.mjs",
 			"types": "./dist/common/index.d.ts"
 		},
+		"./common/code": {
+			"require": "./dist/common/code/index.cjs",
+			"import": "./dist/common/code/index.mjs",
+			"types": "./dist/common/code/index.d.ts"
+		},
+		"./common/compress": {
+			"require": "./dist/common/compress/index.cjs",
+			"import": "./dist/common/compress/index.mjs",
+			"types": "./dist/common/compress/index.d.ts"
+		},
 		"./common/concurrency": {
 			"require": "./dist/common/concurrency/index.cjs",
 			"import": "./dist/common/concurrency/index.mjs",
 			"types": "./dist/common/concurrency/index.d.ts"
+		},
+		"./common/env": {
+			"require": "./dist/common/env/index.cjs",
+			"import": "./dist/common/env/index.mjs",
+			"types": "./dist/common/env/index.d.ts"
 		},
 		"./common/format": {
 			"require": "./dist/common/format/index.cjs",
@@ -40,10 +55,20 @@
 			"import": "./dist/common/fs/index.mjs",
 			"types": "./dist/common/fs/index.d.ts"
 		},
+		"./common/hash": {
+			"require": "./dist/common/hash/index.cjs",
+			"import": "./dist/common/hash/index.mjs",
+			"types": "./dist/common/hash/index.d.ts"
+		},
 		"./common/html": {
 			"require": "./dist/common/html/index.cjs",
 			"import": "./dist/common/html/index.mjs",
 			"types": "./dist/common/html/index.d.ts"
+		},
+		"./common/object": {
+			"require": "./dist/common/object/index.cjs",
+			"import": "./dist/common/object/index.mjs",
+			"types": "./dist/common/object/index.d.ts"
 		},
 		"./common/path": {
 			"require": "./dist/common/path/index.cjs",
@@ -54,6 +79,11 @@
 			"require": "./dist/common/script/index.cjs",
 			"import": "./dist/common/script/index.mjs",
 			"types": "./dist/common/script/index.d.ts"
+		},
+		"./common/string": {
+			"require": "./dist/common/string/index.cjs",
+			"import": "./dist/common/string/index.mjs",
+			"types": "./dist/common/string/index.d.ts"
 		},
 		"./common/ui": {
 			"require": "./dist/common/ui/index.cjs",

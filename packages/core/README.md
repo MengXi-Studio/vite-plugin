@@ -20,7 +20,7 @@
 
 - **开箱即用** - 15 个实用插件，覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、版本管理、HTML 注入、图标管理、全局 Loading、图片优化、开发代理 等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
-- **通用工具库** - 内置 8 大 Common 工具模块，支持按需子路径导入
+- **通用工具库** - 内置 14 大 Common 工具模块，支持按需子路径导入
 - **类型安全** - 完整 TypeScript 类型定义与配置验证器
 - **按需导入** - 支持子路径导出，减少打包体积
 
@@ -154,8 +154,17 @@ export const myPlugin = createPluginFactory(MyPlugin)
 内置通用工具函数库，按功能模块组织，支持子路径按需导入。
 
 ```typescript
+// 代码处理：JS 关键字集合、代码注释与字符串移除
+import { JS_KEYWORDS, stripCommentsAndStrings } from '@meng-xi/vite-plugin/common/code'
+
+// 压缩工具：gzip 压缩大小计算
+import { calculateGzipSize } from '@meng-xi/vite-plugin/common/compress'
+
 // 并发控制：带并发限制的批量执行
 import { runWithConcurrency } from '@meng-xi/vite-plugin/common/concurrency'
+
+// 环境变量：.env 文件内容解析
+import { parseEnvContent } from '@meng-xi/vite-plugin/common/env'
 
 // 格式化：日期参数、模板变量替换（支持自定义分隔符）、文件大小、日期格式化、压缩率计算
 import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
@@ -174,14 +183,23 @@ import {
 	resolveReportPath
 } from '@meng-xi/vite-plugin/common/fs'
 
+// 哈希工具：随机哈希生成
+import { generateRandomHash } from '@meng-xi/vite-plugin/common/hash'
+
 // HTML：标签注入、内容消毒、属性转义
 import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/html'
+
+// 对象合并：深度合并对象
+import { deepMerge } from '@meng-xi/vite-plugin/common/object'
 
 // 路径处理：路径规范化、扩展名过滤、路径排除匹配、预压缩检测
 import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@meng-xi/vite-plugin/common/path'
 
 // 脚本生成：回调函数包装
 import { makeCallback } from '@meng-xi/vite-plugin/common/script'
+
+// 字符串处理：大小写转换、JSON 注释移除、正则转义
+import { toCamelCase, toPascalCase, stripJsonComments, escapeRegex } from '@meng-xi/vite-plugin/common/string'
 
 // 终端 UI：ANSI 颜色码
 import { ANSI } from '@meng-xi/vite-plugin/common/ui'
@@ -192,12 +210,18 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCall
 
 | 子路径                                                                                      | 描述                                                                                                                   |
 | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [`common/code`](https://mengxi-studio.github.io/vite-plugin/common/code.html)               | JS 关键字集合、代码注释与字符串移除（用于静态分析预处理）                                                              |
+| [`common/compress`](https://mengxi-studio.github.io/vite-plugin/common/compress.html)       | gzip 压缩大小计算                                                                                                      |
 | [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/common/concurrency.html) | 带并发限制的批量异步执行                                                                                               |
+| [`common/env`](https://mengxi-studio.github.io/vite-plugin/common/env.html)                 | `.env` 文件内容解析（支持引号去除和前缀过滤）                                                                          |
 | [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)           | 日期参数提取、模板变量替换 `{{key}}`/`{key}`（支持自定义分隔符）、日期格式化、文件大小格式化、压缩率计算               |
 | [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                   | 源文件检查、文件/目录复制、目录扫描、扫描+映射、批量删除、文件写入、JSON报告、同步安全写入、文件变更检测、报告路径解析 |
+| [`common/hash`](https://mengxi-studio.github.io/vite-plugin/common/hash.html)               | 随机哈希生成（加密级随机数，用于版本标识、缓存破坏）                                                                   |
 | [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)               | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                                                               |
+| [`common/object`](https://mengxi-studio.github.io/vite-plugin/common/object.html)           | 深度合并对象（递归合并普通对象，跳过 undefined）                                                                       |
 | [`common/path`](https://mengxi-studio.github.io/vite-plugin/common/path.html)               | 路径规范化、扩展名过滤、路径排除匹配、预压缩格式检测                                                                   |
 | [`common/script`](https://mengxi-studio.github.io/vite-plugin/common/script.html)           | 回调函数体包装为安全的函数表达式（含 try-catch）                                                                       |
+| [`common/string`](https://mengxi-studio.github.io/vite-plugin/common/string.html)           | 大小写转换（camelCase/PascalCase）、JSON 注释移除、正则特殊字符转义                                                    |
 | [`common/ui`](https://mengxi-studio.github.io/vite-plugin/common/ui.html)                   | 终端 ANSI 颜色码常量                                                                                                   |
 | [`common/validation`](https://mengxi-studio.github.io/vite-plugin/common/validation.html)   | 链式配置验证器、全局名称校验、脚本检测、回调字段校验                                                                   |
 
@@ -211,7 +235,20 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCall
 | `@meng-xi/vite-plugin/plugins`                        | 所有插件                  |
 | `@meng-xi/vite-plugin/common`                         | 所有工具函数              |
 | `@meng-xi/vite-plugin/common/*`                       | 各工具子模块              |
+| `@meng-xi/vite-plugin/common/code`                    | 代码处理工具              |
+| `@meng-xi/vite-plugin/common/compress`                | 压缩工具                  |
 | `@meng-xi/vite-plugin/common/concurrency`             | 并发控制工具              |
+| `@meng-xi/vite-plugin/common/env`                     | 环境变量工具              |
+| `@meng-xi/vite-plugin/common/format`                  | 格式化工具                |
+| `@meng-xi/vite-plugin/common/fs`                      | 文件系统工具              |
+| `@meng-xi/vite-plugin/common/hash`                    | 哈希工具                  |
+| `@meng-xi/vite-plugin/common/html`                    | HTML 注入工具             |
+| `@meng-xi/vite-plugin/common/object`                  | 对象合并工具              |
+| `@meng-xi/vite-plugin/common/path`                    | 路径处理工具              |
+| `@meng-xi/vite-plugin/common/script`                  | 脚本工具                  |
+| `@meng-xi/vite-plugin/common/string`                  | 字符串处理工具            |
+| `@meng-xi/vite-plugin/common/ui`                      | 终端 UI 工具              |
+| `@meng-xi/vite-plugin/common/validation`              | 验证器工具                |
 | `@meng-xi/vite-plugin/plugins/asset-manifest`         | assetManifest 插件        |
 | `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport 插件           |
 | `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress 插件        |

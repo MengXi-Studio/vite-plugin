@@ -11,6 +11,7 @@
 		<view class="card">
 			<text class="card-title">插件列表</text>
 			<view class="plugin-list">
+				<text class="plugin-item">assetManifest - 资源清单生成</text>
 				<text class="plugin-item">autoImport - 自动导入</text>
 				<text class="plugin-item">buildProgress - 构建进度条</text>
 				<text class="plugin-item">bundleAnalyzer - 产物体积分析</text>
