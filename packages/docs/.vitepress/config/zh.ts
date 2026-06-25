@@ -65,7 +65,7 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 		sidebar: {
 			'/': [
 				{
-					text: '设置',
+					text: '指南',
 					items: [
 						{
 							text: '介绍',
@@ -74,10 +74,141 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: '安装',
 							link: '/installation.html'
+						},
+						{
+							text: '快速开始',
+							link: '/quick-start.html'
+						},
+						{
+							text: '基础概念',
+							link: '/concepts.html'
+						},
+						{
+							text: '按需导入',
+							link: '/on-demand-import.html'
+						},
+						{
+							text: '最佳实践',
+							link: '/best-practices.html'
 						}
 					]
 				},
-
+				{
+					text: '插件',
+					items: [
+						{
+							text: '概览',
+							link: '/plugins/index.html'
+						},
+						{
+							text: 'compress — 压缩类',
+							collapsed: true,
+							items: [
+								{ text: 'compressAssets', link: '/plugins/compress-assets.html' },
+								{ text: 'imageOptimizer', link: '/plugins/image-optimizer.html' }
+							]
+						},
+						{
+							text: 'generate — 生成类',
+							collapsed: true,
+							items: [
+								{ text: 'autoImport', link: '/plugins/auto-import.html' },
+								{ text: 'generateRouter', link: '/plugins/generate-router.html' },
+								{ text: 'generateVersion', link: '/plugins/generate-version.html' }
+							]
+						},
+						{
+							text: 'inject — 注入类',
+							collapsed: true,
+							items: [
+								{ text: 'htmlInject', link: '/plugins/html-inject.html' },
+								{ text: 'loadingManager', link: '/plugins/loading-manager.html' },
+								{ text: 'faviconManager', link: '/plugins/favicon-manager.html' },
+								{ text: 'versionUpdateChecker', link: '/plugins/version-update-checker.html' }
+							]
+						},
+						{
+							text: 'analyze — 分析类',
+							collapsed: true,
+							items: [
+								{ text: 'bundleAnalyzer', link: '/plugins/bundle-analyzer.html' },
+								{ text: 'buildProgress', link: '/plugins/build-progress.html' }
+							]
+						},
+						{
+							text: 'copy — 拷贝类',
+							collapsed: true,
+							items: [
+								{ text: 'copyFile', link: '/plugins/copy-file.html' },
+								{ text: 'assetManifest', link: '/plugins/asset-manifest.html' }
+							]
+						},
+						{
+							text: 'guard — 守卫类',
+							collapsed: true,
+							items: [
+								{ text: 'envGuard', link: '/plugins/env-guard.html' }
+							]
+						},
+						{
+							text: 'proxy — 代理类',
+							collapsed: true,
+							items: [
+								{ text: 'proxyManager', link: '/plugins/proxy-manager.html' }
+							]
+						}
+					]
+				},
+				{
+					text: '插件开发框架',
+					items: [
+						{
+							text: '概览',
+							link: '/factory/index.html'
+						},
+						{
+							text: 'BasePlugin',
+							link: '/factory/base-plugin.html'
+						},
+						{
+							text: 'createPluginFactory',
+							link: '/factory/create-plugin-factory.html'
+						},
+						{
+							text: 'BasePluginOptions',
+							link: '/factory/base-plugin-options.html'
+						},
+						{
+							text: '生命周期',
+							link: '/factory/lifecycle.html'
+						},
+						{
+							text: '钩子注册',
+							link: '/factory/hooks.html'
+						}
+					]
+				},
+				{
+					text: '日志模块',
+					items: [
+						{
+							text: '概览',
+							link: '/logger/index.html'
+						},
+						{
+							text: 'Logger',
+							link: '/logger/logger-class.html'
+						},
+						{
+							text: 'PluginLogger',
+							link: '/logger/plugin-logger.html'
+						},
+						{
+							text: 'LoggerOptions',
+							link: '/logger/logger-options.html'
+						}
+					]
+				},
 				{
 					text: '公共工具',
 					items: [
@@ -140,117 +271,6 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: '验证器',
 							link: '/common/validation.html'
-						}
-					]
-				},
-				{
-					text: '插件工厂',
-					items: [
-						{
-							text: '概览',
-							link: '/factory/index.html'
-						},
-						{
-							text: 'BasePlugin',
-							link: '/factory/base-plugin.html'
-						},
-						{
-							text: 'createPluginFactory',
-							link: '/factory/create-plugin-factory.html'
-						},
-						{
-							text: 'BasePluginOptions',
-							link: '/factory/base-plugin-options.html'
-						}
-					]
-				},
-				{
-					text: '日志模块',
-					items: [
-						{
-							text: '概览',
-							link: '/logger/index.html'
-						},
-						{
-							text: 'Logger',
-							link: '/logger/logger-class.html'
-						},
-						{
-							text: 'PluginLogger',
-							link: '/logger/plugin-logger.html'
-						},
-						{
-							text: 'LoggerOptions',
-							link: '/logger/logger-options.html'
-						}
-					]
-				},
-				{
-					text: '插件模块',
-					items: [
-						{
-							text: '概览',
-							link: '/plugins/index.html'
-						},
-						{
-							text: 'assetManifest',
-							link: '/plugins/asset-manifest.html'
-						},
-						{
-							text: 'autoImport',
-							link: '/plugins/auto-import.html'
-						},
-						{
-							text: 'buildProgress',
-							link: '/plugins/build-progress.html'
-						},
-						{
-							text: 'bundleAnalyzer',
-							link: '/plugins/bundle-analyzer.html'
-						},
-						{
-							text: 'compressAssets',
-							link: '/plugins/compress-assets.html'
-						},
-						{
-							text: 'copyFile',
-							link: '/plugins/copy-file.html'
-						},
-						{
-							text: 'envGuard',
-							link: '/plugins/env-guard.html'
-						},
-						{
-							text: 'faviconManager',
-							link: '/plugins/favicon-manager.html'
-						},
-						{
-							text: 'generateRouter',
-							link: '/plugins/generate-router.html'
-						},
-						{
-							text: 'generateVersion',
-							link: '/plugins/generate-version.html'
-						},
-						{
-							text: 'htmlInject',
-							link: '/plugins/html-inject.html'
-						},
-						{
-							text: 'imageOptimizer',
-							link: '/plugins/image-optimizer.html'
-						},
-						{
-							text: 'loadingManager',
-							link: '/plugins/loading-manager.html'
-						},
-						{
-							text: 'proxyManager',
-							link: '/plugins/proxy-manager.html'
-						},
-						{
-							text: 'versionUpdateChecker',
-							link: '/plugins/version-update-checker.html'
 						}
 					]
 				}
