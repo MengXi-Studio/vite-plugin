@@ -94,6 +94,7 @@ const appVersion = __APP_VERSION__
 const versionInfo = __APP_VERSION___INFO
 
 const tests = reactive<Record<string, boolean>>({
+	assetManifest: false,
 	autoImport: false,
 	buildProgress: false,
 	bundleAnalyzer: false,
@@ -111,6 +112,7 @@ const tests = reactive<Record<string, boolean>>({
 })
 
 const testLabels: Record<string, string> = {
+	assetManifest: 'assetManifest - 资源清单生成',
 	autoImport: 'autoImport - 自动导入',
 	buildProgress: 'buildProgress - 构建进度条',
 	bundleAnalyzer: 'bundleAnalyzer - 产物体积分析',
@@ -159,6 +161,9 @@ onUnmounted(() => {
 async function runTests() {
 	tests.autoImport = typeof reactive === 'function' && typeof ref === 'function'
 	tests.buildProgress = true
+
+	// assetManifest 测试：检查运行时注入的全局变量
+	tests.assetManifest = !!(window as any).__ASSET_MANIFEST__
 
 	try {
 		const res = await fetch('/bundle-analysis.html')

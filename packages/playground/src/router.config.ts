@@ -1,7 +1,5 @@
 /**
- * @plugin generate-router
- * @date 2026-06-21 22:32:10
- * @version 0.2.2
+ * generate-router {YYYY-MM-DD HH:mm:ss} 0.2.6
  */
 
 import type { RouteConfig } from '@meng-xi/uni-router'
@@ -33,8 +31,8 @@ export const routes: RouteConfig[] = [
 	},
 	{
 		path: '/pages/protected/protected',
-		name: 'pagesProtectedProtected',
-		meta: { title: '受保护页面', requireAuth: true }
+		name: 'ProtectedPage',
+		meta: { title: '受保护页面', requireAuth: true, role: 'admin' }
 	},
 	{
 		path: '/pages/login/login',

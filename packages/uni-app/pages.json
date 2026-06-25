@@ -7,6 +7,51 @@
 			}
 		},
 		{
+			"path": "pages/navigation/index",
+			"style": {
+				"navigationBarTitleText": "路由导航"
+			}
+		},
+		{
+			"path": "pages/guards/index",
+			"style": {
+				"navigationBarTitleText": "路由守卫"
+			}
+		},
+		{
+			"path": "pages/detail/index",
+			"style": {
+				"navigationBarTitleText": "详情页"
+			}
+		},
+		{
+			"path": "pages/protected/index",
+			"name": "ProtectedPage",
+			"meta": { "requireAuth": true, "role": "admin" },
+			"style": {
+				"navigationBarTitleText": "受保护页面",
+				"requireAuth": true
+			}
+		},
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/resolve/index",
+			"style": {
+				"navigationBarTitleText": "路由解析"
+			}
+		},
+		{
+			"path": "pages/error/index",
+			"style": {
+				"navigationBarTitleText": "错误页面"
+			}
+		},
+		{
 			"path": "pages/about/index",
 			"name": "AboutPage",
 			"meta": { "requireAuth": false },
@@ -15,6 +60,42 @@
 			}
 		}
 	],
+	"subPackages": [
+		{
+			"root": "pages-sub",
+			"pages": [
+				{
+					"path": "profile/index",
+					"style": {
+						"navigationBarTitleText": "个人中心"
+					}
+				},
+				{
+					"path": "settings/index",
+					"style": {
+						"navigationBarTitleText": "设置",
+						"requireAuth": true
+					}
+				}
+			]
+		}
+	],
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#007aff",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/about/index",
+				"text": "关于"
+			}
+		]
+	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "Vite Plugin Demo",
