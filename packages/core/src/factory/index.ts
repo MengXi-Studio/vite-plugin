@@ -401,8 +401,8 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * 将插件实例转换为 Vite 插件对象，用于 Vite 构建系统
 	 *
 	 * @public
-	 * @returns {Plugin} Vite 插件对象，包含插件名称、执行时机和各种钩子函数
-	 * @description 该方法创建并返回一个符合 Vite 插件规范的对象，设置了插件的基本信息和 configResolved 钩子，然后调用 addPluginHooks 方法添加插件特定的钩子
+	 * @returns {PluginWithInstance<T>} Vite 插件对象，包含插件名称、执行时机、各种钩子函数以及对原始插件实例的引用
+	 * @description 该方法创建并返回一个符合 Vite 插件规范的对象，设置了插件的基本信息和 configResolved 钩子，然后调用 addPluginHooks 方法添加插件特定的钩子，并在插件对象上添加对原始插件实例的引用
 	 * @example
 	 * ```typescript
 	 * // 创建插件实例
@@ -415,8 +415,8 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * export const myPlugin = vitePlugin
 	 * ```
 	 */
-	public toPlugin(): Plugin {
-		const plugin: Plugin = {
+	public toPlugin(): PluginWithInstance<T> {
+		const plugin: PluginWithInstance<T> = {
 			name: this.getPluginName(),
 			enforce: this.getEnforce()
 		}
@@ -441,6 +441,8 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 			}
 			instance.destroy()
 		}
+
+		plugin.pluginInstance = this
 
 		return plugin
 	}
@@ -474,11 +476,7 @@ export function createPluginFactory<T extends BasePluginOptions, P extends BaseP
 		const normalizedOptions = (normalizer ? normalizer(options) : options) as T
 
 		const plugin = new PluginClass(normalizedOptions)
-		const vitePlugin = plugin.toPlugin() as PluginWithInstance<T>
-
-		vitePlugin.pluginInstance = plugin
-
-		return vitePlugin
+		return plugin.toPlugin()
 	}
 }
 
