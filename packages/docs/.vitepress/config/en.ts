@@ -86,8 +86,20 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/common/index.html'
 						},
 						{
+							text: 'Code',
+							link: '/en/common/code.html'
+						},
+						{
+							text: 'Compress',
+							link: '/en/common/compress.html'
+						},
+						{
 							text: 'Concurrency',
 							link: '/en/common/concurrency.html'
+						},
+						{
+							text: 'Env',
+							link: '/en/common/env.html'
 						},
 						{
 							text: 'File System',
@@ -98,8 +110,16 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 							link: '/en/common/format.html'
 						},
 						{
+							text: 'Hash',
+							link: '/en/common/hash.html'
+						},
+						{
 							text: 'HTML',
 							link: '/en/common/html.html'
+						},
+						{
+							text: 'Object',
+							link: '/en/common/object.html'
 						},
 						{
 							text: 'Path',
@@ -108,6 +128,10 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						{
 							text: 'Script',
 							link: '/en/common/script.html'
+						},
+						{
+							text: 'String',
+							link: '/en/common/string.html'
 						},
 						{
 							text: 'Terminal UI',
