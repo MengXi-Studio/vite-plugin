@@ -95,6 +95,36 @@ declare function parseTemplate(template: string, values: Record<string, string>)
  */
 declare function formatDate(date: Date, format: string): string;
 /**
+ * 解析插件文件头模板
+ *
+ * 支持以下占位符：
+ * - `{date}` - 默认格式 YYYY-MM-DD HH:mm:ss
+ * - `{date:FORMAT}` - 自定义日期格式（如 `{date:YYYY/MM/DD}`）
+ * - `{custom:KEY}` - 自定义字段（未提供时保留原占位符）
+ * - `{name}` - 插件名称
+ * - `{version}` - 插件版本
+ *
+ * @param template - 模板字符串
+ * @param params - 解析参数
+ * @returns 解析后的字符串
+ *
+ * @example
+ * ```typescript
+ * parsePluginTemplate('{name} v{version} ({date:YYYY-MM-DD})', {
+ *   name: 'generate-router',
+ *   version: '0.2.5',
+ *   customFields: { author: 'Alice' }
+ * })
+ * // 'generate-router v0.2.5 (2026-06-25)'
+ * ```
+ */
+declare function parsePluginTemplate(template: string, params: {
+    name?: string;
+    version?: string;
+    customFields?: Record<string, string>;
+    defaultDateFormat?: string;
+}): string;
+/**
  * 将字节数格式化为人类可读的文件大小字符串
  *
  * @param {number} bytes - 文件大小（字节）
@@ -132,5 +162,5 @@ declare function formatFileSize(bytes: number): string;
  */
 declare function calcRatio(originalSize: number, compressedSize: number): number;
 
-export { calcRatio, formatDate, formatFileSize, getDateFormatParams, parseTemplate, parseTemplateWithDelimiter };
+export { calcRatio, formatDate, formatFileSize, getDateFormatParams, parsePluginTemplate, parseTemplate, parseTemplateWithDelimiter };
 export type { DateFormatOptions };

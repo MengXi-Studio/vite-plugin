@@ -5,7 +5,7 @@ export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkS
 export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummary, compressAssets } from './compressAssets/index.mjs';
 export { CopyFileOptions, copyFile } from './copyFile/index.mjs';
 export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './envGuard/index.mjs';
-export { FaviconManagerOptions, Icon, faviconManager } from './faviconManager/index.mjs';
+export { FaviconManagerOptions, Icon, IconOptions, faviconManager } from './faviconManager/index.mjs';
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './generateRouter/index.mjs';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './generateVersion/index.mjs';
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './htmlInject/index.mjs';

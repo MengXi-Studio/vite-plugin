@@ -21,7 +21,7 @@
 - **Ready to Use** - 15 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
   management, global Loading, image optimization, dev proxy, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
-- **Common Utility Library** - Built-in 8 Common utility modules supporting on-demand sub-path imports
+- **Common Utility Library** - Built-in 14 Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
 - **On-demand Import** - Supports sub-path exports to reduce bundle size
 
@@ -157,8 +157,17 @@ export const myPlugin = createPluginFactory(MyPlugin)
 Built-in general-purpose utility function library, organized by functional modules, supporting on-demand sub-path imports.
 
 ```typescript
+// Code: JS keyword set, code comment & string stripping
+import { JS_KEYWORDS, stripCommentsAndStrings } from '@meng-xi/vite-plugin/common/code'
+
+// Compress: gzip size calculation
+import { calculateGzipSize } from '@meng-xi/vite-plugin/common/compress'
+
 // Concurrency: batch execution with concurrency limit
 import { runWithConcurrency } from '@meng-xi/vite-plugin/common/concurrency'
+
+// Env: .env file content parsing
+import { parseEnvContent } from '@meng-xi/vite-plugin/common/env'
 
 // Formatting: date params, template variable replacement (custom delimiter supported), file size, date formatting, compression ratio
 import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
@@ -177,14 +186,23 @@ import {
 	resolveReportPath
 } from '@meng-xi/vite-plugin/common/fs'
 
+// Hash: random hash generation
+import { generateRandomHash } from '@meng-xi/vite-plugin/common/hash'
+
 // HTML: tag injection, content sanitization, attribute escaping
 import { injectBeforeTag, injectHeadAndBody, sanitizeContent, escapeHtmlAttr } from '@meng-xi/vite-plugin/common/html'
+
+// Object: deep merge
+import { deepMerge } from '@meng-xi/vite-plugin/common/object'
 
 // Path: path normalization, extension filtering, path exclusion matching, pre-compression detection
 import { normalizePath, isExtensionIncluded, isPathExcluded, isPreCompressed } from '@meng-xi/vite-plugin/common/path'
 
 // Script generation: callback function wrapping
 import { makeCallback } from '@meng-xi/vite-plugin/common/script'
+
+// String: case conversion, JSON comment removal, regex escaping
+import { toCamelCase, toPascalCase, stripJsonComments, escapeRegex } from '@meng-xi/vite-plugin/common/string'
 
 // Terminal UI: ANSI color codes
 import { ANSI } from '@meng-xi/vite-plugin/common/ui'
@@ -195,12 +213,18 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCall
 
 | Sub-path                                                                                       | Description                                                                                                                                                        |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`common/code`](https://mengxi-studio.github.io/vite-plugin/en/common/code.html)               | JS keyword set, code comment & string stripping (for static analysis preprocessing)                                                                                |
+| [`common/compress`](https://mengxi-studio.github.io/vite-plugin/en/common/compress.html)       | gzip size calculation                                                                                                                                              |
 | [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/en/common/concurrency.html) | Batch async execution with concurrency limit                                                                                                                       |
+| [`common/env`](https://mengxi-studio.github.io/vite-plugin/en/common/env.html)                 | `.env` file content parsing (supports quote removal and prefix filtering)                                                                                          |
 | [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)           | Date param extraction, template variable replacement `{{key}}`/`{key}` (custom delimiter supported), date formatting, file size, compression ratio                 |
 | [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                   | Source check, file/directory copy, directory scan, scan+map, batch delete, file write, JSON report, sync safe write, file change detection, report path resolution |
+| [`common/hash`](https://mengxi-studio.github.io/vite-plugin/en/common/hash.html)               | Random hash generation (cryptographic random, for version identification, cache busting)                                                                           |
 | [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)               | HTML tag injection, dual-zone injection, content sanitization, HTML attribute value escaping                                                                       |
+| [`common/object`](https://mengxi-studio.github.io/vite-plugin/en/common/object.html)           | Deep merge objects (recursively merges plain objects, skips undefined)                                                                                             |
 | [`common/path`](https://mengxi-studio.github.io/vite-plugin/en/common/path.html)               | Path normalization, extension filtering, path exclusion matching, pre-compression format detection                                                                 |
 | [`common/script`](https://mengxi-studio.github.io/vite-plugin/en/common/script.html)           | Callback body wrapping into safe function expressions (with try-catch)                                                                                             |
+| [`common/string`](https://mengxi-studio.github.io/vite-plugin/en/common/string.html)           | Case conversion (camelCase/PascalCase), JSON comment removal, regex special character escaping                                                                     |
 | [`common/ui`](https://mengxi-studio.github.io/vite-plugin/en/common/ui.html)                   | Terminal ANSI color code constants                                                                                                                                 |
 | [`common/validation`](https://mengxi-studio.github.io/vite-plugin/en/common/validation.html)   | Chain-style config validator, global name validation, script detection, callback field validation                                                                  |
 
@@ -214,7 +238,20 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCall
 | `@meng-xi/vite-plugin/plugins`                        | All plugins                          |
 | `@meng-xi/vite-plugin/common`                         | All utility functions                |
 | `@meng-xi/vite-plugin/common/*`                       | Utility sub-modules                  |
+| `@meng-xi/vite-plugin/common/code`                    | Code processing utilities            |
+| `@meng-xi/vite-plugin/common/compress`                | Compression utilities                |
 | `@meng-xi/vite-plugin/common/concurrency`             | Concurrency control utilities        |
+| `@meng-xi/vite-plugin/common/env`                     | Environment variable utilities       |
+| `@meng-xi/vite-plugin/common/format`                  | Formatting utilities                 |
+| `@meng-xi/vite-plugin/common/fs`                      | File system utilities                |
+| `@meng-xi/vite-plugin/common/hash`                    | Hash utilities                       |
+| `@meng-xi/vite-plugin/common/html`                    | HTML injection utilities             |
+| `@meng-xi/vite-plugin/common/object`                  | Object merging utilities             |
+| `@meng-xi/vite-plugin/common/path`                    | Path utilities                       |
+| `@meng-xi/vite-plugin/common/script`                  | Script utilities                     |
+| `@meng-xi/vite-plugin/common/string`                  | String processing utilities          |
+| `@meng-xi/vite-plugin/common/ui`                      | Terminal UI utilities                |
+| `@meng-xi/vite-plugin/common/validation`              | Validation utilities                 |
 | `@meng-xi/vite-plugin/plugins/asset-manifest`         | assetManifest plugin                 |
 | `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport plugin                    |
 | `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress plugin                 |
