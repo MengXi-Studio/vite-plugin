@@ -10,7 +10,7 @@
 
 ## 插件分组
 
-插件按功能动词分组（类似 Lodash 设计），支持按分组或单独导入：
+插件按功能动词分组，支持按分组或单独导入：
 
 | 分组 | 说明 | 插件 |
 | ---- | ---- | ---- |
@@ -51,17 +51,17 @@ interface BasePluginOptions {
 ## 学习路径
 
 ::: tip 推荐学习顺序
-1. [安装](/installation) — 安装依赖
-2. [快速开始](/quick-start) — 5 分钟上手
-3. [基础概念](/concepts) — 理解插件系统与生命周期
-4. [按需导入](/on-demand-import) — 优化打包体积
-5. [最佳实践](/best-practices) — 场景化推荐与常见陷阱
+1. [安装](/guide/installation) — 安装依赖
+2. [快速开始](/guide/quick-start) — 5 分钟上手
+3. [基础概念](/guide/concepts) — 理解插件系统与生命周期
+4. [按需导入](/guide/on-demand-import) — 优化打包体积
+5. [最佳实践](/guide/best-practices) — 场景化推荐与常见陷阱
 :::
 
 ## 下一步
 
-- [安装](/installation) — 安装与配置
-- [快速开始](/quick-start) — 5 分钟上手
+- [安装](/guide/installation) — 安装与配置
+- [快速开始](/guide/quick-start) — 5 分钟上手
 - [插件概览](/plugins) — 浏览全部插件
 - [插件开发框架](/factory) — 开发自定义插件
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) — 查看源码和示例

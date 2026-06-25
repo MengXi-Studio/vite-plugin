@@ -72,7 +72,7 @@ import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compres
 ```
 
 ::: tip
-详细的导入策略对比请参阅 [按需导入](/on-demand-import)。
+详细的导入策略对比请参阅 [按需导入](/guide/on-demand-import)。
 :::
 
 ## 环境要求
@@ -83,6 +83,6 @@ import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compres
 
 ## 下一步
 
-- [快速开始](/quick-start) — 5 分钟上手
-- [基础概念](/concepts) — 理解插件系统
+- [快速开始](/guide/quick-start) — 5 分钟上手
+- [基础概念](/guide/concepts) — 理解插件系统
 - [插件概览](/plugins) — 浏览全部插件

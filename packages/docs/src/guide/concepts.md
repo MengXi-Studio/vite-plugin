@@ -35,7 +35,7 @@
 
 ## 插件分组
 
-插件按功能动词分组（类似 Lodash 设计哲学），每个分组对应一类操作：
+插件按功能动词分组，每个分组对应一类操作：
 
 | 分组 | 语义 | 适用场景 |
 | ---- | ---- | -------- |
@@ -176,7 +176,7 @@ protected validateOptions(): void {
 
 ## 下一步
 
-- [按需导入](/on-demand-import) — 优化打包体积
-- [最佳实践](/best-practices) — 场景化推荐
+- [按需导入](/guide/on-demand-import) — 优化打包体积
+- [最佳实践](/guide/best-practices) — 场景化推荐
 - [插件开发框架](/factory) — 开发自定义插件
 - [生命周期](/factory/lifecycle) — 钩子执行顺序详解

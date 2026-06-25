@@ -101,6 +101,6 @@ import type { LoggerOptions } from '@meng-xi/vite-plugin/logger'
 
 ## 下一步
 
-- [最佳实践](/best-practices) — 场景化配置推荐
+- [最佳实践](/guide/best-practices) — 场景化配置推荐
 - [插件概览](/plugins) — 浏览全部插件
 - [插件开发框架](/factory) — 开发自定义插件

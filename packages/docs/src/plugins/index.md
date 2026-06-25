@@ -118,11 +118,11 @@ interface BasePluginOptions {
 }
 ```
 
-详细说明请参阅 [基础概念](/concepts#通用配置)。
+详细说明请参阅 [基础概念](/guide/concepts#通用配置)。
 
 ## 下一步
 
-- [快速开始](/quick-start) — 5 分钟上手
-- [基础概念](/concepts) — 理解插件系统
-- [最佳实践](/best-practices) — 场景化推荐
-- [按需导入](/on-demand-import) — 优化打包体积
+- [快速开始](/guide/quick-start) — 5 分钟上手
+- [基础概念](/guide/concepts) — 理解插件系统
+- [最佳实践](/guide/best-practices) — 场景化推荐
+- [按需导入](/guide/on-demand-import) — 优化打包体积
