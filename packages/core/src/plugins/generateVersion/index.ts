@@ -181,14 +181,15 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 		}
 
 		if (this.options.outputType === 'file' || this.options.outputType === 'both') {
-			plugin.writeBundle = async () => {
-				if (!this.viteConfig) return
-
-				await this.safeExecute(async () => {
-					const outDir = this.viteConfig!.build.outDir
-					await this.writeVersionFile(outDir)
-				}, '写入版本文件')
-			}
+			this.registerHook(
+				plugin,
+				'writeBundle',
+				async () => {
+					if (!this.viteConfig) return
+					await this.writeVersionFile(this.viteConfig.build.outDir)
+				},
+				'写入版本文件'
+			)
 		}
 	}
 }

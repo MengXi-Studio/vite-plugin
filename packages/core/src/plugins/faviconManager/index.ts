@@ -168,9 +168,9 @@ class FaviconManagerPlugin extends BasePlugin<FaviconManagerOptions> {
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		// 使用 Vite 原生 transformIndexHtml 钩子
-		plugin.transformIndexHtml = {
-			order: 'pre',
-			handler: (html: string) => {
+		this.registerTransformIndexHtml(
+			plugin,
+			html => {
 				// 如果使用自定义 link 标签，使用字符串替换方式
 				if (this.options.link) {
 					return this.injectCustomLinkTag(html)
@@ -186,12 +186,12 @@ class FaviconManagerPlugin extends BasePlugin<FaviconManagerOptions> {
 				}
 
 				return html
-			}
-		}
+			},
+			'注入网站图标标签',
+			'pre'
+		)
 
-		plugin.writeBundle = async () => {
-			await this.safeExecute(() => this.copyFiles(), '图标文件复制')
-		}
+		this.registerHook(plugin, 'writeBundle', () => this.copyFiles(), '图标文件复制')
 	}
 }
 

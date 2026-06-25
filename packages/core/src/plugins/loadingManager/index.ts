@@ -264,9 +264,9 @@ ${js}
 		const headCode = defaultVisible ? this.generateHeadInjectCode() : undefined
 		const bodyCode = this.generateBodyInjectCode(defaultVisible)
 
-		plugin.transformIndexHtml = {
-			order: 'post',
-			handler: (html: string) => {
+		this.registerTransformIndexHtml(
+			plugin,
+			html => {
 				const result = injectHeadAndBody(html, headCode, bodyCode)
 
 				if (headCode && !result.headInjected) {
@@ -279,8 +279,9 @@ ${js}
 					this.logger.success('成功注入全局 Loading 状态管理代码到 HTML 文件')
 				}
 				return result.html
-			}
-		}
+			},
+			'注入全局 Loading 状态管理代码'
+		)
 	}
 }
 

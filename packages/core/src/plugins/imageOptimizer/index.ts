@@ -167,9 +167,7 @@ class ImageOptimizerPlugin extends BasePlugin<ImageOptimizerOptions> {
 	 * 使用 `safeExecute` 包裹以确保异常不会中断构建。
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
-		plugin.writeBundle = async () => {
-			await this.safeExecute(() => this.optimizeAllImages(), '优化图片资源')
-		}
+		this.registerHook(plugin, 'writeBundle', () => this.optimizeAllImages(), '优化图片资源')
 	}
 
 	/**

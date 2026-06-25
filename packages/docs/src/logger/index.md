@@ -30,7 +30,7 @@ import type { PluginLogger, LoggerOptions } from '@meng-xi/vite-plugin/logger'
 import { Logger } from '@meng-xi/vite-plugin/logger'
 
 // 创建日志记录器（注册插件配置）
-const logger = Logger.create({ name: 'my-plugin' })
+const logger = Logger.register({ name: 'my-plugin' })
 
 // 创建插件日志代理
 const pluginLogger = logger.createPluginLogger('my-plugin')

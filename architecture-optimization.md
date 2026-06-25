@@ -7,10 +7,8 @@
 ## 目录
 
 - [P2 - 低优先级（代码质量提升）](#p2---低优先级代码质量提升)
-  - [1. 钩子注册辅助方法](#1-钩子注册辅助方法)
-  - [2. Logger API 语义优化](#2-logger-api-语义优化)
-  - [3. 类型文件统一](#3-类型文件统一)
-  - [4. toPlugin 返回类型优化](#4-toplugin-返回类型优化)
+  - [1. 类型文件统一](#1-类型文件统一)
+  - [2. toPlugin 返回类型优化](#2-toplugin-返回类型优化)
 - [架构亮点（保持现状）](#架构亮点保持现状)
 - [执行检查表](#执行检查表)
 
@@ -18,162 +16,7 @@
 
 ## P2 - 低优先级（代码质量提升）
 
-### 1. 钩子注册辅助方法
-
-**现状**
-
-- `BasePlugin.toPlugin()` 仅自动包裹 `configResolved` 和 `closeBundle`
-- 其他钩子（`writeBundle`、`transform`、`transformIndexHtml` 等）通过 `addPluginHooks` 添加，无自动 `enabled` 检查和 `safeExecute` 包裹
-- 每个插件需手动写 `await this.safeExecute(() => ..., 'context')`
-
-**执行步骤**
-
-1. 在 `BasePlugin` 中新增 `registerHook` 方法：
-
-   ```typescript
-   // src/factory/index.ts
-
-   /**
-    * 注册 Vite 插件钩子，自动包裹 enabled 检查和错误处理
-    *
-    * @param plugin - Vite 插件对象
-    * @param hook - 钩子名称
-    * @param handler - 钩子处理函数
-    * @param context - 错误日志上下文描述
-    */
-   protected registerHook<K extends keyof NonNullable<Plugin>>(
-     plugin: Plugin,
-     hook: K,
-     handler: NonNullable<Plugin>[K],
-     context: string
-   ): void {
-     const instance = this
-     const original = handler as Function
-
-     ;(plugin as any)[hook] = async function (this: any, ...args: any[]) {
-       if (!instance.options.enabled) return
-       await instance.safeExecute(() => original.apply(this, args), context)
-     }
-   }
-   ```
-
-2. 重构各插件的 `addPluginHooks`，以 `copyFile` 为例：
-
-   ```typescript
-   // 修改前：
-   protected addPluginHooks(plugin: Plugin): void {
-     plugin.writeBundle = async () => {
-       await this.safeExecute(() => this.copyFiles(), '复制文件')
-     }
-   }
-
-   // 修改后：
-   protected addPluginHooks(plugin: Plugin): void {
-     this.registerHook(plugin, 'writeBundle', () => this.copyFiles(), '复制文件')
-   }
-   ```
-
-3. 逐个插件迁移（可选，不强制一次性完成）：
-   - `copyFile` - `writeBundle`
-   - `compressAssets` - `generateBundle`
-   - `imageOptimizer` - `generateBundle`
-   - `loadingManager` - `transformIndexHtml`
-   - `versionUpdateChecker` - `transformIndexHtml`
-   - `htmlInject` - `transformIndexHtml`
-   - `assetManifest` - `generateBundle`
-   - `bundleAnalyzer` - `generateBundle`
-   - `generateVersion` - `configResolved`
-   - `generateRouter` - `configResolved`
-   - `envGuard` - `transform`
-   - `autoImport` - `transform`
-   - `faviconManager` - `transformIndexHtml`
-   - `buildProgress` - `buildStart` / `buildEnd` 等
-
-**验证方式**
-
-- 每迁移一个插件后运行 `npm run build` 确保无错误
-- 在 playground 中测试插件功能正常
-- 测试 `enabled: false` 时插件确实不执行
-
-**注意**
-
-- `transformIndexHtml` 支持 `order` 配置，需特殊处理：
-
-  ```typescript
-  protected registerTransformIndexHtml(
-    plugin: Plugin,
-    handler: (html: string) => string,
-    context: string,
-    order: 'pre' | 'post' = 'post'
-  ): void {
-    const instance = this
-    plugin.transformIndexHtml = {
-      order,
-      handler: (html: string) => {
-        if (!instance.options.enabled) return html
-        return instance.safeExecuteSync(() => handler(html), context) ?? html
-      }
-    }
-  }
-  ```
-
----
-
-### 2. Logger API 语义优化
-
-**现状**
-
-- `Logger.create(options)` 返回单例实例，但方法名 `create` 误导，实际是 `register + getInstance`
-
-**执行步骤**
-
-1. 修改 `src/logger/index.ts`：
-
-   ```typescript
-   // src/logger/index.ts
-
-   /**
-    * 注册插件日志配置并获取 Logger 实例
-    * @param options 配置选项
-    * @returns Logger 单例实例
-    */
-   static register(options: LoggerOptions): Logger {
-     const instance = Logger.getInstance()
-     instance.registerPlugin(options.name, options.enabled ?? true)
-     return instance
-   }
-
-   // 保留 create 作为别名，标记为废弃
-   /** @deprecated 请使用 Logger.register() */
-   static create(options: LoggerOptions): Logger {
-     return Logger.register(options)
-   }
-   ```
-
-2. 修改 `src/factory/index.ts` 中的调用：
-
-   ```typescript
-   // src/factory/index.ts
-   private initLogger(loggerConfig?: LoggerOptions): PluginLogger {
-     const loggerInstance = Logger.register({
-       name: this.getPluginName(),
-       enabled: this.options.verbose,
-       ...loggerConfig
-     })
-     return loggerInstance.createPluginLogger(this.getPluginName())
-   }
-   ```
-
-3. 下一个大版本发布时删除 `create` 别名
-
-**验证方式**
-
-- `npm run build` 无错误
-- 全局搜索 `Logger.create` 无残留（除废弃别名外）
-
----
-
-### 3. 类型文件统一
+### 1. 类型文件统一
 
 **现状**
 
@@ -207,7 +50,7 @@
 
 ---
 
-### 4. toPlugin 返回类型优化
+### 2. toPlugin 返回类型优化
 
 **现状**
 
@@ -295,12 +138,10 @@
 
 ### P2
 
-- [ ] 1. 钩子注册辅助方法
-- [ ] 2. Logger API 语义优化
-- [ ] 3. 类型文件统一
-  - [ ] 3.1 faviconManager 类型文件
-  - [ ] 3.2 proxyManager 类型文件
-- [ ] 4. toPlugin 返回类型优化
+- [ ] 1. 类型文件统一
+  - [ ] 1.1 faviconManager 类型文件
+  - [ ] 1.2 proxyManager 类型文件
+- [ ] 2. toPlugin 返回类型优化
 
 ---
 

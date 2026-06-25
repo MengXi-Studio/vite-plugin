@@ -10,7 +10,7 @@ import { Logger } from '@meng-xi/vite-plugin/logger'
 
 ```typescript
 class Logger {
-	static create(options: LoggerOptions): Logger
+	static register(options: LoggerOptions): Logger
 	static unregister(pluginName: string): void
 	static destroy(): void
 	createPluginLogger(pluginName: string): PluginLogger
@@ -21,12 +21,12 @@ class Logger {
 
 ## 静态方法
 
-### create
+### register
 
-创建日志记录器（工厂方法），注册插件配置并返回单例实例。
+注册插件日志配置并返回单例实例。
 
 ```typescript
-static create(options: LoggerOptions): Logger
+static register(options: LoggerOptions): Logger
 ```
 
 | 参数    | 类型            | 说明     |
@@ -38,13 +38,13 @@ static create(options: LoggerOptions): Logger
 `Logger` - 单例实例
 
 ::: tip
-多次调用 `create` 返回同一实例，但每次调用都会注册对应插件的日志配置。
+多次调用 `register` 返回同一实例，但每次调用都会注册对应插件的日志配置。
 :::
 
 **示例**
 
 ```typescript
-const logger = Logger.create({ name: 'my-plugin', enabled: true })
+const logger = Logger.register({ name: 'my-plugin', enabled: true })
 ```
 
 ---
@@ -116,7 +116,7 @@ createPluginLogger(pluginName: string): PluginLogger
 **示例**
 
 ```typescript
-const logger = Logger.create({ name: 'my-plugin', enabled: true })
+const logger = Logger.register({ name: 'my-plugin', enabled: true })
 const pluginLogger = logger.createPluginLogger('my-plugin')
 
 pluginLogger.info('信息日志')
@@ -130,8 +130,8 @@ pluginLogger.success('成功日志')
 Logger 采用单例模式，确保全局只有一个日志管理器实例。
 
 ```typescript
-const logger1 = Logger.create({ name: 'plugin-a', enabled: true })
-const logger2 = Logger.create({ name: 'plugin-b', enabled: false })
+const logger1 = Logger.register({ name: 'plugin-a', enabled: true })
+const logger2 = Logger.register({ name: 'plugin-b', enabled: false })
 
 // logger1 和 logger2 是同一个 Logger 实例
 // 但各自的插件日志配置独立管理
@@ -144,10 +144,10 @@ const logger2 = Logger.create({ name: 'plugin-b', enabled: false })
 每个插件的日志可以独立控制。
 
 ```typescript
-Logger.create({ name: 'plugin-a', enabled: true })
-Logger.create({ name: 'plugin-b', enabled: false })
+Logger.register({ name: 'plugin-a', enabled: true })
+Logger.register({ name: 'plugin-b', enabled: false })
 
-const logger = Logger.create({ name: 'plugin-a', enabled: true })
+const logger = Logger.register({ name: 'plugin-a', enabled: true })
 const loggerA = logger.createPluginLogger('plugin-a')
 const loggerB = logger.createPluginLogger('plugin-b')
 

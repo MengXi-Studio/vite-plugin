@@ -133,12 +133,7 @@ class BundleAnalyzerPlugin extends BasePlugin<BundleAnalyzerOptions> {
 	 * 使用 `safeExecute` 包裹以确保异常不会中断构建。
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
-		plugin.writeBundle = {
-			order: 'post',
-			handler: async () => {
-				await this.safeExecute(() => this.runAnalysis(), '分析构建产物')
-			}
-		}
+		this.registerOrderedHook(plugin, 'writeBundle', () => this.runAnalysis(), '分析构建产物', 'post')
 	}
 
 	/**

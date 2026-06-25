@@ -30,7 +30,7 @@ Plugin name, used for log prefix identification.
 | `string` | Yes      | Displayed in log prefix `[@meng-xi/vite-plugin:name]` |
 
 ```typescript
-Logger.create({ name: 'my-plugin' })
+Logger.register({ name: 'my-plugin' })
 // Output: ℹ️ [@meng-xi/vite-plugin:my-plugin] ...
 ```
 
@@ -44,8 +44,8 @@ Whether to enable logging.
 
 ```typescript
 // Disable logging
-Logger.create({ name: 'my-plugin', enabled: false })
+Logger.register({ name: 'my-plugin', enabled: false })
 
 // Control by environment
-Logger.create({ name: 'my-plugin', enabled: process.env.DEBUG === 'true' })
+Logger.register({ name: 'my-plugin', enabled: process.env.DEBUG === 'true' })
 ```

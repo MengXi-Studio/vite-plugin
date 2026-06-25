@@ -119,9 +119,7 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 	 * 使用 `safeExecute` 包裹以确保异常不会中断构建。
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
-		plugin.writeBundle = async () => {
-			await this.safeExecute(() => this.copyFiles(), '复制文件')
-		}
+		this.registerHook(plugin, 'writeBundle', () => this.copyFiles(), '复制文件')
 	}
 }
 

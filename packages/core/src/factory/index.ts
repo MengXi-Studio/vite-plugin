@@ -129,7 +129,7 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 */
 	private initLogger(loggerConfig?: LoggerOptions): PluginLogger {
 		// 使用单例 Logger 创建日志记录器
-		const loggerInstance = Logger.create({
+		const loggerInstance = Logger.register({
 			name: this.getPluginName(),
 			enabled: this.options.verbose,
 			...loggerConfig
@@ -210,6 +210,73 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 */
 	protected destroy(): void {
 		Logger.unregister(this.getPluginName())
+	}
+
+	/**
+	 * 注册 Vite 插件钩子，自动包裹 enabled 检查和错误处理
+	 *
+	 * @protected
+	 * @param plugin - Vite 插件对象
+	 * @param hook - 钩子名称
+	 * @param handler - 钩子处理函数
+	 * @param context - 错误日志上下文描述
+	 * @description 注册钩子时自动包裹 enabled 检查（禁用时跳过执行）和 safeExecute（捕获异常），
+	 * 避免每个插件手动重复编写这两层包裹逻辑
+	 */
+	protected registerHook<K extends keyof NonNullable<Plugin>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string): void {
+		const instance = this
+		const original = handler as Function
+
+		;(plugin as any)[hook] = async function (this: any, ...args: any[]) {
+			if (!instance.options.enabled) return
+			await instance.safeExecute(() => original.apply(this, args), context)
+		}
+	}
+
+	/**
+	 * 注册带 order 配置的 Vite 插件钩子，自动包裹 enabled 检查和错误处理
+	 *
+	 * @protected
+	 * @param plugin - Vite 插件对象
+	 * @param hook - 钩子名称
+	 * @param handler - 钩子处理函数
+	 * @param context - 错误日志上下文描述
+	 * @param order - 执行顺序，'pre' 或 'post'
+	 * @description 与 registerHook 类似，但支持 Vite 的 order 配置（用于 transform、resolveId、generateBundle、writeBundle 等支持排序的钩子）
+	 */
+	protected registerOrderedHook<K extends keyof NonNullable<Plugin>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string, order: 'pre' | 'post'): void {
+		const instance = this
+		const original = handler as Function
+
+		;(plugin as any)[hook] = {
+			order,
+			handler: async function (this: any, ...args: any[]) {
+				if (!instance.options.enabled) return
+				await instance.safeExecute(() => original.apply(this, args), context)
+			}
+		}
+	}
+
+	/**
+	 * 注册 transformIndexHtml 钩子，支持 order 配置，自动包裹 enabled 检查和错误处理
+	 *
+	 * @protected
+	 * @param plugin - Vite 插件对象
+	 * @param handler - 钩子处理函数，接收 html 和可选的上下文参数
+	 * @param context - 错误日志上下文描述
+	 * @param order - 执行顺序，默认 'post'
+	 * @description transformIndexHtml 钩子需要返回 html 字符串，因此使用 safeExecuteSync 包裹，
+	 * 出错时返回原始 html 作为降级，确保构建不会中断
+	 */
+	protected registerTransformIndexHtml(plugin: Plugin, handler: (html: string, ctx?: any) => any, context: string, order: 'pre' | 'post' = 'post'): void {
+		const instance = this
+		plugin.transformIndexHtml = {
+			order,
+			handler: (html: string, ctx?: any) => {
+				if (!instance.options.enabled) return html
+				return instance.safeExecuteSync(() => handler(html, ctx), context) ?? html
+			}
+		}
 	}
 
 	/**

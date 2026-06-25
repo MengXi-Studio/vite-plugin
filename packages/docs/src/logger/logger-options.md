@@ -30,7 +30,7 @@ interface LoggerOptions {
 | `string` | 是   | 显示在日志前缀 `[@meng-xi/vite-plugin:name]` 中 |
 
 ```typescript
-Logger.create({ name: 'my-plugin' })
+Logger.register({ name: 'my-plugin' })
 // 输出: ℹ️ [@meng-xi/vite-plugin:my-plugin] ...
 ```
 
@@ -44,8 +44,8 @@ Logger.create({ name: 'my-plugin' })
 
 ```typescript
 // 禁用日志
-Logger.create({ name: 'my-plugin', enabled: false })
+Logger.register({ name: 'my-plugin', enabled: false })
 
 // 根据环境控制
-Logger.create({ name: 'my-plugin', enabled: process.env.DEBUG === 'true' })
+Logger.register({ name: 'my-plugin', enabled: process.env.DEBUG === 'true' })
 ```

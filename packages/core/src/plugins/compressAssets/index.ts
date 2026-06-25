@@ -141,9 +141,7 @@ class CompressAssetsPlugin extends BasePlugin<CompressAssetsOptions> {
 	 * 使用 `safeExecute` 包裹以确保异常不会中断构建。
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
-		plugin.writeBundle = async () => {
-			await this.safeExecute(() => this.compressAllFiles(), '压缩构建产物')
-		}
+		this.registerHook(plugin, 'writeBundle', () => this.compressAllFiles(), '压缩构建产物')
 	}
 
 	/**

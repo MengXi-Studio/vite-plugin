@@ -97,10 +97,10 @@ class HtmlInjectPlugin extends BasePlugin<HtmlInjectOptions> {
 	 * - buildEnd: 在构建结束时输出注入统计信息
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
-		plugin.transformIndexHtml = {
-			order: 'post',
-			handler: (html: string, ctx) => {
-				const filename = ctx.filename || ''
+		this.registerTransformIndexHtml(
+			plugin,
+			(html, ctx) => {
+				const filename = ctx?.filename || ''
 				const targetFile = this.options.targetFile || 'index.html'
 
 				if (!this.isTargetFile(filename, targetFile)) {
@@ -120,8 +120,9 @@ class HtmlInjectPlugin extends BasePlugin<HtmlInjectOptions> {
 				}
 
 				return result.html
-			}
-		}
+			},
+			'注入 HTML 内容'
+		)
 
 		plugin.buildEnd = () => {
 			if (this.options.logInjection && this.injectionLogs.length > 0) {

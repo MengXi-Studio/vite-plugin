@@ -154,12 +154,7 @@ class EnvGuardPlugin extends BasePlugin<EnvGuardOptions> {
 		}
 
 		if (this.options.runtimeGuard) {
-			plugin.transformIndexHtml = {
-				order: 'post',
-				handler: (html: string) => {
-					return this.safeExecuteSync(() => this.injectRuntimeGuard(html), '注入运行时守卫') || html
-				}
-			}
+			this.registerTransformIndexHtml(plugin, html => this.injectRuntimeGuard(html), '注入运行时守卫')
 		}
 	}
 

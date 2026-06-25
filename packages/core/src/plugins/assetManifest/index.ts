@@ -152,12 +152,7 @@ class AssetManifestPlugin extends BasePlugin<AssetManifestOptions> {
 	 * 因为清单数据依赖扫描输出目录，而目录内容在 `writeBundle` 时才完整。
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
-		plugin.writeBundle = {
-			order: 'post',
-			handler: async () => {
-				await this.safeExecute(() => this.generateManifest(), '生成资源清单')
-			}
-		}
+		this.registerOrderedHook(plugin, 'writeBundle', () => this.generateManifest(), '生成资源清单', 'post')
 	}
 
 	/**

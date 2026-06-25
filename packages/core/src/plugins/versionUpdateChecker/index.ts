@@ -85,9 +85,9 @@ class VersionUpdateCheckerPlugin extends BasePlugin<VersionUpdateCheckerOptions>
 		const injectCode = generateFullInjectCode(this.options)
 		const metaTag = generateMetaTag(this.options)
 
-		plugin.transformIndexHtml = {
-			order: 'post',
-			handler: (html: string) => {
+		this.registerTransformIndexHtml(
+			plugin,
+			html => {
 				const result = injectHeadAndBody(html, metaTag, injectCode)
 
 				if (result.usedFallback) {
@@ -97,8 +97,9 @@ class VersionUpdateCheckerPlugin extends BasePlugin<VersionUpdateCheckerOptions>
 					this.logger.success('成功注入版本更新检查代码到 HTML 文件')
 				}
 				return result.html
-			}
-		}
+			},
+			'注入版本更新检查代码'
+		)
 	}
 }
 

@@ -68,12 +68,12 @@ export class Logger {
 	}
 
 	/**
-	 * 创建日志记录器（工厂方法）
+	 * 注册插件日志配置并获取 Logger 实例
 	 * @param options 配置选项
 	 * @returns Logger 单例实例
-	 * @description 为插件创建日志记录器，实际返回单例实例并注册插件配置
+	 * @description 注册插件日志配置，返回单例实例。方法名 register 语义清晰，表明是注册而非新建实例
 	 */
-	static create(options: LoggerOptions): Logger {
+	static register(options: LoggerOptions): Logger {
 		const instance = Logger.getInstance()
 		instance.registerPlugin(options.name, options.enabled ?? true)
 		return instance
