@@ -3,13 +3,18 @@
  */
 export interface LoggerOptions {
 	/**
-	 * 插件名称
+	 * 插件名称（用于日志前缀显示）
 	 */
 	name: string
 	/**
 	 * 是否启用日志
 	 */
 	enabled?: boolean
+	/**
+	 * 实例唯一标识（用于多实例隔离，默认与 name 相同）
+	 * 当同一插件类型存在多个实例时，应传入唯一 ID 避免配置互相覆盖
+	 */
+	instanceId?: string
 }
 
 /**

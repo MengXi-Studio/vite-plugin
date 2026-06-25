@@ -163,20 +163,24 @@ class GenerateVersionPlugin extends BasePlugin<GenerateVersionOptions> {
 
 		if (this.options.outputType === 'define' || this.options.outputType === 'both') {
 			plugin.config = () => {
-				if (!this.version) {
-					this.buildTime = new Date()
-					this.version = this.generateVersion()
-				}
+				if (!this.options.enabled) return
 
-				const defineName = this.options.defineName || '__APP_VERSION__'
-				this.logger.info(`注入全局变量: ${defineName} = "${this.version}"`)
-
-				return {
-					define: {
-						[defineName]: JSON.stringify(this.version),
-						[`${defineName}_INFO`]: JSON.stringify(this.generateVersionInfo())
+				return this.safeExecuteSync(() => {
+					if (!this.version) {
+						this.buildTime = new Date()
+						this.version = this.generateVersion()
 					}
-				}
+
+					const defineName = this.options.defineName || '__APP_VERSION__'
+					this.logger.info(`注入全局变量: ${defineName} = "${this.version}"`)
+
+					return {
+						define: {
+							[defineName]: JSON.stringify(this.version),
+							[`${defineName}_INFO`]: JSON.stringify(this.generateVersionInfo())
+						}
+					}
+				}, '注入版本全局变量')
 			}
 		}
 

@@ -147,8 +147,7 @@ class EnvGuardPlugin extends BasePlugin<EnvGuardOptions> {
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		if (this.options.validateBeforeBuild) {
-			plugin.configResolved = config => {
-				this.viteConfig = config
+			plugin.configResolved = () => {
 				this.runValidation()
 			}
 		}

@@ -17,9 +17,9 @@ export class Logger {
 
 	/**
 	 * 插件日志配置映射表
-	 * @description 存储每个插件的日志开关状态
+	 * @description 以实例 ID 为 key 存储每个插件实例的日志配置，避免同类型多实例互相覆盖
 	 */
-	private pluginConfigs: Map<string, boolean> = new Map()
+	private pluginConfigs: Map<string, { name: string; enabled: boolean }> = new Map()
 
 	/**
 	 * 日志类型映射
@@ -71,39 +71,41 @@ export class Logger {
 	 * 注册插件日志配置并获取 Logger 实例
 	 * @param options 配置选项
 	 * @returns Logger 单例实例
-	 * @description 注册插件日志配置，返回单例实例。方法名 register 语义清晰，表明是注册而非新建实例
+	 * @description 注册插件日志配置，返回单例实例。使用 instanceId 作为唯一 key 避免多实例冲突
 	 */
 	static register(options: LoggerOptions): Logger {
 		const instance = Logger.getInstance()
-		instance.registerPlugin(options.name, options.enabled ?? true)
+		const key = options.instanceId ?? options.name
+		instance.registerPlugin(key, options.name, options.enabled ?? true)
 		return instance
 	}
 
 	/**
 	 * 注册插件日志配置
-	 * @param pluginName 插件名称
+	 * @param key 实例唯一标识
+	 * @param name 插件显示名称
 	 * @param enabled 是否启用日志
 	 */
-	private registerPlugin(pluginName: string, enabled: boolean): void {
-		this.pluginConfigs.set(pluginName, enabled)
+	private registerPlugin(key: string, name: string, enabled: boolean): void {
+		this.pluginConfigs.set(key, { name, enabled })
 	}
 
 	/**
 	 * 注销插件日志配置
-	 * @param pluginName 插件名称
+	 * @param key 实例唯一标识
 	 */
-	private unregisterPlugin(pluginName: string): void {
-		this.pluginConfigs.delete(pluginName)
+	private unregisterPlugin(key: string): void {
+		this.pluginConfigs.delete(key)
 	}
 
 	/**
-	 * 注销指定插件的日志配置
-	 * @param pluginName 插件名称
-	 * @description 从单例中移除指定插件的日志配置，通常在插件销毁时调用
+	 * 注销指定插件实例的日志配置
+	 * @param key 实例唯一标识（instanceId 或插件名称）
+	 * @description 从单例中移除指定插件实例的日志配置，通常在插件销毁时调用
 	 */
-	static unregister(pluginName: string): void {
+	static unregister(key: string): void {
 		if (Logger.instance) {
-			Logger.instance.unregisterPlugin(pluginName)
+			Logger.instance.unregisterPlugin(key)
 		}
 	}
 
@@ -129,25 +131,27 @@ export class Logger {
 
 	/**
 	 * 检查插件日志是否启用
-	 * @param pluginName 插件名称
+	 * @param key 实例唯一标识
 	 * @returns 是否启用
 	 */
-	private isPluginEnabled(pluginName: string): boolean {
-		return this.pluginConfigs.get(pluginName) ?? true
+	private isPluginEnabled(key: string): boolean {
+		return this.pluginConfigs.get(key)?.enabled ?? true
 	}
 
 	/**
 	 * 统一日志输出方法
-	 * @param pluginName 插件名称
+	 * @param key 实例唯一标识
 	 * @param type 日志类型
 	 * @param message 日志消息
 	 * @param data 附加数据
 	 */
-	private log(pluginName: string, type: keyof typeof this.logTypes, message: string, data?: any): void {
+	private log(key: string, type: keyof typeof this.logTypes, message: string, data?: any): void {
 		// 检查插件日志状态
-		if (!this.isPluginEnabled(pluginName)) return
+		if (!this.isPluginEnabled(key)) return
 
-		const prefix = this.formatPrefix(pluginName)
+		const config = this.pluginConfigs.get(key)
+		const displayName = config?.name ?? key
+		const prefix = this.formatPrefix(displayName)
 		const logConfig = this.logTypes[type]
 		const { method, icon, color, reset } = logConfig
 		const logPrefix = `${icon} ${prefix}`
@@ -161,16 +165,16 @@ export class Logger {
 
 	/**
 	 * 创建插件日志代理对象
-	 * @param pluginName 插件名称
+	 * @param key 实例唯一标识
 	 * @returns 插件日志代理对象
 	 * @internal 供 BasePlugin 内部使用
 	 */
-	createPluginLogger(pluginName: string): PluginLogger {
+	createPluginLogger(key: string): PluginLogger {
 		return {
-			success: (message: string, data?: any) => this.log(pluginName, 'success', message, data),
-			info: (message: string, data?: any) => this.log(pluginName, 'info', message, data),
-			warn: (message: string, data?: any) => this.log(pluginName, 'warn', message, data),
-			error: (message: string, data?: any) => this.log(pluginName, 'error', message, data)
+			success: (message: string, data?: any) => this.log(key, 'success', message, data),
+			info: (message: string, data?: any) => this.log(key, 'info', message, data),
+			warn: (message: string, data?: any) => this.log(key, 'warn', message, data),
+			error: (message: string, data?: any) => this.log(key, 'error', message, data)
 		}
 	}
 }

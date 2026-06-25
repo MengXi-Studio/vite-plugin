@@ -88,13 +88,7 @@ class CopyFilePlugin extends BasePlugin<CopyFileOptions> {
 	 */
 	private async copyFiles(): Promise<void> {
 		// 提取配置参数，设置默认值
-		const { sourceDir, targetDir, overwrite = true, recursive = true, incremental = true, enabled = true } = this.options
-
-		// 检查插件是否已启用
-		if (!enabled) {
-			this.logger.info(`插件已禁用，跳过执行：从 ${sourceDir} 复制到 ${targetDir}`)
-			return
-		}
+		const { sourceDir, targetDir, overwrite = true, recursive = true, incremental = true } = this.options
 
 		// 检查源文件是否存在
 		await checkSourceExists(sourceDir)

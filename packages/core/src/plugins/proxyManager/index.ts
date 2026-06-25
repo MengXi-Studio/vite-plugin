@@ -106,11 +106,13 @@ class ProxyManagerPlugin extends BasePlugin<ProxyManagerOptions> {
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		plugin.config = async () => {
-			return this.buildProxyConfig()
+			if (!this.options.enabled) return
+			return this.safeExecute(() => this.buildProxyConfig(), '构建代理配置')
 		}
 
 		plugin.configureServer = (server: ViteDevServer) => {
-			this.setupMiddlewares(server)
+			if (!this.options.enabled) return
+			this.safeExecuteSync(() => this.setupMiddlewares(server), '注册代理中间件')
 		}
 	}
 

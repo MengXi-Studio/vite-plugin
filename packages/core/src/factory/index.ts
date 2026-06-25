@@ -43,6 +43,18 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	protected logger: PluginLogger
 
 	/**
+	 * 日志实例唯一标识
+	 * @description 用于 Logger 单例中区分同类型插件的多个实例
+	 */
+	private readonly loggerKey: string
+
+	/**
+	 * 实例计数器（类级别）
+	 * @description 为每个 BasePlugin 实例生成唯一序号
+	 */
+	private static instanceCounter = 0
+
+	/**
 	 * 插件配置验证器
 	 *
 	 * @protected
@@ -70,6 +82,9 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	constructor(options: T, loggerConfig?: LoggerOptions) {
 		// 合并插件配置
 		this.options = this.mergeOptions(options)
+
+		// 生成日志实例唯一标识，避免同类型多实例冲突
+		this.loggerKey = `${this.getPluginName()}#${++BasePlugin.instanceCounter}`
 
 		// 初始化插件日志记录器
 		this.logger = this.initLogger(loggerConfig)
@@ -128,15 +143,16 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * @description 使用单例 Logger 创建插件特定的日志代理对象
 	 */
 	private initLogger(loggerConfig?: LoggerOptions): PluginLogger {
-		// 使用单例 Logger 创建日志记录器
+		// 使用单例 Logger 创建日志记录器，传入 instanceId 避免多实例冲突
 		const loggerInstance = Logger.register({
 			name: this.getPluginName(),
 			enabled: this.options.verbose,
+			instanceId: this.loggerKey,
 			...loggerConfig
 		})
 
 		// 返回插件特定的日志代理对象
-		return loggerInstance.createPluginLogger(this.getPluginName())
+		return loggerInstance.createPluginLogger(this.loggerKey)
 	}
 
 	/**
@@ -209,7 +225,7 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * ```
 	 */
 	protected destroy(): void {
-		Logger.unregister(this.getPluginName())
+		Logger.unregister(this.loggerKey)
 	}
 
 	/**
@@ -227,9 +243,14 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 		const instance = this
 		const original = handler as Function
 
-		;(plugin as any)[hook] = async function (this: any, ...args: any[]) {
+		;(plugin as any)[hook] = function (this: any, ...args: any[]) {
 			if (!instance.options.enabled) return
-			await instance.safeExecute(() => original.apply(this, args), context)
+			const result = instance.safeExecuteSync(() => original.apply(this, args), context)
+			// 异步结果：追加 catch 处理 Promise rejection（safeExecuteSync 仅捕获同步抛出）
+			if (result && typeof (result as any).then === 'function') {
+				return (result as Promise<any>).catch(error => instance.handleError(error, context))
+			}
+			return result
 		}
 	}
 
@@ -250,9 +271,13 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 
 		;(plugin as any)[hook] = {
 			order,
-			handler: async function (this: any, ...args: any[]) {
+			handler: function (this: any, ...args: any[]) {
 				if (!instance.options.enabled) return
-				await instance.safeExecute(() => original.apply(this, args), context)
+				const result = instance.safeExecuteSync(() => original.apply(this, args), context)
+				if (result && typeof (result as any).then === 'function') {
+					return (result as Promise<any>).catch(error => instance.handleError(error, context))
+				}
+				return result
 			}
 		}
 	}
@@ -428,7 +453,7 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 			if (this.options.enabled) {
 				this.onConfigResolved(config)
 				if (typeof subclassConfigResolved === 'function') {
-					subclassConfigResolved(config)
+					this.safeExecuteSync(() => subclassConfigResolved(config), 'configResolved 钩子')
 				}
 			}
 		}
@@ -436,7 +461,7 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 		const instance = this
 		const subclassCloseBundle = plugin.closeBundle
 		plugin.closeBundle = function (this: any) {
-			if (typeof subclassCloseBundle === 'function') {
+			if (instance.options.enabled && typeof subclassCloseBundle === 'function') {
 				subclassCloseBundle.call(this)
 			}
 			instance.destroy()

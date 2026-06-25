@@ -125,6 +125,7 @@ class HtmlInjectPlugin extends BasePlugin<HtmlInjectOptions> {
 		)
 
 		plugin.buildEnd = () => {
+			if (!this.options.enabled) return
 			if (this.options.logInjection && this.injectionLogs.length > 0) {
 				this.logger.info(`注入完成，共处理 ${this.injectionLogs.length} 条规则`)
 			}

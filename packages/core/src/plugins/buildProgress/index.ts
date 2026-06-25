@@ -294,6 +294,7 @@ class BuildProgressPlugin extends BasePlugin<BuildProgressOptions> {
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		plugin.config = (_config, { command }) => {
+			if (!this.options.enabled) return null
 			this.isDev = command === 'serve'
 			return null
 		}

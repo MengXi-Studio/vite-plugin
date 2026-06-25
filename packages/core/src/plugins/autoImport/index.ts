@@ -168,15 +168,16 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 		plugin.transform = {
 			order: 'pre',
 			handler: (code: string, id: string) => {
-				if (!this.initialized) return null
+				if (!this.options.enabled || !this.initialized) return null
 				if (!this.options.fileFilter.test(id)) return null
-				return this.transformCode(code, id)
+				return this.safeExecuteSync(() => this.transformCode(code, id), '自动导入代码转换') ?? null
 			}
 		}
 
 		plugin.buildEnd = () => {
+			if (!this.options.enabled) return
 			if (this.options.dts && this.initialized) {
-				this.generateDts()
+				this.safeExecuteSync(() => this.generateDts(), '生成类型声明文件')
 			}
 		}
 	}
