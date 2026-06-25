@@ -1,7 +1,7 @@
 import type { Plugin, HtmlTagDescriptor } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { FaviconManagerOptions } from './types'
-import { generateIconTagDescriptors } from './common'
+import { generateIconTagDescriptors } from './helpers'
 import { checkSourceExists, copySourceToTarget } from '@/common/fs'
 import { Validator } from '@/common/validation'
 import { injectBeforeTag } from '@/common/html'

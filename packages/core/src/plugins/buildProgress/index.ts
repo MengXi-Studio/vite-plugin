@@ -1,7 +1,7 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { BuildProgressOptions, BuildPhase, ProgressTheme } from './types'
-import { DEFAULT_THEME, PHASE_LABELS, SPINNER_FRAMES } from './common'
+import { DEFAULT_THEME, PHASE_LABELS, SPINNER_FRAMES } from './helpers'
 import { ANSI, stripAnsi } from '@/common/ui'
 
 /**

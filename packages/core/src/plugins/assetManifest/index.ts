@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { AssetManifestOptions, AssetMap, AssetGroup, AssetManifestResult } from './types'
-import { scanOutputDirectory, buildAssetMap, formatManifest, groupAssetsByEntry, injectRuntimeManifest, findHtmlFiles } from './common'
+import { scanOutputDirectory, buildAssetMap, formatManifest, groupAssetsByEntry, injectRuntimeManifest, findHtmlFiles } from './helpers'
 import { writeFileContent } from '@/common/fs'
 import { validateGlobalName } from '@/common/validation'
 

@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { GenerateVersionOptions, VersionInfo } from './types'
-import { generateVersionString, generateVersionInfoObject } from './common'
+import { generateVersionString, generateVersionInfoObject } from './helpers'
 import { writeFileContent } from '@/common/fs'
 import { join } from 'path'
 

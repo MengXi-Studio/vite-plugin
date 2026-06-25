@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { LoadingManagerOptions } from './types'
-import { generateCSS, generateHTMLTemplate, generateLoadingManagerCode, validateStyle, validateTransition, validateCallbacks, validateDefaultText, validateAutoHideOn } from './common'
+import { generateCSS, generateHTMLTemplate, generateLoadingManagerCode, validateStyle, validateTransition, validateCallbacks, validateDefaultText, validateAutoHideOn } from './helpers'
 import { injectHeadAndBody } from '@/common/html'
 import { validateNoScriptInTemplate, validateGlobalName } from '@/common/validation'
 

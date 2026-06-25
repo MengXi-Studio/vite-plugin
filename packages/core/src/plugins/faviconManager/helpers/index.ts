@@ -1,5 +1,5 @@
 import type { HtmlTagDescriptor } from 'vite'
-import type { IconOptions } from './type'
+import type { IconOptions } from '../types'
 
 /**
  * 根据图标配置生成 HtmlTagDescriptor 数组

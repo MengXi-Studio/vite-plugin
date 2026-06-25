@@ -16,7 +16,7 @@ import {
 	generateDtsContent,
 	writeDtsFile,
 	shouldUpdateDts
-} from './common'
+} from './helpers'
 import path from 'node:path'
 
 /**

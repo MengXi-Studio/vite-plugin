@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { VersionUpdateCheckerOptions } from './types'
-import { generateFullInjectCode, generateMetaTag, validateAll } from './common'
+import { generateFullInjectCode, generateMetaTag, validateAll } from './helpers'
 import { injectHeadAndBody } from '@/common/html'
 
 /**

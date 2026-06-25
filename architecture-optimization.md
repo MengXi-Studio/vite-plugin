@@ -6,84 +6,19 @@
 
 ## 目录
 
-- [P1 - 中优先级（影响架构一致性）](#p1---中优先级影响架构一致性)
-  - [1. 插件内 common/ 目录改名](#1-插件内-common-目录改名)
 - [P2 - 低优先级（代码质量提升）](#p2---低优先级代码质量提升)
-  - [2. 钩子注册辅助方法](#2-钩子注册辅助方法)
-  - [3. Logger API 语义优化](#3-logger-api-语义优化)
-  - [4. 类型文件统一](#4-类型文件统一)
-  - [5. toPlugin 返回类型优化](#5-toplugin-返回类型优化)
+  - [1. 钩子注册辅助方法](#1-钩子注册辅助方法)
+  - [2. Logger API 语义优化](#2-logger-api-语义优化)
+  - [3. 类型文件统一](#3-类型文件统一)
+  - [4. toPlugin 返回类型优化](#4-toplugin-返回类型优化)
 - [架构亮点（保持现状）](#架构亮点保持现状)
 - [执行检查表](#执行检查表)
 
 ---
 
-## P1 - 中优先级（影响架构一致性）
-
-### 1. 插件内 common/ 目录改名
-
-**现状**
-
-- 顶层 `common/` 是跨插件共享工具
-- 每个插件内的 `common/` 是插件私有辅助函数
-- `@/common` 与 `./common` 语义混淆
-
-**现状不一致**
-
-- `faviconManager/common/` 使用 `type.ts`（单数）
-- 其他插件使用 `types.ts`（复数，且在插件根目录）
-- `copyFile/` 没有 `common/` 目录
-
-**执行步骤**
-
-1. 将所有插件内的 `common/` 目录重命名为 `helpers/`：
-
-   涉及插件列表（14 个）：
-
-   ```
-   assetManifest, autoImport, buildProgress, bundleAnalyzer,
-   compressAssets, envGuard, faviconManager, generateRouter,
-   generateVersion, htmlInject, imageOptimizer, loadingManager,
-   proxyManager, versionUpdateChecker
-   ```
-
-2. 更新各插件 `index.ts` 中的导入路径：
-
-   ```typescript
-   // 修改前：
-   import { ... } from './common'
-   // 修改后：
-   import { ... } from './helpers'
-   ```
-
-3. 统一 `faviconManager/helpers/type.ts` → `faviconManager/types.ts`（移到插件根目录，与其他插件一致）
-
-4. 更新 `scripts/generate-exports.ts` 的排除规则：
-
-   ```typescript
-   // scripts/generate-exports.ts
-   const EXCLUDE_PATTERNS: RegExp[] = [
-   	/factory\/plugin$/,
-   	/plugins\/[^/]+\/helpers$/ // 替换 common 为 helpers
-   ]
-   ```
-
-**验证方式**
-
-- `npm run build` 无错误
-- `npm run generate-exports` 后 `build.config.ts` 和 `package.json` 正确更新
-- 全局搜索 `./common` 在 plugins 目录下无残留
-
-**注意**
-
-- 此项改动涉及文件较多，建议使用 IDE 的重命名功能批量操作
-- 完成后需仔细检查所有导入路径
-
----
-
 ## P2 - 低优先级（代码质量提升）
 
-### 2. 钩子注册辅助方法
+### 1. 钩子注册辅助方法
 
 **现状**
 
@@ -184,7 +119,7 @@
 
 ---
 
-### 3. Logger API 语义优化
+### 2. Logger API 语义优化
 
 **现状**
 
@@ -238,7 +173,7 @@
 
 ---
 
-### 4. 类型文件统一
+### 3. 类型文件统一
 
 **现状**
 
@@ -272,7 +207,7 @@
 
 ---
 
-### 5. toPlugin 返回类型优化
+### 4. toPlugin 返回类型优化
 
 **现状**
 
@@ -358,18 +293,14 @@
 
 完成每项后勾选，建议每项独立 commit。
 
-### P1
-
-- [ ] 1. 插件内 common/ 目录改名
-
 ### P2
 
-- [ ] 2. 钩子注册辅助方法
-- [ ] 3. Logger API 语义优化
-- [ ] 4. 类型文件统一
-  - [ ] 4.1 faviconManager 类型文件
-  - [ ] 4.2 proxyManager 类型文件
-- [ ] 5. toPlugin 返回类型优化
+- [ ] 1. 钩子注册辅助方法
+- [ ] 2. Logger API 语义优化
+- [ ] 3. 类型文件统一
+  - [ ] 3.1 faviconManager 类型文件
+  - [ ] 3.2 proxyManager 类型文件
+- [ ] 4. toPlugin 返回类型优化
 
 ---
 

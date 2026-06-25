@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import type { CompressAssetsOptions, CompressStats, CompressSummary } from './types'
-import { compressFile, scanDirectory, buildSummary, writeReport, deleteOriginalFiles } from './common'
+import { compressFile, scanDirectory, buildSummary, writeReport, deleteOriginalFiles } from './helpers'
 import { formatFileSize } from '@/common/format'
 import { runWithConcurrency } from '@/common/concurrency'
 
