@@ -5,7 +5,7 @@ import { serializeRoute, serializeValue, replacePropertyValue, removeProperty, e
 /** 插件版本号，由 unbuild 在构建时通过 replace 配置从 package.json 注入（类型声明见 src/types/global.d.ts） */
 const PLUGIN_VERSION = __PLUGIN_VERSION__
 
-/** 默认注释头模板 */
+/** 默认注释头模板（仅需指定占位符，JSDoc 标签名由 generateFileHeader 自动推断） */
 const DEFAULT_HEADER_TEMPLATE = '{name} {date} {version}'
 
 /** 默认日期格式 */
@@ -59,30 +59,86 @@ export default routes
 /**
  * 生成标准化文件注释头
  *
+ * 根据模板生成 JSDoc 风格的注释头。每个占位符自动对应一个 JSDoc 标签行：
+ * - `{name}` → `@plugin` 标签行
+ * - `{date}` / `{date:FORMAT}` → `@date` 标签行
+ * - `{version}` → `@version` 标签行
+ * - `{custom:KEY}` → `@KEY` 标签行（KEY 即为标签名）
+ *
+ * 占位符之间的非占位符文本被丢弃，每个标签行独立成行。
+ * 若模板完全不包含占位符，则按纯文本原样输出。
+ *
  * @param headerTemplate - 注释头模板字符串
  * @param customFields - 自定义字段键值对
  * @returns JSDoc 风格的注释头文本
  */
 function generateFileHeader(headerTemplate: string, customFields?: Record<string, string>): string {
-	const resolved = parsePluginTemplate(headerTemplate, {
-		name: 'generate-router',
-		version: PLUGIN_VERSION,
-		customFields,
-		defaultDateFormat: DEFAULT_DATE_FORMAT
-	})
-
-	// 将解析后的模板包裹在 /** ... */ 注释块中
-	const lines = resolved.split('\n')
+	const lines = generateHeaderLines(headerTemplate, customFields)
 	const body = lines.map(line => ` * ${line}`).join('\n')
 	return `/**\n${body}\n */`
 }
 
+/** 占位符信息 */
+interface HeaderPlaceholder {
+	/** 原始占位符文本，如 `{name}`、`{date:YYYY-MM-DD}`、`{custom:author}` */
+	raw: string
+	/** 对应的 JSDoc 标签名，如 `plugin`、`date`、`version`、`author` */
+	tag: string
+}
+
+/** 从模板中提取占位符并映射到 JSDoc 标签名（非占位符文本被忽略） */
+function extractHeaderPlaceholders(template: string): HeaderPlaceholder[] {
+	const placeholders: HeaderPlaceholder[] = []
+	const regex = /\{(name|date(?::[^}]+)?|version|custom:[^}]+)\}/g
+	let match: RegExpExecArray | null
+	while ((match = regex.exec(template)) !== null) {
+		const raw = match[0]
+		const content = match[1]
+		let tag: string
+		if (content === 'name') {
+			tag = 'plugin'
+		} else if (content === 'version') {
+			tag = 'version'
+		} else if (content === 'date' || content.startsWith('date:')) {
+			tag = 'date'
+		} else if (content.startsWith('custom:')) {
+			tag = content.substring(7)
+		} else {
+			continue
+		}
+		placeholders.push({ raw, tag })
+	}
+	return placeholders
+}
+
 /**
- * 生成类型导入语句
+ * 根据模板生成注释头行数组
  *
- * @param options - 输出格式与类型导出配置
- * @returns import 语句字符串，不需要时返回空字符串
+ * - 含占位符：每个占位符生成 `@tag value` 行，非占位符文本丢弃
+ * - 无占位符：按纯文本原样输出
  */
+function generateHeaderLines(headerTemplate: string, customFields?: Record<string, string>): string[] {
+	const placeholders = extractHeaderPlaceholders(headerTemplate)
+
+	if (placeholders.length === 0) {
+		return headerTemplate.split('\n')
+	}
+
+	const templateParams = {
+		name: 'generate-router',
+		version: PLUGIN_VERSION,
+		customFields,
+		defaultDateFormat: DEFAULT_DATE_FORMAT
+	}
+
+	return placeholders.map(p => {
+		// {custom:KEY} 缺失时 parsePluginTemplate 原样返回占位符文本
+		const value = parsePluginTemplate(p.raw, templateParams)
+		return `@${p.tag} ${value}`
+	})
+}
+
+/** 生成类型导入语句（JS 模式或未启用类型导出时返回空） */
 function generateTypeImport(options: Pick<GenerateRouterOptions, 'exportTypes' | 'outputFormat'>): string {
 	if (!options.exportTypes || options.outputFormat === 'js') return ''
 	return `import type { RouteConfig } from '@meng-xi/uni-router'`
@@ -91,13 +147,8 @@ function generateTypeImport(options: Pick<GenerateRouterOptions, 'exportTypes' |
 /**
  * 更新已有路由对象的原始文本，保留用户自定义属性
  *
- * - path/name：直接替换（path 由 pages.json 决定，name 由策略生成）
- * - meta：逐字段更新，仅添加/更新新 meta 中的字段，不删除用户自定义的 meta 字段
- * - 其他属性（如 beforeEnter、component）：完全保留
- *
- * @param rawText - 原始路由对象文本
- * @param route - 新的路由配置（用于更新 path/name/meta）
- * @returns 更新后的路由对象文本
+ * - path/name/meta：用新值更新
+ * - 其他属性（如 beforeEnter、component）：原样保留
  */
 function updateRawRouteText(rawText: string, route: RouteConfig): string {
 	let updated = rawText
@@ -118,16 +169,7 @@ function updateRawRouteText(rawText: string, route: RouteConfig): string {
 	return updated
 }
 
-/**
- * 逐字段更新 meta 属性
- *
- * 提取原始 meta 对象文本，对其中的字段逐个更新/添加，
- * 不删除用户自定义的 meta 字段。
- *
- * @param rawText - 原始路由对象文本
- * @param meta - 新的 meta 字段（仅包含需要更新/添加的字段）
- * @returns 更新后的路由对象文本
- */
+/** 逐字段更新 meta，保留用户自定义字段（仅添加/更新，不删除） */
 function updateMetaFields(rawText: string, meta: RouteMeta): string {
 	const existingMetaText = extractPropertyValueText(rawText, 'meta')
 

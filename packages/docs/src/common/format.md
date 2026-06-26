@@ -1,16 +1,16 @@
 # format
 
-格式化工具，提供日期格式化参数、模板变量替换、日期格式化、文件大小格式化和压缩率计算功能。
+格式化工具，提供日期格式化参数、模板变量替换、插件模板解析、日期格式化、文件大小格式化和压缩率计算功能。
 
 ## 导入方式
 
 ```typescript
 // 子模块独立导入（推荐）
-import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
+import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, parsePluginTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // barrel 导入
-import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
+import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, parsePluginTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -175,6 +175,73 @@ formatDate(new Date(), '{YYYY}-{MM}-{DD}T{HH}:{mm}:{ss}')
 
 formatDate(new Date(), '{YYYY}.{MM}.{DD}')
 // '2026.06.06'
+```
+
+---
+
+## parsePluginTemplate
+
+解析插件文件头模板，支持日期、自定义字段、插件名称和版本占位符。主要供 `generateRouter` 的 `headerTemplate` 使用。
+
+```typescript
+function parsePluginTemplate(
+  template: string,
+  params: {
+    name?: string
+    version?: string
+    customFields?: Record<string, string>
+    defaultDateFormat?: string
+  }
+): string
+```
+
+**参数**
+
+| 参数 | 类型 | 说明 |
+| ---- | ---- | ---- |
+| template | `string` | 模板字符串 |
+| params | `object` | 解析参数 |
+| params.name | `string` | 插件名称，替换 `{name}` |
+| params.version | `string` | 插件版本，替换 `{version}` |
+| params.customFields | `Record<string, string>` | 自定义字段键值对，替换 `{custom:KEY}` |
+| params.defaultDateFormat | `string` | 默认日期格式，默认 `YYYY-MM-DD HH:mm:ss` |
+
+**返回值**
+
+`string` - 解析后的字符串
+
+**支持的占位符**
+
+| 占位符 | 说明 | 示例 |
+|--------|------|------|
+| `{date}` | 默认格式日期时间 | `2026-06-25 14:30:00` |
+| `{date:FORMAT}` | 自定义格式日期（FORMAT 为裸占位符，如 `YYYY-MM-DD`） | `{date:YYYY/MM/DD}` → `2026/06/25` |
+| `{custom:KEY}` | 自定义字段，未提供时保留原占位符 | `{custom:author}` → `MengXi Studio` |
+| `{name}` | 插件名称 | `generate-router` |
+| `{version}` | 插件版本 | `0.2.7` |
+
+::: tip 日期格式说明
+`{date:FORMAT}` 中的 FORMAT 使用裸占位符（如 `YYYY-MM-DD`），函数内部会自动将其包裹为大括号形式再调用 `formatDate`，因此无需手动写成 `{YYYY}-{MM}-{DD}`。
+:::
+
+**示例**
+
+```typescript
+parsePluginTemplate('{name} v{version} ({date:YYYY-MM-DD})', {
+  name: 'generate-router',
+  version: '0.2.7',
+  customFields: { author: 'MengXi Studio' }
+})
+// 'generate-router v0.2.7 (2026-06-25)'
+
+parsePluginTemplate('{custom:author} - {date}', {
+  customFields: { author: 'MengXi Studio' }
+})
+// 'MengXi Studio - 2026-06-25 14:30:00'
+
+// customFields 中未提供的键保留原占位符
+parsePluginTemplate('{custom:author}', {})
+// '{custom:author}'
 ```
 
 ---

@@ -114,6 +114,22 @@ export function formatDate(date: Date, format: string): string {
 }
 
 /**
+ * 将格式串中的裸日期占位符包裹为大括号形式
+ *
+ * `formatDate` 期望每个占位符独立包裹大括号（如 `{YYYY}-{MM}-{DD}`），
+ * 但 `parsePluginTemplate` 的 `{date:FORMAT}` 语法中 FORMAT 是裸占位符
+ * （如 `YYYY-MM-DD`）。此函数将裸占位符转换为 `formatDate` 期望的格式。
+ *
+ * 注意：长占位符需优先匹配（YYYY 先于 YY，SSS 先于 SS），避免部分替换。
+ *
+ * @param format - 含裸日期占位符的格式串，如 `YYYY-MM-DD HH:mm:ss`
+ * @returns 每个占位符已包裹大括号的格式串，如 `{YYYY}-{MM}-{DD} {HH}:{mm}:{ss}`
+ */
+function wrapDateTokens(format: string): string {
+	return format.replace(/\b(YYYY|YY|MM|DD|HH|mm|ss|SSS|timestamp)\b/g, '{$1}')
+}
+
+/**
  * 解析插件文件头模板
  *
  * 支持以下占位符：
@@ -150,10 +166,10 @@ export function parsePluginTemplate(
 	let result = template
 
 	// 1. {date:FORMAT} - 自定义日期格式
-	result = result.replace(/\{date:([^}]+)\}/g, (_, format) => formatDate(new Date(), `{${format}}`))
+	result = result.replace(/\{date:([^}]+)\}/g, (_, format) => formatDate(new Date(), wrapDateTokens(format)))
 
 	// 2. {date} - 默认日期格式
-	result = result.replace(/\{date\}/g, formatDate(new Date(), `{${defaultDateFormat}}`))
+	result = result.replace(/\{date\}/g, formatDate(new Date(), wrapDateTokens(defaultDateFormat)))
 
 	// 3. {custom:KEY} - 自定义字段（未提供时保留原占位符）
 	if (customFields) {

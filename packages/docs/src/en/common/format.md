@@ -1,16 +1,16 @@
 # format
 
-Formatting utilities, providing date formatting parameters, template variable replacement, date formatting, file size formatting, and compression ratio calculation.
+Formatting utilities, providing date formatting parameters, template variable replacement, plugin template parsing, date formatting, file size formatting, and compression ratio calculation.
 
 ## Import
 
 ```typescript
 // Submodule import (recommended)
-import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
+import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, parsePluginTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common/format'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common/format'
 
 // Barrel import
-import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
+import { getDateFormatParams, parseTemplate, parseTemplateWithDelimiter, parsePluginTemplate, formatDate, formatFileSize, calcRatio } from '@meng-xi/vite-plugin/common'
 import type { DateFormatOptions } from '@meng-xi/vite-plugin/common'
 ```
 
@@ -175,6 +175,73 @@ formatDate(new Date(), '{YYYY}-{MM}-{DD}T{HH}:{mm}:{ss}')
 
 formatDate(new Date(), '{YYYY}.{MM}.{DD}')
 // '2026.06.06'
+```
+
+---
+
+## parsePluginTemplate
+
+Parse plugin file header templates, supporting date, custom field, plugin name, and version placeholders. Primarily used by `generateRouter`'s `headerTemplate` option.
+
+```typescript
+function parsePluginTemplate(
+  template: string,
+  params: {
+    name?: string
+    version?: string
+    customFields?: Record<string, string>
+    defaultDateFormat?: string
+  }
+): string
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| template  | `string` | Template string |
+| params    | `object` | Parsing parameters |
+| params.name | `string` | Plugin name, replaces `{name}` |
+| params.version | `string` | Plugin version, replaces `{version}` |
+| params.customFields | `Record<string, string>` | Custom field key-value pairs, replaces `{custom:KEY}` |
+| params.defaultDateFormat | `string` | Default date format, defaults to `YYYY-MM-DD HH:mm:ss` |
+
+**Returns**
+
+`string` - Parsed string
+
+**Supported Placeholders**
+
+| Placeholder | Description | Example |
+|-------------|-------------|---------|
+| `{date}` | Default format datetime | `2026-06-25 14:30:00` |
+| `{date:FORMAT}` | Custom format date (FORMAT uses bare tokens, e.g., `YYYY-MM-DD`) | `{date:YYYY/MM/DD}` → `2026/06/25` |
+| `{custom:KEY}` | Custom field, preserves original placeholder if not provided | `{custom:author}` → `MengXi Studio` |
+| `{name}` | Plugin name | `generate-router` |
+| `{version}` | Plugin version | `0.2.7` |
+
+::: tip Date Format Note
+The FORMAT in `{date:FORMAT}` uses bare tokens (e.g., `YYYY-MM-DD`). The function internally wraps them into braces before calling `formatDate`, so there's no need to manually write `{YYYY}-{MM}-{DD}`.
+:::
+
+**Example**
+
+```typescript
+parsePluginTemplate('{name} v{version} ({date:YYYY-MM-DD})', {
+  name: 'generate-router',
+  version: '0.2.7',
+  customFields: { author: 'MengXi Studio' }
+})
+// 'generate-router v0.2.7 (2026-06-25)'
+
+parsePluginTemplate('{custom:author} - {date}', {
+  customFields: { author: 'MengXi Studio' }
+})
+// 'MengXi Studio - 2026-06-25 14:30:00'
+
+// Keys not provided in customFields preserve the original placeholder
+parsePluginTemplate('{custom:author}', {})
+// '{custom:author}'
 ```
 
 ---

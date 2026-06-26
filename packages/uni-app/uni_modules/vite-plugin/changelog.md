@@ -1,3 +1,123 @@
+## 1.0.0（2026-06-27）
+
+首个稳定版本发布，API 稳定性承诺与生产就绪标志
+
+### 里程碑说明
+
+经过 0.x 系列（0.0.1 - 0.2.7）共 27 个版本的迭代，插件体系从最初的 2 个插件（copyFile、injectIco）发展到 15 个插件覆盖构建全生命周期，common 工具模块从零散函数发展为 14 个规范化子模块，插件开发框架（BasePlugin、Logger、Validator、createPluginFactory）趋于成熟。1.0.0 版本标记 API 稳定性，后续变更将严格遵循语义化版本规范。
+
+### 与 0.x 的主要差异
+
+| 维度         | 0.x（演进期）                | 1.0.0（稳定期）                                       |
+| ------------ | ----------------------------- | ------------------------------------------------------ |
+| API 稳定性   | 允许 Breaking Change          | 严格遵循 semver，破坏性变更需升主版本号                |
+| 插件数量     | 从 2 个逐步增加到 15 个       | 15 个插件完整就绪                                      |
+| 导出结构     | 单入口 `./plugins`            | 7 个分组子路径 + 15 个插件单独子路径 + 主入口向后兼容  |
+| Common 工具  | 从零散函数到 14 个规范化子模块 | 14 个子模块稳定结构                                    |
+| 类型安全     | 逐步补全                      | 完整 TypeScript 类型 + `global.d.ts` 全局声明          |
+| 配置体验     | 部分参数必填                  | 所有插件零配置可用（参数可选化）                       |
+| 版本号管理   | 手动同步                      | 构建时自动注入 `__PLUGIN_VERSION__`                    |
+| 错误处理     | 各插件自行处理                | 统一 `errorStrategy` 策略（throw / log / ignore）      |
+| 钩子注册     | 手动包裹 enabled 检查         | `registerHook` / `registerOrderedHook` 自动包裹       |
+
+### 插件完整清单（15 个，7 个分组）
+
+| 分组     | 插件                      | 功能描述                                   | 执行时机              |
+| -------- | ------------------------- | ------------------------------------------ | --------------------- |
+| analyze  | buildProgress             | 终端构建进度条，支持 bar/spinner/minimal    | 构建期                |
+| analyze  | bundleAnalyzer            | 构建产物体积分析，生成 JSON/HTML 报告       | `enforce: 'post'`     |
+| compress | compressAssets            | gzip / brotli 压缩，生成 .gz / .br 文件     | `enforce: 'post'`     |
+| compress | imageOptimizer            | 图片压缩与格式转换（sharp + svgo）          | `enforce: 'post'`     |
+| copy     | assetManifest             | 资源清单生成，支持 vite/webpack/custom 格式 | `enforce: 'post'`     |
+| copy     | copyFile                  | 文件/目录复制，支持增量与并发               | `enforce: 'post'`     |
+| generate | autoImport                | 自动导入，支持通配符 `'*'` 与目录扫描       | `enforce: 'pre'`      |
+| generate | generateRouter            | 根据 pages.json 生成路由配置与类型声明      | `configResolved`      |
+| generate | generateVersion           | 版本号生成，支持多种格式与占位符            | 构建期                |
+| guard    | envGuard                  | 环境变量校验，支持多类型与运行时守卫        | `enforce: 'post'`     |
+| inject   | faviconManager            | 网站图标管理，支持字符串简写配置            | `transformIndexHtml`  |
+| inject   | htmlInject                | HTML 内容注入，7 种位置与条件注入           | `transformIndexHtml`  |
+| inject   | loadingManager            | 全局 Loading 状态管理，请求自动拦截         | `transformIndexHtml`  |
+| inject   | versionUpdateChecker      | 运行时版本更新检查，三种提示 UI             | `transformIndexHtml`  |
+| proxy    | proxyManager              | 开发代理管理，支持路径匹配与延迟模拟        | `configureServer`     |
+
+### Common 工具模块（14 个子模块）
+
+| 子模块              | 核心导出                                                                                                   | 来源           |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- | -------------- |
+| `common/code`       | `JS_KEYWORDS`、`stripCommentsAndStrings`                                                                   | autoImport     |
+| `common/compress`   | `calculateGzipSize`                                                                                        | bundleAnalyzer |
+| `common/concurrency`| `runWithConcurrency`                                                                                       | imageOptimizer |
+| `common/env`        | `parseEnvContent`                                                                                          | envGuard       |
+| `common/format`     | `parseTemplate`、`parseTemplateWithDelimiter`、`parsePluginTemplate`、`formatDate`、`formatFileSize`、`calcRatio` | 多处复用       |
+| `common/fs`         | `writeFileSyncSafely`、`shouldUpdateFileContent`、`scanAndMapFiles`、`deleteFiles`、`resolveReportPath` 等 | 多处复用       |
+| `common/hash`       | `generateRandomHash`                                                                                       | generateVersion|
+| `common/html`       | `injectBeforeTag`、`injectHeadAndBody`、`escapeHtmlAttr`                                                    | htmlInject     |
+| `common/object`     | `deepMerge`                                                                                                | factory        |
+| `common/path`       | `normalizePath`、`isExtensionIncluded`、`isPathExcluded`、`isPreCompressed`                                | 多处复用       |
+| `common/script`     | `makeCallback`                                                                                             | loadingManager |
+| `common/string`     | `toCamelCase`、`toPascalCase`、`stripJsonComments`、`escapeRegex`                                          | autoImport     |
+| `common/ui`         | `ANSI`、`SPINNER_FRAMES`、`stripAnsi`                                                                      | buildProgress  |
+| `common/validation` | `Validator`、`validateGlobalName`、`validateNoScriptInTemplate`、`validateCallbackFields` 等               | 全局           |
+
+### 插件开发框架
+
+**BasePlugin 抽象类**：所有插件的基类，提供完整的生命周期管理
+
+| 能力                | 方法/属性                              | 说明                                             |
+| ------------------- | -------------------------------------- | ------------------------------------------------ |
+| 配置合并            | `mergeOptions`                         | 深度合并基础默认值、插件默认值与用户配置         |
+| 日志记录            | `logger`                               | 每个实例独立的 PluginLogger 代理                 |
+| 配置验证            | `validator` + `validateOptions`        | 泛型 Validator 流式验证                          |
+| 生命周期            | `onConfigResolved` / `destroy`         | 配置解析完成回调 + 销毁清理                       |
+| 错误处理            | `safeExecute` / `safeExecuteSync` / `handleError` | 按 `errorStrategy` 统一处理错误        |
+| 钩子注册            | `registerHook` / `registerOrderedHook` / `registerTransformIndexHtml` | 自动包裹 enabled 检查与错误处理 |
+| 插件转换            | `toPlugin`                             | 转换为 Vite 插件对象，自动注册 configResolved 与 closeBundle |
+
+**createPluginFactory 工厂函数**：支持选项标准化器（OptionsNormalizer），允许插件接受非对象类型的简写配置
+
+**Logger 单例日志系统**：以实例 ID 为 key 管理每个插件实例的日志配置，避免同类型多实例冲突，支持 `register` / `unregister` / `destroy` 生命周期
+
+**Validator 泛型验证器**：链式 API（`required` / `enum` / `minValue` / `maxValue` / `custom` 等），编译时类型安全保障
+
+### 子路径导出总览
+
+```typescript
+// 主入口（向后兼容）
+import { compressAssets, generateRouter } from '@meng-xi/vite-plugin'
+
+// 按分组导入（推荐，利于 Tree-shaking）
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress'
+import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate'
+import { loadingManager } from '@meng-xi/vite-plugin/plugins/inject'
+
+// 单插件导入
+import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate/generate-router'
+
+// Common 工具
+import { parsePluginTemplate } from '@meng-xi/vite-plugin/common/format'
+import { deepMerge } from '@meng-xi/vite-plugin/common/object'
+
+// 框架能力
+import { BasePlugin, createPluginFactory } from '@meng-xi/vite-plugin/factory'
+import { Logger } from '@meng-xi/vite-plugin/logger'
+```
+
+**完整子路径清单**：
+
+- `.` — 主入口（导出全部）
+- `./common` + 14 个 common 子模块（code/compress/concurrency/env/format/fs/hash/html/object/path/script/string/ui/validation）
+- `./factory` — BasePlugin、createPluginFactory、类型定义
+- `./logger` — Logger 单例、PluginLogger
+- `./plugins` + 7 个分组子路径（analyze/compress/copy/generate/guard/inject/proxy）+ 15 个插件单独子路径
+
+### 生产就绪声明
+
+- **Vite 兼容性**：支持 Vite 5.x - 7.x（`peerDependencies: vite >=5.0.0 <8.0.0`）
+- **TypeScript 支持**：完整类型定义，`types` 字段指向 `.d.ts` 文件
+- **双格式输出**：同时提供 ESM（`.mjs`）与 CJS（`.cjs`）构建产物
+- **可选依赖**：`sharp`、`svgo` 为可选依赖，不可用时优雅降级
+- **零配置可用**：所有插件参数可选化，提供合理默认值
+
 ## 0.2.7（2026-06-26）
 
 插件按功能分组导出，修复 generateRouter 类型注解生成缺陷

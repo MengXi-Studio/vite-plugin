@@ -48,7 +48,7 @@ Submodule imports allow bundlers to only include the code you actually use, avoi
 
 | Module | Description | Exports | Submodule Path |
 | ------ | ----------- | ------- | -------------- |
-| [format](./format) | Date formatting, template variable replacement, file size formatting, compression ratio | 6 functions + 1 type | `@meng-xi/vite-plugin/common/format` |
+| [format](./format) | Date formatting, template variable replacement, plugin template parsing, file size formatting, compression ratio | 7 functions + 1 type | `@meng-xi/vite-plugin/common/format` |
 
 ### HTML & Script
 
