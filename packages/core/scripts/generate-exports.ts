@@ -7,7 +7,7 @@ interface EntryInfo {
 	distPath: string
 }
 
-const EXCLUDE_PATTERNS: RegExp[] = [/factory\/plugin$/, /plugins\/[^/]+\/helpers$/]
+const EXCLUDE_PATTERNS: RegExp[] = [/factory\/plugin$/, /plugins\/.+\/helpers$/]
 
 function toKebabCase(str: string): string {
 	return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()

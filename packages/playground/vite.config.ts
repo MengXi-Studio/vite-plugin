@@ -1,22 +1,13 @@
 import { defineConfig, type PluginOption } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import {
-	assetManifest,
-	buildProgress,
-	bundleAnalyzer,
-	compressAssets,
-	copyFile,
-	envGuard,
-	generateRouter,
-	generateVersion,
-	faviconManager,
-	htmlInject,
-	imageOptimizer,
-	loadingManager,
-	versionUpdateChecker,
-	autoImport,
-	proxyManager
-} from '@meng-xi/vite-plugin/plugins'
+// 按功能分组导入插件（推荐方式，利于 Tree-shaking）
+import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress'
+import { autoImport, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { htmlInject, loadingManager, faviconManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject'
+import { bundleAnalyzer, buildProgress } from '@meng-xi/vite-plugin/plugins/analyze'
+import { copyFile, assetManifest } from '@meng-xi/vite-plugin/plugins/copy'
+import { envGuard } from '@meng-xi/vite-plugin/plugins/guard'
+import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy'
 
 export default defineConfig({
 	plugins: [
@@ -93,14 +84,14 @@ export default defineConfig({
 			nameStrategy: 'camelCase',
 			includeSubPackages: true,
 			watch: true,
-			exportTypes: true,
+			exportTypes: false,
 			preserveRouteChanges: true,
 			metaMapping: {
 				navigationBarTitleText: 'title',
 				requireAuth: 'requireAuth'
 			},
 			headerTemplate: true,
-			dts: true
+			dts: false
 		}),
 
 		// 文件复制

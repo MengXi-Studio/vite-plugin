@@ -2,17 +2,15 @@
  * generate-router {YYYY-MM-DD HH:mm:ss} 0.2.6
  */
 
-import type { RouteConfig } from '@meng-xi/uni-router'
-
 /**
  * 路由配置列表
  * @description 由 pages.json 自动生成
  */
-export const routes: RouteConfig[] = [
+export const routes = [
 	{
 		path: '/pages/index/index',
 		name: 'pagesIndexIndex',
-		meta: { title: '首页 - uni-router 演示', isTab: true }
+		meta: { title: '首页 - vite-plugin 演示', isTab: true }
 	},
 	{
 		path: '/pages/navigation/navigation',

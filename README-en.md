@@ -18,8 +18,8 @@
 
 ## Features
 
-- **Ready to Use** - 15 practical plugins covering auto-import, build progress, bundle analysis & compression, file copying, environment variable validation, route generation, version management, HTML injection, favicon
-	management, global Loading, image optimization, dev proxy, and more
+- **Ready to Use** - 15 practical plugins grouped by function (compress / generate / inject / analyze / copy / guard / proxy), covering auto-import, build progress, bundle analysis & compression, file copying,
+  environment variable validation, route generation, version management, HTML injection, favicon management, global Loading, image optimization, dev proxy, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
 - **Common Utility Library** - Built-in 14 Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
@@ -85,23 +85,45 @@ export default defineConfig({
 
 ## Built-in Plugins
 
-- **[assetManifest](https://mengxi-studio.github.io/vite-plugin/en/plugins/asset-manifest.html)** - Build artifact manifest generation with multiple output formats, entry grouping, and runtime injection
-- **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with preset mappings, directory scanning, and Vue template auto-import
-- **[buildProgress](https://mengxi-studio.github.io/vite-plugin/en/plugins/build-progress.html)** - Real-time terminal build progress bar, supports bar / spinner / minimal
-- **[bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/en/plugins/bundle-analyzer.html)** - Bundle volume analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build diff
+Grouped by function (Lodash-style), supports importing by group or individually. For detailed configuration, see the [documentation](https://mengxi-studio.github.io/vite-plugin/).
+
+### compress - Compression
+
 - **[compressAssets](https://mengxi-studio.github.io/vite-plugin/en/plugins/compress-assets.html)** - Asset compression with gzip / brotli / both, concurrent compression and statistics report
-- **[copyFile](https://mengxi-studio.github.io/vite-plugin/en/plugins/copy-file.html)** - Copy files or directories after build, supports incremental copying
-- **[envGuard](https://mengxi-studio.github.io/vite-plugin/en/plugins/env-guard.html)** - Environment variable validation with type checking, range validation, custom rules and runtime guard
-- **[faviconManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/favicon-manager.html)** - Manage website favicon link injection and file copying, supports string shorthand config
+- **[imageOptimizer](https://mengxi-studio.github.io/vite-plugin/en/plugins/image-optimizer.html)** - Image optimization & format conversion, supports JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG, concurrent processing and statistics
+  report
+
+### generate - Generation
+
+- **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with preset mappings, directory scanning, and Vue template auto-import
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)** - Auto-generate route config and type declarations from pages.json (uni-app)
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)** - Auto-generate version numbers with file output and global variable injection
+
+### inject - Injection
+
 - **[htmlInject](https://mengxi-studio.github.io/vite-plugin/en/plugins/html-inject.html)** - HTML content injection with multiple positions, selector targeting, conditional injection, template variables, and security
-	filtering
-- **[imageOptimizer](https://mengxi-studio.github.io/vite-plugin/en/plugins/image-optimizer.html)** - Image optimization & format conversion, supports JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG, concurrent processing and statistics
-	report
+  filtering
 - **[loadingManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/loading-manager.html)** - Global Loading state management with request interception, debounce, transition animations, and white-screen Loading
-- **[proxyManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/proxy-manager.html)** - Dev server proxy management with env switching, rule files, request logging, delay simulation, and response modification
+- **[faviconManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/favicon-manager.html)** - Manage website favicon link injection and file copying, supports string shorthand config
 - **[versionUpdateChecker](https://mengxi-studio.github.io/vite-plugin/en/plugins/version-update-checker.html)** - Runtime version update checking with multiple prompt styles and custom callbacks
+
+### analyze - Analysis
+
+- **[bundleAnalyzer](https://mengxi-studio.github.io/vite-plugin/en/plugins/bundle-analyzer.html)** - Bundle volume analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build diff
+- **[buildProgress](https://mengxi-studio.github.io/vite-plugin/en/plugins/build-progress.html)** - Real-time terminal build progress bar, supports bar / spinner / minimal
+
+### copy - Copying
+
+- **[copyFile](https://mengxi-studio.github.io/vite-plugin/en/plugins/copy-file.html)** - Copy files or directories after build, supports incremental copying
+- **[assetManifest](https://mengxi-studio.github.io/vite-plugin/en/plugins/asset-manifest.html)** - Build artifact manifest generation with multiple output formats, entry grouping, and runtime injection
+
+### guard - Guard
+
+- **[envGuard](https://mengxi-studio.github.io/vite-plugin/en/plugins/env-guard.html)** - Environment variable validation with type checking, range validation, custom rules and runtime guard
+
+### proxy - Proxy
+
+- **[proxyManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/proxy-manager.html)** - Dev server proxy management with env switching, rule files, request logging, delay simulation, and response modification
 
 ## Plugin Development Framework
 
@@ -230,43 +252,16 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCall
 
 ## Sub-path Exports
 
-| Sub-path                                              | Description                          |
-| ----------------------------------------------------- | ------------------------------------ |
-| `@meng-xi/vite-plugin`                                | Main entry (all plugins + framework) |
-| `@meng-xi/vite-plugin/factory`                        | Plugin development framework         |
-| `@meng-xi/vite-plugin/logger`                         | Log manager                          |
-| `@meng-xi/vite-plugin/plugins`                        | All plugins                          |
-| `@meng-xi/vite-plugin/common`                         | All utility functions                |
-| `@meng-xi/vite-plugin/common/*`                       | Utility sub-modules                  |
-| `@meng-xi/vite-plugin/common/code`                    | Code processing utilities            |
-| `@meng-xi/vite-plugin/common/compress`                | Compression utilities                |
-| `@meng-xi/vite-plugin/common/concurrency`             | Concurrency control utilities        |
-| `@meng-xi/vite-plugin/common/env`                     | Environment variable utilities       |
-| `@meng-xi/vite-plugin/common/format`                  | Formatting utilities                 |
-| `@meng-xi/vite-plugin/common/fs`                      | File system utilities                |
-| `@meng-xi/vite-plugin/common/hash`                    | Hash utilities                       |
-| `@meng-xi/vite-plugin/common/html`                    | HTML injection utilities             |
-| `@meng-xi/vite-plugin/common/object`                  | Object merging utilities             |
-| `@meng-xi/vite-plugin/common/path`                    | Path utilities                       |
-| `@meng-xi/vite-plugin/common/script`                  | Script utilities                     |
-| `@meng-xi/vite-plugin/common/string`                  | String processing utilities          |
-| `@meng-xi/vite-plugin/common/ui`                      | Terminal UI utilities                |
-| `@meng-xi/vite-plugin/common/validation`              | Validation utilities                 |
-| `@meng-xi/vite-plugin/plugins/asset-manifest`         | assetManifest plugin                 |
-| `@meng-xi/vite-plugin/plugins/auto-import`            | autoImport plugin                    |
-| `@meng-xi/vite-plugin/plugins/build-progress`         | buildProgress plugin                 |
-| `@meng-xi/vite-plugin/plugins/bundle-analyzer`        | bundleAnalyzer plugin                |
-| `@meng-xi/vite-plugin/plugins/compress-assets`        | compressAssets plugin                |
-| `@meng-xi/vite-plugin/plugins/copy-file`              | copyFile plugin                      |
-| `@meng-xi/vite-plugin/plugins/env-guard`              | envGuard plugin                      |
-| `@meng-xi/vite-plugin/plugins/favicon-manager`        | faviconManager plugin                |
-| `@meng-xi/vite-plugin/plugins/generate-router`        | generateRouter plugin                |
-| `@meng-xi/vite-plugin/plugins/generate-version`       | generateVersion plugin               |
-| `@meng-xi/vite-plugin/plugins/html-inject`            | htmlInject plugin                    |
-| `@meng-xi/vite-plugin/plugins/image-optimizer`        | imageOptimizer plugin                |
-| `@meng-xi/vite-plugin/plugins/loading-manager`        | loadingManager plugin                |
-| `@meng-xi/vite-plugin/plugins/proxy-manager`          | proxyManager plugin                  |
-| `@meng-xi/vite-plugin/plugins/version-update-checker` | versionUpdateChecker plugin          |
+| Sub-path                                        | Description                                                                                                                               |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `@meng-xi/vite-plugin`                          | Main entry (all plugins + framework)                                                                                                      |
+| `@meng-xi/vite-plugin/factory`                  | Plugin development framework                                                                                                              |
+| `@meng-xi/vite-plugin/logger`                   | Log manager                                                                                                                               |
+| `@meng-xi/vite-plugin/plugins`                  | All plugins                                                                                                                               |
+| `@meng-xi/vite-plugin/plugins/{group}`          | Import by group (compress / generate / inject / analyze / copy / guard / proxy)                                                           |
+| `@meng-xi/vite-plugin/plugins/{group}/{plugin}` | Import single plugin (e.g. `plugins/compress/compress-assets`)                                                                            |
+| `@meng-xi/vite-plugin/common`                   | All utility functions                                                                                                                     |
+| `@meng-xi/vite-plugin/common/*`                 | Utility sub-modules (code / compress / concurrency / env / format / fs / hash / html / object / path / script / string / ui / validation) |
 
 ## License
 

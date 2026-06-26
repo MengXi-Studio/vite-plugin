@@ -110,80 +110,115 @@
 			"import": "./dist/plugins/index.mjs",
 			"types": "./dist/plugins/index.d.ts"
 		},
-		"./plugins/asset-manifest": {
-			"require": "./dist/plugins/assetManifest/index.cjs",
-			"import": "./dist/plugins/assetManifest/index.mjs",
-			"types": "./dist/plugins/assetManifest/index.d.ts"
+		"./plugins/analyze": {
+			"require": "./dist/plugins/analyze/index.cjs",
+			"import": "./dist/plugins/analyze/index.mjs",
+			"types": "./dist/plugins/analyze/index.d.ts"
 		},
-		"./plugins/auto-import": {
-			"require": "./dist/plugins/autoImport/index.cjs",
-			"import": "./dist/plugins/autoImport/index.mjs",
-			"types": "./dist/plugins/autoImport/index.d.ts"
+		"./plugins/analyze/build-progress": {
+			"require": "./dist/plugins/analyze/buildProgress/index.cjs",
+			"import": "./dist/plugins/analyze/buildProgress/index.mjs",
+			"types": "./dist/plugins/analyze/buildProgress/index.d.ts"
 		},
-		"./plugins/build-progress": {
-			"require": "./dist/plugins/buildProgress/index.cjs",
-			"import": "./dist/plugins/buildProgress/index.mjs",
-			"types": "./dist/plugins/buildProgress/index.d.ts"
+		"./plugins/analyze/bundle-analyzer": {
+			"require": "./dist/plugins/analyze/bundleAnalyzer/index.cjs",
+			"import": "./dist/plugins/analyze/bundleAnalyzer/index.mjs",
+			"types": "./dist/plugins/analyze/bundleAnalyzer/index.d.ts"
 		},
-		"./plugins/bundle-analyzer": {
-			"require": "./dist/plugins/bundleAnalyzer/index.cjs",
-			"import": "./dist/plugins/bundleAnalyzer/index.mjs",
-			"types": "./dist/plugins/bundleAnalyzer/index.d.ts"
+		"./plugins/compress": {
+			"require": "./dist/plugins/compress/index.cjs",
+			"import": "./dist/plugins/compress/index.mjs",
+			"types": "./dist/plugins/compress/index.d.ts"
 		},
-		"./plugins/compress-assets": {
-			"require": "./dist/plugins/compressAssets/index.cjs",
-			"import": "./dist/plugins/compressAssets/index.mjs",
-			"types": "./dist/plugins/compressAssets/index.d.ts"
+		"./plugins/compress/compress-assets": {
+			"require": "./dist/plugins/compress/compressAssets/index.cjs",
+			"import": "./dist/plugins/compress/compressAssets/index.mjs",
+			"types": "./dist/plugins/compress/compressAssets/index.d.ts"
 		},
-		"./plugins/copy-file": {
-			"require": "./dist/plugins/copyFile/index.cjs",
-			"import": "./dist/plugins/copyFile/index.mjs",
-			"types": "./dist/plugins/copyFile/index.d.ts"
+		"./plugins/compress/image-optimizer": {
+			"require": "./dist/plugins/compress/imageOptimizer/index.cjs",
+			"import": "./dist/plugins/compress/imageOptimizer/index.mjs",
+			"types": "./dist/plugins/compress/imageOptimizer/index.d.ts"
 		},
-		"./plugins/env-guard": {
-			"require": "./dist/plugins/envGuard/index.cjs",
-			"import": "./dist/plugins/envGuard/index.mjs",
-			"types": "./dist/plugins/envGuard/index.d.ts"
+		"./plugins/copy": {
+			"require": "./dist/plugins/copy/index.cjs",
+			"import": "./dist/plugins/copy/index.mjs",
+			"types": "./dist/plugins/copy/index.d.ts"
 		},
-		"./plugins/favicon-manager": {
-			"require": "./dist/plugins/faviconManager/index.cjs",
-			"import": "./dist/plugins/faviconManager/index.mjs",
-			"types": "./dist/plugins/faviconManager/index.d.ts"
+		"./plugins/copy/asset-manifest": {
+			"require": "./dist/plugins/copy/assetManifest/index.cjs",
+			"import": "./dist/plugins/copy/assetManifest/index.mjs",
+			"types": "./dist/plugins/copy/assetManifest/index.d.ts"
 		},
-		"./plugins/generate-router": {
-			"require": "./dist/plugins/generateRouter/index.cjs",
-			"import": "./dist/plugins/generateRouter/index.mjs",
-			"types": "./dist/plugins/generateRouter/index.d.ts"
+		"./plugins/copy/copy-file": {
+			"require": "./dist/plugins/copy/copyFile/index.cjs",
+			"import": "./dist/plugins/copy/copyFile/index.mjs",
+			"types": "./dist/plugins/copy/copyFile/index.d.ts"
 		},
-		"./plugins/generate-version": {
-			"require": "./dist/plugins/generateVersion/index.cjs",
-			"import": "./dist/plugins/generateVersion/index.mjs",
-			"types": "./dist/plugins/generateVersion/index.d.ts"
+		"./plugins/generate": {
+			"require": "./dist/plugins/generate/index.cjs",
+			"import": "./dist/plugins/generate/index.mjs",
+			"types": "./dist/plugins/generate/index.d.ts"
 		},
-		"./plugins/html-inject": {
-			"require": "./dist/plugins/htmlInject/index.cjs",
-			"import": "./dist/plugins/htmlInject/index.mjs",
-			"types": "./dist/plugins/htmlInject/index.d.ts"
+		"./plugins/generate/auto-import": {
+			"require": "./dist/plugins/generate/autoImport/index.cjs",
+			"import": "./dist/plugins/generate/autoImport/index.mjs",
+			"types": "./dist/plugins/generate/autoImport/index.d.ts"
 		},
-		"./plugins/image-optimizer": {
-			"require": "./dist/plugins/imageOptimizer/index.cjs",
-			"import": "./dist/plugins/imageOptimizer/index.mjs",
-			"types": "./dist/plugins/imageOptimizer/index.d.ts"
+		"./plugins/generate/generate-router": {
+			"require": "./dist/plugins/generate/generateRouter/index.cjs",
+			"import": "./dist/plugins/generate/generateRouter/index.mjs",
+			"types": "./dist/plugins/generate/generateRouter/index.d.ts"
 		},
-		"./plugins/loading-manager": {
-			"require": "./dist/plugins/loadingManager/index.cjs",
-			"import": "./dist/plugins/loadingManager/index.mjs",
-			"types": "./dist/plugins/loadingManager/index.d.ts"
+		"./plugins/generate/generate-version": {
+			"require": "./dist/plugins/generate/generateVersion/index.cjs",
+			"import": "./dist/plugins/generate/generateVersion/index.mjs",
+			"types": "./dist/plugins/generate/generateVersion/index.d.ts"
 		},
-		"./plugins/proxy-manager": {
-			"require": "./dist/plugins/proxyManager/index.cjs",
-			"import": "./dist/plugins/proxyManager/index.mjs",
-			"types": "./dist/plugins/proxyManager/index.d.ts"
+		"./plugins/guard": {
+			"require": "./dist/plugins/guard/index.cjs",
+			"import": "./dist/plugins/guard/index.mjs",
+			"types": "./dist/plugins/guard/index.d.ts"
 		},
-		"./plugins/version-update-checker": {
-			"require": "./dist/plugins/versionUpdateChecker/index.cjs",
-			"import": "./dist/plugins/versionUpdateChecker/index.mjs",
-			"types": "./dist/plugins/versionUpdateChecker/index.d.ts"
+		"./plugins/guard/env-guard": {
+			"require": "./dist/plugins/guard/envGuard/index.cjs",
+			"import": "./dist/plugins/guard/envGuard/index.mjs",
+			"types": "./dist/plugins/guard/envGuard/index.d.ts"
+		},
+		"./plugins/inject": {
+			"require": "./dist/plugins/inject/index.cjs",
+			"import": "./dist/plugins/inject/index.mjs",
+			"types": "./dist/plugins/inject/index.d.ts"
+		},
+		"./plugins/inject/favicon-manager": {
+			"require": "./dist/plugins/inject/faviconManager/index.cjs",
+			"import": "./dist/plugins/inject/faviconManager/index.mjs",
+			"types": "./dist/plugins/inject/faviconManager/index.d.ts"
+		},
+		"./plugins/inject/html-inject": {
+			"require": "./dist/plugins/inject/htmlInject/index.cjs",
+			"import": "./dist/plugins/inject/htmlInject/index.mjs",
+			"types": "./dist/plugins/inject/htmlInject/index.d.ts"
+		},
+		"./plugins/inject/loading-manager": {
+			"require": "./dist/plugins/inject/loadingManager/index.cjs",
+			"import": "./dist/plugins/inject/loadingManager/index.mjs",
+			"types": "./dist/plugins/inject/loadingManager/index.d.ts"
+		},
+		"./plugins/inject/version-update-checker": {
+			"require": "./dist/plugins/inject/versionUpdateChecker/index.cjs",
+			"import": "./dist/plugins/inject/versionUpdateChecker/index.mjs",
+			"types": "./dist/plugins/inject/versionUpdateChecker/index.d.ts"
+		},
+		"./plugins/proxy": {
+			"require": "./dist/plugins/proxy/index.cjs",
+			"import": "./dist/plugins/proxy/index.mjs",
+			"types": "./dist/plugins/proxy/index.d.ts"
+		},
+		"./plugins/proxy/proxy-manager": {
+			"require": "./dist/plugins/proxy/proxyManager/index.cjs",
+			"import": "./dist/plugins/proxy/proxyManager/index.mjs",
+			"types": "./dist/plugins/proxy/proxyManager/index.d.ts"
 		}
 	},
 	"files": [

@@ -1,3 +1,66 @@
+## 0.2.7（2026-06-26）
+
+插件按功能分组导出，修复 generateRouter 类型注解生成缺陷
+
+### 插件分组导出（新增）
+
+**变更**：将 15 个插件按功能划分为 7 个分组，每个分组提供独立子路径导出，支持按需导入与 Tree-shaking
+
+| 分组     | 包含插件                                                         | 子路径               |
+| -------- | ---------------------------------------------------------------- | -------------------- |
+| analyze  | buildProgress、bundleAnalyzer                                    | `./plugins/analyze`  |
+| compress | compressAssets、imageOptimizer                                   | `./plugins/compress` |
+| copy     | assetManifest、copyFile                                          | `./plugins/copy`     |
+| generate | autoImport、generateRouter、generateVersion                      | `./plugins/generate` |
+| guard    | envGuard                                                         | `./plugins/guard`    |
+| inject   | faviconManager、htmlInject、loadingManager、versionUpdateChecker | `./plugins/inject`   |
+| proxy    | proxyManager                                                     | `./plugins/proxy`    |
+
+```typescript
+// 0.2.6：单入口导入全部插件
+import { compressAssets, generateRouter, loadingManager } from '@meng-xi/vite-plugin/plugins'
+
+// 0.2.7：按组导入，利于 Tree-shaking
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress'
+import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate'
+import { loadingManager } from '@meng-xi/vite-plugin/plugins/inject'
+```
+
+> `./plugins` 主入口仍保留，向后兼容；各插件单独子路径（如 `./plugins/analyze/build-progress`）同步开放
+
+### generateRouter（修复）
+
+**Bug 修复**：`exportTypes: false` 时生成的路由文件类型注解与 import 语句不一致
+
+| 字段             | 0.2.6                           | 0.2.7                                                  | 说明                       |
+| ---------------- | ------------------------------- | ------------------------------------------------------ | -------------------------- |
+| `typeAnnotation` | `isTS ? ': RouteConfig[]' : ''` | `isTS && options.exportTypes ? ': RouteConfig[]' : ''` | 仅在启用类型导出时添加注解 |
+
+```typescript
+// 0.2.6：exportTypes: false 时仍生成类型注解，但无 import 语句，导致 RouteConfig 未定义错误
+export const routes: RouteConfig[] = [
+	// ❌ RouteConfig 未定义
+	// ...
+]
+
+// 0.2.7：exportTypes: false 时不生成类型注解，与 import 逻辑保持一致
+export const routes = [
+	// ✅ 无类型注解，无错误
+	// ...
+]
+```
+
+### 子路径导出（变更）
+
+- 新增 `@meng-xi/vite-plugin/plugins/analyze` 子路径导出
+- 新增 `@meng-xi/vite-plugin/plugins/compress` 子路径导出
+- 新增 `@meng-xi/vite-plugin/plugins/copy` 子路径导出
+- 新增 `@meng-xi/vite-plugin/plugins/generate` 子路径导出
+- 新增 `@meng-xi/vite-plugin/plugins/guard` 子路径导出
+- 新增 `@meng-xi/vite-plugin/plugins/inject` 子路径导出
+- 新增 `@meng-xi/vite-plugin/plugins/proxy` 子路径导出
+- 新增各插件单独子路径导出（如 `./plugins/analyze/build-progress`、`./plugins/compress/compress-assets` 等）
+
 ## 0.2.6（2026-06-25）
 
 通用工具抽离与架构统一重构，版本号注入机制自动化

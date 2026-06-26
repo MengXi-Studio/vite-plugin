@@ -44,7 +44,7 @@
 		<!-- 路由导航演示 -->
 		<view class="card">
 			<text class="card-title">路由导航演示</text>
-			<text class="hint">使用 @meng-xi/uni-router 进行类型安全的路由导航</text>
+			<text class="hint">由 generateRouter 插件自动生成路由配置，支持类型安全导航</text>
 			<view class="nav-grid">
 				<button class="btn btn-nav" @click="goToNavigation">路由导航</button>
 				<button class="btn btn-nav" @click="goToGuards">路由守卫</button>
@@ -88,7 +88,7 @@
 
 <script setup lang="ts">
 // Vue API 由 autoImport 自动注入，无需手动导入
-import type { LoadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
+import type { LoadingManager } from '@meng-xi/vite-plugin/plugins/inject/loading-manager'
 
 const appVersion = __APP_VERSION__
 const versionInfo = __APP_VERSION___INFO

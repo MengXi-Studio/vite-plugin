@@ -30,7 +30,7 @@ import type { PluginLogger, LoggerOptions } from '@meng-xi/vite-plugin/logger'
 import { Logger } from '@meng-xi/vite-plugin/logger'
 
 // Create logger (register plugin config)
-const logger = Logger.create({ name: 'my-plugin' })
+const logger = Logger.register({ name: 'my-plugin' })
 
 // Create plugin log proxy
 const pluginLogger = logger.createPluginLogger('my-plugin')

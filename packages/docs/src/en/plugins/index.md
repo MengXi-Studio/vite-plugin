@@ -1,101 +1,128 @@
-# Plugins List
+# Plugins Overview
 
-Vite plugin collection provided by @meng-xi/vite-plugin, 15 plugins covering build optimization, development experience, and runtime enhancement.
+`@meng-xi/vite-plugin` ships with **15 plugins** grouped by functional verb into **7 categories**: compress / generate / inject / analyze / copy / guard / proxy.
 
-## Import Methods
+## Group Overview
 
-### Barrel import (import all plugins)
+| Group    | Count | Description   | Sub-path           |
+| -------- | ----- | ------------- | ------------------ |
+| compress | 2     | Compression   | `plugins/compress` |
+| generate | 3     | Generation    | `plugins/generate` |
+| inject   | 4     | Injection     | `plugins/inject`   |
+| analyze  | 2     | Analysis      | `plugins/analyze`  |
+| copy     | 2     | Copy          | `plugins/copy`     |
+| guard    | 1     | Guard         | `plugins/guard`    |
+| proxy    | 1     | Proxy         | `plugins/proxy`    |
 
-```typescript
-import {
-	assetManifest,
-	autoImport,
-	buildProgress,
-	bundleAnalyzer,
-	compressAssets,
-	copyFile,
-	envGuard,
-	faviconManager,
-	generateRouter,
-	generateVersion,
-	htmlInject,
-	imageOptimizer,
-	loadingManager,
-	proxyManager,
-	versionUpdateChecker
-} from '@meng-xi/vite-plugin'
-```
+## compress — Compression
 
-### Submodule import (recommended, supports tree-shaking)
+Reduce build output size; supports text compression and image optimization.
+
+| Plugin | Function | Phase |
+| ------ | -------- | ----- |
+| [compressAssets](/en/plugins/compress-assets) | gzip/brotli compression for JS/CSS/HTML output | Production build |
+| [imageOptimizer](/en/plugins/image-optimizer) | Image compression and format conversion (supports WebP/AVIF) | Production build |
 
 ```typescript
-import { assetManifest } from '@meng-xi/vite-plugin/plugins/asset-manifest'
-import { autoImport } from '@meng-xi/vite-plugin/plugins/auto-import'
-import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
-import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
-import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
-import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
-import { envGuard } from '@meng-xi/vite-plugin/plugins/env-guard'
-import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
-import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
-import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
-import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
-import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/image-optimizer'
-import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
-import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy-manager'
-import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
+import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress'
 ```
 
-::: tip
-Submodule imports allow bundlers to only include the plugin code you actually use, avoiding unnecessary dependencies.
-:::
+## generate — Generation
 
-## Plugin Categories
+Automated code generation to reduce boilerplate.
 
-### Build Optimization
+| Plugin | Function | Phase |
+| ------ | -------- | ----- |
+| [autoImport](/en/plugins/auto-import) | Auto import Vue/React APIs and generate `.d.ts` | Dev + Build |
+| [generateRouter](/en/plugins/generate-router) | Auto-generate router config from directory structure | Dev + Build |
+| [generateVersion](/en/plugins/generate-version) | Generate version number (timestamp/semantic/hash) | Build |
 
-Plugins for build-time artifact processing and optimization.
+```typescript
+import { autoImport, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+```
 
-| Plugin | Description | Submodule Path |
-| ------ | ----------- | -------------- |
-| [assetManifest](./asset-manifest) | Build artifact manifest generation with multiple output formats, entry grouping, and runtime injection | `@meng-xi/vite-plugin/plugins/asset-manifest` |
-| [bundleAnalyzer](./bundle-analyzer) | Build artifact size analysis with JSON/HTML reports, gzip calculation, threshold alerts, and build comparison | `@meng-xi/vite-plugin/plugins/bundle-analyzer` |
-| [compressAssets](./compress-assets) | Compress build artifacts with gzip / brotli / both | `@meng-xi/vite-plugin/plugins/compress-assets` |
-| [copyFile](./copy-file) | Copy files or directories after build | `@meng-xi/vite-plugin/plugins/copy-file` |
-| [imageOptimizer](./image-optimizer) | Image optimization & format conversion, supports JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG | `@meng-xi/vite-plugin/plugins/image-optimizer` |
+## inject — Injection
 
-### Development Experience
+Inject content into HTML, runtime, or pages.
 
-Plugins for improving development efficiency and debugging experience.
+| Plugin | Function | Phase |
+| ------ | -------- | ----- |
+| [htmlInject](/en/plugins/html-inject) | Inject meta/script/style/variables into HTML | Build |
+| [loadingManager](/en/plugins/loading-manager) | Inject global Loading animation | Dev + Build |
+| [faviconManager](/en/plugins/favicon-manager) | Auto-generate and inject multi-size favicons | Build |
+| [versionUpdateChecker](/en/plugins/version-update-checker) | Detect new version at runtime and prompt refresh | Production |
 
-| Plugin | Description | Submodule Path |
-| ------ | ----------- | -------------- |
-| [autoImport](./auto-import) | Auto-inject import statements with preset mappings, directory scanning, and Vue template support | `@meng-xi/vite-plugin/plugins/auto-import` |
-| [envGuard](./env-guard) | Environment variable validation with type checking, range validation, custom rules and runtime guard | `@meng-xi/vite-plugin/plugins/env-guard` |
-| [generateRouter](./generate-router) | Auto-generate route config from uni-app pages.json | `@meng-xi/vite-plugin/plugins/generate-router` |
-| [generateVersion](./generate-version) | Generate version with file output or global variable | `@meng-xi/vite-plugin/plugins/generate-version` |
-| [proxyManager](./proxy-manager) | Declarative dev proxy management with environment switching, rule files, request logging, and delay simulation | `@meng-xi/vite-plugin/plugins/proxy-manager` |
-| [buildProgress](./build-progress) | Display real-time build progress bar in terminal | `@meng-xi/vite-plugin/plugins/build-progress` |
+```typescript
+import { htmlInject, loadingManager, faviconManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject'
+```
 
-### Runtime Enhancement
+## analyze — Analysis
 
-Plugins for enhancing application runtime experience.
+Build process visualization and monitoring.
 
-| Plugin | Description | Submodule Path |
-| ------ | ----------- | -------------- |
-| [faviconManager](./favicon-manager) | Manage website favicon links injection into HTML | `@meng-xi/vite-plugin/plugins/favicon-manager` |
-| [htmlInject](./html-inject) | HTML content injection with multiple positions and conditions | `@meng-xi/vite-plugin/plugins/html-inject` |
-| [loadingManager](./loading-manager) | Global Loading state management with request interception | `@meng-xi/vite-plugin/plugins/loading-manager` |
-| [versionUpdateChecker](./version-update-checker) | Runtime version update check with refresh prompt | `@meng-xi/vite-plugin/plugins/version-update-checker` |
+| Plugin | Function | Phase |
+| ------ | -------- | ----- |
+| [bundleAnalyzer](/en/plugins/bundle-analyzer) | Output size analysis report (HTML/JSON) | Build |
+| [buildProgress](/en/plugins/build-progress) | Terminal build progress bar | Dev + Build |
+
+```typescript
+import { bundleAnalyzer, buildProgress } from '@meng-xi/vite-plugin/plugins/analyze'
+```
+
+## copy — Copy
+
+Build output file management.
+
+| Plugin | Function | Phase |
+| ------ | -------- | ----- |
+| [copyFile](/en/plugins/copy-file) | Copy static assets to output directory | Build |
+| [assetManifest](/en/plugins/asset-manifest) | Generate asset manifest file | Build |
+
+```typescript
+import { copyFile, assetManifest } from '@meng-xi/vite-plugin/plugins/copy'
+```
+
+## guard — Guard
+
+Pre-build validation to prevent problematic code from entering output.
+
+| Plugin | Function | Phase |
+| ------ | -------- | ----- |
+| [envGuard](/en/plugins/env-guard) | Environment variable validation (type/range/required/custom) | Build |
+
+```typescript
+import { envGuard } from '@meng-xi/vite-plugin/plugins/guard'
+```
+
+## proxy — Proxy
+
+Dev server proxy management.
+
+| Plugin | Function | Phase |
+| ------ | -------- | ----- |
+| [proxyManager](/en/plugins/proxy-manager) | Declarative proxy config with env switching and logging | Dev |
+
+```typescript
+import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy'
+```
 
 ## Common Options
 
-All plugins extend `BasePlugin` and share these base options:
+All plugins extend `BasePlugin` and share these options:
 
-| Option | Type | Default | Description |
-| ------ | ---- | ------- | ----------- |
-| enabled | `boolean` | `true` | Enable the plugin |
-| logLevel | `'verbose' \| 'basic' \| 'none'` | `'basic'` | Log output level |
-| errorStrategy | `'throw' \| 'log' \| 'ignore'` | `'throw'` | Error handling strategy |
+```typescript
+interface BasePluginOptions {
+  enabled?: boolean          // Enable, default true
+  verbose?: boolean          // Verbose logs, default true
+  errorStrategy?: 'throw' | 'log' | 'ignore'  // Error handling, default 'throw'
+}
+```
 
-See [BasePluginOptions](/en/factory/base-plugin-options) for details.
+For details, see [Core Concepts](/en/guide/concepts#common-options).
+
+## Next Steps
+
+- [Quick Start](/en/guide/quick-start) — Get started in 5 minutes
+- [Core Concepts](/en/guide/concepts) — Understand the plugin system
+- [Best Practices](/en/guide/best-practices) — Scenario-based recommendations
+- [On-demand Import](/en/guide/on-demand-import) — Optimize bundle size

@@ -10,7 +10,7 @@ import { Logger } from '@meng-xi/vite-plugin/logger'
 
 ```typescript
 class Logger {
-	static create(options: LoggerOptions): Logger
+	static register(options: LoggerOptions): Logger
 	static unregister(pluginName: string): void
 	static destroy(): void
 	createPluginLogger(pluginName: string): PluginLogger
@@ -21,12 +21,12 @@ class Logger {
 
 ## Static Methods
 
-### create
+### register
 
-Create a logger (factory method), register plugin config and return the singleton instance.
+Register plugin log config and return the singleton instance.
 
 ```typescript
-static create(options: LoggerOptions): Logger
+static register(options: LoggerOptions): Logger
 ```
 
 | Parameter | Type            | Description    |
@@ -38,13 +38,13 @@ static create(options: LoggerOptions): Logger
 `Logger` - Singleton instance
 
 ::: tip
-Multiple `create` calls return the same instance, but each call registers the corresponding plugin's log config.
+Multiple `register` calls return the same instance, but each call registers the corresponding plugin's log config.
 :::
 
 **Example**
 
 ```typescript
-const logger = Logger.create({ name: 'my-plugin', enabled: true })
+const logger = Logger.register({ name: 'my-plugin', enabled: true })
 ```
 
 ---
@@ -116,7 +116,7 @@ This method is for internal `BasePlugin` use. You generally don't need to call i
 **Example**
 
 ```typescript
-const logger = Logger.create({ name: 'my-plugin', enabled: true })
+const logger = Logger.register({ name: 'my-plugin', enabled: true })
 const pluginLogger = logger.createPluginLogger('my-plugin')
 
 pluginLogger.info('Info message')
@@ -130,8 +130,8 @@ pluginLogger.success('Success message')
 Logger uses the singleton pattern to ensure only one log manager instance globally.
 
 ```typescript
-const logger1 = Logger.create({ name: 'plugin-a', enabled: true })
-const logger2 = Logger.create({ name: 'plugin-b', enabled: false })
+const logger1 = Logger.register({ name: 'plugin-a', enabled: true })
+const logger2 = Logger.register({ name: 'plugin-b', enabled: false })
 
 // logger1 and logger2 are the same Logger instance
 // But each plugin's log config is managed independently
@@ -144,10 +144,10 @@ const logger2 = Logger.create({ name: 'plugin-b', enabled: false })
 Each plugin's logging can be controlled independently.
 
 ```typescript
-Logger.create({ name: 'plugin-a', enabled: true })
-Logger.create({ name: 'plugin-b', enabled: false })
+Logger.register({ name: 'plugin-a', enabled: true })
+Logger.register({ name: 'plugin-b', enabled: false })
 
-const logger = Logger.create({ name: 'plugin-a', enabled: true })
+const logger = Logger.register({ name: 'plugin-a', enabled: true })
 const loggerA = logger.createPluginLogger('plugin-a')
 const loggerB = logger.createPluginLogger('plugin-b')
 
