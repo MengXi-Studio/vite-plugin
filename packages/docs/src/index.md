@@ -9,8 +9,8 @@ hero:
   text: Vite 实用插件工具包
   tagline: 15 款开箱即用插件 + 完整插件开发框架，按功能分组，让 Vite 开发更高效
   image:
-    src: /logo.png
-    alt: 梦曦工作室
+    src: /logo.svg
+    alt: Vite Plugin
   actions:
     - theme: brand
       text: 快速开始
