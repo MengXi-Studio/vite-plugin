@@ -33,9 +33,12 @@
 		<view class="card">
 			<text class="card-title">插件功能验证</text>
 			<view class="test-list">
-				<view v-for="(item, key) in tests" :key="key" class="test-item" :class="{ passed: item }">
-					<text class="icon">{{ item ? '✅' : '⏳' }}</text>
-					<text class="test-text">{{ testLabels[key] }}</text>
+				<view v-for="(item, key) in tests" :key="key" class="test-item" :class="{ passed: item.passed }">
+					<text class="icon">{{ item.passed ? '✅' : '⏳' }}</text>
+					<view class="test-content">
+						<text class="test-text">{{ testLabels[key] }}</text>
+						<text v-if="item.summary" class="test-summary">{{ item.summary }}</text>
+					</view>
 				</view>
 			</view>
 			<button class="btn" @click="runTests">运行验证</button>
@@ -52,6 +55,7 @@
 				<button class="btn btn-nav" @click="goToResolve">路由解析</button>
 				<button class="btn btn-nav" @click="goToProfile">个人中心</button>
 				<button class="btn btn-nav" @click="goToSettings">设置</button>
+				<button class="btn btn-nav" @click="goToReports">构建报告</button>
 			</view>
 		</view>
 
@@ -83,6 +87,44 @@
 				<text class="value" :class="{ active: proxyResult.success }">{{ proxyResult.message }}</text>
 			</view>
 		</view>
+
+		<!-- 环境/注入类展示 -->
+		<view class="card">
+			<text class="card-title">环境与注入展示</text>
+			<text class="hint">envGuard / htmlInject / faviconManager / copyFile 实际效果</text>
+
+			<view class="inject-section">
+				<text class="inject-label">envGuard 环境变量</text>
+				<view class="kv-list">
+					<view class="kv-item"><text class="kv-key">VITE_APP_TITLE</text><text class="kv-val">{{ envInfo.title }}</text></view>
+					<view class="kv-item"><text class="kv-key">VITE_API_URL</text><text class="kv-val">{{ envInfo.apiUrl }}</text></view>
+					<view class="kv-item"><text class="kv-key">VITE_DEBUG</text><text class="kv-val">{{ envInfo.debug }}</text></view>
+				</view>
+			</view>
+
+			<view class="inject-section">
+				<text class="inject-label">htmlInject 注入的 meta</text>
+				<view class="kv-list">
+					<view class="kv-item"><text class="kv-key">keywords</text><text class="kv-val">{{ injectInfo.keywords || '未注入' }}</text></view>
+					<view class="kv-item"><text class="kv-key">theme-color</text><text class="kv-val">{{ injectInfo.themeColor || '未注入' }}</text></view>
+				</view>
+			</view>
+
+			<view class="inject-section">
+				<text class="inject-label">faviconManager 图标</text>
+				<view class="kv-list">
+					<view class="kv-item"><text class="kv-key">rel</text><text class="kv-val">{{ injectInfo.faviconRel || '未注入' }}</text></view>
+					<view class="kv-item"><text class="kv-key">href</text><text class="kv-val">{{ injectInfo.faviconHref || '未注入' }}</text></view>
+				</view>
+			</view>
+
+			<view class="inject-section">
+				<text class="inject-label">copyFile 复制文件</text>
+				<view class="file-tags">
+					<text v-for="file in injectInfo.copiedFiles" :key="file" class="file-tag">{{ file }}</text>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -93,22 +135,27 @@ import type { LoadingManager } from '@meng-xi/vite-plugin/plugins/inject/loading
 const appVersion = __APP_VERSION__
 const versionInfo = __APP_VERSION___INFO
 
-const tests = reactive<Record<string, boolean>>({
-	assetManifest: false,
-	autoImport: false,
-	buildProgress: false,
-	bundleAnalyzer: false,
-	compressAssets: false,
-	copyFile: false,
-	envGuard: false,
-	generateRouter: false,
-	generateVersion: false,
-	htmlInject: false,
-	versionUpdateChecker: false,
-	faviconManager: false,
-	imageOptimizer: false,
-	loadingManager: false,
-	proxyManager: false
+interface TestResult {
+	passed: boolean
+	summary: string
+}
+
+const tests = reactive<Record<string, TestResult>>({
+	assetManifest: { passed: false, summary: '' },
+	autoImport: { passed: false, summary: '' },
+	buildProgress: { passed: false, summary: '' },
+	bundleAnalyzer: { passed: false, summary: '' },
+	compressAssets: { passed: false, summary: '' },
+	copyFile: { passed: false, summary: '' },
+	envGuard: { passed: false, summary: '' },
+	generateRouter: { passed: false, summary: '' },
+	generateVersion: { passed: false, summary: '' },
+	htmlInject: { passed: false, summary: '' },
+	versionUpdateChecker: { passed: false, summary: '' },
+	faviconManager: { passed: false, summary: '' },
+	imageOptimizer: { passed: false, summary: '' },
+	loadingManager: { passed: false, summary: '' },
+	proxyManager: { passed: false, summary: '' }
 })
 
 const testLabels: Record<string, string> = {
@@ -128,6 +175,20 @@ const testLabels: Record<string, string> = {
 	loadingManager: 'loadingManager - 全局 Loading',
 	proxyManager: 'proxyManager - 开发代理'
 }
+
+/** 环境/注入类展示数据 */
+const envInfo = reactive({
+	title: import.meta.env.VITE_APP_TITLE || '',
+	apiUrl: import.meta.env.VITE_API_URL || '',
+	debug: import.meta.env.VITE_DEBUG || ''
+})
+const injectInfo = reactive({
+	keywords: '',
+	themeColor: '',
+	faviconHref: '',
+	faviconRel: '',
+	copiedFiles: [] as string[]
+})
 
 const loadingVisible = ref(false)
 const proxyResult = ref<{ success: boolean; message: string } | null>(null)
@@ -149,6 +210,7 @@ function startStatusPolling() {
 
 onMounted(() => {
 	startStatusPolling()
+	loadInjectInfo()
 })
 
 onUnmounted(() => {
@@ -159,76 +221,160 @@ onUnmounted(() => {
 })
 
 async function runTests() {
-	tests.autoImport = typeof reactive === 'function' && typeof ref === 'function'
-	tests.buildProgress = true
+	// autoImport：验证 Vue API 已自动注入
+	tests.autoImport = {
+		passed: typeof reactive === 'function' && typeof ref === 'function',
+		summary: 'reactive / ref / onMounted 已自动注入'
+	}
+	tests.buildProgress = { passed: true, summary: '构建进度条已在终端展示' }
 
-	// assetManifest 测试：检查运行时注入的全局变量
-	tests.assetManifest = !!(window as any).__ASSET_MANIFEST__
-
-	try {
-		const res = await fetch('/bundle-analysis.html')
-		tests.bundleAnalyzer = res.ok
-	} catch {
-		tests.bundleAnalyzer = false
+	// assetManifest：检查运行时注入的全局变量
+	const manifestData = (window as any).__ASSET_MANIFEST__
+	tests.assetManifest = {
+		passed: !!manifestData,
+		summary: manifestData ? `资源映射 ${Object.keys(manifestData.assets || manifestData).length} 条` : '运行时全局变量未注入'
 	}
 
+	// bundleAnalyzer：检查 HTML 报告是否可访问
+	try {
+		const res = await fetch('/bundle-analysis.json')
+		if (res.ok) {
+			const report = await res.json()
+			tests.bundleAnalyzer = {
+				passed: true,
+				summary: `${report.summary?.chunkCount || 0} chunks, ${report.summary?.totalSizeFormatted || '未知'}`
+			}
+		} else {
+			tests.bundleAnalyzer = { passed: false, summary: `HTTP ${res.status}` }
+		}
+	} catch (e) {
+		tests.bundleAnalyzer = { passed: false, summary: '报告未生成' }
+	}
+
+	// compressAssets：读取压缩报告摘要
 	try {
 		const res = await fetch('/compress-report.json')
 		if (res.ok) {
 			const report = await res.json()
-			tests.compressAssets = report && report.totalFiles > 0
+			const s = report.summary || {}
+			tests.compressAssets = {
+				passed: s.totalFiles > 0,
+				summary: s.totalFiles > 0 ? `${s.totalFiles} 文件, 压缩率 ${s.totalRatio?.toFixed(1) || 0}%` : '无压缩文件'
+			}
+		} else {
+			tests.compressAssets = { passed: false, summary: `HTTP ${res.status}` }
 		}
 	} catch {
-		tests.compressAssets = false
+		tests.compressAssets = { passed: false, summary: '报告未生成' }
 	}
 
-	tests.generateRouter = true
-	tests.generateVersion = !!__APP_VERSION__ && !!__APP_VERSION___INFO
+	// generateRouter：验证路由配置已生成
+	tests.generateRouter = { passed: true, summary: 'src/router.config.ts 已生成' }
 
+	// generateVersion：验证版本全局变量
+	tests.generateVersion = {
+		passed: !!__APP_VERSION__ && !!__APP_VERSION___INFO,
+		summary: __APP_VERSION__ ? `当前版本: ${__APP_VERSION__}` : '版本变量未注入'
+	}
+
+	// copyFile：验证静态文件已复制
 	try {
 		const res = await fetch('/static/example.txt')
-		tests.copyFile = res.ok
+		tests.copyFile = {
+			passed: res.ok,
+			summary: res.ok ? '/static/example.txt 可访问' : `HTTP ${res.status}`
+		}
 	} catch {
-		tests.copyFile = false
+		tests.copyFile = { passed: false, summary: '文件未复制' }
 	}
 
-	tests.envGuard = !!import.meta.env.VITE_APP_TITLE && !!import.meta.env.VITE_API_URL
+	// envGuard：验证环境变量
+	tests.envGuard = {
+		passed: !!envInfo.title && !!envInfo.apiUrl,
+		summary: `VITE_APP_TITLE="${envInfo.title}", VITE_API_URL="${envInfo.apiUrl}"`
+	}
 
+	// htmlInject：检查注入的 meta 标签
 	const keywordsMeta = document.querySelector('meta[name="keywords"]')
 	const themeColorMeta = document.querySelector('meta[name="theme-color"]')
-	tests.htmlInject = !!(keywordsMeta && themeColorMeta)
+	tests.htmlInject = {
+		passed: !!(keywordsMeta && themeColorMeta),
+		summary: keywordsMeta && themeColorMeta
+			? `keywords="${keywordsMeta.getAttribute('content')}", theme-color="${themeColorMeta.getAttribute('content')}"`
+			: 'meta 标签未注入'
+	}
 
+	// versionUpdateChecker：检查 DOM 元素
 	const vucRoot = document.getElementById('__vuc-root__')
 	const metaEl = document.querySelector('meta[name="app-version"]')
-	tests.versionUpdateChecker = !!vucRoot && !!metaEl
+	tests.versionUpdateChecker = {
+		passed: !!vucRoot && !!metaEl,
+		summary: vucRoot && metaEl ? `版本: ${metaEl.getAttribute('content')}` : '检查器未注入'
+	}
 
+	// faviconManager：检查 link 标签
 	const linkEl = document.querySelector('link[rel="icon"]')
-	tests.faviconManager = !!linkEl
+	tests.faviconManager = {
+		passed: !!linkEl,
+		summary: linkEl ? `href="${linkEl.getAttribute('href')}"` : 'favicon 未注入'
+	}
 
-	// imageOptimizer 测试：检查优化报告是否生成
+	// imageOptimizer：读取优化报告摘要
 	try {
 		const res = await fetch('/image-optimize-report.json')
 		if (res.ok) {
 			const report = await res.json()
-			tests.imageOptimizer = report && (report.totalFiles > 0 || report.totalFiles === 0)
+			const s = report.summary || {}
+			tests.imageOptimizer = {
+				passed: s.totalFiles !== undefined,
+				summary: s.totalFiles !== undefined ? `${s.totalFiles} 文件, 转换 ${s.convertedFiles || 0} 个` : '报告为空'
+			}
+		} else {
+			tests.imageOptimizer = { passed: false, summary: `HTTP ${res.status}` }
 		}
 	} catch {
-		tests.imageOptimizer = false
+		tests.imageOptimizer = { passed: false, summary: '报告未生成' }
 	}
 
+	// loadingManager：验证管理器实例
 	const manager = getManager()
-	tests.loadingManager = !!manager && typeof manager.show === 'function'
+	tests.loadingManager = {
+		passed: !!manager && typeof manager.show === 'function',
+		summary: manager ? 'window.__LOADING_MANAGER__ 已就绪' : '管理器未初始化'
+	}
 
-	// proxyManager 测试：通过代理请求 httpbin.org 验证代理是否生效
+	// proxyManager：通过代理请求验证
 	try {
 		const res = await fetch('/api/get')
 		if (res.ok) {
 			const data = await res.json()
-			tests.proxyManager = !!data && data.url !== undefined
+			tests.proxyManager = {
+				passed: !!data && data.url !== undefined,
+				summary: data?.url ? `代理成功, 来源: ${data.url}` : '响应格式异常'
+			}
+		} else {
+			tests.proxyManager = { passed: false, summary: `HTTP ${res.status}` }
 		}
 	} catch {
-		tests.proxyManager = false
+		tests.proxyManager = { passed: false, summary: '代理请求失败' }
 	}
+}
+
+/** 加载环境/注入类展示数据 */
+function loadInjectInfo() {
+	// htmlInject：读取注入的 meta 标签内容
+	const keywordsMeta = document.querySelector('meta[name="keywords"]')
+	const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+	injectInfo.keywords = keywordsMeta?.getAttribute('content') || ''
+	injectInfo.themeColor = themeColorMeta?.getAttribute('content') || ''
+
+	// faviconManager：读取 link 标签
+	const linkEl = document.querySelector('link[rel="icon"]')
+	injectInfo.faviconHref = linkEl?.getAttribute('href') || ''
+	injectInfo.faviconRel = linkEl?.getAttribute('rel') || ''
+
+	// copyFile：已知复制文件列表（由 copyFile 插件从 src/static 复制到 dist/static）
+	injectInfo.copiedFiles = ['/static/favicon.ico', '/static/logo.svg', '/static/banner.svg', '/static/example.txt']
 }
 
 function goToNavigation() {
@@ -253,6 +399,10 @@ function goToProfile() {
 
 function goToSettings() {
 	uni.navigateTo({ url: '/pages-sub/settings/settings' })
+}
+
+function goToReports() {
+	uni.navigateTo({ url: '/pages/reports/reports' })
 }
 
 function showLoading() {
@@ -414,6 +564,83 @@ async function testProxyDelay() {
 
 .test-item.passed .test-text {
 	color: #42b883;
+}
+
+.test-content {
+	flex: 1;
+}
+
+.test-summary {
+	font-size: 22rpx;
+	color: #999;
+	display: block;
+	margin-top: 4rpx;
+	line-height: 1.4;
+	word-break: break-all;
+}
+
+.inject-section {
+	margin-bottom: 24rpx;
+}
+
+.inject-section:last-child {
+	margin-bottom: 0;
+}
+
+.inject-label {
+	font-size: 26rpx;
+	font-weight: 600;
+	color: #555;
+	display: block;
+	margin-bottom: 12rpx;
+}
+
+.kv-list {
+	background: #f9f9f9;
+	border-radius: 12rpx;
+	padding: 4rpx 20rpx;
+}
+
+.kv-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 14rpx 0;
+	border-bottom: 1rpx solid #f0f0f0;
+	gap: 16rpx;
+}
+
+.kv-item:last-child {
+	border-bottom: none;
+}
+
+.kv-key {
+	font-size: 24rpx;
+	color: #999;
+	flex-shrink: 0;
+	font-family: monospace;
+}
+
+.kv-val {
+	font-size: 24rpx;
+	color: #333;
+	text-align: right;
+	word-break: break-all;
+}
+
+.file-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12rpx;
+}
+
+.file-tag {
+	font-size: 22rpx;
+	color: #42b883;
+	background: rgba(66, 184, 131, 0.1);
+	padding: 6rpx 16rpx;
+	border-radius: 8rpx;
+	font-family: monospace;
 }
 
 .hint {

@@ -1,7 +1,7 @@
 /**
  * @plugin generate-router
- * @date 2026-06-26 23:42:25
- * @version 0.2.7
+ * @date 2026-06-27 00:51:06
+ * @version 1.0.0
  */
 
 /**
@@ -50,6 +50,11 @@ export const routes = [
 		path: '/pages/error/error',
 		name: 'pagesErrorError',
 		meta: { title: '错误页面' }},
+	{
+		path: '/pages/reports/reports',
+		name: 'pagesReportsReports',
+		meta: { title: '构建报告' }
+	},
 	{
 		path: '/pages-sub/profile/profile',
 		name: 'pagesSubProfileProfile',
