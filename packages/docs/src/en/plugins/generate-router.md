@@ -227,38 +227,54 @@ generateRouter({
 
 ### Add File Header Comment
 
+Adds a JSDoc-style comment header at the top of the generated route config file. Each placeholder automatically maps to a JSDoc tag line; non-placeholder text between placeholders is discarded.
+
 ```typescript
 // Use default template ({name} {date} {version})
 generateRouter({ headerTemplate: true })
-// Generates: /**
-//  * generate-router 2026-06-23 14:30:00 0.2.4
-//  */
+// Generates:
+/**
+ * @plugin generate-router
+ * @date 2026-06-23 14:30:00
+ * @version 0.2.7
+ */
 
 // Custom date format
 generateRouter({ headerTemplate: '{name} {date:YYYY-MM-DD} {version}' })
-// Generates: /**
-//  * generate-router 2026-06-23 0.2.4
-//  */
+// Generates:
+/**
+ * @plugin generate-router
+ * @date 2026-06-23
+ * @version 0.2.7
+ */
 
 // Custom fields
 generateRouter({
   headerTemplate: '{name} {custom:author} {date} {version}',
   customFields: { author: 'MengXi Studio' }
 })
-// Generates: /**
-//  * generate-router MengXi Studio 2026-06-23 14:30:00 0.2.4
-//  */
+// Generates:
+/**
+ * @plugin generate-router
+ * @author MengXi Studio
+ * @date 2026-06-23 14:30:00
+ * @version 0.2.7
+ */
 ```
 
-**Placeholder Reference:**
+**Placeholder to JSDoc Tag Mapping:**
 
-| Placeholder | Replacement | Example |
-|-------------|-------------|---------|
-| `{name}` | Plugin name | `generate-router` |
-| `{date}` | Generation datetime (default format `YYYY-MM-DD HH:mm:ss`) | `2026-06-23 14:30:00` |
-| `{date:format}` | Datetime in specified format | `{date:YYYY-MM-DD}` → `2026-06-23` |
-| `{version}` | Plugin version | `0.2.4` |
-| `{custom:key}` | Custom field, value from `customFields` | `{custom:author}` → `MengXi Studio` |
+| Placeholder | JSDoc Tag | Replacement | Example |
+|-------------|-----------|-------------|---------|
+| `{name}` | `@plugin` | Plugin name | `generate-router` |
+| `{date}` | `@date` | Generation datetime (default format `YYYY-MM-DD HH:mm:ss`) | `2026-06-23 14:30:00` |
+| `{date:format}` | `@date` | Datetime in specified format | `{date:YYYY-MM-DD}` → `2026-06-23` |
+| `{version}` | `@version` | Plugin version | `0.2.7` |
+| `{custom:key}` | `@key` | Custom field, value from `customFields` | `{custom:author}` → `MengXi Studio` |
+
+::: tip
+If the template contains no placeholders, it is output as plain text (no tag conversion).
+:::
 
 ## Output Example
 

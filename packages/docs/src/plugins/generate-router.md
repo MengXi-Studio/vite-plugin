@@ -245,38 +245,54 @@ generateRouter({ dts: 'src/types/router.d.ts' })
 
 ### 添加文件注释头
 
+在生成的路由配置文件顶部添加 JSDoc 风格的注释头。每个占位符自动对应一个 JSDoc 标签行，占位符之间的非占位符文本被丢弃。
+
 ```typescript
 // 使用默认模板（{name} {date} {version}）
 generateRouter({ headerTemplate: true })
-// 生成：/**
-//  * generate-router 2026-06-23 14:30:00 0.2.4
-//  */
+// 生成：
+/**
+ * @plugin generate-router
+ * @date 2026-06-23 14:30:00
+ * @version 0.2.7
+ */
 
 // 自定义日期格式
 generateRouter({ headerTemplate: '{name} {date:YYYY-MM-DD} {version}' })
-// 生成：/**
-//  * generate-router 2026-06-23 0.2.4
-//  */
+// 生成：
+/**
+ * @plugin generate-router
+ * @date 2026-06-23
+ * @version 0.2.7
+ */
 
 // 自定义字段
 generateRouter({
   headerTemplate: '{name} {custom:author} {date} {version}',
   customFields: { author: 'MengXi Studio' }
 })
-// 生成：/**
-//  * generate-router MengXi Studio 2026-06-23 14:30:00 0.2.4
-//  */
+// 生成：
+/**
+ * @plugin generate-router
+ * @author MengXi Studio
+ * @date 2026-06-23 14:30:00
+ * @version 0.2.7
+ */
 ```
 
-**占位符说明：**
+**占位符与 JSDoc 标签映射：**
 
-| 占位符 | 替换值 | 示例 |
-|--------|--------|------|
-| `{name}` | 插件名称 | `generate-router` |
-| `{date}` | 生成日期时间（默认格式 `YYYY-MM-DD HH:mm:ss`） | `2026-06-23 14:30:00` |
-| `{date:格式}` | 按指定格式输出日期时间 | `{date:YYYY-MM-DD}` → `2026-06-23` |
-| `{version}` | 插件版本号 | `0.2.4` |
-| `{custom:键名}` | 自定义字段，值从 `customFields` 读取 | `{custom:author}` → `MengXi Studio` |
+| 占位符 | JSDoc 标签 | 替换值 | 示例 |
+|--------|-----------|--------|------|
+| `{name}` | `@plugin` | 插件名称 | `generate-router` |
+| `{date}` | `@date` | 生成日期时间（默认格式 `YYYY-MM-DD HH:mm:ss`） | `2026-06-23 14:30:00` |
+| `{date:格式}` | `@date` | 按指定格式输出日期时间 | `{date:YYYY-MM-DD}` → `2026-06-23` |
+| `{version}` | `@version` | 插件版本号 | `0.2.7` |
+| `{custom:键名}` | `@键名` | 自定义字段，值从 `customFields` 读取 | `{custom:author}` → `MengXi Studio` |
+
+::: tip
+若模板完全不包含占位符，则按纯文本原样输出（不做标签转换）。
+:::
 
 ## 输出示例
 

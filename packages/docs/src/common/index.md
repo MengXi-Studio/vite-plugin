@@ -48,7 +48,7 @@ import { ... } from '@meng-xi/vite-plugin/common/validation'
 
 | 模块 | 说明 | 导出数量 | 子模块路径 |
 | ---- | ---- | -------- | ---------- |
-| [format](./format) | 日期格式化、模板变量替换、文件大小格式化、压缩率计算 | 6 个函数 + 1 个类型 | `@meng-xi/vite-plugin/common/format` |
+| [format](./format) | 日期格式化、模板变量替换、插件模板解析、文件大小格式化、压缩率计算 | 7 个函数 + 1 个类型 | `@meng-xi/vite-plugin/common/format` |
 
 ### HTML 与脚本
 
