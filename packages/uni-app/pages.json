@@ -52,6 +52,12 @@
 			}
 		},
 		{
+			"path": "pages/reports/index",
+			"style": {
+				"navigationBarTitleText": "构建报告"
+			}
+		},
+		{
 			"path": "pages/about/index",
 			"name": "AboutPage",
 			"meta": { "requireAuth": false },
