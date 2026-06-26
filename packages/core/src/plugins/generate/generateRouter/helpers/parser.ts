@@ -1,13 +1,7 @@
 import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig, UniAppPageConfig, RouteMeta } from '../types'
 import { toCamelCase, toPascalCase } from '@/common/string'
 
-/**
- * 解析 pages.json 为路由配置数组
- *
- * @param pagesJson - 解析后的 pages.json 对象
- * @param options - 插件配置
- * @returns 路由配置数组和 tabBar 页面集合
- */
+/** 解析 pages.json 为路由配置数组（含主包和子包页面） */
 export function parsePagesJson(
 	pagesJson: UniAppPagesJson,
 	options: Pick<GenerateRouterOptions, 'nameStrategy' | 'customNameGenerator' | 'includeSubPackages' | 'metaMapping'>
@@ -45,15 +39,7 @@ export function parsePagesJson(
 	return { routes, tabBarPages }
 }
 
-/**
- * 解析单个页面配置为路由配置
- *
- * @param pageConfig - pages.json 中的页面对象
- * @param rootPath - 子包根路径，主包传空字符串
- * @param options - 命名策略与元信息映射配置
- * @param tabBarPages - tabBar 页面路径集合
- * @returns 完整的路由配置对象
- */
+/** 解析单个页面配置为路由配置 */
 function parsePageToRoute(pageConfig: UniAppPageConfig, rootPath: string, options: Pick<GenerateRouterOptions, 'nameStrategy' | 'customNameGenerator' | 'metaMapping'>, tabBarPages: Set<string>): RouteConfig {
 	const fullPath = rootPath ? `/${rootPath}/${pageConfig.path}` : `/${pageConfig.path}`
 	// 优先使用 pages.json 中配置的 name，否则根据 nameStrategy 自动生成
@@ -68,13 +54,7 @@ function parsePageToRoute(pageConfig: UniAppPageConfig, rootPath: string, option
 	return route
 }
 
-/**
- * 根据策略生成路由名称
- *
- * @param path - 路由完整路径
- * @param options - 命名策略配置
- * @returns 路由名称字符串
- */
+/** 根据策略生成路由名称（path/camelCase/pascalCase/custom） */
 function generateRouteName(path: string, options: Pick<GenerateRouterOptions, 'nameStrategy' | 'customNameGenerator'>): string {
 	switch (options.nameStrategy) {
 		case 'path':
@@ -90,17 +70,7 @@ function generateRouteName(path: string, options: Pick<GenerateRouterOptions, 'n
 	}
 }
 
-/**
- * 从页面配置中提取路由元信息
- *
- * 优先级：pageConfig.meta > metaMapping 映射 > tabBar 推断
- *
- * @param pageConfig - pages.json 中的页面对象
- * @param fullPath - 不含前导 `/` 的页面路径，用于匹配 tabBar
- * @param metaMapping - style 字段到 meta 字段的映射
- * @param tabBarPages - tabBar 页面路径集合
- * @returns 路由元信息对象
- */
+/** 提取路由元信息（优先级：pageConfig.meta > metaMapping 映射 > tabBar 推断） */
 function extractMeta(pageConfig: UniAppPageConfig, fullPath: string, metaMapping: Record<string, string> | undefined, tabBarPages: Set<string>): RouteMeta {
 	const meta: RouteMeta = {}
 	const style = pageConfig.style || {}

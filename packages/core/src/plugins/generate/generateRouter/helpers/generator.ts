@@ -86,15 +86,7 @@ interface HeaderPlaceholder {
 	tag: string
 }
 
-/**
- * 从模板中提取所有占位符并映射到 JSDoc 标签名
- *
- * 识别 `{name}`、`{date}`、`{date:FORMAT}`、`{version}`、`{custom:KEY}` 占位符，
- * 按出现顺序返回。非占位符文本被忽略。
- *
- * @param template - 模板字符串
- * @returns 占位符信息数组（按出现顺序）
- */
+/** 从模板中提取占位符并映射到 JSDoc 标签名（非占位符文本被忽略） */
 function extractHeaderPlaceholders(template: string): HeaderPlaceholder[] {
 	const placeholders: HeaderPlaceholder[] = []
 	const regex = /\{(name|date(?::[^}]+)?|version|custom:[^}]+)\}/g
@@ -122,22 +114,16 @@ function extractHeaderPlaceholders(template: string): HeaderPlaceholder[] {
 /**
  * 根据模板生成注释头行数组
  *
- * - 模板含占位符时：每个占位符生成 `@tag value` 形式的行，占位符之间的非占位符文本被丢弃
- * - 模板无占位符时：按纯文本原样输出（按换行拆分）
- *
- * @param headerTemplate - 模板字符串
- * @param customFields - 自定义字段键值对
- * @returns 注释头行数组
+ * - 含占位符：每个占位符生成 `@tag value` 行，非占位符文本丢弃
+ * - 无占位符：按纯文本原样输出
  */
 function generateHeaderLines(headerTemplate: string, customFields?: Record<string, string>): string[] {
 	const placeholders = extractHeaderPlaceholders(headerTemplate)
 
-	// 无占位符时原样输出
 	if (placeholders.length === 0) {
 		return headerTemplate.split('\n')
 	}
 
-	// 有占位符时，每个占位符生成一个 JSDoc 标签行
 	const templateParams = {
 		name: 'generate-router',
 		version: PLUGIN_VERSION,
@@ -146,19 +132,13 @@ function generateHeaderLines(headerTemplate: string, customFields?: Record<strin
 	}
 
 	return placeholders.map(p => {
-		// 复用 parsePluginTemplate 解析单个占位符的值
-		// 对 {custom:KEY} 缺失时，parsePluginTemplate 会原样返回占位符文本
+		// {custom:KEY} 缺失时 parsePluginTemplate 原样返回占位符文本
 		const value = parsePluginTemplate(p.raw, templateParams)
 		return `@${p.tag} ${value}`
 	})
 }
 
-/**
- * 生成类型导入语句
- *
- * @param options - 输出格式与类型导出配置
- * @returns import 语句字符串，不需要时返回空字符串
- */
+/** 生成类型导入语句（JS 模式或未启用类型导出时返回空） */
 function generateTypeImport(options: Pick<GenerateRouterOptions, 'exportTypes' | 'outputFormat'>): string {
 	if (!options.exportTypes || options.outputFormat === 'js') return ''
 	return `import type { RouteConfig } from '@meng-xi/uni-router'`
@@ -167,13 +147,8 @@ function generateTypeImport(options: Pick<GenerateRouterOptions, 'exportTypes' |
 /**
  * 更新已有路由对象的原始文本，保留用户自定义属性
  *
- * - path/name：直接替换（path 由 pages.json 决定，name 由策略生成）
- * - meta：逐字段更新，仅添加/更新新 meta 中的字段，不删除用户自定义的 meta 字段
- * - 其他属性（如 beforeEnter、component）：完全保留
- *
- * @param rawText - 原始路由对象文本
- * @param route - 新的路由配置（用于更新 path/name/meta）
- * @returns 更新后的路由对象文本
+ * - path/name/meta：用新值更新
+ * - 其他属性（如 beforeEnter、component）：原样保留
  */
 function updateRawRouteText(rawText: string, route: RouteConfig): string {
 	let updated = rawText
@@ -194,16 +169,7 @@ function updateRawRouteText(rawText: string, route: RouteConfig): string {
 	return updated
 }
 
-/**
- * 逐字段更新 meta 属性
- *
- * 提取原始 meta 对象文本，对其中的字段逐个更新/添加，
- * 不删除用户自定义的 meta 字段。
- *
- * @param rawText - 原始路由对象文本
- * @param meta - 新的 meta 字段（仅包含需要更新/添加的字段）
- * @returns 更新后的路由对象文本
- */
+/** 逐字段更新 meta，保留用户自定义字段（仅添加/更新，不删除） */
 function updateMetaFields(rawText: string, meta: RouteMeta): string {
 	const existingMetaText = extractPropertyValueText(rawText, 'meta')
 

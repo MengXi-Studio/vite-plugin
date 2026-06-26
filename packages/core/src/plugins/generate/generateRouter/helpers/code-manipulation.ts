@@ -65,13 +65,7 @@ function scanText(text: string, start: number, onChar: (ch: string, i: number, s
 	return text.length
 }
 
-/**
- * 将值序列化为 TypeScript/JavaScript 代码文本
- *
- * @param value - 要序列化的值
- * @param compact - true 时对象内联紧凑格式，false 时对象属性换行缩进
- * @param indent - compact=false 时的缩进前缀（递归使用）
- */
+/** 将值序列化为代码文本（compact 控制对象是否内联） */
 export function serializeValue(value: unknown, compact: boolean = true, indent: string = ''): string {
 	if (value === null) return 'null'
 	if (value === undefined) return 'undefined'
@@ -95,7 +89,6 @@ export function serializeValue(value: unknown, compact: boolean = true, indent: 
  * 将路由配置序列化为多行文本
  *
  * @example
- * 输出格式：
  * {
  * 	path: '/pages/index/index',
  * 	name: 'pagesIndexIndex',
@@ -116,14 +109,7 @@ export function serializeRoute(route: RouteConfig): string {
 	return lines.join('\n')
 }
 
-/**
- * 从数组文本中提取各个顶层对象的原始文本
- *
- * 使用花括号匹配算法，正确处理嵌套对象、函数体、字符串和注释。
- *
- * @param arrayText - routes 数组的文本内容
- * @returns 顶层对象原始文本数组
- */
+/** 从数组文本中提取各顶层对象的原始文本（花括号匹配，正确处理嵌套和字符串） */
 export function extractRouteObjects(arrayText: string): string[] {
 	const objects: string[] = []
 	let start = -1
@@ -139,13 +125,7 @@ export function extractRouteObjects(arrayText: string): string[] {
 	return objects
 }
 
-/**
- * 提取原始文本中指定属性值的文本
- *
- * @param rawText - 原始对象文本
- * @param propertyName - 属性名
- * @returns 属性值文本，未找到时返回 null
- */
+/** 提取原始文本中指定属性值的文本（未找到返回 null） */
 export function extractPropertyValueText(rawText: string, propertyName: string): string | null {
 	const regex = new RegExp(`\\b${propertyName}\\s*:\\s*`)
 	const match = rawText.match(regex)
@@ -168,16 +148,7 @@ export function extractPropertyValueText(rawText: string, propertyName: string):
 	return rawText.substring(valueStart, valueEnd)
 }
 
-/**
- * 在原始文本中替换指定属性的值
- *
- * 如果属性不存在，则在对象末尾添加。
- *
- * @param rawText - 原始对象文本
- * @param propertyName - 属性名
- * @param newValue - 新值的文本表示
- * @returns 替换后的文本
- */
+/** 替换原始文本中指定属性的值（属性不存在时在对象末尾添加） */
 export function replacePropertyValue(rawText: string, propertyName: string, newValue: string): string {
 	const regex = new RegExp(`(\\b${propertyName}\\s*:\\s*)`)
 	const match = rawText.match(regex)
@@ -206,14 +177,12 @@ export function replacePropertyValue(rawText: string, propertyName: string, newV
 		}
 	})
 
-	// 回退 valueEnd 到非空白字符，保留闭合括号前的空格
-	// 避免替换最后一个属性时 "value'}" 丢失空格变成 "value'}"
+	// 回退到非空白字符，保留闭合括号前的空格
 	while (valueEnd > valueStart && /\s/.test(rawText[valueEnd - 1])) {
 		valueEnd--
 	}
 
-	// 当替换的是对象最后一个属性（valueEnd 指向闭合括号）且新值是简单类型时，
-	// 在新值和闭合括号之间添加空格，避免 "value'}" 的格式问题
+	// 最后一个属性且新值为简单类型时，补空格避免 "value'}" 格式问题
 	const endChar = rawText[valueEnd]
 	const isClosingBrace = endChar === '}' || endChar === ']' || endChar === ')'
 	const lastValueChar = newValue.trim().slice(-1)
@@ -223,13 +192,7 @@ export function replacePropertyValue(rawText: string, propertyName: string, newV
 	return rawText.substring(0, match.index!) + `${propertyName}: ${newValue}${separator}` + rawText.substring(valueEnd)
 }
 
-/**
- * 从原始文本中移除指定属性
- *
- * @param rawText - 原始对象文本
- * @param propertyName - 要移除的属性名
- * @returns 移除属性后的文本
- */
+/** 从原始文本中移除指定属性 */
 export function removeProperty(rawText: string, propertyName: string): string {
 	const regex = new RegExp(`,?\\s*\\b${propertyName}\\s*:\\s*`)
 	const match = rawText.match(regex)
