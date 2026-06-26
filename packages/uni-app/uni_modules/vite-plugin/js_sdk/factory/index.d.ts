@@ -1,5 +1,5 @@
 import { Plugin, ResolvedConfig } from 'vite';
-import { P as PluginLogger, L as LoggerOptions } from '../shared/vite-plugin.B8FuZce1.js';
+import { P as PluginLogger, L as LoggerOptions } from '../shared/vite-plugin.BmNqGOzh.js';
 import { V as Validator } from '../shared/vite-plugin.DRRlWY8P.js';
 
 /**
@@ -88,6 +88,16 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
      * @description 插件日志记录器，用于记录插件运行时的日志信息
      */
     protected logger: PluginLogger;
+    /**
+     * 日志实例唯一标识
+     * @description 用于 Logger 单例中区分同类型插件的多个实例
+     */
+    private readonly loggerKey;
+    /**
+     * 实例计数器（类级别）
+     * @description 为每个 BasePlugin 实例生成唯一序号
+     */
+    private static instanceCounter;
     /**
      * 插件配置验证器
      *
@@ -207,6 +217,42 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
      */
     protected destroy(): void;
     /**
+     * 注册 Vite 插件钩子，自动包裹 enabled 检查和错误处理
+     *
+     * @protected
+     * @param plugin - Vite 插件对象
+     * @param hook - 钩子名称
+     * @param handler - 钩子处理函数
+     * @param context - 错误日志上下文描述
+     * @description 注册钩子时自动包裹 enabled 检查（禁用时跳过执行）和 safeExecute（捕获异常），
+     * 避免每个插件手动重复编写这两层包裹逻辑
+     */
+    protected registerHook<K extends keyof NonNullable<Plugin>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string): void;
+    /**
+     * 注册带 order 配置的 Vite 插件钩子，自动包裹 enabled 检查和错误处理
+     *
+     * @protected
+     * @param plugin - Vite 插件对象
+     * @param hook - 钩子名称
+     * @param handler - 钩子处理函数
+     * @param context - 错误日志上下文描述
+     * @param order - 执行顺序，'pre' 或 'post'
+     * @description 与 registerHook 类似，但支持 Vite 的 order 配置（用于 transform、resolveId、generateBundle、writeBundle 等支持排序的钩子）
+     */
+    protected registerOrderedHook<K extends keyof NonNullable<Plugin>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string, order: 'pre' | 'post'): void;
+    /**
+     * 注册 transformIndexHtml 钩子，支持 order 配置，自动包裹 enabled 检查和错误处理
+     *
+     * @protected
+     * @param plugin - Vite 插件对象
+     * @param handler - 钩子处理函数，接收 html 和可选的上下文参数
+     * @param context - 错误日志上下文描述
+     * @param order - 执行顺序，默认 'post'
+     * @description transformIndexHtml 钩子需要返回 html 字符串，因此使用 safeExecuteSync 包裹，
+     * 出错时返回原始 html 作为降级，确保构建不会中断
+     */
+    protected registerTransformIndexHtml(plugin: Plugin, handler: (html: string, ctx?: any) => any, context: string, order?: 'pre' | 'post'): void;
+    /**
      * 添加插件钩子到 Vite 插件对象
      *
      * @protected
@@ -284,8 +330,8 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
      * 将插件实例转换为 Vite 插件对象，用于 Vite 构建系统
      *
      * @public
-     * @returns {Plugin} Vite 插件对象，包含插件名称、执行时机和各种钩子函数
-     * @description 该方法创建并返回一个符合 Vite 插件规范的对象，设置了插件的基本信息和 configResolved 钩子，然后调用 addPluginHooks 方法添加插件特定的钩子
+     * @returns {PluginWithInstance<T>} Vite 插件对象，包含插件名称、执行时机、各种钩子函数以及对原始插件实例的引用
+     * @description 该方法创建并返回一个符合 Vite 插件规范的对象，设置了插件的基本信息和 configResolved 钩子，然后调用 addPluginHooks 方法添加插件特定的钩子，并在插件对象上添加对原始插件实例的引用
      * @example
      * ```typescript
      * // 创建插件实例
@@ -298,7 +344,7 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
      * export const myPlugin = vitePlugin
      * ```
      */
-    toPlugin(): Plugin;
+    toPlugin(): PluginWithInstance<T>;
 }
 /**
  * 创建插件工厂函数，用于生成 Vite 插件实例

@@ -51,7 +51,7 @@ export default defineBuildConfig({
 		'@': resolve(__dirname, './src')
 	},
 	replace: {
-		__PLUGIN_VERSION__: "\"0.2.6\""
+		__PLUGIN_VERSION__: "\"0.2.7\""
 	},
 	rollup: {
 		emitCJS: true,

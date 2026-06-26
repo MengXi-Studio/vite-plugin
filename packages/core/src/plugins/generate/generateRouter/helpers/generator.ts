@@ -21,7 +21,7 @@ const DEFAULT_DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 export function generateFileContent(routes: RouteConfig[], options: Pick<GenerateRouterOptions, 'exportTypes' | 'outputFormat' | 'headerTemplate' | 'customFields'>, existingRawTexts?: Map<string, string>): string {
 	const typeImport = generateTypeImport(options)
 	const isTS = options.outputFormat === 'ts'
-	const typeAnnotation = isTS ? ': RouteConfig[]' : ''
+	const typeAnnotation = isTS && options.exportTypes ? ': RouteConfig[]' : ''
 
 	const routeStrings = routes.map(route => {
 		const rawText = existingRawTexts?.get(route.path)
