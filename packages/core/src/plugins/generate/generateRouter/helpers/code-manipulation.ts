@@ -206,7 +206,21 @@ export function replacePropertyValue(rawText: string, propertyName: string, newV
 		}
 	})
 
-	return rawText.substring(0, match.index!) + `${propertyName}: ${newValue}` + rawText.substring(valueEnd)
+	// 回退 valueEnd 到非空白字符，保留闭合括号前的空格
+	// 避免替换最后一个属性时 "value'}" 丢失空格变成 "value'}"
+	while (valueEnd > valueStart && /\s/.test(rawText[valueEnd - 1])) {
+		valueEnd--
+	}
+
+	// 当替换的是对象最后一个属性（valueEnd 指向闭合括号）且新值是简单类型时，
+	// 在新值和闭合括号之间添加空格，避免 "value'}" 的格式问题
+	const endChar = rawText[valueEnd]
+	const isClosingBrace = endChar === '}' || endChar === ']' || endChar === ')'
+	const lastValueChar = newValue.trim().slice(-1)
+	const isSimpleValue = lastValueChar !== '}' && lastValueChar !== ']' && lastValueChar !== ')'
+	const separator = isClosingBrace && isSimpleValue ? ' ' : ''
+
+	return rawText.substring(0, match.index!) + `${propertyName}: ${newValue}${separator}` + rawText.substring(valueEnd)
 }
 
 /**

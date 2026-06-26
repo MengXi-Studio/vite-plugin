@@ -2,6 +2,23 @@ import type { RouteConfig, RouteMeta } from '../types'
 import { extractRouteObjects, extractPropertyValueText } from './code-manipulation'
 
 /**
+ * 规范化路由对象文本的缩进
+ *
+ * 从已存在文件提取的原始文本会保留原文件中的层级缩进（路由对象在数组内部，
+ * 属性会多一层缩进）。这里统一去除每行一个前导制表符，使其与 serializeRoute
+ * 生成的格式一致，避免 generateFileContent 再次添加缩进时出现双重缩进。
+ *
+ * @param text - 路由对象原始文本（已 trim）
+ * @returns 缩进规范化后的文本
+ */
+function normalizeRouteIndent(text: string): string {
+	return text
+		.split('\n')
+		.map(line => (line.startsWith('\t') ? line.substring(1) : line))
+		.join('\n')
+}
+
+/**
  * 从已存在的路由配置文件中提取 routes 的原始文本
  *
  * 提取每个路由对象的原始文本（保留函数等非 JSON 内容），
@@ -21,7 +38,7 @@ export function extractExistingRawRoutes(existingContent: string): Map<string, s
 	for (const rawText of routeObjects) {
 		const pathMatch = rawText.match(/path:\s*['"]([^'"]*)['"]/)
 		if (pathMatch) {
-			rawTextMap.set(pathMatch[1], rawText.trim())
+			rawTextMap.set(pathMatch[1], normalizeRouteIndent(rawText.trim()))
 		}
 	}
 
@@ -58,26 +75,29 @@ export function extractExistingRoutes(existingContent: string): Map<string, Rout
 /**
  * 从已存在的路由配置文件中提取 routes 数组文本
  *
- * 使用花括号匹配定位 `export const routes` 后的数组内容，
+ * 使用方括号匹配定位 `export const routes` 后的数组内容，
  * 比正则惰性匹配更健壮，能正确处理嵌套数组。
  *
+ * 返回不含外层 `[]` 的数组内容，以便 extractRouteObjects 的 depth
+ * 判定（对象开始 depth=1、结束 depth=0）能正确匹配。
+ *
  * @param content - 路由配置文件完整内容
- * @returns routes 数组文本，未找到时返回 null
+ * @returns routes 数组内容文本（不含外层 []），未找到时返回 null
  */
 function extractRoutesArrayText(content: string): string | null {
 	const match = content.match(/export\s+const\s+routes[^=]*=\s*\[/)
 	if (!match || match.index === undefined) return null
 
-	const arrayStart = match.index + match[0].length - 1
-	if (arrayStart < 0) return null
+	const bracketStart = match.index + match[0].length - 1
+	if (bracketStart < 0) return null
 
 	let depth = 0
-	for (let i = arrayStart; i < content.length; i++) {
+	for (let i = bracketStart; i < content.length; i++) {
 		const ch = content[i]
 		if (ch === '[') depth++
 		else if (ch === ']') {
 			depth--
-			if (depth === 0) return content.substring(arrayStart, i + 1)
+			if (depth === 0) return content.substring(bracketStart + 1, i)
 		}
 	}
 

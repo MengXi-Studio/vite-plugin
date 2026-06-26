@@ -250,24 +250,26 @@ export interface GenerateRouterOptions extends BasePluginOptions {
 	/**
 	 * 文件头部注释模板
 	 *
-	 * @description 在生成的路由配置文件顶部添加注释头。
-	 * - `false` / 不传：不生成注释头
-	 * - `true`：生成默认注释头（`{name} {date} {version}`）
+	 * @description 在生成的路由配置文件顶部添加 JSDoc 风格的注释头。
+	 * - `false` / 不传 / `''`：不生成注释头
+	 * - `true`：使用默认模板 `{name} {date} {version}` 生成注释头
 	 * - `string`：根据模板字符串生成注释头，支持以下占位符：
-	 *   - `{name}`：插件名称
-	 *   - `{date}`：生成日期时间（默认格式 `YYYY-MM-DD HH:mm:ss`）
-	 *   - `{date:格式}`：按指定格式输出日期时间，格式符与 `formatDate` 一致
-	 *   - `{version}`：插件版本号
-	 *   - `{custom:键名}`：自定义字段，值从 `customFields` 选项中读取
+	 *   - `{name}`：插件名称 → `@plugin` 标签行
+	 *   - `{date}`：生成日期时间（默认格式 `YYYY-MM-DD HH:mm:ss`）→ `@date` 标签行
+	 *   - `{date:格式}`：按指定格式输出日期时间，格式符与 `formatDate` 一致 → `@date` 标签行
+	 *   - `{version}`：插件版本号 → `@version` 标签行
+	 *   - `{custom:键名}`：自定义字段，值从 `customFields` 选项中读取 → `@键名` 标签行
 	 *
-	 * 占位符的顺序由模板字符串中的位置决定，非占位符文本原样保留。
+	 * 每个占位符自动对应一个 JSDoc 标签行，占位符之间的非占位符文本被丢弃，
+	 * 每个标签行独立成行。若模板完全不包含占位符，则按纯文本原样输出。
 	 *
 	 * @default false
 	 *
 	 * @example
 	 * ```typescript
-	 * // 默认注释头
+	 * // 默认注释头（headerTemplate: true）
 	 * generateRouter({ headerTemplate: true })
+	 * // 输出：
 	 * /**
 	 *  * @plugin generate-router
 	 *  * @date 2026-06-19 14:30:00
@@ -276,12 +278,32 @@ export interface GenerateRouterOptions extends BasePluginOptions {
 	 *
 	 * // 自定义日期格式
 	 * generateRouter({ headerTemplate: '{name} {date:YYYY-MM-DD} {version}' })
+	 * // 输出：
+	 * /**
+	 *  * @plugin generate-router
+	 *  * @date 2026-06-19
+	 *  * @version 0.2.4
+	 *  *\/
 	 *
 	 * // 自定义字段
 	 * generateRouter({
 	 *   headerTemplate: '{name} {custom:author} {date} {version}',
 	 *   customFields: { author: 'MengXi Studio' }
 	 * })
+	 * // 输出：
+	 * /**
+	 *  * @plugin generate-router
+	 *  * @author MengXi Studio
+	 *  * @date 2026-06-19 14:30:00
+	 *  * @version 0.2.4
+	 *  *\/
+	 *
+	 * // 纯文本无占位符（原样输出）
+	 * generateRouter({ headerTemplate: 'Auto-generated file' })
+	 * // 输出：
+	 * /**
+	 *  * Auto-generated file
+	 *  *\/
 	 * ```
 	 */
 	headerTemplate?: boolean | string
@@ -290,7 +312,9 @@ export interface GenerateRouterOptions extends BasePluginOptions {
 	 * 自定义字段键值对
 	 *
 	 * @description 供 `{custom:键名}` 占位符引用的自定义字段。
-	 * 键名对应 `{custom:键名}` 中的键名，值为替换后的文本。
+	 * 键名对应 `{custom:键名}` 中的键名，同时作为 JSDoc 标签名（`@键名`），
+	 * 值为替换后的文本。若模板中引用了 `{custom:KEY}` 但 `customFields` 中
+	 * 未提供该键，则原样保留占位符文本。
 	 *
 	 * @default {}
 	 *
@@ -300,6 +324,13 @@ export interface GenerateRouterOptions extends BasePluginOptions {
 	 *   headerTemplate: '{name} {custom:author} {custom:license} {version}',
 	 *   customFields: { author: 'MengXi Studio', license: 'MIT' }
 	 * })
+	 * // 输出：
+	 * /**
+	 *  * @plugin generate-router
+	 *  * @author MengXi Studio
+	 *  * @license MIT
+	 *  * @version 0.2.7
+	 *  *\/
 	 * ```
 	 */
 	customFields?: Record<string, string>
