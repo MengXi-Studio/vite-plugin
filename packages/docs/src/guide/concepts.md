@@ -178,5 +178,5 @@ protected validateOptions(): void {
 
 - [按需导入](/guide/on-demand-import) — 优化打包体积
 - [最佳实践](/guide/best-practices) — 场景化推荐
-- [插件开发框架](/factory) — 开发自定义插件
+- [插件开发框架](/factory/index) — 开发自定义插件
 - [生命周期](/factory/lifecycle) — 钩子执行顺序详解

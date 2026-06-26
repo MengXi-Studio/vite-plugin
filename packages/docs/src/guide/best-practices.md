@@ -254,6 +254,6 @@ compressAssets({
 
 ## 下一步
 
-- [插件概览](/plugins) — 浏览全部插件详细文档
-- [插件开发框架](/factory) — 开发自定义插件
+- [插件概览](/plugins/index) — 浏览全部插件详细文档
+- [插件开发框架](/factory/index) — 开发自定义插件
 - [基础概念](/guide/concepts) — 深入理解插件系统

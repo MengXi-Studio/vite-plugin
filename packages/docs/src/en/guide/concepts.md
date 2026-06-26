@@ -178,5 +178,5 @@ protected validateOptions(): void {
 
 - [On-demand Import](/en/guide/on-demand-import) — Optimize bundle size
 - [Best Practices](/en/guide/best-practices) — Scenario-based recommendations
-- [Plugin Factory](/en/factory) — Develop custom plugins
+- [Plugin Factory](/en/factory/index) — Develop custom plugins
 - [Lifecycle](/en/factory/lifecycle) — Detailed hook execution order

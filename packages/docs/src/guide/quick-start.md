@@ -129,5 +129,5 @@ compressAssets({
 
 - [基础概念](/guide/concepts) — 深入理解插件系统与生命周期
 - [按需导入](/guide/on-demand-import) — 优化打包体积的完整策略
-- [插件概览](/plugins) — 浏览全部 15 个插件
+- [插件概览](/plugins/index) — 浏览全部 15 个插件
 - [最佳实践](/guide/best-practices) — 场景化推荐与常见陷阱

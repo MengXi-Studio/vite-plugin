@@ -62,6 +62,6 @@ interface BasePluginOptions {
 
 - [安装](/guide/installation) — 安装与配置
 - [快速开始](/guide/quick-start) — 5 分钟上手
-- [插件概览](/plugins) — 浏览全部插件
-- [插件开发框架](/factory) — 开发自定义插件
+- [插件概览](/plugins/index) — 浏览全部插件
+- [插件开发框架](/factory/index) — 开发自定义插件
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) — 查看源码和示例

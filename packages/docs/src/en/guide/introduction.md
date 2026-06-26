@@ -62,6 +62,6 @@ interface BasePluginOptions {
 
 - [Installation](/en/guide/installation) — Installation and configuration
 - [Quick Start](/en/guide/quick-start) — Get started in 5 minutes
-- [Plugins Overview](/en/plugins) — Browse all plugins
-- [Plugin Factory](/en/factory) — Develop custom plugins
+- [Plugins Overview](/en/plugins/index) — Browse all plugins
+- [Plugin Factory](/en/factory/index) — Develop custom plugins
 - [GitHub](https://github.com/MengXi-Studio/vite-plugin) — View source code and examples

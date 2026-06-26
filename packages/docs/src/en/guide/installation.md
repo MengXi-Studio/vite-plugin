@@ -85,4 +85,4 @@ For a detailed comparison of import strategies, see [On-demand Import](/en/guide
 
 - [Quick Start](/en/guide/quick-start) — Get started in 5 minutes
 - [Core Concepts](/en/guide/concepts) — Understand the plugin system
-- [Plugins Overview](/en/plugins) — Browse all plugins
+- [Plugins Overview](/en/plugins/index) — Browse all plugins

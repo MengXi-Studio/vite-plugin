@@ -85,4 +85,4 @@ import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compres
 
 - [快速开始](/guide/quick-start) — 5 分钟上手
 - [基础概念](/guide/concepts) — 理解插件系统
-- [插件概览](/plugins) — 浏览全部插件
+- [插件概览](/plugins/index) — 浏览全部插件

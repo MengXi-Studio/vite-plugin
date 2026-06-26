@@ -102,5 +102,5 @@ import type { LoggerOptions } from '@meng-xi/vite-plugin/logger'
 ## Next Steps
 
 - [Best Practices](/en/guide/best-practices) — Scenario-based config recommendations
-- [Plugins Overview](/en/plugins) — Browse all plugins
-- [Plugin Factory](/en/factory) — Develop custom plugins
+- [Plugins Overview](/en/plugins/index) — Browse all plugins
+- [Plugin Factory](/en/factory/index) — Develop custom plugins
