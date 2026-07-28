@@ -3,36 +3,12 @@ import path from 'node:path'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import { stripCommentsAndStrings } from '@/common/code'
 import type { AutoImportOptions, ImportInline } from './types'
-import {
-	resolveImportsConfig,
-	buildNameLookup
-} from './helpers/resolver'
-import {
-	scanDirectories,
-	scannedModulesToImports
-} from './helpers/scanner'
-import {
-	detectUsedImports,
-	isAlreadyImported,
-	generateImportStatements,
-	injectImports,
-	injectIntoScriptSetup,
-	isRawSfc,
-	detectVueTemplateImports,
-	detectVueDirectiveImports,
-	hasDisableComment
-} from './helpers/transform'
-import {
-	generateDtsContent,
-	writeDtsFile,
-	shouldUpdateDts,
-	mergeDtsContent
-} from './helpers/dts'
+import { resolveImportsConfig, buildNameLookup } from './helpers/resolver'
+import { scanDirectories, scannedModulesToImports } from './helpers/scanner'
+import { detectUsedImports, isAlreadyImported, generateImportStatements, injectImports, injectIntoScriptSetup, isRawSfc, detectVueTemplateImports, detectVueDirectiveImports, hasDisableComment } from './helpers/transform'
+import { generateDtsContent, writeDtsFile, shouldUpdateDts, mergeDtsContent } from './helpers/dts'
 import { AutoImportCache } from './helpers/cache'
-import {
-	generateEslintrc,
-	generateBiomelintrc
-} from './helpers/lint'
+import { generateEslintrc, generateBiomelintrc } from './helpers/lint'
 import { resolvePackagePreset } from './helpers/presets'
 
 /**
@@ -110,7 +86,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 			dirsScanOptions: {},
 			ignoreDts: [],
 			resolvers: [],
-			packagePresets: [],
+			packagePresets: []
 		}
 	}
 
@@ -211,9 +187,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 
 			// 判断变更文件是否在扫描目录范围内
 			const isDirFile = (this.options.dirs ?? []).some(dir => {
-				const dirPath = typeof dir === 'string'
-					? dir.replace(/[/\\]\*\*$/, '').replace(/[/\\]\*$/, '')
-					: dir.glob.replace(/[/\\]\*\*$/, '').replace(/[/\\]\*$/, '')
+				const dirPath = typeof dir === 'string' ? dir.replace(/[/\\]\*\*$/, '').replace(/[/\\]\*$/, '') : dir.glob.replace(/[/\\]\*\*$/, '').replace(/[/\\]\*$/, '')
 				const absoluteDir = path.isAbsolute(dirPath) ? dirPath : path.resolve(root, dirPath)
 				return changedFile.startsWith(absoluteDir)
 			})
@@ -283,13 +257,9 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 		const packageImports = (this.options.packagePresets ?? []).flatMap(p => resolvePackagePreset(p, root))
 
 		// 4. 扫描目录
-		const scannedModules = scanDirectories(
-			this.options.dirs ?? [],
-			root,
-			this.options.dirsScanOptions
-		)
+		const scannedModules = scanDirectories(this.options.dirs ?? [], root, this.options.dirsScanOptions)
 		const scannedImports = scannedModulesToImports(scannedModules, {
-			defaultExportByFilename: this.options.defaultExportByFilename,
+			defaultExportByFilename: this.options.defaultExportByFilename
 		})
 
 		// 5. 合并所有导入源
@@ -346,12 +316,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 
 		// Vue 指令检测
 		if (this.options.vueDirectives && rawSfc) {
-			const directiveImports = detectVueDirectiveImports(
-				code,
-				this.nameLookup,
-				this.ignoreSet,
-				this.options.vueDirectives
-			)
+			const directiveImports = detectVueDirectiveImports(code, this.nameLookup, this.ignoreSet, this.options.vueDirectives)
 			const seen = new Set(usedImports.map(i => i.as || i.name))
 			for (const imp of directiveImports) {
 				const key = imp.as || imp.name
@@ -395,9 +360,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 		const importStatements = generateImportStatements(usedImports)
 
 		// 注入到代码中
-		const newCode = rawSfc
-			? injectIntoScriptSetup(code, importStatements)
-			: injectImports(code, importStatements, this.options.injectAtPosition)
+		const newCode = rawSfc ? injectIntoScriptSetup(code, importStatements) : injectImports(code, importStatements, this.options.injectAtPosition)
 
 		return { code: newCode }
 	}
@@ -427,7 +390,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 		// 生成内容
 		const content = generateDtsContent(this.allImports, {
 			mode: dtsMode,
-			ignoreDts: this.options.ignoreDts,
+			ignoreDts: this.options.ignoreDts
 		})
 
 		if (!content) return

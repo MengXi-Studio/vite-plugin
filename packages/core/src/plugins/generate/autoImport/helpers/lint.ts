@@ -99,18 +99,23 @@ export function generateBiomelintrc(imports: ImportInline[], config: Biomelintrc
 		globalNames.push(name)
 	}
 
-	const content = JSON.stringify({
-		linter: {
-			rules: {
-				correctness: {
-					noUndeclaredVariables: 'off'
+	const content =
+		JSON.stringify(
+			{
+				linter: {
+					rules: {
+						correctness: {
+							noUndeclaredVariables: 'off'
+						}
+					}
+				},
+				javascript: {
+					globals: globalNames
 				}
-			}
-		},
-		javascript: {
-			globals: globalNames
-		}
-	}, null, 2) + '\n'
+			},
+			null,
+			2
+		) + '\n'
 
 	writeFileSyncSafely(absolutePath, content)
 }

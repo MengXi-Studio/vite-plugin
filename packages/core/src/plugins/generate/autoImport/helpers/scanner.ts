@@ -502,10 +502,7 @@ export function parseModuleExports(filePath: string): ScannedModule | null {
  * - isType 标记传递到 ImportInline.type
  * - defaultExportByFilename 启用时，默认导出名称使用文件名
  */
-export function scannedModulesToImports(
-	modules: ScannedModule[],
-	options?: { defaultExportByFilename?: boolean }
-): ImportInline[] {
+export function scannedModulesToImports(modules: ScannedModule[], options?: { defaultExportByFilename?: boolean }): ImportInline[] {
 	const result: ImportInline[] = []
 
 	for (const mod of modules) {

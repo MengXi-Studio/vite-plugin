@@ -18,7 +18,7 @@ export {
 	findLastImportEnd,
 	detectVueTemplateImports,
 	detectVueDirectiveImports,
-	hasDisableComment,
+	hasDisableComment
 } from './transform'
 
 // DTS

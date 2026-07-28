@@ -4,15 +4,80 @@ import fs from 'node:fs'
 
 /** JavaScript/TypeScript 保留关键字列表 */
 const RESERVED_KEYWORDS = new Set([
-	'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default',
-	'delete', 'do', 'else', 'enum', 'export', 'extends', 'false', 'finally', 'for',
-	'function', 'if', 'import', 'in', 'instanceof', 'new', 'null', 'return', 'super',
-	'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with',
-	'as', 'implements', 'interface', 'let', 'package', 'private', 'protected', 'public',
-	'static', 'yield', 'abstract', 'any', 'boolean', 'constructor', 'declare', 'get',
-	'infer', 'is', 'keyof', 'module', 'namespace', 'never', 'readonly', 'require',
-	'number', 'object', 'set', 'string', 'symbol', 'type', 'undefined', 'unique',
-	'unknown', 'from', 'of', 'async', 'await', 'global',
+	'break',
+	'case',
+	'catch',
+	'class',
+	'const',
+	'continue',
+	'debugger',
+	'default',
+	'delete',
+	'do',
+	'else',
+	'enum',
+	'export',
+	'extends',
+	'false',
+	'finally',
+	'for',
+	'function',
+	'if',
+	'import',
+	'in',
+	'instanceof',
+	'new',
+	'null',
+	'return',
+	'super',
+	'switch',
+	'this',
+	'throw',
+	'true',
+	'try',
+	'typeof',
+	'var',
+	'void',
+	'while',
+	'with',
+	'as',
+	'implements',
+	'interface',
+	'let',
+	'package',
+	'private',
+	'protected',
+	'public',
+	'static',
+	'yield',
+	'abstract',
+	'any',
+	'boolean',
+	'constructor',
+	'declare',
+	'get',
+	'infer',
+	'is',
+	'keyof',
+	'module',
+	'namespace',
+	'never',
+	'readonly',
+	'require',
+	'number',
+	'object',
+	'set',
+	'string',
+	'symbol',
+	'type',
+	'undefined',
+	'unique',
+	'unknown',
+	'from',
+	'of',
+	'async',
+	'await',
+	'global'
 ])
 
 /**
@@ -96,21 +161,21 @@ export function generateDtsContent(
 		lines.push(`  // from '${mod}'`)
 
 		for (const item of dedupedItems) {
-				const name = item.as || item.name
-				if (RESERVED_KEYWORDS.has(name)) continue
+			const name = item.as || item.name
+			if (RESERVED_KEYWORDS.has(name)) continue
 
-				if (item.name === '*') {
-					// 命名空间导入: const alias: typeof import('mod')
-					lines.push(`  const ${name}: typeof import('${mod}')`)
-				} else if (item.name === '=') {
-					// export assignment 导入: const alias: typeof import('mod')
-					lines.push(`  const ${name}: typeof import('${mod}')`)
-				} else if (item.isDefault || item.name === 'default') {
-					lines.push(`  const ${name}: typeof import('${mod}')['default']`)
-				} else {
-					lines.push(`  const ${name}: typeof import('${mod}')['${item.name}']`)
-				}
+			if (item.name === '*') {
+				// 命名空间导入: const alias: typeof import('mod')
+				lines.push(`  const ${name}: typeof import('${mod}')`)
+			} else if (item.name === '=') {
+				// export assignment 导入: const alias: typeof import('mod')
+				lines.push(`  const ${name}: typeof import('${mod}')`)
+			} else if (item.isDefault || item.name === 'default') {
+				lines.push(`  const ${name}: typeof import('${mod}')['default']`)
+			} else {
+				lines.push(`  const ${name}: typeof import('${mod}')['${item.name}']`)
 			}
+		}
 
 		lines.push('')
 	}
@@ -166,10 +231,7 @@ export function mergeDtsContent(dtsPath: string, newContent: string): string {
 		// 替换现有文件中的 declare global 块
 		const existingGlobalMatch = existingContent.match(/declare global \{[\s\S]*?\n\}/)
 		if (existingGlobalMatch) {
-			return existingContent.replace(
-				/declare global \{[\s\S]*?\n\}/,
-				newGlobalMatch[0]
-			)
+			return existingContent.replace(/declare global \{[\s\S]*?\n\}/, newGlobalMatch[0])
 		}
 
 		// 现有文件没有 declare global 块，追加

@@ -17,10 +17,7 @@ import { resolveWildcardExports } from './scanner'
  * 5. 命名空间导入 `['*', 'alias']` → { name: '*', from: mod, as: 'alias' }
  * 6. export assignment 导入 `['=', 'alias']` → { name: '=', from: mod, as: 'alias' }
  */
-export function resolveImportsConfig(
-	imports: ImportsConfig | Record<string, Array<string | [string, string]>> | undefined,
-	root: string
-): ImportInline[] {
+export function resolveImportsConfig(imports: ImportsConfig | Record<string, Array<string | [string, string]>> | undefined, root: string): ImportInline[] {
 	if (!imports) return []
 
 	const result: ImportInline[] = []
@@ -135,11 +132,7 @@ function resolveInlineImportConfig(config: InlineImportConfig, root: string, res
  * @description 处理简写格式如 `{ vue: ['ref', ['useFetch', 'useMyFetch']] }`
  * 以及特殊格式 `{ lodash: [['*', '_']], webextension: [['=', 'browser']] }`
  */
-function resolveRecordFormat(
-	record: Record<string, Array<string | [string, string]>>,
-	root: string,
-	result: ImportInline[]
-): void {
+function resolveRecordFormat(record: Record<string, Array<string | [string, string]>>, root: string, result: ImportInline[]): void {
 	for (const [mod, names] of Object.entries(record)) {
 		for (const item of names) {
 			if (typeof item === 'string') {

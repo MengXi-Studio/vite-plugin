@@ -281,11 +281,7 @@ export interface InlineImportConfig {
  * - 简写格式：`{ vue: ['ref', 'reactive'] }`
  * - 类型导入格式（InlineImportConfig）
  */
-export type ImportsConfig = Array<
-	| string
-	| Record<string, Array<string | [string, string]>>
-	| InlineImportConfig
->
+export type ImportsConfig = Array<string | Record<string, Array<string | [string, string]>> | InlineImportConfig>
 
 /**
  * 自动导入插件的配置选项
@@ -321,15 +317,14 @@ export type ImportsConfig = Array<
  * ```
  */
 export interface AutoImportOptions extends BasePluginOptions {
-
 	/**
 	 * 导入映射配置（增强版）
 	 *
 	 * @description 支持多种格式混合使用：
 	 * 1. 预设字符串：`'vue'`、`'vue-router'`
-		 * 2. 简写格式：`{ vue: ['ref', 'reactive'] }`
-		 * 3. 自定义命名导入：`{ '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }`
-		 * 4. 类型导入：`{ from: 'vue-router', imports: ['RouteLocationRaw'], type: true }`
+	 * 2. 简写格式：`{ vue: ['ref', 'reactive'] }`
+	 * 3. 自定义命名导入：`{ '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }`
+	 * 4. 类型导入：`{ from: 'vue-router', imports: ['RouteLocationRaw'], type: true }`
 	 *
 	 * @default []
 	 */
@@ -349,7 +344,6 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 */
 	defaultExportByFilename?: boolean
 
-
 	/**
 	 * 需要扫描的目录列表（增强版，支持 glob 和对象配置）
 	 *
@@ -361,7 +355,6 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 * 目录扫描选项
 	 */
 	dirsScanOptions?: DirsScanOptions
-
 
 	/**
 	 * TypeScript 类型声明文件配置
@@ -377,7 +370,6 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 */
 	ignoreDts?: Array<string | RegExp>
 
-
 	/**
 	 * 是否为 Vue 模板启用自动导入
 	 *
@@ -390,14 +382,12 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 */
 	vueDirectives?: boolean | VueDirectivesConfig
 
-
 	/**
 	 * 自定义解析器，用于兼容 unplugin-vue-components 的 resolver 模式
 	 *
 	 * @default []
 	 */
 	resolvers?: Resolver[]
-
 
 	/**
 	 * 是否自动将导入的包添加到 Vite optimizeDeps
@@ -406,14 +396,12 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 */
 	viteOptimizeDeps?: boolean
 
-
 	/**
 	 * import 语句注入位置
 	 *
 	 * @default 'top'
 	 */
 	injectAtPosition?: 'top' | 'after-last-import'
-
 
 	/**
 	 * 需要处理的文件匹配模式
@@ -429,17 +417,15 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 */
 	exclude?: Array<string | RegExp>
 
-
-		/**
-		 * ESLint 配置生成
-		 */
+	/**
+	 * ESLint 配置生成
+	 */
 	eslintrc?: EslintrcConfig
 
 	/**
 	 * Biome 配置生成
 	 */
 	biomelintrc?: BiomelintrcConfig
-
 
 	/**
 	 * 禁用自动导入的注释标记
@@ -448,7 +434,6 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 */
 	commentsDisable?: string[]
 
-
 	/**
 	 * 从本地安装的包自动发现导出
 	 *
@@ -456,14 +441,13 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 */
 	packagePresets?: Array<string | PackagePresetOptions>
 
-
 	/**
 	 * 是否启用缓存
 	 *
 	 * @default true
 	 */
 	cache?: boolean | CacheConfig
-	}
+}
 
 // ============================================================================
 // 扫描与转换类型
