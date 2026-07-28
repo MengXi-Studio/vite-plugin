@@ -25,10 +25,7 @@ export default defineConfig({
 
 		// 自动导入
 		autoImport({
-			imports: {
-				'@dcloudio/uni-app': ['*'],
-				vue: ['*']
-			},
+			imports: ['vue', { '@dcloudio/uni-app': ['*'] }],
 			dts: true,
 			vueTemplate: true
 		}),

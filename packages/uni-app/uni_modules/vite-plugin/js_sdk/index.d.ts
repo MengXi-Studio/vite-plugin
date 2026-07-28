@@ -21,7 +21,7 @@ export { CompressAlgorithm, CompressAssetsOptions, CompressStats, CompressSummar
 export { ConvertMapping, FormatQualityOptions, ImageFormat, ImageOptimizeStats, ImageOptimizeSummary, ImageOptimizerOptions, SvgoOptions, SvgoPlugin, imageOptimizer } from './plugins/compress/imageOptimizer/index.js';
 export { AssetGroup, AssetManifestOptions, AssetManifestResult, AssetMap, CustomFormatter, ManifestOutputFormat, WebpackEntryAsset, WebpackManifestOutput, assetManifest } from './plugins/copy/assetManifest/index.js';
 export { CopyFileOptions, copyFile } from './plugins/copy/copyFile/index.js';
-export { AutoImportOptions, ImportMapping, ResolvedImport, ScannedModule, TransformResult, autoImport } from './plugins/generate/autoImport/index.js';
+export { AutoImportOptions, BiomelintrcConfig, CacheConfig, DirConfig, DirConfigObject, DirsScanOptions, DtsConfig, DtsConfigObject, EslintrcConfig, ImportInline, ImportMeta, ImportsConfig, InlineImportConfig, PackagePresetOptions, PresetDefinition, Resolver, ScannedModule, TransformResult, VueDirectivesConfig, autoImport } from './plugins/generate/autoImport/index.js';
 export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './plugins/generate/generateRouter/index.js';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './plugins/generate/generateVersion/index.js';
 export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './plugins/guard/envGuard/index.js';

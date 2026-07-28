@@ -65,7 +65,7 @@ import {
 export default defineConfig({
 	plugins: [
 		assetManifest({ outputFormat: 'vite', groupByEntry: true }),
-		autoImport({ imports: { vue: ['ref', 'reactive', 'computed'] }, dts: 'src/auto-imports.d.ts' }),
+		autoImport({ imports: ['vue', 'vue-router'], dts: 'src/auto-imports.d.ts', vueTemplate: true }),
 		buildProgress(),
 		bundleAnalyzer({ outputFormat: 'both' }),
 		compressAssets({ algorithm: 'gzip' }),
@@ -94,7 +94,7 @@ export default defineConfig({
 
 ### generate - 生成类
 
-- **[autoImport](https://mengxi-studio.github.io/vite-plugin/plugins/auto-import.html)** - 自动注入 import 语句，支持预设映射、目录扫描和 Vue 模板自动导入
+- **[autoImport](https://mengxi-studio.github.io/vite-plugin/plugins/auto-import.html)** - 自动注入 import 语句，支持内置预设（Vue/Vue Router/Pinia 等）、别名/类型/命名空间导入、目录 glob 扫描、Vue 模板与指令自动导入、DTS 生成、ESLint/Biome 配置生成
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)** - 根据 pages.json 自动生成路由配置与类型声明（uni-app）
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/plugins/generate-version.html)** - 自动生成版本号，支持文件输出和全局变量注入
 

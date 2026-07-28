@@ -4,243 +4,438 @@ import '../../../shared/vite-plugin.BmNqGOzh.js';
 import '../../../shared/vite-plugin.DRRlWY8P.js';
 
 /**
- * 单个导入映射项
+ * 统一的导入项内部表示
  *
- * @description 定义从某个模块导入的名称列表，
- * 支持命名导入和默认导入两种方式。
- * 用于 `AutoImportOptions.imports` 数组格式中。
+ * @description 所有外部配置格式（预设字符串、Record、InlineImportConfig、目录扫描结果）
+ * 最终都归一化为这个结构。支持命名导入、默认导入、别名导入、类型导入。
  *
  * @example
  * ```typescript
- * const mapping: ImportMapping = {
- *   module: 'lodash',
- *   names: ['debounce', 'throttle'],
- *   defaultImport: false
+ * // 命名导入: import { ref } from 'vue'
+ * { name: 'ref', from: 'vue' }
+ *
+ * // 别名导入: import { useFetch as useMyFetch } from '@vueuse/core'
+ * { name: 'useFetch', from: '@vueuse/core', as: 'useMyFetch' }
+ *
+ * // 默认导入: import React from 'react'
+ * { name: 'default', from: 'react', as: 'React' }
+ *
+ * // 类型导入: import type { RouteLocationRaw } from 'vue-router'
+ * { name: 'RouteLocationRaw', from: 'vue-router', type: true }
+ *
+ * // 命名空间导入: import * as _ from 'lodash'
+ * { name: '*', from: 'lodash', as: '_' }
+ *
+ * // export assignment 导入: import browser from 'webextension-polyfill'
+ * { name: '=', from: 'webextension-polyfill', as: 'browser' }
+ * ```
+ */
+interface ImportInline {
+    /** 导入的标识符名称（在源模块中的名称） */
+    name: string;
+    /** 源模块路径 */
+    from: string;
+    /** 别名，设置后代码中使用别名，从源模块导入原名 */
+    as?: string;
+    /** 是否为类型导入，为 true 时生成 `import type` */
+    type?: boolean;
+    /** 是否为默认导入 */
+    isDefault?: boolean;
+    /** 元信息，供 resolver 等扩展使用 */
+    meta?: ImportMeta;
+}
+/**
+ * 导入项元信息
+ *
+ * @description 为 Vue 指令等特殊场景提供额外标记
+ */
+interface ImportMeta {
+    /** 是否为 Vue 指令 */
+    vueDirective?: boolean;
+    /** 是否在 DTS 中禁用生成 */
+    dtsEnabled?: boolean;
+    /** 自定义元数据 */
+    [key: string]: unknown;
+}
+/**
+ * 内置预设定义
+ *
+ * @description 一个预设定义了一个模块及其所有可自动导入的标识符。
+ * imports 中的项可以是字符串（命名导入）或 [name, alias] 元组（别名导入）。
+ *
+ * @example
+ * ```typescript
+ * const vuePreset: PresetDefinition = {
+ *   from: 'vue',
+ *   imports: ['ref', 'reactive', 'computed'],
+ *   typeImports: ['Ref', 'Component', 'VNode']
  * }
  * ```
  */
-interface ImportMapping {
-    /**
-     * 模块路径
-     *
-     * @description 可以是 npm 包名（如 `'vue'`、`'vue-router'`）
-     * 或相对/绝对文件路径（如 `'./utils/helper'`）
-     */
-    module: string;
-    /**
-     * 要导入的名称列表
-     *
-     * @description 从指定模块导入的标识符名称数组。
-     * 当 `defaultImport` 为 `true` 时，列表中的名称将作为默认导入的别名。
-     */
-    names: string[];
-    /**
-     * 是否为默认导入
-     *
-     * @default false
-     *
-     * @description 设为 `true` 时，生成的 import 语句形式为
-     * `import name from 'module'` 而非 `import { name } from 'module'`
-     */
-    defaultImport?: boolean;
+interface PresetDefinition {
+    /** 源模块路径 */
+    from: string;
+    /** 值导入项列表，每项可以是字符串或 [name, alias] 元组 */
+    imports: Array<string | [string, string]>;
+    /** 类型导入项列表 */
+    typeImports?: Array<string | [string, string]>;
 }
+/**
+ * 包预设配置 — 从本地已安装的 npm 包自动发现导出
+ *
+ * @example
+ * ```typescript
+ * { package: 'detect-browser-es', ignore: ['isStream'] }
+ * ```
+ */
+interface PackagePresetOptions {
+    /** 包名 */
+    package: string;
+    /** 忽略的导出名称列表（支持字符串和正则） */
+    ignore?: Array<string | RegExp>;
+}
+/**
+ * 目录配置项 — 支持字符串或详细对象
+ *
+ * @example
+ * ```typescript
+ * // 字符串格式
+ * './composables'
+ *
+ * // glob 格式
+ * './composables/**'
+ *
+ * // 对象格式（细粒度控制）
+ * { glob: './composables/**', types: true }
+ * ```
+ */
+type DirConfig = string | DirConfigObject;
+/**
+ * 目录配置对象
+ */
+interface DirConfigObject {
+    /** 目录路径或 glob 模式 */
+    glob: string;
+    /** 是否将该目录下的导出作为类型导入 */
+    types?: boolean;
+}
+/**
+ * 目录扫描选项
+ */
+interface DirsScanOptions {
+    /** 文件匹配 glob 模式列表，默认 ['*.{ts,js,mjs,cjs,mts,cts}'] */
+    filePatterns?: string[];
+    /** 自定义文件过滤函数 */
+    fileFilter?: (file: string) => boolean;
+    /** 扫描到的导出是否默认作为类型导入 */
+    types?: boolean;
+}
+/**
+ * DTS 配置 — 支持字符串路径、布尔值或详细对象
+ *
+ * @example
+ * ```typescript
+ * // 字符串路径
+ * dts: './auto-imports.d.ts'
+ *
+ * // 详细配置
+ * dts: { filepath: './auto-imports.d.ts', mode: 'append' }
+ * ```
+ */
+type DtsConfig = string | boolean | DtsConfigObject;
+/**
+ * DTS 配置对象
+ */
+interface DtsConfigObject {
+    /** 输出文件路径 */
+    filepath: string;
+    /** 写入模式：append 追加自定义声明，overwrite 完全覆盖（默认 overwrite） */
+    mode?: 'append' | 'overwrite';
+    /** 是否保留文件扩展名（目录扫描结果的模块路径） */
+    preserveExts?: boolean;
+}
+/**
+ * ESLint 配置生成选项
+ *
+ * @example
+ * ```typescript
+ * eslintrc: {
+ *   enabled: true,
+ *   filepath: './.eslintrc-auto-import.json',
+ *   globalsPropValue: true
+ * }
+ * ```
+ */
+interface EslintrcConfig {
+    /** 是否启用生成 */
+    enabled?: boolean;
+    /** 输出文件路径，默认 './.eslintrc-auto-import.json' */
+    filepath?: string;
+    /** globals 属性值 */
+    globalsPropValue?: boolean | 'readonly' | 'writable' | 'off';
+}
+/**
+ * Biome 配置生成选项
+ *
+ * @example
+ * ```typescript
+ * biomelintrc: {
+ *   enabled: true,
+ *   filepath: './.biomelintrc-auto-import.json'
+ * }
+ * ```
+ */
+interface BiomelintrcConfig {
+    /** 是否启用生成 */
+    enabled?: boolean;
+    /** 输出文件路径，默认 './.biomelintrc-auto-import.json' */
+    filepath?: string;
+}
+/**
+ * 自定义解析器接口
+ *
+ * @description 兼容 unplugin-vue-components 的 resolver 模式，
+ * 当 nameLookup 未命中时，遍历 resolvers 调用 resolve 进行补充解析。
+ *
+ * @example
+ * ```typescript
+ * const myResolver: Resolver = {
+ *   resolve: (name) => {
+ *     if (name.startsWith('use')) {
+ *       return { name, from: 'my-composables' }
+ *     }
+ *     return null
+ *   }
+ * }
+ * ```
+ */
+interface Resolver {
+    /**
+     * 根据标识符名称解析导入信息
+     *
+     * @param name 标识符名称
+     * @returns 导入信息，或 null/undefined 表示无法解析
+     */
+    resolve?: (name: string) => ImportInline | null | undefined;
+    /**
+     * 根据标识符名称解析类型导入
+     *
+     * @param name 标识符名称
+     * @returns 类型导入信息，或 null/undefined 表示无法解析
+     */
+    typeResolve?: (name: string) => ImportInline | null | undefined;
+}
+/**
+ * Vue 指令自动导入配置
+ */
+interface VueDirectivesConfig {
+    /** 是否启用 Vue 指令自动导入 */
+    enabled?: boolean;
+    /** 判断导入项是否为指令的函数 */
+    isDirective?: (from: string, importEntry?: ImportInline) => boolean;
+}
+/**
+ * 缓存配置
+ */
+interface CacheConfig {
+    /** 是否启用缓存 */
+    enabled: boolean;
+    /** 缓存目录路径，默认为 node_modules/.cache/auto-import */
+    dir?: string;
+}
+/**
+ * 内联导入配置（支持 type 标记）
+ *
+ * @example
+ * ```typescript
+ * { from: 'vue-router', imports: ['RouteLocationRaw'], type: true }
+ * { from: '@vueuse/core', imports: ['useMouse', ['useFetch', 'useMyFetch']] }
+ * ```
+ */
+interface InlineImportConfig {
+    /** 源模块路径 */
+    from: string;
+    /** 导入项列表，支持字符串或 [name, alias] 元组 */
+    imports: Array<string | [string, string]>;
+    /** 是否为类型导入 */
+    type?: boolean;
+}
+/**
+ * imports 配置项的联合类型
+ *
+ * @description 支持多种格式混合使用：
+ * - 预设字符串：`'vue'`
+ * - 简写格式：`{ vue: ['ref', 'reactive'] }`
+ * - 类型导入格式（InlineImportConfig）
+ */
+type ImportsConfig = Array<string | Record<string, Array<string | [string, string]>> | InlineImportConfig>;
 /**
  * 自动导入插件的配置选项
  *
  * @interface AutoImportOptions
  * @extends {BasePluginOptions}
  *
- * @description 配置自动导入插件的行为，包括导入映射、目录扫描、
- * 类型声明生成、Vue 模板支持等。
+ * @description 支持预设系统、别名导入、类型导入、
+ * 目录glob扫描、ESLint/Biome配置生成、缓存机制等增强功能。
  *
  * @example
  * ```typescript
  * autoImport({
- *   imports: {
- *     vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted'],
- *     'vue-router': ['useRouter', 'useRoute']
- *   },
- *   dirs: ['src/composables', 'src/stores'],
- *   dts: 'src/auto-imports.d.ts',
+ *   // 使用预设
+ *   imports: ['vue', 'vue-router', 'pinia'],
+ *   // 自定义导入（支持别名和类型）
+ *   imports: [
+ *     'vue',
+ *     { '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] },
+ *     { from: 'vue-router', imports: ['RouteLocationRaw'], type: true },
+ *   ],
+ *   // 目录扫描（支持 glob）
+ *   dirs: ['./composables/**', { glob: './hooks', types: true }],
+ *   // DTS 配置
+ *   dts: { filepath: 'src/auto-imports.d.ts', mode: 'append' },
+ *   // Vue 支持
  *   vueTemplate: true,
- *   injectAtPosition: 'top'
+ *   // Vite 集成
+ *   viteOptimizeDeps: true,
+ *   // ESLint 配置生成
+ *   eslintrc: { enabled: true },
  * })
  * ```
  */
 interface AutoImportOptions extends BasePluginOptions {
     /**
-     * 导入映射配置
+     * 导入映射配置（增强版）
      *
-     * @description 支持三种格式：
-     * 1. **简写格式**：`Record<string, string[]>` — 键为模块路径，值为导入名称数组
-     *    ```typescript
-     *    { vue: ['ref', 'reactive'] }
-     *    ```
-     * 2. **完整格式**：`ImportMapping[]` — 支持默认导入配置
-     *    ```typescript
-     *    [{ module: 'lodash', names: ['debounce'], defaultImport: true }]
-     *    ```
-     * 3. **混合格式**：两种格式可以在数组中混合使用
-     *
-     * @default {}
-     */
-    imports?: Record<string, string[]> | ImportMapping[] | Array<Record<string, string[]> | ImportMapping>;
-    /**
-     * 需要扫描的目录列表
-     *
-     * @description 自动扫描这些目录下的 `.ts`/`.js`/`.mts`/`.mjs` 文件，
-     * 将导出的函数、变量、类等注册为可自动导入的标识符。
-     * 支持绝对路径和相对路径（相对于项目根目录）。
-     *
-     * **扫描规则：**
-     * - 递归扫描子目录
-     * - 跳过 `node_modules` 和隐藏目录（以 `.` 开头）
-     * - 跳过 `.d.ts` 类型声明文件
+     * @description 支持多种格式混合使用：
+     * 1. 预设字符串：`'vue'`、`'vue-router'`
+         * 2. 简写格式：`{ vue: ['ref', 'reactive'] }`
+         * 3. 自定义命名导入：`{ '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }`
+         * 4. 类型导入：`{ from: 'vue-router', imports: ['RouteLocationRaw'], type: true }`
      *
      * @default []
      */
-    dirs?: string[];
+    imports?: ImportsConfig | Record<string, Array<string | [string, string]>>;
     /**
-     * TypeScript 类型声明文件输出路径
+     * 需要忽略的标识符列表
      *
-     * @description 控制是否生成 `.d.ts` 类型声明文件：
-     * - `string`：在指定路径生成类型声明文件
-     * - `false`：不生成类型声明文件
-     *
-     * 路径可以是相对路径（相对于项目根目录）或绝对路径。
-     *
-     * @default 'auto-imports.d.ts'
+     * @default []
      */
-    dts?: string | boolean;
+    ignore?: string[];
+    /**
+     * 默认导出是否按文件名命名（目录扫描时）
+     *
+     * @default false
+     */
+    defaultExportByFilename?: boolean;
+    /**
+     * 需要扫描的目录列表（增强版，支持 glob 和对象配置）
+     *
+     * @default []
+     */
+    dirs?: DirConfig[];
+    /**
+     * 目录扫描选项
+     */
+    dirsScanOptions?: DirsScanOptions;
+    /**
+     * TypeScript 类型声明文件配置
+     *
+     * @default 'src/auto-imports.d.ts'
+     */
+    dts?: DtsConfig;
+    /**
+     * DTS 中需要忽略的标识符（支持字符串和正则）
+     *
+     * @default []
+     */
+    ignoreDts?: Array<string | RegExp>;
     /**
      * 是否为 Vue 模板启用自动导入
-     *
-     * @description 开启后，Vue SFC 文件 `<template>` 中使用的 API
-     * （如 `ref`、`computed`）也会被自动导入，
-     * 无需在 `<script>` 中显式 `import`。
-     *
-     * **检测范围：**
-     * - 插值表达式 `{{ }}` 中的标识符
-     * - 指令绑定 `v-if`、`v-show`、`v-model` 等中的表达式
-     * - 属性绑定 `:prop="expr"` 中的表达式
-     * - 事件绑定 `@event="handler"` 中的表达式
      *
      * @default false
      */
     vueTemplate?: boolean;
     /**
-     * 需要忽略的标识符列表
-     *
-     * @description 这些标识符即使匹配到映射规则也不会被自动导入。
-     * 适用于与全局变量冲突的场景，例如某些标识符在运行时已通过
-     * 其他方式全局注册。
+     * Vue 模板指令自动导入配置
+     */
+    vueDirectives?: boolean | VueDirectivesConfig;
+    /**
+     * 自定义解析器，用于兼容 unplugin-vue-components 的 resolver 模式
      *
      * @default []
-     *
-     * @example
-     * ```typescript
-     * ignore: ['React'] // 如果 React 已通过 CDN 全局注入
-     * ```
      */
-    ignore?: string[];
+    resolvers?: Resolver[];
     /**
-     * 文件过滤正则表达式
+     * 是否自动将导入的包添加到 Vite optimizeDeps
      *
-     * @description 只有文件路径匹配此正则的文件才会被 `transform` 钩子处理。
-     * 不匹配的文件将被跳过，不进行自动导入注入。
-     *
-     * @default /\.(vue|jsx|tsx|ts|js|mjs)$/
+     * @default true
      */
-    fileFilter?: RegExp;
+    viteOptimizeDeps?: boolean;
     /**
      * import 语句注入位置
-     *
-     * @description 控制自动生成的 import 语句在文件中的插入位置：
-     * - `'top'`：注入到文件有效代码最顶部（自动跳过 shebang 和 `"use strict"`）
-     * - `'after-last-import'`：注入到最后一个已有 import 语句之后；
-     *   若无已有 import，回退到顶部注入
      *
      * @default 'top'
      */
     injectAtPosition?: 'top' | 'after-last-import';
-}
-/**
- * 内部使用的解析后映射项
- *
- * @description 统一的导入映射结构，由用户配置（`imports` 和 `dirs` 扫描结果）
- * 解析而来。所有格式的导入配置最终都会转换为这个统一结构。
- */
-interface ResolvedImport {
     /**
-     * 模块路径
+     * 需要处理的文件匹配模式
      *
-     * @description 可以是 npm 包名（如 `'vue'`）或文件绝对路径
-     * （目录扫描结果使用绝对路径）
+     * @default [/\.[tj]sx?$/, /\.vue$/, /\.vue\?vue/, /\.md$/]
      */
-    module: string;
+    include?: Array<string | RegExp>;
     /**
-     * 导入标识符名称
+     * 不需要处理的文件匹配模式
      *
-     * @description 在代码中检测到此名称使用时，将自动从对应模块导入
+     * @default [/node_modules/]
      */
-    name: string;
+    exclude?: Array<string | RegExp>;
     /**
-     * 是否为默认导入
-     *
-     * @description `true` 时生成 `import name from 'module'`，
-     * `false` 时生成 `import { name } from 'module'`
+     * ESLint 配置生成
      */
-    isDefault: boolean;
+    eslintrc?: EslintrcConfig;
+    /**
+     * Biome 配置生成
+     */
+    biomelintrc?: BiomelintrcConfig;
+    /**
+     * 禁用自动导入的注释标记
+     *
+     * @default ['@unimport-disable']
+     */
+    commentsDisable?: string[];
+    /**
+     * 从本地安装的包自动发现导出
+     *
+     * @default []
+     */
+    packagePresets?: Array<string | PackagePresetOptions>;
+    /**
+     * 是否启用缓存
+     *
+     * @default true
+     */
+    cache?: boolean | CacheConfig;
 }
 /**
  * 扫描到的模块信息
- *
- * @description 从目录中扫描到的文件导出信息，
- * 由 {@link parseModuleExports} 函数解析生成
  */
 interface ScannedModule {
-    /**
-     * 模块文件的绝对路径
-     *
-     * @description 用于生成 import 语句中的模块来源路径
-     */
+    /** 模块文件的绝对路径 */
     filePath: string;
-    /**
-     * 命名导出名称列表
-     *
-     * @description 包含所有通过 `export function`、`export const`、
-     * `export class`、`export { ... }`、`export type`、`export interface`
-     * 等语法导出的标识符名称
-     */
+    /** 命名导出名称列表 */
     exports: string[];
-    /**
-     * 默认导出名称
-     *
-     * @description 通过 `export default` 导出的标识符名称。
-     * 如果默认导出没有命名（如 `export default {}`），
-     * 则使用文件名作为标识符名称。无默认导出时为 `null`。
-     */
+    /** 默认导出名称 */
     defaultExport: string | null;
+    /** 是否为类型导出（目录扫描类型标记） */
+    isType?: boolean;
 }
 /**
  * 代码转换结果
- *
- * @description `transformCode` 方法的返回类型，
- * 包含转换后的代码和可选的 source map
  */
 interface TransformResult {
-    /**
-     * 转换后的代码字符串
-     *
-     * @description 注入了自动 import 语句后的完整源代码
-     */
+    /** 转换后的代码字符串 */
     code: string;
-    /**
-     * Source map 信息（可选）
-     *
-     * @description 用于支持调试时映射回原始源代码位置，
-     * 当前实现中暂未生成 source map
-     */
+    /** 可选的 source map */
     map?: any;
 }
 
@@ -251,41 +446,45 @@ interface TransformResult {
  * @param {AutoImportOptions} [options] - 插件配置选项
  * @returns {Plugin} Vite 插件实例
  *
- * @description 自动注入 import 语句的 Vite 插件工厂函数。
- * 支持预设映射和目录扫描两种方式发现可自动导入的标识符，
- * 可选生成 TypeScript 类型声明文件，支持 Vue 模板自动导入。
- *
- * **特性：**
- * - 多格式导入映射配置（简写 / 完整 / 混合）
- * - 递归目录扫描，自动发现导出
- * - 智能去重，跳过已显式导入的标识符
- * - Vue SFC 模板自动导入支持
- * - TypeScript 类型声明自动生成
- * - 可配置注入位置（顶部 / 最后 import 后）
- * - 自动跳过 shebang 和 `"use strict"`
- *
  * @example
  * ```typescript
- * // vite.config.ts
- * import { autoImport } from '@meng-xi/vite-plugin'
+ * // 基本使用：使用内置预设
+ * autoImport({
+ *   imports: ['vue', 'vue-router', 'pinia'],
+ *   dts: 'src/auto-imports.d.ts',
+ *   vueTemplate: true,
+ * })
  *
- * export default defineConfig({
- *   plugins: [
- *     autoImport({
- *       imports: {
- *         vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted'],
- *         'vue-router': ['useRouter', 'useRoute']
- *       },
- *       dirs: ['src/composables'],
- *       dts: 'src/auto-imports.d.ts',
- *       vueTemplate: true,
- *       injectAtPosition: 'after-last-import'
- *     })
- *   ]
+ * // 自定义导入（支持别名和类型）
+ * autoImport({
+ *   imports: [
+ *     'vue',
+ *     { '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] },
+ *     { from: 'vue-router', imports: ['RouteLocationRaw'], type: true },
+ *   ],
+ * })
+ *
+ * // 命名空间导入和 export assignment
+ * autoImport({
+ *   imports: [
+ *     { lodash: [['*', '_']] },
+ *     { 'webextension-polyfill': [['=', 'browser']] },
+ *   ],
+ * })
+ *
+ * // 目录扫描（支持 glob）
+ * autoImport({
+ *   dirs: ['./composables/**', { glob: './hooks', types: true }],
+ * })
+ *
+ * // ESLint 配置生成
+ * autoImport({
+ *   imports: ['vue'],
+ *   eslintrc: { enabled: true },
  * })
  * ```
  */
 declare const autoImport: PluginFactory<AutoImportOptions, AutoImportOptions>;
 
 export { autoImport };
-export type { AutoImportOptions, ImportMapping, ResolvedImport, ScannedModule, TransformResult };
+export type { AutoImportOptions, BiomelintrcConfig, CacheConfig, DirConfig, DirConfigObject, DirsScanOptions, DtsConfig, DtsConfigObject, EslintrcConfig, ImportInline, ImportMeta, ImportsConfig, InlineImportConfig, PackagePresetOptions, PresetDefinition, Resolver, ScannedModule, TransformResult, VueDirectivesConfig };

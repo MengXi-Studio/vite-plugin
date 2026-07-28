@@ -1,14 +1,13 @@
 # autoImport
 
-A Vite plugin that automatically injects import statements, supporting preset mappings, wildcard imports (`'*'`), and directory scanning, with optional TypeScript declaration file generation and Vue template auto-import
-support.
+A Vite plugin that automatically injects import statements. Supports built-in presets, alias/type/namespace imports, directory glob scanning, Vue template & directive auto-import, DTS generation, ESLint/Biome config generation, and more.
 
 ## Import
 
 ```typescript
 // Sub-module import (recommended)
-import { autoImport } from '@meng-xi/vite-plugin/plugins/auto-import'
-import type { AutoImportOptions, ImportMapping, ResolvedImport, ScannedModule, TransformResult } from '@meng-xi/vite-plugin/plugins/auto-import'
+import { autoImport } from '@meng-xi/vite-plugin/plugins/generate/auto-import'
+import type { AutoImportOptions, ImportInline, ScannedModule, TransformResult } from '@meng-xi/vite-plugin/plugins/generate/auto-import'
 
 // Barrel import
 import { autoImport } from '@meng-xi/vite-plugin'
@@ -21,212 +20,281 @@ import { defineConfig } from 'vite'
 import { autoImport } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
-	plugins: [
-		autoImport({
-			imports: {
-				vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted'],
-				'vue-router': ['useRouter', 'useRoute']
-			},
-			dirs: ['src/composables'],
-			dts: 'src/auto-imports.d.ts',
-			vueTemplate: true
-		})
-	]
+  plugins: [
+    autoImport({
+      // Built-in presets, one-liner config
+      imports: ['vue', 'vue-router', 'pinia'],
+      // Directory scanning with glob support
+      dirs: ['./composables/**', { glob: './hooks', types: true }],
+      // TypeScript declaration generation
+      dts: 'src/auto-imports.d.ts',
+      // Vue template auto-import
+      vueTemplate: true,
+    })
+  ]
 })
 ```
 
 ## Options
 
-| Option      | Type                                                              | Default               | Description                             |
-| ----------- | ----------------------------------------------------------------- | --------------------- | --------------------------------------- |
-| imports     | `Record<string, string[]> \| ImportMapping[]`                     | `{}`                  | Import mapping configuration            |
-| dirs        | `string[]`                                                        | `[]`                  | Directories to scan                     |
-| dts         | `string \| boolean`                                               | `'auto-imports.d.ts'` | TypeScript declaration file output path |
-| vueTemplate | `boolean`                                                         | `false`               | Enable auto-import for Vue templates    |
+### Core Options
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+| Option           | Type                                                                                                    | Default                       | Description                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------ |
+| imports          | `ImportsConfig`                                                                                         | `[]`                          | Import mapping config (supports presets/shorthand/full format mix)  |
+| dirs             | `DirConfig[]`                                                                                           | `[]`                          | Directory scanning config (supports strings and DirConfigObject)    |
+| dts              | `string \| boolean \| DtsConfigObject`                                                                  | `'src/auto-imports.d.ts'`     | TypeScript declaration file config                                  |
+| vueTemplate      | `boolean`                                                                                               | `false`                       | Enable auto-import for Vue templates                               |
+| vueDirectives    | `boolean \| VueDirectivesConfig`                                                                        | `false`                       | Enable auto-import for Vue directives                              |
+| ignore           | `string[]`                                                                                              | `[]`                          | Identifiers to ignore                                              |
+| include          | `Array<string \| RegExp>`                                                                               | `[/\.[tj]sx?$/, /\.vue$/...]` | File patterns to process                                           |
+| exclude          | `Array<string \| RegExp>`                                                                               | `[/node_modules/]`            | File patterns to exclude                                           |
 
-### Advanced Options
+> Inherits [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
 
-| Option           | Type                            | Default                                                  | Description                        |
-| ---------------- | ------------------------------- | -------------------------------------------------------- | ---------------------------------- |
-| ignore           | `string[]`                      | `[]`                                                     | Identifiers to ignore              |
-| fileFilter       | `RegExp`                        | `/^(?!.*node_modules).*\.(vue\|jsx\|tsx\|ts\|js\|mjs)$/` | File filter regex                  |
-| injectAtPosition | `'top' \| 'after-last-import'`  | `'top'`                                                  | Import statement injection position |
+### Directory Scanning Options
 
-### imports Formats
+| Option                  | Type                          | Default | Description                                          |
+| ----------------------- | ----------------------------- | ------- | ---------------------------------------------------- |
+| dirsScanOptions         | `DirsScanOptions`            | `{}`    | Directory scan options                               |
+| defaultExportByFilename | `boolean`                    | `false` | Use filename as import name for default exports      |
 
-Supports four formats:
+### DTS Options
 
-**1. Shorthand** — Key is module path, value is array of import names
+| Option         | Type                           | Default       | Description                                    |
+| -------------- | ------------------------------ | ------------- | ---------------------------------------------- |
+| dts.mode       | `'append' \| 'overwrite'`     | `'overwrite'` | Declaration generation mode                    |
+| dts.filepath   | `string`                       | —             | Declaration file path                           |
+| ignoreDts      | `Array<string \| RegExp>`      | `[]`          | Identifiers to ignore during DTS generation    |
+
+### Injection & Integration Options
+
+| Option             | Type                            | Default                   | Description                                    |
+| ------------------ | ------------------------------- | ------------------------- | ---------------------------------------------- |
+| injectAtPosition   | `'top' \| 'after-last-import'`  | `'top'`                   | Import statement injection position            |
+| viteOptimizeDeps   | `boolean`                       | `false`                    | Auto-add imported packages to optimizeDeps     |
+| cache              | `boolean \| CacheConfig`        | `true`                    | Cache configuration                            |
+| resolvers          | `Resolver[]`                    | `[]`                      | Custom resolvers                               |
+| packagePresets     | `PackagePresetConfig[]`         | `[]`                      | Package preset configuration                   |
+| commentsDisable    | `string[]`                      | `['@unimport-disable']`   | Comment markers to disable auto-import         |
+
+### Lint Config Options
+
+| Option        | Type              | Default             | Description                        |
+| ------------- | ----------------- | ------------------- | ---------------------------------- |
+| eslintrc      | `EslintrcConfig`  | `{ enabled: false }` | ESLint globals config generation  |
+| biomelintrc   | `BiomelintrcConfig` | `{ enabled: false }` | Biome globals config generation  |
+
+## imports Formats
+
+Supports five formats that can be mixed in an array:
+
+### 1. Preset Strings
+
+Built-in presets for one-liner config. Supports `vue`, `vue-router`, `pinia`, `vue-i18n`, `vitepress`, etc.:
 
 ```typescript
-imports: {
-  vue: ['ref', 'reactive', 'computed'],
-  'vue-router': ['useRouter', 'useRoute']
-}
+imports: ['vue', 'vue-router', 'pinia']
 ```
 
-**2. Wildcard** — Use `'*'` to auto-import all named exports from a module
+When no built-in preset matches, automatically tries to discover all named exports from the package's `.d.ts`.
 
-```typescript
-imports: {
-  vue: ['*'], // Auto-import all named exports from vue (ref, reactive, computed, etc.)
-  'vue-router': ['*']
-}
-```
+### 2. Shorthand Format
 
-**3. Full format** — Supports default import configuration
+Key is module path, value is array of import names:
 
 ```typescript
 imports: [
-	{ module: 'lodash', names: ['debounce', 'throttle'], defaultImport: false },
-	{ module: 'axios', names: ['axios'], defaultImport: true }
+  { vue: ['ref', 'reactive', 'computed'] },
+  { '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }  // alias import
 ]
 ```
 
-**4. Mixed format** — Multiple formats can be mixed in an array
+### 3. Type Import Format
+
+Use `InlineImportConfig` to mark type imports:
 
 ```typescript
-imports: [{ vue: ['ref', 'reactive'] }, { module: 'lodash', names: ['debounce'], defaultImport: true }]
+imports: [
+  { from: 'vue-router', imports: ['RouteLocationRaw', 'Router'], type: true }
+]
+// Generates: import type { RouteLocationRaw, Router } from 'vue-router'
 ```
 
-### ImportMapping
+### 4. Namespace / Export Assignment Imports
 
-| Property      | Type       | Default  | Description                                              |
-| ------------- | ---------- | -------- | -------------------------------------------------------- |
-| module        | `string`   | required | Module path                                              |
-| names         | `string[]` | required | Import names list                                        |
-| defaultImport | `boolean`  | `false`  | Whether to use default import (`import name from 'mod'`) |
+```typescript
+imports: [
+  { lodash: [['*', '_']] },              // import * as _ from 'lodash'
+  { 'webextension-polyfill': [['=', 'browser']] }  // import browser from 'webextension-polyfill'
+]
+```
 
-### injectAtPosition
+### 5. Wildcard Format
 
-| Value             | Description                                               |
-| ----------------- | --------------------------------------------------------- |
-| top               | Inject at the top of effective code (skips shebang, etc.) |
-| after-last-import | Inject after the last existing import statement           |
+Use `'*'` to auto-import all named exports from a module (resolved from `.d.ts`):
 
-## Type Exports
+```typescript
+imports: [{ vue: ['*'] }]
+```
 
-### ResolvedImport
+## dirs Formats
 
-Resolved import mapping structure.
+### String Format
 
-| Property  | Type      | Description                   |
-| --------- | --------- | ----------------------------- |
-| module    | `string`  | Module path                   |
-| name      | `string`  | Import identifier             |
-| isDefault | `boolean` | Whether it's a default import |
+```typescript
+dirs: ['./composables', './composables/**', './stores/*']
+```
 
-### ScannedModule
+- `./composables` — scan one level only
+- `./composables/**` — recursively scan all subdirectories
+- `./stores/*` — scan one level of subdirectories
 
-Module info from directory scanning.
+### DirConfigObject Format
 
-| Property      | Type             | Description             |
-| ------------- | ---------------- | ----------------------- |
-| filePath      | `string`         | Absolute file path      |
-| exports       | `string[]`       | Named export names list |
-| defaultExport | `string \| null` | Default export name     |
+```typescript
+dirs: [
+  { glob: './composables/**', types: true },   // recursive, include type exports
+  { glob: './hooks', types: false }            // one level, exclude type exports
+]
+```
 
 ## Examples
 
-### Basic Usage
+### Built-in Presets
 
 ```typescript
-autoImport({
-	imports: {
-		vue: ['ref', 'reactive', 'computed', 'watch', 'onMounted']
-	}
-})
+autoImport({ imports: ['vue', 'vue-router', 'pinia'] })
+// ref, reactive, computed, watch, useRouter, useRoute, defineStore, etc. are all available
 ```
 
-### Wildcard Auto-Import
-
-Use `'*'` to auto-import all named exports from a module without listing each one:
+### Alias Import
 
 ```typescript
 autoImport({
-	imports: {
-		vue: ['*'],
-		'vue-router': ['*']
-	}
+  imports: [{ '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }]
 })
-```
-
-### Directory Scanning
-
-Automatically scan exports from `src/composables` directory:
-
-```typescript
-autoImport({
-	dirs: ['src/composables', 'src/stores']
-})
-```
-
-Scanning rules:
-
-- Recursively scans subdirectories
-- Skips `node_modules` and hidden directories (starting with `.`)
-- Skips `.d.ts` type declaration files
-
-### Vue Template Auto-Import
-
-When enabled, APIs used in Vue SFC `<template>` will also be auto-imported:
-
-```typescript
-autoImport({
-	imports: { vue: ['ref', 'computed'] },
-	vueTemplate: true
-})
-```
-
-Detection scope:
-
-- Interpolation expressions <span v-pre>`{{ }}`</span>
-- Directive bindings `v-if`, `v-show`, `v-model`, etc.
-- Attribute bindings `:prop="expr"`
-- Event bindings `@event="handler"`
-
-### TypeScript Declarations
-
-```typescript
-autoImport({
-	dts: 'src/auto-imports.d.ts' // Generate declaration file
-	// dts: false // Don't generate declaration file
-})
+// Generates: import { useMouse, useFetch as useMyFetch } from '@vueuse/core'
 ```
 
 ### Default Import
 
 ```typescript
 autoImport({
-	imports: [{ module: 'axios', names: ['axios'], defaultImport: true }]
+  imports: [{ axios: [['default', 'axios']] }]
 })
-// Generates: import axios from 'axios'
+// Generates: import { default as axios } from 'axios'
 ```
 
-### Ignore Identifiers
+### Directory Scanning + Glob
 
 ```typescript
 autoImport({
-	ignore: ['React'], // React is globally injected via CDN, no auto-import needed
-	imports: { react: ['useState', 'useEffect'] }
+  dirs: ['./composables/**', { glob: './directives/**', types: false }],
+  dirsScanOptions: {
+    filePatterns: ['*.ts'],
+    fileFilter: (file) => !file.endsWith('.test.ts')
+  }
 })
 ```
 
-### Injection Position
+### Vue Template Auto-Import
+
+```typescript
+autoImport({ imports: ['vue'], vueTemplate: true })
+```
+
+Detection scope: interpolation expressions <span v-pre>`{{ }}`</span>, directive bindings `v-if`/`v-show`/`v-model`, attribute bindings `:prop`, event bindings `@event`.
+
+### Vue Directive Auto-Import
 
 ```typescript
 autoImport({
-	injectAtPosition: 'after-last-import' // Inject after the last import statement
+  dirs: ['./directives/**'],
+  vueDirectives: {
+    isDirective: (from) => from.includes('/directives/')
+  }
 })
 ```
+
+### TypeScript Declarations
+
+```typescript
+autoImport({
+  dts: 'src/auto-imports.d.ts'        // overwrite mode (default)
+  // dts: { filepath: 'src/auto-imports.d.ts', mode: 'append' }  // append mode
+  // dts: false  // don't generate
+})
+```
+
+### ESLint / Biome Config Generation
+
+Resolve `no-undef` errors for auto-imported identifiers:
+
+```typescript
+autoImport({
+  imports: ['vue'],
+  eslintrc: { enabled: true, filepath: './.eslintrc-auto-import.json' },
+  biomelintrc: { enabled: true, filepath: './biome-auto-import.json' }
+})
+```
+
+### Comment Disable
+
+Add a comment in source files to skip auto-import:
+
+```typescript
+// @unimport-disable
+const x = ref(0)  // won't inject import { ref } from 'vue'
+```
+
+### Custom Resolver
+
+```typescript
+autoImport({
+  resolvers: [{
+    resolve: (name) => {
+      if (name.startsWith('use')) {
+        return { name, from: 'my-lib', type: false }
+      }
+    }
+  }]
+})
+```
+
+## Type Exports
+
+### ImportInline
+
+Unified internal representation of an import item.
+
+| Property  | Type               | Default  | Description                                                        |
+| --------- | ------------------ | -------- | ------------------------------------------------------------------ |
+| name      | `string`           | required | Import name (`'*'` for namespace, `'='` for export assignment)     |
+| from      | `string`           | required | Module path                                                        |
+| as        | `string`           | —        | Alias                                                              |
+| type      | `boolean`          | `false`  | Whether it's a type import                                         |
+| isDefault | `boolean`          | `false`  | Whether it's a default import                                      |
+| meta      | `ImportMeta`       | —        | Metadata (e.g., vueDirective marker)                              |
+
+### ScannedModule
+
+Module info from directory scanning.
+
+| Property      | Type             | Description                       |
+| ------------- | ---------------- | --------------------------------- |
+| filePath      | `string`         | Absolute file path                |
+| exports       | `string[]`       | Named export names list           |
+| defaultExport | `string \| null` | Default export name               |
+| isType        | `boolean`        | Whether it's a type export (dir)  |
 
 ## Notes
 
 - Automatically skips already explicitly imported identifiers to avoid duplicates
 - Automatically skips shebang (`#!/usr/bin/env node`) and `"use strict"` declarations
-- Automatically skips JavaScript/TypeScript reserved keywords (e.g., `enum`, `class`, `function`) to avoid generating invalid type declarations
+- Automatically skips JavaScript/TypeScript reserved keywords and global built-in objects
 - The `transform` hook uses `order: 'pre'` to ensure execution before other plugins
 - Declaration files are only written when content changes, reducing unnecessary IO
 - User-configured `imports` take priority over `dirs` scan results
+- In dev mode, file changes in scanned directories automatically trigger HMR to refresh the mapping table
+- When `viteOptimizeDeps: true`, imported npm packages are automatically added to Vite's pre-bundling config

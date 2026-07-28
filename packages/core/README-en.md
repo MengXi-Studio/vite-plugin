@@ -65,7 +65,7 @@ import {
 export default defineConfig({
 	plugins: [
 		assetManifest({ outputFormat: 'vite', groupByEntry: true }),
-		autoImport({ imports: { vue: ['ref', 'reactive', 'computed'] }, dts: 'src/auto-imports.d.ts' }),
+		autoImport({ imports: ['vue', 'vue-router'], dts: 'src/auto-imports.d.ts', vueTemplate: true }),
 		buildProgress(),
 		bundleAnalyzer({ outputFormat: 'both' }),
 		compressAssets({ algorithm: 'gzip' }),
@@ -95,7 +95,7 @@ Grouped by function (Lodash-style), supports importing by group or individually.
 
 ### generate - Generation
 
-- **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with preset mappings, directory scanning, and Vue template auto-import
+- **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with built-in presets (Vue/Vue Router/Pinia etc.), alias/type/namespace imports, directory glob scanning, Vue template & directive auto-import, DTS generation, ESLint/Biome config generation
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)** - Auto-generate route config and type declarations from pages.json (uni-app)
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)** - Auto-generate version numbers with file output and global variable injection
 
