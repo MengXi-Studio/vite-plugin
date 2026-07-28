@@ -1,3 +1,89 @@
+## 1.1.0（2026-07-28）
+
+autoImport 全面重构，内置预设系统、多种导入形式、HMR、Lint 配置生成、缓存机制
+
+### autoImport（重构增强）
+
+对 autoImport 插件进行全面重构，新增预设系统、多种导入形式、Lint 配置生成、缓存机制等核心能力，同时在目录扫描和 DTS 生成上做了增强。
+
+**Breaking Changes（移除废弃类型）**：
+
+| 移除项                          | 替代方案                                       |
+| ------------------------------- | ---------------------------------------------- |
+| `ImportMapping` 类型            | 使用 `InlineImportConfig` 或预设字符串         |
+| `ResolvedImport` 类型           | 使用 `ImportInline`                            |
+| `AutoImportOptions.fileFilter`  | 使用 `include` / `exclude` 或 `dirsScanOptions.fileFilter` |
+| `helpers/compat.ts` 兼容模块    | 无需替代，旧格式不再支持                       |
+
+**新增功能**：
+
+| 功能                       | 配置示例                                                   | 说明                                             |
+| -------------------------- | ---------------------------------------------------------- | ------------------------------------------------ |
+| 内置预设                   | `imports: ['vue', 'vue-router', 'pinia']`                  | 一键启用常用库，无需列举每个 API                 |
+| 别名导入                   | `['useFetch', 'useMyFetch']`                               | `import { useFetch as useMyFetch } from ...`     |
+| 类型导入                   | `{ from: 'vue-router', imports: ['RouteLocationRaw'], type: true }` | 自动生成 `import type` 语句                      |
+| 命名空间导入               | `['*', '_']`                                               | `import * as _ from 'lodash'`                    |
+| export assignment 导入      | `['=', 'browser']`                                         | `import browser from 'webextension-polyfill'`    |
+| 目录扫描增强               | `dirs: [{ glob: './hooks/**', types: true }]`              | 支持 DirConfigObject、glob、类型标记             |
+| DTS 模式                   | `dtsMode: 'append' \| 'overwrite'`                         | append 仅追加新类型，overwrite 全量覆盖          |
+| Vue 指令自动导入           | `vueDirectives: { enabled: true }`                         | 自动识别 Vue 自定义指令                          |
+| ESLint globals 生成        | `eslintrc: { enabled: true }`                              | 解决自动导入标识符的 `no-undef` 报错             |
+| Biome globals 生成         | `biomelintrc: { enabled: true }`                           | Biome 格式的 globals 配置                        |
+| 缓存机制                   | `cache: true`                                              | 缓存预设解析与文件扫描结果，提升构建性能         |
+| HMR 热更新                 | 自动启用                                                   | 扫描目录文件变更时自动重新初始化                 |
+| 注释禁用                   | `// @unimport-disable`                                     | 文件级或行级禁用自动导入                         |
+| 自定义 Resolver            | `resolvers: [myResolver]`                                  | 对未命中标识符自定义解析逻辑                     |
+| 包预设                     | `packagePresets: ['@vueuse/core']`                         | 从已安装包的 `.d.ts` 自动发现导出                |
+| Vite optimizeDeps 集成     | `viteOptimizeDeps: true`                                   | 自动将依赖加入 Vite 预优化列表                   |
+| ignoreDts 过滤             | `ignoreDts: ['React']`                                     | DTS 文件中排除指定标识符                         |
+
+**内置预设列表**：
+
+| 预设名       | 模块                | 覆盖 API 数量 |
+| ------------ | ------------------- | -------------- |
+| `vue`        | `vue`               | 30+            |
+| `vue-router` | `vue-router`        | 15+            |
+| `pinia`      | `pinia`             | 8+             |
+| `vue-i18n`   | `vue-i18n`          | 6+             |
+
+**重构优化**：
+
+| 优化项                     | 说明                                                       |
+| -------------------------- | ---------------------------------------------------------- |
+| Resolver 回退逻辑          | 始终对未命中标识符尝试 resolver，不再仅当结果为空时触发   |
+| DTS 生成去重               | `initialize()` 和 `buildEnd` 间避免冗余写入               |
+| 统一解析引擎               | `resolveImportsConfig` 统一处理预设字符串、Record、Inline 等格式 |
+| 通配符导出解析             | 优先从 `.d.ts` 解析（最准确），回退到运行时入口           |
+
+**配置选项变更**：
+
+| 选项             | 变更类型 | 说明                                       |
+| ---------------- | -------- | ------------------------------------------ |
+| `imports`        | 增强     | 新增预设字符串、别名、类型导入等格式       |
+| `dirs`           | 增强     | 支持 DirConfigObject 和 glob 模式          |
+| `vueTemplate`    | 不变     | 保留，同时新增 `vueDirectives`             |
+| `dts`            | 增强     | 支持 DtsConfig 对象（filepath + mode）     |
+| `dtsMode`        | 新增     | `'append'`（默认）或 `'overwrite'`         |
+| `dtsPreserveExts`| 新增     | DTS 中保留文件扩展名                       |
+| `eslintrc`       | 新增     | ESLint globals 配置生成                    |
+| `biomelintrc`    | 新增     | Biome globals 配置生成                     |
+| `resolvers`      | 新增     | 自定义解析器                               |
+| `packagePresets` | 新增     | 包预设                                     |
+| `cache`          | 新增     | 缓存配置                                   |
+| `ignoreDts`      | 新增     | DTS 忽略列表                               |
+| `viteOptimizeDeps`| 新增    | Vite 预优化集成                            |
+| `commentsDisable`| 新增     | 注释禁用标记列表                           |
+| `vueDirectives`  | 新增     | Vue 指令自动导入配置                       |
+| `dirsScanOptions`| 新增     | 目录扫描选项（filePatterns/fileFilter/types） |
+| `fileFilter`     | 移除     | 使用 `include`/`exclude` 替代              |
+
+### 子路径导出（变更）
+
+- `@meng-xi/vite-plugin/plugins/auto-import` 移除导出类型：`ImportMapping`、`ResolvedImport`
+- `@meng-xi/vite-plugin/plugins/auto-import` 新增导出类型：`ImportInline`、`PresetDefinition`、`DirConfig`、`DirConfigObject`、`DirsScanOptions`、`DtsConfig`、`InlineImportConfig`、`EslintrcConfig`、`BiomelintrcConfig`、`AutoImportCache`
+- `@meng-xi/vite-plugin/plugins/auto-import` 移除导出函数：`migrateLegacyOptions`、`resolvedImportToInline`、`inlineToResolvedImport`、`importMappingToInlines`
+- `@meng-xi/vite-plugin/plugins/auto-import` 新增导出函数：`resolveImportsConfig`、`buildNameLookup`、`findPreset`、`expandPreset`、`resolvePackagePreset`、`generateEslintrc`、`generateBiomelintrc`
+
 ## 1.0.0（2026-06-27）
 
 首个稳定版本发布，API 稳定性承诺与生产就绪标志
@@ -30,7 +116,7 @@
 | compress | imageOptimizer            | 图片压缩与格式转换（sharp + svgo）          | `enforce: 'post'`     |
 | copy     | assetManifest             | 资源清单生成，支持 vite/webpack/custom 格式 | `enforce: 'post'`     |
 | copy     | copyFile                  | 文件/目录复制，支持增量与并发               | `enforce: 'post'`     |
-| generate | autoImport                | 自动导入，支持通配符 `'*'` 与目录扫描       | `enforce: 'pre'`      |
+| generate | autoImport                | 自动导入，支持预设/别名/类型/目录扫描      | `enforce: 'pre'`      |
 | generate | generateRouter            | 根据 pages.json 生成路由配置与类型声明      | `configResolved`      |
 | generate | generateVersion           | 版本号生成，支持多种格式与占位符            | 构建期                |
 | guard    | envGuard                  | 环境变量校验，支持多类型与运行时守卫        | `enforce: 'post'`     |

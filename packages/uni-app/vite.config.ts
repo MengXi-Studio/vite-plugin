@@ -42,9 +42,7 @@ export default defineConfig(config => {
 
 			// 自动导入 - 使用通配符导入 Vue 全部 API
 			autoImport({
-				imports: {
-					vue: ['*']
-				},
+				imports: ['vue', { '@dcloudio/uni-app': ['*'] }],
 				dts: 'auto-imports.d.ts',
 				vueTemplate: true,
 				// createApp 由 uni-app 入口文件 main.js 显式声明，不可自动注入

@@ -64,7 +64,7 @@ export default defineConfig({
 	plugins: [
 		uni(),
 		// 按需启用插件
-		autoImport({ imports: { vue: ['*'] }, vueTemplate: true }),
+		autoImport({ imports: ['vue'], vueTemplate: true }),
 		generateRouter({ dts: true }),
 		generateVersion({ format: 'datetime', outputType: 'both' }),
 		envGuard({ required: { VITE_API_URL: { type: 'url', required: true } } }),
@@ -79,7 +79,7 @@ export default defineConfig({
 | 插件                 | 说明                        |
 | -------------------- | --------------------------- |
 | assetManifest        | 资源清单生成                |
-| autoImport           | 自动导入                    |
+| autoImport           | 自动导入（预设/别名/类型/目录扫描） |
 | buildProgress        | 终端构建进度条              |
 | bundleAnalyzer       | 构建产物体积分析            |
 | compressAssets       | 构建产物压缩（gzip/brotli） |
