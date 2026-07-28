@@ -1,7 +1,6 @@
-import type { ImportInline, ImportsConfig, ImportMapping, InlineImportConfig } from '../types'
+import type { ImportInline, ImportsConfig, InlineImportConfig } from '../types'
 import { findPreset, expandPreset } from './presets'
 import { resolveWildcardExports } from './scanner'
-import { importMappingToInlines } from './compat'
 
 /**
  * 将用户配置的 imports 解析为统一的 ImportInline 列表
@@ -13,11 +12,10 @@ import { importMappingToInlines } from './compat'
  * @description 支持多种配置格式混合使用，统一转换为 ImportInline[]：
  * 1. 预设字符串：`'vue'` → 查找内置预设 → 展开
  * 2. 简写格式：`{ vue: ['ref', ['useFetch', 'useMyFetch']] }` → 转换
- * 3. 旧版 ImportMapping 格式 → 兼容转换
- * 4. 类型导入 InlineImportConfig → 标记 type 后转换
- * 5. 通配符 `'*'` → 从 .d.ts 解析模块全部导出
- * 6. 命名空间导入 `['*', 'alias']` → { name: '*', from: mod, as: 'alias' }
- * 7. export assignment 导入 `['=', 'alias']` → { name: '=', from: mod, as: 'alias' }
+ * 3. 类型导入 InlineImportConfig → 标记 type 后转换
+ * 4. 通配符 `'*'` → 从 .d.ts 解析模块全部导出
+ * 5. 命名空间导入 `['*', 'alias']` → { name: '*', from: mod, as: 'alias' }
+ * 6. export assignment 导入 `['=', 'alias']` → { name: '=', from: mod, as: 'alias' }
  */
 export function resolveImportsConfig(
 	imports: ImportsConfig | Record<string, Array<string | [string, string]>> | undefined,
@@ -36,10 +34,7 @@ export function resolveImportsConfig(
 			// 不应出现数组中的数组，跳过
 			continue
 		} else if (typeof item === 'object' && item !== null) {
-			if ('module' in item && 'names' in item) {
-				// 旧版 ImportMapping 格式
-				resolveImportMapping(item as ImportMapping, root, result)
-			} else if ('from' in item && 'imports' in item) {
+			if ('from' in item && 'imports' in item) {
 				// InlineImportConfig 格式（含 type 标记）
 				resolveInlineImportConfig(item as InlineImportConfig, root, result)
 			} else {
@@ -72,29 +67,6 @@ function resolvePresetString(name: string, root: string, result: ImportInline[])
 			}
 		}
 		// 如果也没发现导出，静默跳过（后续 resolver 可能补充）
-	}
-}
-
-/**
- * 解析旧版 ImportMapping 格式
- *
- * @param mapping ImportMapping 对象
- * @param root 项目根目录
- * @param result 收集结果的数组
- */
-function resolveImportMapping(mapping: ImportMapping, root: string, result: ImportInline[]): void {
-	if (mapping.names.includes('*')) {
-		// 通配符：自动发现模块全部导出
-		const exports = resolveWildcardExports(mapping.module, root)
-		for (const name of exports) {
-			result.push({
-				name,
-				from: mapping.module,
-				isDefault: mapping.defaultImport ?? false
-			})
-		}
-	} else {
-		result.push(...importMappingToInlines(mapping))
 	}
 }
 
@@ -184,20 +156,20 @@ function resolveRecordFormat(
 					result.push({ name: item, from: mod })
 				}
 			} else {
-					// [name, alias] 元组
-					if (item[0] === '*') {
-						// 命名空间导入: import * as alias from 'mod'
-						result.push({ name: '*', from: mod, as: item[1] })
-					} else if (item[0] === '=') {
-						// export assignment 导入: import alias from 'mod'
-						result.push({ name: '=', from: mod, as: item[1] })
-					} else if (item[0] === 'default') {
-						// import { default as alias } from 'mod'
-						result.push({ name: 'default', from: mod, as: item[1] })
-					} else {
-						result.push({ name: item[0], from: mod, as: item[1] })
-					}
+				// [name, alias] 元组
+				if (item[0] === '*') {
+					// 命名空间导入: import * as alias from 'mod'
+					result.push({ name: '*', from: mod, as: item[1] })
+				} else if (item[0] === '=') {
+					// export assignment 导入: import alias from 'mod'
+					result.push({ name: '=', from: mod, as: item[1] })
+				} else if (item[0] === 'default') {
+					// import { default as alias } from 'mod'
+					result.push({ name: 'default', from: mod, as: item[1] })
+				} else {
+					result.push({ name: item[0], from: mod, as: item[1] })
 				}
+			}
 		}
 	}
 }

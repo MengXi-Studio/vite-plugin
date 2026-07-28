@@ -19,7 +19,7 @@
 ## Features
 
 - **Ready to Use** - 15 practical plugins grouped by function (compress / generate / inject / analyze / copy / guard / proxy), covering auto-import, build progress, bundle analysis & compression, file copying,
-  environment variable validation, route generation, version management, HTML injection, favicon management, global Loading, image optimization, dev proxy, and more
+	environment variable validation, route generation, version management, HTML injection, favicon management, global Loading, image optimization, dev proxy, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
 - **Common Utility Library** - Built-in 14 Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
@@ -65,7 +65,7 @@ import {
 export default defineConfig({
 	plugins: [
 		assetManifest({ outputFormat: 'vite', groupByEntry: true }),
-		autoImport({ imports: { vue: ['ref', 'reactive', 'computed'] }, dts: 'src/auto-imports.d.ts' }),
+		autoImport({ imports: ['vue', 'vue-router'], dts: 'src/auto-imports.d.ts', vueTemplate: true }),
 		buildProgress(),
 		bundleAnalyzer({ outputFormat: 'both' }),
 		compressAssets({ algorithm: 'gzip' }),
@@ -91,18 +91,18 @@ Grouped by function (Lodash-style), supports importing by group or individually.
 
 - **[compressAssets](https://mengxi-studio.github.io/vite-plugin/en/plugins/compress-assets.html)** - Asset compression with gzip / brotli / both, concurrent compression and statistics report
 - **[imageOptimizer](https://mengxi-studio.github.io/vite-plugin/en/plugins/image-optimizer.html)** - Image optimization & format conversion, supports JPEG/PNG/WebP/AVIF/GIF/TIFF/SVG, concurrent processing and statistics
-  report
+	report
 
 ### generate - Generation
 
-- **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with preset mappings, directory scanning, and Vue template auto-import
+- **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with built-in presets (Vue/Vue Router/Pinia etc.), alias/type/namespace imports, directory glob scanning, Vue template & directive auto-import, DTS generation, ESLint/Biome config generation
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)** - Auto-generate route config and type declarations from pages.json (uni-app)
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)** - Auto-generate version numbers with file output and global variable injection
 
 ### inject - Injection
 
 - **[htmlInject](https://mengxi-studio.github.io/vite-plugin/en/plugins/html-inject.html)** - HTML content injection with multiple positions, selector targeting, conditional injection, template variables, and security
-  filtering
+	filtering
 - **[loadingManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/loading-manager.html)** - Global Loading state management with request interception, debounce, transition animations, and white-screen Loading
 - **[faviconManager](https://mengxi-studio.github.io/vite-plugin/en/plugins/favicon-manager.html)** - Manage website favicon link injection and file copying, supports string shorthand config
 - **[versionUpdateChecker](https://mengxi-studio.github.io/vite-plugin/en/plugins/version-update-checker.html)** - Runtime version update checking with multiple prompt styles and custom callbacks

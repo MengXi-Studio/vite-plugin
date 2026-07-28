@@ -29,6 +29,3 @@ export { AutoImportCache } from './cache'
 
 // Lint 配置
 export { generateEslintrc, generateBiomelintrc } from './lint'
-
-// 兼容
-export { migrateLegacyOptions, resolvedImportToInline, inlineToResolvedImport, importMappingToInlines } from './compat'

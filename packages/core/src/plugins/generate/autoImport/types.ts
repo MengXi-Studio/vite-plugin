@@ -3,7 +3,7 @@ import type { BasePluginOptions } from '@/factory/types'
 /**
  * 统一的导入项内部表示
  *
- * @description 所有外部配置格式（预设字符串、Record、ImportMapping、目录扫描结果）
+ * @description 所有外部配置格式（预设字符串、Record、InlineImportConfig、目录扫描结果）
  * 最终都归一化为这个结构。支持命名导入、默认导入、别名导入、类型导入。
  *
  * @example
@@ -279,13 +279,11 @@ export interface InlineImportConfig {
  * @description 支持多种格式混合使用：
  * - 预设字符串：`'vue'`
  * - 简写格式：`{ vue: ['ref', 'reactive'] }`
- * - 完整格式（ImportMapping，兼容旧版）
  * - 类型导入格式（InlineImportConfig）
  */
 export type ImportsConfig = Array<
 	| string
 	| Record<string, Array<string | [string, string]>>
-	| ImportMapping
 	| InlineImportConfig
 >
 
@@ -295,7 +293,7 @@ export type ImportsConfig = Array<
  * @interface AutoImportOptions
  * @extends {BasePluginOptions}
  *
- * @description 参考unplugin-auto-import设计，支持预设系统、别名导入、类型导入、
+ * @description 支持预设系统、别名导入、类型导入、
  * 目录glob扫描、ESLint/Biome配置生成、缓存机制等增强功能。
  *
  * @example
@@ -329,10 +327,9 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 *
 	 * @description 支持多种格式混合使用：
 	 * 1. 预设字符串：`'vue'`、`'vue-router'`
-	 * 2. 简写格式：`{ vue: ['ref', 'reactive'] }`
-	 * 3. 自定义命名导入：`{ '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }`
-	 * 4. 完整格式（ImportMapping，兼容旧版）
-	 * 5. 类型导入：`{ from: 'vue-router', imports: ['RouteLocationRaw'], type: true }`
+		 * 2. 简写格式：`{ vue: ['ref', 'reactive'] }`
+		 * 3. 自定义命名导入：`{ '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }`
+		 * 4. 类型导入：`{ from: 'vue-router', imports: ['RouteLocationRaw'], type: true }`
 	 *
 	 * @default []
 	 */
@@ -432,17 +429,10 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 */
 	exclude?: Array<string | RegExp>
 
-	/**
-	 * 文件过滤正则（旧版，兼容保留，优先级低于 include/exclude）
-	 *
-	 * @deprecated 建议使用 include/exclude 替代
-	 */
-	fileFilter?: RegExp
 
-
-	/**
-	 * ESLint 配置生成
-	 */
+		/**
+		 * ESLint 配置生成
+		 */
 	eslintrc?: EslintrcConfig
 
 	/**
@@ -473,39 +463,11 @@ export interface AutoImportOptions extends BasePluginOptions {
 	 * @default true
 	 */
 	cache?: boolean | CacheConfig
-}
+	}
 
 // ============================================================================
-// 旧版兼容类型（保留，标记 @deprecated）
+// 扫描与转换类型
 // ============================================================================
-
-/**
- * 单个导入映射项（旧版格式）
- *
- * @deprecated 建议使用 InlineImportConfig 或 ImportsConfig 中的格式替代
- */
-export interface ImportMapping {
-	/** 模块路径 */
-	module: string
-	/** 要导入的名称列表 */
-	names: string[]
-	/** 是否为默认导入 */
-	defaultImport?: boolean
-}
-
-/**
- * 内部使用的解析后映射项（旧版格式）
- *
- * @deprecated 建议使用 ImportInline 替代
- */
-export interface ResolvedImport {
-	/** 模块路径 */
-	module: string
-	/** 导入标识符名称 */
-	name: string
-	/** 是否为默认导入 */
-	isDefault: boolean
-}
 
 /**
  * 扫描到的模块信息

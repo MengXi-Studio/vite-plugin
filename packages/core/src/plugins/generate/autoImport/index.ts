@@ -2,7 +2,7 @@ import type { Plugin, ResolvedConfig } from 'vite'
 import path from 'node:path'
 import { BasePlugin, createPluginFactory } from '@/factory'
 import { stripCommentsAndStrings } from '@/common/code'
-import type { AutoImportOptions, ImportInline, ResolvedImport } from './types'
+import type { AutoImportOptions, ImportInline } from './types'
 import {
 	resolveImportsConfig,
 	buildNameLookup
@@ -34,7 +34,6 @@ import {
 	generateBiomelintrc
 } from './helpers/lint'
 import { resolvePackagePreset } from './helpers/presets'
-import { migrateLegacyOptions, inlineToResolvedImport } from './helpers/compat'
 
 /**
  * 自动导入插件
@@ -234,7 +233,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 	 * @param id 文件路径
 	 * @returns 是否需要处理
 	 *
-	 * @description 使用 include/exclude 过滤（优先级高于旧版 fileFilter）
+	 * @description 使用 include/exclude 过滤
 	 */
 	private shouldTransformFile(id: string): boolean {
 		// exclude 检查（优先级最高）
@@ -260,11 +259,6 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 			return false
 		}
 
-		// 旧版 fileFilter 兼容
-		if (this.options.fileFilter) {
-			return this.options.fileFilter.test(id)
-		}
-
 		return true
 	}
 
@@ -276,22 +270,19 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 	private initialize(config?: ResolvedConfig): void {
 		const root = config?.root || this.viteConfig?.root || process.cwd()
 
-		// 1. 旧配置迁移
-		migrateLegacyOptions(this.options)
-
-		// 2. 初始化缓存
+		// 1. 初始化缓存
 		if (this.options.cache) {
 			const cacheConfig = typeof this.options.cache === 'object' ? this.options.cache : { enabled: true }
 			this.cache = new AutoImportCache(cacheConfig)
 		}
 
-		// 3. 解析 imports 配置（含预设、类型导入、别名）
+		// 2. 解析 imports 配置（含预设、类型导入、别名）
 		const configImports = resolveImportsConfig(this.options.imports, root)
 
-		// 4. 解析 packagePresets
+		// 3. 解析 packagePresets
 		const packageImports = (this.options.packagePresets ?? []).flatMap(p => resolvePackagePreset(p, root))
 
-		// 5. 扫描目录
+		// 4. 扫描目录
 		const scannedModules = scanDirectories(
 			this.options.dirs ?? [],
 			root,
@@ -301,20 +292,20 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 			defaultExportByFilename: this.options.defaultExportByFilename,
 		})
 
-		// 6. 合并所有导入源
+		// 5. 合并所有导入源
 		this.allImports = [...configImports, ...packageImports, ...scannedImports]
 
-		// 7. 构建查找表
+		// 6. 构建查找表
 		this.nameLookup = buildNameLookup(this.allImports)
 
-		// 8. 构建忽略集合
+		// 7. 构建忽略集合
 		this.ignoreSet = new Set(this.options.ignore)
 
 		this.initialized = true
 
 		this.logger.info(`初始化完成: ${this.allImports.length} 个自动导入映射, ${scannedModules.length} 个扫描模块`)
 
-		// 9. 初始化完成后立即生成 DTS（开发模式也需要类型提示）
+		// 8. 初始化完成后立即生成 DTS（开发模式也需要类型提示）
 		this.dtsGeneratedInInit = false
 		if (this.options.dts) {
 			this.generateDts()
@@ -484,18 +475,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 	}
 
 	/**
-	 * 获取当前所有解析后的导入映射（向后兼容）
-	 *
-	 * @returns {ResolvedImport[]} 导入映射列表的浅拷贝
-	 *
-	 * @deprecated 建议使用 getImportInlines() 替代
-	 */
-	public getResolvedImports(): ResolvedImport[] {
-		return this.allImports.map(inlineToResolvedImport)
-	}
-
-	/**
-	 * 获取当前所有解析后的导入映射（新 API）
+	 * 获取当前所有解析后的导入映射
 	 *
 	 * @returns {ImportInline[]} 导入映射列表的浅拷贝
 	 */
@@ -504,22 +484,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 	}
 
 	/**
-	 * 获取名称查找映射表（向后兼容）
-	 *
-	 * @returns {Map<string, ResolvedImport>} 名称→模块映射表的拷贝
-	 *
-	 * @deprecated 建议使用 getInlineNameLookup() 替代
-	 */
-	public getNameLookup(): Map<string, ResolvedImport> {
-		const result = new Map<string, ResolvedImport>()
-		for (const [key, value] of this.nameLookup) {
-			result.set(key, inlineToResolvedImport(value))
-		}
-		return result
-	}
-
-	/**
-	 * 获取名称查找映射表（新 API）
+	 * 获取名称查找映射表
 	 *
 	 * @returns {Map<string, ImportInline>} 名称→模块映射表的拷贝
 	 */
