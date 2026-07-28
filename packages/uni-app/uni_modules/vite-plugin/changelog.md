@@ -34,7 +34,7 @@ autoImport 全面重构，内置预设系统、多种导入形式、HMR、Lint �
 | 注释禁用                   | `// @unimport-disable`                                     | 文件级或行级禁用自动导入                         |
 | 自定义 Resolver            | `resolvers: [myResolver]`                                  | 对未命中标识符自定义解析逻辑                     |
 | 包预设                     | `packagePresets: ['@vueuse/core']`                         | 从已安装包的 `.d.ts` 自动发现导出                |
-| Vite optimizeDeps 集成     | `viteOptimizeDeps: true`                                   | 自动将依赖加入 Vite 预优化列表                   |
+| Vite optimizeDeps 集成     | `viteOptimizeDeps: false`                                   | 自动将依赖加入 Vite 预优化列表                   |
 | ignoreDts 过滤             | `ignoreDts: ['React']`                                     | DTS 文件中排除指定标识符                         |
 
 **内置预设列表**：

@@ -72,7 +72,7 @@ export default defineConfig({
 | Option             | Type                            | Default                   | Description                                    |
 | ------------------ | ------------------------------- | ------------------------- | ---------------------------------------------- |
 | injectAtPosition   | `'top' \| 'after-last-import'`  | `'top'`                   | Import statement injection position            |
-| viteOptimizeDeps   | `boolean`                       | `true`                    | Auto-add imported packages to optimizeDeps     |
+| viteOptimizeDeps   | `boolean`                       | `false`                    | Auto-add imported packages to optimizeDeps     |
 | cache              | `boolean \| CacheConfig`        | `true`                    | Cache configuration                            |
 | resolvers          | `Resolver[]`                    | `[]`                      | Custom resolvers                               |
 | packagePresets     | `PackagePresetConfig[]`         | `[]`                      | Package preset configuration                   |

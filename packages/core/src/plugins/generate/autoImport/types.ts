@@ -402,7 +402,7 @@ export interface AutoImportOptions extends BasePluginOptions {
 	/**
 	 * 是否自动将导入的包添加到 Vite optimizeDeps
 	 *
-	 * @default true
+	 * @default false
 	 */
 	viteOptimizeDeps?: boolean
 

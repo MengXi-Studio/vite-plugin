@@ -102,7 +102,7 @@ class AutoImportPlugin extends BasePlugin<AutoImportOptions> {
 			exclude: [/node_modules/, /\.git/],
 			injectAtPosition: 'top',
 			defaultExportByFilename: false,
-			viteOptimizeDeps: true,
+			viteOptimizeDeps: false,
 			commentsDisable: ['@unimport-disable'],
 			cache: true,
 			eslintrc: { enabled: false },

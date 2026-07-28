@@ -69,7 +69,7 @@ export default defineConfig({
 | 选项               | 类型                            | 默认值    | 说明                       |
 | ------------------ | ------------------------------- | --------- | -------------------------- |
 | injectAtPosition   | `'top' \| 'after-last-import'`  | `'top'`   | import 语句注入位置        |
-| viteOptimizeDeps   | `boolean`                       | `true`    | 自动将导入包添加到 optimizeDeps |
+| viteOptimizeDeps   | `boolean`                       | `false`    | 自动将导入包添加到 optimizeDeps |
 | cache              | `boolean \| CacheConfig`        | `true`    | 缓存配置                   |
 | resolvers          | `Resolver[]`                    | `[]`      | 自定义解析器               |
 | packagePresets     | `PackagePresetConfig[]`         | `[]`      | 包预设配置                 |
