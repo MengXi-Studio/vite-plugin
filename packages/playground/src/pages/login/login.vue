@@ -1,9 +1,3 @@
-<route-config>
-{
-	"title": "登录"
-}
-</route-config>
-
 <template>
 	<view class="container">
 		<text class="page-title">登录</text>
@@ -109,3 +103,9 @@ function goBack() {
 	color: #42b883;
 }
 </style>
+
+<route-config>
+{
+	"title": "登录"
+}
+</route-config>

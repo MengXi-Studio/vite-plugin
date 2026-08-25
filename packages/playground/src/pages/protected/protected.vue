@@ -1,12 +1,3 @@
-<route-config>
-{
-	"title": "受保护页面",
-	"name": "ProtectedPage",
-	"style": { "requireAuth": true },
-	"meta": { "requireAuth": true, "role": "admin" }
-}
-</route-config>
-
 <template>
 	<view class="container">
 		<text class="page-title">受保护页面</text>
@@ -90,3 +81,12 @@ function goBack() {
 	border: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "受保护页面",
+	"name": "ProtectedPage",
+	"style": { "requireAuth": true },
+	"meta": { "requireAuth": true, "role": "admin" }
+}
+</route-config>

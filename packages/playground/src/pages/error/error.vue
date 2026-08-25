@@ -1,9 +1,3 @@
-<route-config>
-{
-	"title": "错误页面"
-}
-</route-config>
-
 <template>
 	<view class="container">
 		<text class="page-title">错误页面</text>
@@ -88,3 +82,9 @@ function goHome() {
 	border: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "错误页面"
+}
+</route-config>

@@ -1,9 +1,3 @@
-<route-config>
-{
-	"title": "路由解析"
-}
-</route-config>
-
 <template>
 	<view class="container">
 		<text class="page-title">路由解析演示</text>
@@ -125,3 +119,9 @@ function navigateTo(path: string) {
 	border-radius: 6rpx;
 }
 </style>
+
+<route-config>
+{
+	"title": "路由解析"
+}
+</route-config>

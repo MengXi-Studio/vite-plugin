@@ -1,10 +1,3 @@
-<route-config>
-{
-	"title": "关于",
-	"isTab": true
-}
-</route-config>
-
 <template>
 	<view class="container">
 		<text class="page-title">关于</text>
@@ -105,3 +98,10 @@ const versionInfo = __APP_VERSION___INFO
 	border-bottom: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "关于",
+	"isTab": true
+}
+</route-config>

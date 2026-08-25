@@ -1,10 +1,3 @@
-<route-config>
-{
-	"title": "设置",
-	"style": { "requireAuth": true }
-}
-</route-config>
-
 <template>
 	<view class="container">
 		<text class="page-title">设置</text>
@@ -147,3 +140,10 @@ function goBack() {
 	color: #42b883;
 }
 </style>
+
+<route-config>
+{
+	"title": "设置",
+	"style": { "requireAuth": true }
+}
+</route-config>
