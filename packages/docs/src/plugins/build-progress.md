@@ -7,7 +7,7 @@
 ```typescript
 import { buildProgress } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { buildProgress } from '@meng-xi/vite-plugin/plugins/build-progress'
+import { buildProgress } from '@meng-xi/vite-plugin/plugins/analyze/build-progress'
 ```
 
 ## 快速开始

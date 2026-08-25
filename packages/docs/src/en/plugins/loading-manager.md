@@ -6,7 +6,7 @@ Global Loading state management plugin. Injects Loading state management code du
 
 ```typescript
 // Submodule import (recommended)
-import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
+import { loadingManager } from '@meng-xi/vite-plugin/plugins/inject/loading-manager'
 
 // Barrel import
 import { loadingManager } from '@meng-xi/vite-plugin'

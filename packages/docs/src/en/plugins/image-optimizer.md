@@ -6,8 +6,8 @@ Automatically optimize images after Vite build, supporting compression and forma
 
 ```typescript
 // Submodule import (recommended)
-import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/image-optimizer'
-import type { ImageOptimizerOptions, ImageOptimizeStats, ImageOptimizeSummary, ImageFormat, FormatQualityOptions, SvgoPlugin, SvgoOptions } from '@meng-xi/vite-plugin/plugins/image-optimizer'
+import { imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress/image-optimizer'
+import type { ImageOptimizerOptions, ImageOptimizeStats, ImageOptimizeSummary, ImageFormat, FormatQualityOptions, SvgoPlugin, SvgoOptions } from '@meng-xi/vite-plugin/plugins/compress/image-optimizer'
 
 // Barrel import
 import { imageOptimizer } from '@meng-xi/vite-plugin'

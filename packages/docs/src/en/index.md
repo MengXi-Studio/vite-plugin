@@ -25,7 +25,7 @@ hero:
 features:
   - icon: 🧩
     title: Ready-to-use Plugins
-    details: 15 plugins covering build optimization, code generation, asset management, and developer experience — install and use with zero config.
+    details: 16 plugins covering build optimization, code generation, asset management, and developer experience — install and use with zero config.
   - icon: 📊
     title: Functional Grouping
     details: Plugins grouped into 7 functional categories (compress / generate / inject / analyze / copy / guard / proxy) with clear semantics for easy lookup and composition.

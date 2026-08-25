@@ -7,7 +7,7 @@
 ```typescript
 import { compressAssets } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress/compress-assets'
 ```
 
 ## 快速开始

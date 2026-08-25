@@ -43,7 +43,7 @@ Import by functional group for better semantics and Tree-shaking:
 import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress'
 
 // Generation
-import { autoImport, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { autoImport, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
 
 // Injection
 import { htmlInject, loadingManager, faviconManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject'
@@ -78,7 +78,7 @@ For a detailed comparison of import strategies, see [On-demand Import](/en/guide
 ## Requirements
 
 - Node.js >= 16
-- Vite >= 4
+- Vite >= 5 (up to Vite 8)
 - TypeScript >= 5 (recommended)
 
 ## Next Steps

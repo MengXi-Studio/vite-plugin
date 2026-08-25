@@ -7,7 +7,7 @@
 ```typescript
 import { bundleAnalyzer } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
+import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/analyze/bundle-analyzer'
 ```
 
 ## 快速开始

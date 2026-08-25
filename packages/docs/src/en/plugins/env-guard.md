@@ -6,8 +6,8 @@ Validate environment variables before Vite build, supporting type checking, rang
 
 ```typescript
 // Submodule import (recommended)
-import { envGuard } from '@meng-xi/vite-plugin/plugins/env-guard'
-import type { EnvGuardOptions, EnvGuardResult, EnvFailAction, RuntimeGuardMode } from '@meng-xi/vite-plugin/plugins/env-guard'
+import { envGuard } from '@meng-xi/vite-plugin/plugins/guard/env-guard'
+import type { EnvGuardOptions, EnvGuardResult, EnvFailAction, RuntimeGuardMode } from '@meng-xi/vite-plugin/plugins/guard/env-guard'
 
 // Barrel import
 import { envGuard } from '@meng-xi/vite-plugin'

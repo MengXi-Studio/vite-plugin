@@ -6,8 +6,8 @@ Declarative dev proxy management plugin that simplifies Vite dev server proxy co
 
 ```typescript
 // Submodule import (recommended)
-import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy-manager'
-import type { ProxyManagerOptions, ProxyRule, ProxyLogLevel, DelayConfig } from '@meng-xi/vite-plugin/plugins/proxy-manager'
+import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy/proxy-manager'
+import type { ProxyManagerOptions, ProxyRule, ProxyLogLevel, DelayConfig } from '@meng-xi/vite-plugin/plugins/proxy/proxy-manager'
 
 // Barrel import
 import { proxyManager } from '@meng-xi/vite-plugin'
@@ -130,7 +130,7 @@ Extract proxy rules into a standalone `.proxyrc.ts` file, decoupled from `vite.c
 
 ```typescript
 // .proxyrc.ts
-import { defineProxyConfig } from '@meng-xi/vite-plugin/plugins/proxy-manager'
+import { defineProxyConfig } from '@meng-xi/vite-plugin/plugins/proxy/proxy-manager'
 
 export default defineProxyConfig([
 	{ context: '/api', target: 'http://localhost:3000' },

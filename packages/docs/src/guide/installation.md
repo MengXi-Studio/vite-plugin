@@ -43,7 +43,7 @@ import { compressAssets, autoImport, buildProgress } from '@meng-xi/vite-plugin'
 import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress'
 
 // 生成类
-import { autoImport, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { autoImport, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
 
 // 注入类
 import { htmlInject, loadingManager, faviconManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject'
@@ -78,7 +78,7 @@ import type { CompressAssetsOptions } from '@meng-xi/vite-plugin/plugins/compres
 ## 环境要求
 
 - Node.js >= 16
-- Vite >= 4
+- Vite >= 5（支持到 Vite 8）
 - TypeScript >= 5（推荐）
 
 ## 下一步

@@ -7,7 +7,7 @@
 ```typescript
 import { proxyManager } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy-manager'
+import { proxyManager } from '@meng-xi/vite-plugin/plugins/proxy/proxy-manager'
 ```
 
 ## 快速开始
@@ -146,7 +146,7 @@ proxyManager({
 
 ```typescript
 // .proxyrc.ts
-import { defineProxyConfig } from '@meng-xi/vite-plugin/plugins/proxy-manager'
+import { defineProxyConfig } from '@meng-xi/vite-plugin/plugins/proxy/proxy-manager'
 
 export default defineProxyConfig([
   { context: '/api', target: 'http://localhost:3000' },

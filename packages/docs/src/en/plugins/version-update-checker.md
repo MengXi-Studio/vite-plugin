@@ -9,7 +9,7 @@ Typically used with the `generateVersion` plugin: `generateVersion` generates th
 
 ```typescript
 // Submodule import (recommended)
-import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
+import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject/version-update-checker'
 
 // Barrel import
 import { versionUpdateChecker } from '@meng-xi/vite-plugin'

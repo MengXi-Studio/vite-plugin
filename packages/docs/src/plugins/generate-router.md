@@ -7,7 +7,7 @@
 ```typescript
 import { generateRouter } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
+import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate/generate-router'
 ```
 
 ## 快速开始
