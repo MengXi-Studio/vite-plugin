@@ -1,3 +1,9 @@
+<route-config>
+{
+	"title": "路由导航"
+}
+</route-config>
+
 <template>
 	<view class="container">
 		<text class="page-title">路由导航演示</text>

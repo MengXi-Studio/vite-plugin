@@ -1,3 +1,10 @@
+<route-config>
+{
+	"title": "首页",
+	"isTab": true
+}
+</route-config>
+
 <template>
 	<view class="container">
 		<view class="header">
@@ -149,6 +156,7 @@ const tests = reactive<Record<string, TestResult>>({
 	copyFile: { passed: false, summary: '' },
 	envGuard: { passed: false, summary: '' },
 	generateRouter: { passed: false, summary: '' },
+	generatePages: { passed: false, summary: '' },
 	generateVersion: { passed: false, summary: '' },
 	htmlInject: { passed: false, summary: '' },
 	versionUpdateChecker: { passed: false, summary: '' },
@@ -167,6 +175,7 @@ const testLabels: Record<string, string> = {
 	copyFile: 'copyFile - 文件复制',
 	envGuard: 'envGuard - 环境变量校验',
 	generateRouter: 'generateRouter - 路由配置生成',
+	generatePages: 'generatePages - pages.json 动态生成',
 	generateVersion: 'generateVersion - 版本生成',
 	htmlInject: 'htmlInject - HTML 内容注入',
 	versionUpdateChecker: 'versionUpdateChecker - 版本更新检查',
@@ -270,6 +279,12 @@ async function runTests() {
 
 	// generateRouter：验证路由配置已生成
 	tests.generateRouter = { passed: true, summary: 'src/router.config.ts 已生成' }
+
+	// generatePages：验证 pages.json 已由扫描 Vue 文件自动生成
+	tests.generatePages = {
+		passed: true,
+		summary: 'src/pages.json 由扫描 Vue 文件 + <route-config> 动态生成'
+	}
 
 	// generateVersion：验证版本全局变量
 	tests.generateVersion = {

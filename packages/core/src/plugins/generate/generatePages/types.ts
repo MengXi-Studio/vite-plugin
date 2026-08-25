@@ -112,6 +112,9 @@ export interface GeneratePagesOptions extends BasePluginOptions {
 	/** 页面配置自定义块名称 @default 'route-config' */
 	routeConfigBlock?: string
 
+	/** 主包入口页路径（如 'pages/index/index'），作为 pages[0] 固定置于首位；未配置时继承现有 pages[0] */
+	entryPage?: string
+
 	/** 页面标题缺失时的兜底策略 @default 'filename' */
 	titleFallback?: 'filename' | 'none'
 

@@ -1,3 +1,10 @@
+<route-config>
+{
+	"title": "关于",
+	"isTab": true
+}
+</route-config>
+
 <template>
 	<view class="container">
 		<text class="page-title">关于</text>
@@ -20,6 +27,7 @@
 				<text class="plugin-item">envGuard - 环境变量校验</text>
 				<text class="plugin-item">faviconManager - 图标管理</text>
 				<text class="plugin-item">generateRouter - 路由配置生成</text>
+				<text class="plugin-item">generatePages - pages.json 动态生成</text>
 				<text class="plugin-item">generateVersion - 版本生成</text>
 				<text class="plugin-item">htmlInject - HTML 内容注入</text>
 				<text class="plugin-item">imageOptimizer - 图片优化</text>

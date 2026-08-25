@@ -1,3 +1,9 @@
+<route-config>
+{
+	"title": "构建报告"
+}
+</route-config>
+
 <template>
 	<view class="container">
 		<text class="page-title">构建报告</text>

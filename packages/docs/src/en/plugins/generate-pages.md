@@ -69,6 +69,7 @@ Generated `pages.json` fragment:
 | pagesDir         | `string`                     | `'src/pages'`                            | Main package pages directory         |
 | subPackages      | `SubPackageConfig[]`         | `[{ root: 'pages-sub', dir: 'src/pages-sub' }]` | Sub-package config list (skipped if directory missing) |
 | routeConfigBlock | `string`                     | `'route-config'`                         | Name of the page config custom block |
+| entryPage        | `string`                     | Existing pages[0]                        | Main package entry page path (e.g. `pages/index/index`), pinned as pages[0] |
 | titleFallback    | `'filename' \| 'none'`       | `'filename'`                             | Fallback strategy when title is missing |
 | tabBar           | `TabBarTemplate`             | -                                        | tabBar template (generated only when provided) |
 | includeExtensions| `string[]`                   | `['.vue']`                               | Page file extension list             |

@@ -5,14 +5,16 @@ export { ConvertMapping, FormatQualityOptions, ImageFormat, ImageOptimizeStats, 
 export { AssetGroup, AssetManifestOptions, AssetManifestResult, AssetMap, CustomFormatter, ManifestOutputFormat, WebpackEntryAsset, WebpackManifestOutput, assetManifest } from './copy/assetManifest/index.cjs';
 export { CopyFileOptions, copyFile } from './copy/copyFile/index.cjs';
 export { AutoImportOptions, BiomelintrcConfig, CacheConfig, DirConfig, DirConfigObject, DirsScanOptions, DtsConfig, DtsConfigObject, EslintrcConfig, ImportInline, ImportMeta, ImportsConfig, InlineImportConfig, PackagePresetOptions, PresetDefinition, Resolver, ScannedModule, TransformResult, VueDirectivesConfig, autoImport } from './generate/autoImport/index.cjs';
-export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './generate/generateRouter/index.cjs';
+export { generateRouter } from './generate/generateRouter/index.cjs';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './generate/generateVersion/index.cjs';
+export { GeneratePagesOptions, RouteConfigBlock, SubPackageConfig, TabBarTemplate, generatePages } from './generate/generatePages/index.cjs';
 export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './guard/envGuard/index.cjs';
 export { FaviconManagerOptions, Icon, IconOptions, faviconManager } from './inject/faviconManager/index.cjs';
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './inject/htmlInject/index.cjs';
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './inject/loadingManager/index.cjs';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './inject/versionUpdateChecker/index.cjs';
 export { DelayConfig, ProxyLogEntry, ProxyLogLevel, ProxyManagerOptions, ProxyRule, ResolvedProxyRule, proxyManager } from './proxy/proxyManager/index.cjs';
+export { G as GenerateRouterOptions, N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta, U as UniAppPageConfig, b as UniAppPagesJson, c as UniAppTabBarConfig } from '../shared/vite-plugin.CCllMqTE.cjs';
 import '../factory/index.cjs';
 import 'vite';
 import '../shared/vite-plugin.BmNqGOzh.cjs';

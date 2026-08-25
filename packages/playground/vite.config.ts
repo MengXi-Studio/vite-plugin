@@ -2,7 +2,7 @@ import { defineConfig, type PluginOption } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 // 按功能分组导入插件（推荐方式，利于 Tree-shaking）
 import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress'
-import { autoImport, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { autoImport, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
 import { htmlInject, loadingManager, faviconManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject'
 import { bundleAnalyzer, buildProgress } from '@meng-xi/vite-plugin/plugins/analyze'
 import { copyFile, assetManifest } from '@meng-xi/vite-plugin/plugins/copy'
@@ -71,6 +71,23 @@ export default defineConfig({
 			gzipSize: true,
 			excludeNodeModules: false,
 			defaultChartType: 'treemap'
+		}),
+
+		// 页面配置生成：扫描 Vue 文件 + `<route-config>` 动态生成 pages.json 的 pages/subPackages/tabBar
+		// 放置在 generateRouter 之前，确保路由配置基于最新生成的 pages.json
+		generatePages({
+			pagesDir: 'src/pages',
+			subPackages: [{ root: 'pages-sub', dir: 'src/pages-sub' }],
+			routeConfigBlock: 'route-config',
+			titleFallback: 'filename',
+			entryPage: 'pages/index/index',
+			watch: true,
+			tabBar: {
+				color: '#999999',
+				selectedColor: '#42b883',
+				borderStyle: 'black',
+				backgroundColor: '#ffffff'
+			}
 		}),
 
 		// 路由配置生成（基于 pages.json）

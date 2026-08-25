@@ -1,3 +1,9 @@
+<route-config>
+{
+	"title": "登录"
+}
+</route-config>
+
 <template>
 	<view class="container">
 		<text class="page-title">登录</text>

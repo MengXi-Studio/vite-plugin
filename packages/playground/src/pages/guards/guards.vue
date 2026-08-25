@@ -1,3 +1,9 @@
+<route-config>
+{
+	"title": "路由守卫"
+}
+</route-config>
+
 <template>
 	<view class="container">
 		<text class="page-title">路由守卫演示</text>

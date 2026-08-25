@@ -5,7 +5,7 @@ import { BasePlugin, createPluginFactory } from '@/factory'
 import { writeFileContent } from '@/common/fs'
 import { stripJsonComments } from '@/common/string'
 import type { GeneratePagesOptions, UniAppPagesJson, ScannedPage } from './types'
-import { scanPageFiles, buildScannedPage, buildTabBar, mergePagesJson } from './helpers'
+import { scanPageFiles, buildScannedPage, buildTabBar, mergePagesJson, orderMainPages } from './helpers'
 
 /** 目录监听实例集合（fs.FSWatcher 使用 path/event 回调形式） */
 type DirWatcher = {
@@ -84,7 +84,20 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 	}
 
 	protected validateOptions(): void {
-		this.validator.field('pagesJsonPath').string().field('pagesDir').string().field('routeConfigBlock').string().field('titleFallback').enum(['filename', 'none']).field('watch').boolean().validate()
+		this.validator
+			.field('pagesJsonPath')
+			.string()
+			.field('pagesDir')
+			.string()
+			.field('routeConfigBlock')
+			.string()
+			.field('entryPage')
+			.string()
+			.field('titleFallback')
+			.enum(['filename', 'none'])
+			.field('watch')
+			.boolean()
+			.validate()
 	}
 
 	protected onConfigResolved(config: ResolvedConfig): void {
@@ -120,9 +133,14 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 		const mainScanned = scanPageFiles(pagesDir, scanOptions)
 			.map(file => buildScannedPage(file, { absDir: pagesJsonDir }, pageOptions))
 			.filter((p): p is ScannedPage => p !== null)
-			// 按页面路径排序，保证不同文件系统/目录顺序下生成结果确定性一致
-			.sort((a, b) => a.page.path.localeCompare(b.page.path))
-		const mainPages = mainScanned.map(s => s.page)
+		// 读取现有 pages.json（用于保留入口页顺序，并按既有字段合并）
+		const existing = this.readExistingPagesJson(pagesJsonPath)
+		// 主包页面：固定入口页于首位，其余按路径稳定排序（入口页优先取配置，其次取现有 pages[0]）
+		const entryPage = this.options.entryPage ?? existing?.pages?.[0]?.path
+		const mainPages = orderMainPages(
+			mainScanned.map(s => s.page),
+			entryPage
+		)
 
 		// 2. 组装分包页面
 		let subPackages: NonNullable<UniAppPagesJson['subPackages']> | undefined
@@ -147,8 +165,7 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 		// 3. 组装 tabBar（基于主包页面信息，含页面内 tab 覆盖）
 		const tabBar = buildTabBar(mainScanned, this.options.tabBar)
 
-		// 4. 读取现有 pages.json 并合并
-		const existing = this.readExistingPagesJson(pagesJsonPath)
+		// 4. 合并（existing 已在组装主包时读取）
 		const merged = mergePagesJson(existing, { pages: mainPages, subPackages, tabBar })
 
 		// 5. 写入（保持 JSON 缩进风格；先确保目录存在，支持首次生成）

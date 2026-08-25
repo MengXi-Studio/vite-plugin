@@ -1,3 +1,9 @@
+<route-config>
+{
+	"title": "个人中心"
+}
+</route-config>
+
 <template>
 	<view class="container">
 		<text class="page-title">个人中心</text>

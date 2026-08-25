@@ -200,3 +200,24 @@ export function isTabPage(page: UniAppPageConfig): boolean {
 	}
 	return false
 }
+
+/**
+ * 对主包页面排序并固定入口页
+ *
+ * @param pages 扫描得到的主包页面（未排序）
+ * @param entryPath 作为启动页的页面路径（`pages[0]`），可能为 undefined
+ * @returns 排序后的页面：入口页（若仍存在且不在首位）置于首位，其余按路径稳定排序。
+ *
+ * @description uni-app 以 `pages[0]` 为启动页。若直接按路径排序，入口页会随字母序漂移
+ * （例如默认入口 `pages/index/index` 可能被 `pages/about/about` 取代）。
+ * 故保留指定入口页在首位，其余页面按路径稳定排序，兼顾输出确定性与入口语义。
+ */
+export function orderMainPages(pages: UniAppPageConfig[], entryPath?: string): UniAppPageConfig[] {
+	const sorted = [...pages].sort((a, b) => a.path.localeCompare(b.path))
+	if (!entryPath) return sorted
+	const idx = sorted.findIndex(p => p.path === entryPath)
+	// 入口页不存在（已删除）或已在首位时，维持排序结果
+	if (idx <= 0) return sorted
+	const [entry] = sorted.splice(idx, 1)
+	return [entry, ...sorted]
+}

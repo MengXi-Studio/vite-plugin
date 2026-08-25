@@ -67,6 +67,7 @@ export default defineConfig({
 | pagesDir        | `string`                      | `'src/pages'`                             | 主包页面目录                 |
 | subPackages     | `SubPackageConfig[]`          | `[{ root: 'pages-sub', dir: 'src/pages-sub' }]` | 分包配置列表（目录不存在时跳过） |
 | routeConfigBlock| `string`                      | `'route-config'`                          | 页面配置自定义块名称         |
+| entryPage       | `string`                      | 现有 pages[0]                             | 主包入口页路径（如 `pages/index/index`），固定为 pages[0] |
 | titleFallback   | `'filename' \| 'none'`        | `'filename'`                              | 标题缺失时的兜底策略         |
 | tabBar          | `TabBarTemplate`              | -                                         | tabBar 模板（提供后才生成）  |
 | includeExtensions| `string[]`                    | `['.vue']`                                | 页面文件扩展名列表           |

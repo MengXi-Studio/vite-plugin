@@ -1,3 +1,9 @@
+<route-config>
+{
+	"title": "详情页"
+}
+</route-config>
+
 <template>
 	<view class="container">
 		<text class="page-title">详情页</text>
