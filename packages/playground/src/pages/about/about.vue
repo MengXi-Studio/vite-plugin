@@ -102,6 +102,7 @@ const versionInfo = __APP_VERSION___INFO
 <route-config>
 {
 	"title": "关于",
-	"isTab": true
+	"isTab": true,
+	"tab": { "text": "关于我们", "order": 1 }
 }
 </route-config>

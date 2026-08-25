@@ -123,3 +123,9 @@ export default {
 	border-radius: 6rpx;
 }
 </style>
+
+<route-config>
+{
+	"title": "路由解析"
+}
+</route-config>

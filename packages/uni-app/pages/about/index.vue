@@ -187,3 +187,13 @@ export default {
 	font-weight: 500;
 }
 </style>
+
+<route-config>
+{
+	"title": "关于",
+	"name": "AboutPage",
+	"meta": { "requireAuth": false },
+	"isTab": true,
+	"tab": { "order": 1 }
+}
+</route-config>

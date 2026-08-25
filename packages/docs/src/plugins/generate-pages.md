@@ -100,7 +100,7 @@ generatePages({
 | style | `object` | 页面样式，原样写入 `style` 字段 |
 | meta | `object` | 页面元信息，原样写入 `meta` 字段 |
 | isTab | `boolean` | 是否为 tabBar 页面，自动归集到 `tabBar.list` |
-| tab | `TabBarItemOverride` | tabBar 图标与文本覆盖 |
+| tab | `TabBarItemOverride` | tabBar 图标、文本与 `order` 排序权重（`order` 仅排序，不写入输出） |
 
 ```vue
 <route-config>
@@ -140,6 +140,8 @@ generatePages({
 2. `tabBar.overrides[pagePath]`
 3. `tabBar.iconPath` / `selectedIconPath`（全局模板）
 4. 页面标题 / 文件名（作为 text 兜底）
+
+**list 排序：** 按每项 `tab.order` 升序排列（越小越靠前），未声明 `order` 的项排在已声明之后、保持原相对顺序；`order` 仅用于排序，不会写入生成的 `tabBar.list`。
 
 推荐将图标就近声明在页面内，工厂只需提供全局样式与默认图标：
 

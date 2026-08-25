@@ -127,3 +127,9 @@ export default {
 	color: #007aff;
 }
 </style>
+
+<route-config>
+{
+	"title": "个人中心"
+}
+</route-config>

@@ -121,3 +121,9 @@ export default {
 	font-weight: 500;
 }
 </style>
+
+<route-config>
+{
+	"title": "路由导航"
+}
+</route-config>

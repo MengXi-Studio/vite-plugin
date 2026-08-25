@@ -736,6 +736,7 @@ async function testProxyDelay() {
 <route-config>
 {
 	"title": "首页",
-	"isTab": true
+	"isTab": true,
+	"tab": { "order": 0 }
 }
 </route-config>

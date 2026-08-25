@@ -102,7 +102,7 @@ Declare config in a per-page `<route-config>` block; the content is JSON (commen
 | style | `object` | Page style, written to the `style` field as-is |
 | meta | `object` | Page meta, written to the `meta` field as-is |
 | isTab | `boolean` | Whether it is a tabBar page; auto-collected into `tabBar.list` |
-| tab | `TabBarItemOverride` | tabBar icon and text override |
+| tab | `TabBarItemOverride` | tabBar icon, text, and `order` sort weight (`order` is sort-only, not written to output) |
 
 ```vue
 <route-config>
@@ -142,6 +142,8 @@ generatePages({
 2. `tabBar.overrides[pagePath]`
 3. `tabBar.iconPath` / `selectedIconPath` (global template)
 4. Page title / filename (as `text` fallback)
+
+**list ordering:** Sorted by each item's `tab.order` ascending (smaller first); items without `order` come after declared ones, keeping their relative order. `order` is sort-only and is never written into the generated `tabBar.list`.
 
 It is recommended to declare icons locally in the page; the factory only needs to provide global styles and default icons:
 

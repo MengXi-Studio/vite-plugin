@@ -147,3 +147,9 @@ export default {
 	font-weight: 500;
 }
 </style>
+
+<route-config>
+{
+	"title": "详情页"
+}
+</route-config>

@@ -8,6 +8,7 @@ import {
 	envGuard,
 	generateVersion,
 	generateRouter,
+	generatePages,
 	faviconManager,
 	loadingManager,
 	versionUpdateChecker,
@@ -65,6 +66,22 @@ export default defineConfig(config => {
 				format: 'bar',
 				clearOnComplete: false,
 				showModuleName: true
+			}),
+
+			// 页面配置生成：扫描 Vue 文件 + `<route-config>` 动态生成 pages.json 的 pages/subPackages/tabBar
+			// 置于 generateRouter 之前，确保路由配置基于最新生成的 pages.json
+			generatePages({
+				pagesJsonPath: 'pages.json',
+				pagesDir: 'pages',
+				subPackages: [{ root: 'pages-sub', dir: 'pages-sub' }],
+				entryPage: 'pages/index/index',
+				tabBar: {
+					color: '#999999',
+					selectedColor: '#007aff',
+					borderStyle: 'black',
+					backgroundColor: '#ffffff'
+				},
+				watch: true
 			}),
 
 			// 路由生成 + 类型声明

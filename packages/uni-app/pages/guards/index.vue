@@ -155,3 +155,9 @@ export default {
 	font-weight: 500;
 }
 </style>
+
+<route-config>
+{
+	"title": "路由守卫"
+}
+</route-config>

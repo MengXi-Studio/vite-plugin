@@ -52,6 +52,23 @@ export interface TabBarItemOverride {
 	iconPath?: string
 	/** 选中的图标路径 */
 	selectedIconPath?: string
+	/**
+	 * 排序权重，仅用于决定生成 `tabBar.list` 的先后顺序，不写入输出
+	 *
+	 * @description 越小越靠前；未设置的项目排在已设置之后，保持原有相对顺序。
+	 *
+	 * @example
+	 * ```vue
+	 * <route-config>
+	 * {
+	 *   "title": "关于",
+	 *   "isTab": true,
+	 *   "tab": { "text": "关于我们", "order": 1 }
+	 * }
+	 * </route-config>
+	 * ```
+	 */
+	order?: number
 }
 
 /**
@@ -86,36 +103,45 @@ export interface TabBarTemplate extends Omit<UniAppTabBarConfig, 'list'> {
 	/** 应用到所有自动生成 tab 项的默认选中图标路径（可选模板） */
 	selectedIconPath?: string
 	/** 按 pagePath 覆盖单项配置 */
-	overrides?: Record<
-		string,
-		{
-			text?: string
-			iconPath?: string
-			selectedIconPath?: string
-		}
-	>
+	overrides?: Record<string, TabBarItemOverride>
 }
 
 /**
  * 生成 uni-app pages.json 插件选项
  */
 export interface GeneratePagesOptions extends BasePluginOptions {
-	/** pages.json 文件路径（相对于项目根目录） @default 'src/pages.json' */
+	/**
+	 * pages.json 文件路径（相对于项目根目录）
+	 * @default 'src/pages.json'
+	 */
 	pagesJsonPath?: string
 
-	/** 主包页面目录（相对于项目根目录） @default 'src/pages' */
+	/**
+	 * 主包页面目录（相对于项目根目录）
+	 * @default 'src/pages'
+	 */
 	pagesDir?: string
 
-	/** 分包配置列表，目录不存在时自动跳过 @default [{ root: 'pages-sub', dir: 'src/pages-sub' }] */
+	/**
+	 * 分包配置列表，目录不存在时自动跳过
+	 * @default
+	 * [{ root: 'pages-sub', dir: 'src/pages-sub' }]
+	 */
 	subPackages?: SubPackageConfig[]
 
-	/** 页面配置自定义块名称 @default 'route-config' */
+	/**
+	 * 页面配置自定义块名称
+	 * @default 'route-config'
+	 */
 	routeConfigBlock?: string
 
 	/** 主包入口页路径（如 'pages/index/index'），作为 pages[0] 固定置于首位；未配置时继承现有 pages[0] */
 	entryPage?: string
 
-	/** 页面标题缺失时的兜底策略 @default 'filename' */
+	/**
+	 * 页面标题缺失时的兜底策略
+	 * @default 'filename'
+	 */
 	titleFallback?: 'filename' | 'none'
 
 	/** tabBar 模板，提供后自动生成 tabBar（基于 isTab 标记归集） */
@@ -124,9 +150,15 @@ export interface GeneratePagesOptions extends BasePluginOptions {
 	/** 页面文件扩展名列表 @default ['.vue'] */
 	includeExtensions?: string[]
 
-	/** 需要排除的路径模式列表 @default [] */
+	/**
+	 * 需要排除的路径模式列表
+	 * @default []
+	 */
 	excludePatterns?: string[]
 
-	/** 是否监听页面目录变化并自动重新生成 @default true */
+	/**
+	 * 是否监听页面目录变化并自动重新生成
+	 * @default true
+	 */
 	watch?: boolean
 }
