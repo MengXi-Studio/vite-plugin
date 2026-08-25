@@ -7,7 +7,7 @@
 ```typescript
 import { generateVersion } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate-version'
+import { generateVersion } from '@meng-xi/vite-plugin/plugins/generate/generate-version'
 ```
 
 ## 快速开始

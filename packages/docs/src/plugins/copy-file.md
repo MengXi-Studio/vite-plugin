@@ -7,7 +7,7 @@
 ```typescript
 import { copyFile } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { copyFile } from '@meng-xi/vite-plugin/plugins/copy-file'
+import { copyFile } from '@meng-xi/vite-plugin/plugins/copy/copy-file'
 ```
 
 ## 快速开始

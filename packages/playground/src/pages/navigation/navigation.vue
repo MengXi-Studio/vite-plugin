@@ -113,3 +113,9 @@ function navigateToSubPkg() {
 	border: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "路由导航"
+}
+</route-config>

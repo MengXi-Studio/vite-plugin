@@ -6,8 +6,8 @@ Build artifact size analysis plugin with JSON/HTML reports, gzip calculation, th
 
 ```typescript
 // Submodule import (recommended)
-import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
-import type { BundleAnalyzerOptions, BundleAnalysisResult, BundleOutputFormat } from '@meng-xi/vite-plugin/plugins/bundle-analyzer'
+import { bundleAnalyzer } from '@meng-xi/vite-plugin/plugins/analyze/bundle-analyzer'
+import type { BundleAnalyzerOptions, BundleAnalysisResult, BundleOutputFormat } from '@meng-xi/vite-plugin/plugins/analyze/bundle-analyzer'
 
 // Barrel import
 import { bundleAnalyzer } from '@meng-xi/vite-plugin'

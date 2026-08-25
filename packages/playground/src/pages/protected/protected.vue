@@ -81,3 +81,12 @@ function goBack() {
 	border: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "受保护页面",
+	"name": "ProtectedPage",
+	"style": { "requireAuth": true },
+	"meta": { "requireAuth": true, "role": "admin" }
+}
+</route-config>

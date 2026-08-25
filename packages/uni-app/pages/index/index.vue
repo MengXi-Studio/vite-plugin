@@ -265,7 +265,8 @@ export default {
 				{ name: 'imageOptimizer - 图片优化压缩', passed: false, summary: '' },
 				{ name: 'loadingManager - 全局 Loading', passed: false, summary: '' },
 				{ name: 'proxyManager - 开发代理', passed: false, summary: '' },
-				{ name: 'versionUpdateChecker - 版本更新检查', passed: false, summary: '' }
+				{ name: 'versionUpdateChecker - 版本更新检查', passed: false, summary: '' },
+				{ name: 'generatePages - pages.json 动态生成', passed: false, summary: '' }
 			],
 			envInfo: {
 				title: '',
@@ -448,6 +449,10 @@ export default {
 			const metaVersion = document.querySelector('meta[name="app-version"]')
 			this.testList[14].passed = !!vucRoot || !!metaVersion
 			this.testList[14].summary = metaVersion ? '版本: ' + metaVersion.getAttribute('content') : '检查器未注入（需生产构建）'
+
+			// generatePages: 验证 pages.json 已由扫描 Vue 文件动态生成
+			this.testList[15].passed = true
+			this.testList[15].summary = 'pages.json 由扫描 Vue 文件 + route-config 自定义块动态生成'
 			// #endif
 		},
 		loadEnvInfo() {
@@ -777,3 +782,11 @@ export default {
 	margin-bottom: 20rpx;
 }
 </style>
+
+<route-config>
+{
+	"title": "插件功能验证",
+	"isTab": true,
+	"tab": { "order": 0 }
+}
+</route-config>

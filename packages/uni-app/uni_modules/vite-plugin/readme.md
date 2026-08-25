@@ -11,7 +11,7 @@ Vite 实用插件集与插件开发框架（uni-app 版本）。
 
 ## 特性
 
-- **开箱即用** - 15 个实用插件，覆盖构建、产物、路由、版本、HTML、代理等场景
+- **开箱即用** - 16 个实用插件，覆盖构建、产物、路由、版本、HTML、代理等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator，快速构建自定义插件
 - **通用工具库** - 内置 14 大 Common 工具模块，支持子路径按需导入
 - **uni-app 适配** - 通过 uni_modules 集成，无需 npm 安装
@@ -51,6 +51,7 @@ import {
 	copyFile,
 	envGuard,
 	faviconManager,
+	generatePages,
 	generateRouter,
 	generateVersion,
 	htmlInject,
@@ -65,6 +66,7 @@ export default defineConfig({
 		uni(),
 		// 按需启用插件
 		autoImport({ imports: ['vue'], vueTemplate: true }),
+		generatePages({ pagesDir: 'pages', entryPage: 'pages/index/index' }),
 		generateRouter({ dts: true }),
 		generateVersion({ format: 'datetime', outputType: 'both' }),
 		envGuard({ required: { VITE_API_URL: { type: 'url', required: true } } }),
@@ -76,23 +78,24 @@ export default defineConfig({
 
 ## 内置插件
 
-| 插件                 | 说明                        |
-| -------------------- | --------------------------- |
-| assetManifest        | 资源清单生成                |
+| 插件                 | 说明                                |
+| -------------------- | ----------------------------------- |
+| assetManifest        | 资源清单生成                        |
 | autoImport           | 自动导入（预设/别名/类型/目录扫描） |
-| buildProgress        | 终端构建进度条              |
-| bundleAnalyzer       | 构建产物体积分析            |
-| compressAssets       | 构建产物压缩（gzip/brotli） |
-| copyFile             | 文件复制                    |
-| envGuard             | 环境变量校验                |
-| faviconManager       | 网站图标管理                |
-| generateRouter       | 路由配置生成（uni-app）     |
-| generateVersion      | 版本号生成与注入            |
-| htmlInject           | HTML 内容注入               |
-| imageOptimizer       | 图片优化与格式转换          |
-| loadingManager       | 全局 Loading 状态管理       |
-| proxyManager         | 开发服务器代理管理          |
-| versionUpdateChecker | 运行时版本更新检查          |
+| buildProgress        | 终端构建进度条                      |
+| bundleAnalyzer       | 构建产物体积分析                    |
+| compressAssets       | 构建产物压缩（gzip/brotli）         |
+| copyFile             | 文件复制                            |
+| envGuard             | 环境变量校验                        |
+| faviconManager       | 网站图标管理                        |
+| generateRouter       | 路由配置生成（uni-app）             |
+| generatePages        | 页面配置生成（动态生成 pages.json） |
+| generateVersion      | 版本号生成与注入                    |
+| htmlInject           | HTML 内容注入                       |
+| imageOptimizer       | 图片优化与格式转换                  |
+| loadingManager       | 全局 Loading 状态管理               |
+| proxyManager         | 开发服务器代理管理                  |
+| versionUpdateChecker | 运行时版本更新检查                  |
 
 > 各插件详细配置与 API 请查阅 [官网插件文档](https://mengxi-studio.github.io/vite-plugin/plugins/)。
 

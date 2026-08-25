@@ -3,19 +3,19 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "首页 - vite-plugin 演示"
+				"navigationBarTitleText": "首页"
+			},
+			"meta": {
+				"isTab": true
 			}
 		},
 		{
-			"path": "pages/navigation/navigation",
+			"path": "pages/about/about",
 			"style": {
-				"navigationBarTitleText": "路由导航"
-			}
-		},
-		{
-			"path": "pages/guards/guards",
-			"style": {
-				"navigationBarTitleText": "路由守卫"
+				"navigationBarTitleText": "关于"
+			},
+			"meta": {
+				"isTab": true
 			}
 		},
 		{
@@ -25,12 +25,15 @@
 			}
 		},
 		{
-			"path": "pages/protected/protected",
-			"name": "ProtectedPage",
-			"meta": { "requireAuth": true, "role": "admin" },
+			"path": "pages/error/error",
 			"style": {
-				"navigationBarTitleText": "受保护页面",
-				"requireAuth": true
+				"navigationBarTitleText": "错误页面"
+			}
+		},
+		{
+			"path": "pages/guards/guards",
+			"style": {
+				"navigationBarTitleText": "路由守卫"
 			}
 		},
 		{
@@ -40,27 +43,33 @@
 			}
 		},
 		{
-			"path": "pages/about/about",
+			"path": "pages/navigation/navigation",
 			"style": {
-				"navigationBarTitleText": "关于"
+				"navigationBarTitleText": "路由导航"
 			}
 		},
 		{
-			"path": "pages/resolve/resolve",
+			"path": "pages/protected/protected",
+			"name": "ProtectedPage",
 			"style": {
-				"navigationBarTitleText": "路由解析"
-			}
-		},
-		{
-			"path": "pages/error/error",
-			"style": {
-				"navigationBarTitleText": "错误页面"
+				"requireAuth": true,
+				"navigationBarTitleText": "受保护页面"
+			},
+			"meta": {
+				"requireAuth": true,
+				"role": "admin"
 			}
 		},
 		{
 			"path": "pages/reports/reports",
 			"style": {
 				"navigationBarTitleText": "构建报告"
+			}
+		},
+		{
+			"path": "pages/resolve/resolve",
+			"style": {
+				"navigationBarTitleText": "路由解析"
 			}
 		}
 	],
@@ -77,8 +86,8 @@
 				{
 					"path": "settings/settings",
 					"style": {
-						"navigationBarTitleText": "设置",
-						"requireAuth": true
+						"requireAuth": true,
+						"navigationBarTitleText": "设置"
 					}
 				}
 			]
@@ -96,7 +105,7 @@
 			},
 			{
 				"pagePath": "pages/about/about",
-				"text": "关于"
+				"text": "关于我们"
 			}
 		]
 	},

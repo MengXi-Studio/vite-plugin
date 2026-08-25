@@ -321,3 +321,9 @@ export default {
 	font-weight: 500;
 }
 </style>
+
+<route-config>
+{
+	"title": "构建报告"
+}
+</route-config>

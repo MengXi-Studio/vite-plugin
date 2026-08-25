@@ -1,3 +1,83 @@
+## 1.2.0（2026-08-25）
+
+新增 generatePages 插件，扫描 Vue 文件 + `<route-config>` 自定义块动态生成 pages.json，插件总数增至 16 个
+
+### generatePages（新增）
+
+新增第 16 个插件：扫描通过页面目录与页面内 `<route-config>` 自定义块，自动生成 / 更新 uni-app 的 `pages.json` 页面相关配置（`pages` / `subPackages` / `tabBar`），彻底解放手动配置页面。
+
+**核心能力**：
+
+| 能力         | 配置 / 用法                                   | 说明                                                |
+| ------------ | --------------------------------------------- | --------------------------------------------------- |
+| 主包页面生成 | `pagesDir: 'src/pages'`                       | 递归扫描生成 `pages`，页面路径稳定排序              |
+| 分包页面生成 | `subPackages: [{ root, dir }]`                | 自动扫描生成 `subPackages`                          |
+| tabBar 归集  | `<route-config>` 声明 `isTab` + `tabBar` 模板 | 自动将 tab 页面归集到 `tabBar.list`                 |
+| 就近声明配置 | `<route-config>` 自定义块                     | 标题 / 样式 / meta / name / tab 在页面内就近声明    |
+| 入口页固定   | `entryPage: 'pages/index/index'`              | 保证 `pages[0]` 为启动页，不被字母序排序改写        |
+| tabBar 排序  | `<route-config>.tab.order`                    | 按 `order` 升序排列 list，仅用于排序、不写入输出    |
+| 合并策略     | 自动（无需配置）                              | 仅覆盖页面部分，保留 `globalStyle` / `condition` 等 |
+| 开发监听     | `watch: true`（默认）                         | 页面目录文件变化时自动重新生成                      |
+
+**route-config 自定义块**：
+
+在页面内就近声明配置（内容为 JSON，支持注释）：
+
+```vue
+<route-config>
+{
+  "title": "首页",
+  "name": "HomePage",
+  "meta": { "requireAuth": false },
+  "isTab": true,
+  "tab": { "text": "首页", "iconPath": "static/tab/home.png", "order": 0 }
+}
+</route-config>
+```
+
+| 字段  | 类型                 | 说明                                            |
+| ----- | -------------------- | ----------------------------------------------- |
+| title | `string`             | 页面标题，映射为 `style.navigationBarTitleText` |
+| name  | `string`             | 页面名称，写入 `name` 字段                      |
+| style | `object`             | 原样写入 `style` 字段                           |
+| meta  | `object`             | 原样写入 `meta` 字段                            |
+| isTab | `boolean`            | 是否为 tabBar 页面，自动归集到 `tabBar.list`    |
+| tab   | `TabBarItemOverride` | tabBar 图标 / 文本 / `order` 排序权重           |
+
+**配置选项**：
+
+| 选项              | 类型                   | 默认值                                        | 说明                            |
+| ----------------- | ---------------------- | --------------------------------------------- | ------------------------------- |
+| pagesJsonPath     | `string`               | `'src/pages.json'`                            | pages.json 文件路径             |
+| pagesDir          | `string`               | `'src/pages'`                                 | 主包页面目录                    |
+| subPackages       | `SubPackageConfig[]`   | `[{ root:'pages-sub', dir:'src/pages-sub' }]` | 分包配置列表（目录缺失时跳过）  |
+| routeConfigBlock  | `string`               | `'route-config'`                              | 页面配置自定义块名称            |
+| entryPage         | `string`               | 现有 `pages[0]`                               | 主包入口页路径，固定为 pages[0] |
+| titleFallback     | `'filename' \| 'none'` | `'filename'`                                  | 标题缺失时的兜底策略            |
+| tabBar            | `TabBarTemplate`       | -                                             | tabBar 模板（提供后才生成）     |
+| includeExtensions | `string[]`             | `['.vue']`                                    | 页面文件扩展名列表              |
+| excludePatterns   | `string[]`             | `['node_modules']`                            | 排除的路径模式列表              |
+| watch             | `boolean`              | `true`                                        | 监听页面目录变化自动重新生成    |
+
+**类型完善**：
+
+- `TabBarItemOverride` 复用为 `overrides` 元素类型，与页面内 `tab` 保持一致
+- 页面排序 `orderMainPages` 移入 `helpers` 目录，保持主插件文件聚焦
+
+**与 generateRouter 的关系**：
+
+`generateRouter` 是「读 pages.json → 生成路由配置」，`generatePages` 反向「扫描 Vue 文件 → 生成 pages.json」。二者可组合使用（`generatePages` 应置于 `generateRouter` 之前）。
+
+### 插件清单（变更）
+
+- 插件总数由 15 增至 **16**，分组由 7 组不变
+- generate 分组由 3 增至 4：`autoImport`、`generatePages`、`generateRouter`、`generateVersion`
+
+### 子路径导出（新增）
+
+- `@meng-xi/vite-plugin/plugins/generate/generate-pages` 新增导出：`generatePages` 及类型 `GeneratePagesOptions`、`RouteConfigBlock`、`SubPackageConfig`、`TabBarTemplate`、`TabBarItemOverride`、`ScannedPage`
+- `@meng-xi/vite-plugin/plugins/generate` 聚合导出 `generatePages` 及其关键类型
+
 ## 1.1.0（2026-07-28）
 
 autoImport 全面重构，内置预设系统、多种导入形式、HMR、Lint 配置生成、缓存机制

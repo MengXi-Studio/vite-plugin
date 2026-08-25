@@ -376,3 +376,9 @@ onMounted(() => {
 	margin-top: 16rpx;
 }
 </style>
+
+<route-config>
+{
+	"title": "构建报告"
+}
+</route-config>

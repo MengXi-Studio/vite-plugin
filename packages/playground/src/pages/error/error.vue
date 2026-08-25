@@ -82,3 +82,9 @@ function goHome() {
 	border: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "错误页面"
+}
+</route-config>

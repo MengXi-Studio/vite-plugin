@@ -7,7 +7,7 @@ HTML 内容注入插件，根据配置规则将 HTML 内容注入到目标 HTML 
 ```typescript
 import { htmlInject } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
+import { htmlInject } from '@meng-xi/vite-plugin/plugins/inject/html-inject'
 ```
 
 ## 快速开始

@@ -6,8 +6,8 @@ Automatically compress files in the output directory after Vite build, supportin
 
 ```typescript
 // Submodule import (recommended)
-import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress-assets'
-import type { CompressAssetsOptions, CompressStats, CompressSummary } from '@meng-xi/vite-plugin/plugins/compress-assets'
+import { compressAssets } from '@meng-xi/vite-plugin/plugins/compress/compress-assets'
+import type { CompressAssetsOptions, CompressStats, CompressSummary } from '@meng-xi/vite-plugin/plugins/compress/compress-assets'
 
 // Barrel import
 import { compressAssets } from '@meng-xi/vite-plugin'

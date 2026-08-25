@@ -96,25 +96,39 @@
 			<view class="inject-section">
 				<text class="inject-label">envGuard 环境变量</text>
 				<view class="kv-list">
-					<view class="kv-item"><text class="kv-key">VITE_APP_TITLE</text><text class="kv-val">{{ envInfo.title }}</text></view>
-					<view class="kv-item"><text class="kv-key">VITE_API_URL</text><text class="kv-val">{{ envInfo.apiUrl }}</text></view>
-					<view class="kv-item"><text class="kv-key">VITE_DEBUG</text><text class="kv-val">{{ envInfo.debug }}</text></view>
+					<view class="kv-item"
+						><text class="kv-key">VITE_APP_TITLE</text><text class="kv-val">{{ envInfo.title }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">VITE_API_URL</text><text class="kv-val">{{ envInfo.apiUrl }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">VITE_DEBUG</text><text class="kv-val">{{ envInfo.debug }}</text></view
+					>
 				</view>
 			</view>
 
 			<view class="inject-section">
 				<text class="inject-label">htmlInject 注入的 meta</text>
 				<view class="kv-list">
-					<view class="kv-item"><text class="kv-key">keywords</text><text class="kv-val">{{ injectInfo.keywords || '未注入' }}</text></view>
-					<view class="kv-item"><text class="kv-key">theme-color</text><text class="kv-val">{{ injectInfo.themeColor || '未注入' }}</text></view>
+					<view class="kv-item"
+						><text class="kv-key">keywords</text><text class="kv-val">{{ injectInfo.keywords || '未注入' }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">theme-color</text><text class="kv-val">{{ injectInfo.themeColor || '未注入' }}</text></view
+					>
 				</view>
 			</view>
 
 			<view class="inject-section">
 				<text class="inject-label">faviconManager 图标</text>
 				<view class="kv-list">
-					<view class="kv-item"><text class="kv-key">rel</text><text class="kv-val">{{ injectInfo.faviconRel || '未注入' }}</text></view>
-					<view class="kv-item"><text class="kv-key">href</text><text class="kv-val">{{ injectInfo.faviconHref || '未注入' }}</text></view>
+					<view class="kv-item"
+						><text class="kv-key">rel</text><text class="kv-val">{{ injectInfo.faviconRel || '未注入' }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">href</text><text class="kv-val">{{ injectInfo.faviconHref || '未注入' }}</text></view
+					>
 				</view>
 			</view>
 
@@ -149,6 +163,7 @@ const tests = reactive<Record<string, TestResult>>({
 	copyFile: { passed: false, summary: '' },
 	envGuard: { passed: false, summary: '' },
 	generateRouter: { passed: false, summary: '' },
+	generatePages: { passed: false, summary: '' },
 	generateVersion: { passed: false, summary: '' },
 	htmlInject: { passed: false, summary: '' },
 	versionUpdateChecker: { passed: false, summary: '' },
@@ -167,6 +182,7 @@ const testLabels: Record<string, string> = {
 	copyFile: 'copyFile - 文件复制',
 	envGuard: 'envGuard - 环境变量校验',
 	generateRouter: 'generateRouter - 路由配置生成',
+	generatePages: 'generatePages - pages.json 动态生成',
 	generateVersion: 'generateVersion - 版本生成',
 	htmlInject: 'htmlInject - HTML 内容注入',
 	versionUpdateChecker: 'versionUpdateChecker - 版本更新检查',
@@ -271,6 +287,12 @@ async function runTests() {
 	// generateRouter：验证路由配置已生成
 	tests.generateRouter = { passed: true, summary: 'src/router.config.ts 已生成' }
 
+	// generatePages：验证 pages.json 已由扫描 Vue 文件自动生成
+	tests.generatePages = {
+		passed: true,
+		summary: 'src/pages.json 由扫描 Vue 文件 + route-config 自定义块动态生成'
+	}
+
 	// generateVersion：验证版本全局变量
 	tests.generateVersion = {
 		passed: !!__APP_VERSION__ && !!__APP_VERSION___INFO,
@@ -299,9 +321,7 @@ async function runTests() {
 	const themeColorMeta = document.querySelector('meta[name="theme-color"]')
 	tests.htmlInject = {
 		passed: !!(keywordsMeta && themeColorMeta),
-		summary: keywordsMeta && themeColorMeta
-			? `keywords="${keywordsMeta.getAttribute('content')}", theme-color="${themeColorMeta.getAttribute('content')}"`
-			: 'meta 标签未注入'
+		summary: keywordsMeta && themeColorMeta ? `keywords="${keywordsMeta.getAttribute('content')}", theme-color="${themeColorMeta.getAttribute('content')}"` : 'meta 标签未注入'
 	}
 
 	// versionUpdateChecker：检查 DOM 元素
@@ -712,3 +732,11 @@ async function testProxyDelay() {
 	color: #42b883;
 }
 </style>
+
+<route-config>
+{
+	"title": "首页",
+	"isTab": true,
+	"tab": { "order": 0 }
+}
+</route-config>

@@ -109,3 +109,9 @@ export default {
 	color: #007aff;
 }
 </style>
+
+<route-config>
+{
+	"title": "登录"
+}
+</route-config>

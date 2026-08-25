@@ -91,6 +91,7 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 					collapsed: false,
 					items: [
 						{ text: 'autoImport', link: '/en/plugins/auto-import.html' },
+						{ text: 'generatePages', link: '/en/plugins/generate-pages.html' },
 						{ text: 'generateRouter', link: '/en/plugins/generate-router.html' },
 						{ text: 'generateVersion', link: '/en/plugins/generate-version.html' }
 					]

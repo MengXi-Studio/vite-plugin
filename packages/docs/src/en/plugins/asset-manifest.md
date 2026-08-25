@@ -7,8 +7,8 @@ injection, and custom formatting.
 
 ```typescript
 // Submodule import (recommended)
-import { assetManifest } from '@meng-xi/vite-plugin/plugins/asset-manifest'
-import type { AssetManifestOptions, ManifestOutputFormat, AssetMap, AssetGroup, AssetManifestResult, CustomFormatter } from '@meng-xi/vite-plugin/plugins/asset-manifest'
+import { assetManifest } from '@meng-xi/vite-plugin/plugins/copy/asset-manifest'
+import type { AssetManifestOptions, ManifestOutputFormat, AssetMap, AssetGroup, AssetManifestResult, CustomFormatter } from '@meng-xi/vite-plugin/plugins/copy/asset-manifest'
 
 // Barrel import
 import { assetManifest } from '@meng-xi/vite-plugin'

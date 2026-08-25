@@ -143,3 +143,9 @@ function goBack() {
 	border: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "详情页"
+}
+</route-config>

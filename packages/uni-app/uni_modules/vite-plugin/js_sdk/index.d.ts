@@ -22,8 +22,9 @@ export { ConvertMapping, FormatQualityOptions, ImageFormat, ImageOptimizeStats, 
 export { AssetGroup, AssetManifestOptions, AssetManifestResult, AssetMap, CustomFormatter, ManifestOutputFormat, WebpackEntryAsset, WebpackManifestOutput, assetManifest } from './plugins/copy/assetManifest/index.js';
 export { CopyFileOptions, copyFile } from './plugins/copy/copyFile/index.js';
 export { AutoImportOptions, BiomelintrcConfig, CacheConfig, DirConfig, DirConfigObject, DirsScanOptions, DtsConfig, DtsConfigObject, EslintrcConfig, ImportInline, ImportMeta, ImportsConfig, InlineImportConfig, PackagePresetOptions, PresetDefinition, Resolver, ScannedModule, TransformResult, VueDirectivesConfig, autoImport } from './plugins/generate/autoImport/index.js';
-export { GenerateRouterOptions, NameStrategy, OutputFormat, RouteConfig, RouteMeta, UniAppPageConfig, UniAppPagesJson, UniAppTabBarConfig, generateRouter } from './plugins/generate/generateRouter/index.js';
+export { generateRouter } from './plugins/generate/generateRouter/index.js';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './plugins/generate/generateVersion/index.js';
+export { GeneratePagesOptions, RouteConfigBlock, SubPackageConfig, TabBarTemplate, generatePages } from './plugins/generate/generatePages/index.js';
 export { EnvFailAction, EnvGuardOptions, EnvGuardResult, RuntimeGuardMode, envGuard } from './plugins/guard/envGuard/index.js';
 export { FaviconManagerOptions, Icon, IconOptions, faviconManager } from './plugins/inject/faviconManager/index.js';
 export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './plugins/inject/htmlInject/index.js';
@@ -31,6 +32,7 @@ export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, Lo
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './plugins/inject/versionUpdateChecker/index.js';
 export { DelayConfig, ProxyLogEntry, ProxyLogLevel, ProxyManagerOptions, ProxyRule, ResolvedProxyRule, proxyManager } from './plugins/proxy/proxyManager/index.js';
 export { C as ConditionType, D as DualInjectResult, H as HtmlInjectResult, I as InjectCondition, a as InjectPosition, S as SecurityConfig, b as SelectorMatch } from './shared/vite-plugin.BI9taN75.js';
+export { G as GenerateRouterOptions, N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta, U as UniAppPageConfig, b as UniAppPagesJson, c as UniAppTabBarConfig } from './shared/vite-plugin.D2NWtthI.js';
 export { L as LoggerOptions, P as PluginLogger } from './shared/vite-plugin.BmNqGOzh.js';
 import 'vite';
 import 'node:http';

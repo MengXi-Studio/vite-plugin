@@ -6,7 +6,7 @@ Auto-generate router configuration and TypeScript type declarations from uni-app
 
 ```typescript
 // Submodule import (recommended)
-import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate-router'
+import { generateRouter } from '@meng-xi/vite-plugin/plugins/generate/generate-router'
 
 // Barrel import
 import { generateRouter } from '@meng-xi/vite-plugin'

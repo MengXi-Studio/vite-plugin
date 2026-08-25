@@ -7,7 +7,7 @@
 ```typescript
 import { assetManifest } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { assetManifest } from '@meng-xi/vite-plugin/plugins/asset-manifest'
+import { assetManifest } from '@meng-xi/vite-plugin/plugins/copy/asset-manifest'
 ```
 
 ## 快速开始

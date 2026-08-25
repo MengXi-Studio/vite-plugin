@@ -82,3 +82,9 @@ export default {
 	font-weight: 500;
 }
 </style>
+
+<route-config>
+{
+	"title": "错误页面"
+}
+</route-config>

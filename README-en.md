@@ -18,8 +18,8 @@
 
 ## Features
 
-- **Ready to Use** - 15 practical plugins grouped by function (compress / generate / inject / analyze / copy / guard / proxy), covering auto-import, build progress, bundle analysis & compression, file copying,
-	environment variable validation, route generation, version management, HTML injection, favicon management, global Loading, image optimization, dev proxy, and more
+- **Ready to Use** - 16 practical plugins grouped by function (compress / generate / inject / analyze / copy / guard / proxy), covering auto-import, build progress, bundle analysis & compression, file copying,
+	environment variable validation, route generation, pages config generation, version management, HTML injection, favicon management, global Loading, image optimization, dev proxy, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
 - **Common Utility Library** - Built-in 14 Common utility modules supporting on-demand sub-path imports
 - **Type Safe** - Complete TypeScript type definitions with configuration validators
@@ -53,6 +53,7 @@ import {
 	copyFile,
 	envGuard,
 	faviconManager,
+	generatePages,
 	generateRouter,
 	generateVersion,
 	htmlInject,
@@ -72,6 +73,7 @@ export default defineConfig({
 		copyFile({ sourceDir: 'src/assets', targetDir: 'dist/assets' }),
 		envGuard({ rules: { VITE_API_URL: { type: 'string', required: true } } }),
 		faviconManager('/assets'),
+		generatePages({ tabBar: { color: '#999999', selectedColor: '#42b883' } }),
 		generateRouter(),
 		generateVersion({ format: 'datetime', outputType: 'both' }),
 		htmlInject({ rules: [{ id: 'meta', content: '<meta name="description" content="My App">', position: 'head-end' }] }),
@@ -96,6 +98,7 @@ Grouped by function (Lodash-style), supports importing by group or individually.
 ### generate - Generation
 
 - **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with built-in presets (Vue/Vue Router/Pinia etc.), alias/type/namespace imports, directory glob scanning, Vue template & directive auto-import, DTS generation, ESLint/Biome config generation
+- **[generatePages](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-pages.html)** - Scan Vue files to auto-generate pages.json page config, supporting sub-packages, tabBar aggregation and per-page `<route-config>` blocks (uni-app)
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)** - Auto-generate route config and type declarations from pages.json (uni-app)
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)** - Auto-generate version numbers with file output and global variable injection
 

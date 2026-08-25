@@ -7,7 +7,7 @@
 ```typescript
 import { faviconManager } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
+import { faviconManager } from '@meng-xi/vite-plugin/plugins/inject/favicon-manager'
 ```
 
 ## 快速开始

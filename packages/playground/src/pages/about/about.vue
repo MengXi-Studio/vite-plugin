@@ -20,6 +20,7 @@
 				<text class="plugin-item">envGuard - 环境变量校验</text>
 				<text class="plugin-item">faviconManager - 图标管理</text>
 				<text class="plugin-item">generateRouter - 路由配置生成</text>
+				<text class="plugin-item">generatePages - pages.json 动态生成</text>
 				<text class="plugin-item">generateVersion - 版本生成</text>
 				<text class="plugin-item">htmlInject - HTML 内容注入</text>
 				<text class="plugin-item">imageOptimizer - 图片优化</text>
@@ -97,3 +98,11 @@ const versionInfo = __APP_VERSION___INFO
 	border-bottom: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "关于",
+	"isTab": true,
+	"tab": { "text": "关于我们", "order": 1 }
+}
+</route-config>

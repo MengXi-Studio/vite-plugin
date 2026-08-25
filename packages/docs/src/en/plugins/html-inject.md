@@ -7,8 +7,8 @@ selector), conditional injection, template variable replacement, and security fi
 
 ```typescript
 // Submodule import (recommended)
-import { htmlInject } from '@meng-xi/vite-plugin/plugins/html-inject'
-import type { HtmlInjectOptions, InjectRule, InjectPosition, InjectCondition, SecurityConfig, InjectionLogEntry } from '@meng-xi/vite-plugin/plugins/html-inject'
+import { htmlInject } from '@meng-xi/vite-plugin/plugins/inject/html-inject'
+import type { HtmlInjectOptions, InjectRule, InjectPosition, InjectCondition, SecurityConfig, InjectionLogEntry } from '@meng-xi/vite-plugin/plugins/inject/html-inject'
 
 // Barrel import
 import { htmlInject } from '@meng-xi/vite-plugin'

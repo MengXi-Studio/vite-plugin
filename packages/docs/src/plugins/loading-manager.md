@@ -7,7 +7,7 @@
 ```typescript
 import { loadingManager } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { loadingManager } from '@meng-xi/vite-plugin/plugins/loading-manager'
+import { loadingManager } from '@meng-xi/vite-plugin/plugins/inject/loading-manager'
 ```
 
 ## 快速开始

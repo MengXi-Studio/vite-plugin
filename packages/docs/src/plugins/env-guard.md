@@ -7,7 +7,7 @@
 ```typescript
 import { envGuard } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { envGuard } from '@meng-xi/vite-plugin/plugins/env-guard'
+import { envGuard } from '@meng-xi/vite-plugin/plugins/guard/env-guard'
 ```
 
 ## 快速开始

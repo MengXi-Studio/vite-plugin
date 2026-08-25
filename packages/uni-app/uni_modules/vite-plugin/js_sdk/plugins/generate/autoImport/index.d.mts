@@ -308,9 +308,9 @@ interface AutoImportOptions extends BasePluginOptions {
      *
      * @description 支持多种格式混合使用：
      * 1. 预设字符串：`'vue'`、`'vue-router'`
-         * 2. 简写格式：`{ vue: ['ref', 'reactive'] }`
-         * 3. 自定义命名导入：`{ '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }`
-         * 4. 类型导入：`{ from: 'vue-router', imports: ['RouteLocationRaw'], type: true }`
+     * 2. 简写格式：`{ vue: ['ref', 'reactive'] }`
+     * 3. 自定义命名导入：`{ '@vueuse/core': ['useMouse', ['useFetch', 'useMyFetch']] }`
+     * 4. 类型导入：`{ from: 'vue-router', imports: ['RouteLocationRaw'], type: true }`
      *
      * @default []
      */
@@ -368,7 +368,7 @@ interface AutoImportOptions extends BasePluginOptions {
     /**
      * 是否自动将导入的包添加到 Vite optimizeDeps
      *
-     * @default true
+     * @default false
      */
     viteOptimizeDeps?: boolean;
     /**

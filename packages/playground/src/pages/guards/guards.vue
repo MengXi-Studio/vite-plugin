@@ -147,3 +147,9 @@ function goToSettings() {
 	border: none;
 }
 </style>
+
+<route-config>
+{
+	"title": "路由守卫"
+}
+</route-config>

@@ -6,7 +6,7 @@ Manage website favicon links injection into HTML files during Vite build.
 
 ```typescript
 // Submodule import (recommended)
-import { faviconManager } from '@meng-xi/vite-plugin/plugins/favicon-manager'
+import { faviconManager } from '@meng-xi/vite-plugin/plugins/inject/favicon-manager'
 
 // Barrel import
 import { faviconManager } from '@meng-xi/vite-plugin'

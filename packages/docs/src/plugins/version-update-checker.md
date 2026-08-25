@@ -7,7 +7,7 @@
 ```typescript
 import { versionUpdateChecker } from '@meng-xi/vite-plugin'
 // 或子模块导入
-import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/version-update-checker'
+import { versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject/version-update-checker'
 ```
 
 ## 快速开始

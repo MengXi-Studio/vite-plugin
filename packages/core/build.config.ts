@@ -33,6 +33,7 @@ export default defineBuildConfig({
 		'src/plugins/copy/copyFile/index',
 		'src/plugins/generate/index',
 		'src/plugins/generate/autoImport/index',
+		'src/plugins/generate/generatePages/index',
 		'src/plugins/generate/generateRouter/index',
 		'src/plugins/generate/generateVersion/index',
 		'src/plugins/guard/index',
@@ -51,7 +52,7 @@ export default defineBuildConfig({
 		'@': resolve(__dirname, './src')
 	},
 	replace: {
-		__PLUGIN_VERSION__: "\"1.0.0\""
+		__PLUGIN_VERSION__: "\"1.2.0\""
 	},
 	rollup: {
 		emitCJS: true,
