@@ -1,6 +1,6 @@
 {
 	"name": "@meng-xi/uni-app",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "在 uni-app 项目中使用 @meng-xi/vite-plugin 插件功能",
 	"main": "main.js",
 	"repository": {
