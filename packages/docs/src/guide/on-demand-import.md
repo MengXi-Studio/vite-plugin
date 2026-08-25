@@ -40,7 +40,7 @@ import { autoImport, generateVersion } from '@meng-xi/vite-plugin/plugins/genera
 | 分组 | 路径 | 包含插件 |
 | ---- | ---- | -------- |
 | compress | `plugins/compress` | compressAssets, imageOptimizer |
-| generate | `plugins/generate` | autoImport, generatePages, generateRouter, generateVersion |
+| generate | `plugins/generate` | autoImport, generateUni, generatePages, generateRouter, generateVersion |
 | inject | `plugins/inject` | htmlInject, loadingManager, faviconManager, versionUpdateChecker |
 | analyze | `plugins/analyze` | bundleAnalyzer, buildProgress |
 | copy | `plugins/copy` | copyFile, assetManifest |

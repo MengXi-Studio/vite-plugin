@@ -1,6 +1,7 @@
 import { PluginFactory } from '../../../factory/index.mjs';
-import { G as GenerateRouterOptions } from '../../../shared/vite-plugin.BnRTFB5N.mjs';
-export { N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta, U as UniAppPageConfig, b as UniAppPagesJson, c as UniAppTabBarConfig } from '../../../shared/vite-plugin.BnRTFB5N.mjs';
+import { G as GenerateRouterOptions } from '../../../shared/vite-plugin.Dolco-Dj.mjs';
+export { N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta } from '../../../shared/vite-plugin.Dolco-Dj.mjs';
+export { U as UniAppPageConfig, a as UniAppPagesJson, b as UniAppTabBarConfig } from '../../../shared/vite-plugin.CjZHnjC7.mjs';
 import 'vite';
 import '../../../shared/vite-plugin.BmNqGOzh.mjs';
 import '../../../shared/vite-plugin.DRRlWY8P.mjs';

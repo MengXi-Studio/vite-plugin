@@ -43,7 +43,7 @@ Import by functional group for better semantics and Tree-shaking:
 import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress'
 
 // Generation
-import { autoImport, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { autoImport, generateUni, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
 
 // Injection
 import { htmlInject, loadingManager, faviconManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject'

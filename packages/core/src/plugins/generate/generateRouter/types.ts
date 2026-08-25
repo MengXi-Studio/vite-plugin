@@ -1,5 +1,8 @@
 import type { BasePluginOptions } from '@/factory/types'
 
+// 共享的 uni-app 通用类型（generate 分组公共模块），此处转发以便子路径消费者使用
+export type { UniAppPageConfig, UniAppTabBarConfig, UniAppPagesJson } from '../types'
+
 /** 路由元信息（支持索引签名扩展自定义字段） */
 export interface RouteMeta {
 	/** 页面标题，对应 pages.json 中的 navigationBarTitleText */
@@ -20,51 +23,6 @@ export interface RouteConfig {
 	/** 路由元信息 */
 	meta?: RouteMeta
 	/** 用户自定义扩展属性（如 beforeEnter、component 等） */
-	[key: string]: any
-}
-
-/** uni-app pages.json 中的页面配置项 */
-export interface UniAppPageConfig {
-	/** 页面路径，相对于 pages.json 所在目录 */
-	path: string
-	/** 页面名称，优先级高于 nameStrategy */
-	name?: string
-	/** 页面元信息，优先级高于 metaMapping 映射 */
-	meta?: Record<string, any>
-	/** 页面样式配置 */
-	style?: {
-		navigationBarTitleText?: string
-		requireAuth?: boolean
-		[key: string]: any
-	}
-	[key: string]: any
-}
-
-/** uni-app pages.json 中的 tabBar 配置 */
-export interface UniAppTabBarConfig {
-	/** tabBar 页面列表 */
-	list?: Array<{
-		pagePath: string
-		text?: string
-		iconPath?: string
-		selectedIconPath?: string
-	}>
-	[key: string]: any
-}
-
-/** uni-app pages.json 结构 */
-export interface UniAppPagesJson {
-	/** 主包页面列表 */
-	pages: UniAppPageConfig[]
-	/** 子包（分包）配置列表 */
-	subPackages?: Array<{
-		root: string
-		pages: UniAppPageConfig[]
-	}>
-	/** tabBar 配置 */
-	tabBar?: UniAppTabBarConfig
-	/** 全局样式配置 */
-	globalStyle?: Record<string, any>
 	[key: string]: any
 }
 

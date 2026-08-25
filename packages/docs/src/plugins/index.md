@@ -1,13 +1,13 @@
 # 插件概览
 
-`@meng-xi/vite-plugin` 内置 **16 款插件**，按功能动词分为 **7 组**：compress / generate / inject / analyze / copy / guard / proxy。
+`@meng-xi/vite-plugin` 内置 **17 款插件**，按功能动词分为 **7 组**：compress / generate / inject / analyze / copy / guard / proxy。
 
 ## 分组总览
 
 | 分组 | 数量 | 说明 | 子路径 |
 | ---- | ---- | ---- | ------ |
 | compress | 2 | 压缩类 | `plugins/compress` |
-| generate | 4 | 生成类 | `plugins/generate` |
+| generate | 5 | 生成类 | `plugins/generate` |
 | inject | 4 | 注入类 | `plugins/inject` |
 | analyze | 2 | 分析类 | `plugins/analyze` |
 | copy | 2 | 拷贝类 | `plugins/copy` |
@@ -34,12 +34,13 @@ import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/com
 | 插件 | 功能 | 适用阶段 |
 | ---- | ---- | -------- |
 | [autoImport](/plugins/auto-import) | 自动导入 Vue/React 等 API，生成 `.d.ts` | 开发 + 构建 |
+| [generateUni](/plugins/generate-uni) | 组合入口：一条流水线完成「扫描页面 → pages.json → 路由配置」（等价 generatePages + generateRouter 连用） | 开发 + 构建 |
 | [generatePages](/plugins/generate-pages) | 扫描 Vue 文件自动生成 pages.json 页面配置（分包/tabBar） | 开发 + 构建 |
 | [generateRouter](/plugins/generate-router) | 根据 pages.json 自动生成路由配置与类型声明 | 开发 + 构建 |
 | [generateVersion](/plugins/generate-version) | 生成版本号（时间戳/语义化/哈希） | 构建 |
 
 ```typescript
-import { autoImport, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { autoImport, generateUni, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
 ```
 
 ## inject — 注入类

@@ -7,8 +7,7 @@ import {
 	copyFile,
 	envGuard,
 	generateVersion,
-	generateRouter,
-	generatePages,
+	generateUni,
 	faviconManager,
 	loadingManager,
 	versionUpdateChecker,
@@ -68,30 +67,29 @@ export default defineConfig(config => {
 				showModuleName: true
 			}),
 
-			// 页面配置生成：扫描 Vue 文件 + `<route-config>` 动态生成 pages.json 的 pages/subPackages/tabBar
-			// 置于 generateRouter 之前，确保路由配置基于最新生成的 pages.json
-			generatePages({
+			// 合并插件：一键完成「页面配置生成 + 路由配置生成」
+			// 内部按「扫描页面 → pages.json → 路由配置」流水线编排，内存数据直传不重复读盘
+			generateUni({
 				pagesJsonPath: 'pages.json',
-				pagesDir: 'pages',
-				subPackages: [{ root: 'pages-sub', dir: 'pages-sub' }],
-				entryPage: 'pages/index/index',
-				tabBar: {
-					color: '#999999',
-					selectedColor: '#007aff',
-					borderStyle: 'black',
-					backgroundColor: '#ffffff'
+				watch: true,
+				pages: {
+					pagesDir: 'pages',
+					subPackages: [{ root: 'pages-sub', dir: 'pages-sub' }],
+					entryPage: 'pages/index/index',
+					tabBar: {
+						color: '#999999',
+						selectedColor: '#007aff',
+						borderStyle: 'black',
+						backgroundColor: '#ffffff'
+					}
 				},
-				watch: true
-			}),
-
-			// 路由生成 + 类型声明
-			generateRouter({
-				pagesJsonPath: 'pages.json',
-				outputPath: 'router.config.ts',
-				dts: 'router.d.d.ts',
-				metaMapping: {
-					navigationBarTitleText: 'title',
-					requireAuth: 'requireAuth'
+				router: {
+					outputPath: 'router.config.ts',
+					dts: 'router.d.d.ts',
+					metaMapping: {
+						navigationBarTitleText: 'title',
+						requireAuth: 'requireAuth'
+					}
 				}
 			}),
 

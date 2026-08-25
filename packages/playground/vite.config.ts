@@ -2,7 +2,7 @@ import { defineConfig, type PluginOption } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 // 按功能分组导入插件（推荐方式，利于 Tree-shaking）
 import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress'
-import { autoImport, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { autoImport, generateUni, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
 import { htmlInject, loadingManager, faviconManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject'
 import { bundleAnalyzer, buildProgress } from '@meng-xi/vite-plugin/plugins/analyze'
 import { copyFile, assetManifest } from '@meng-xi/vite-plugin/plugins/copy'
@@ -73,39 +73,38 @@ export default defineConfig({
 			defaultChartType: 'treemap'
 		}),
 
-		// 页面配置生成：扫描 Vue 文件 + `<route-config>` 动态生成 pages.json 的 pages/subPackages/tabBar
-		// 放置在 generateRouter 之前，确保路由配置基于最新生成的 pages.json
-		generatePages({
-			pagesDir: 'src/pages',
-			subPackages: [{ root: 'pages-sub', dir: 'src/pages-sub' }],
-			routeConfigBlock: 'route-config',
-			titleFallback: 'filename',
-			entryPage: 'pages/index/index',
-			watch: true,
-			tabBar: {
-				color: '#999999',
-				selectedColor: '#42b883',
-				borderStyle: 'black',
-				backgroundColor: '#ffffff'
-			}
-		}),
-
-		// 路由配置生成（基于 pages.json）
-		generateRouter({
+		// 合并插件：一键完成「页面配置生成 + 路由配置生成」
+		// 内部按「扫描页面 → pages.json → 路由配置」流水线编排，内存数据直传不重复读盘
+		generateUni({
 			pagesJsonPath: 'src/pages.json',
-			outputPath: 'src/router.config.ts',
-			outputFormat: 'ts',
-			nameStrategy: 'camelCase',
-			includeSubPackages: true,
 			watch: true,
-			exportTypes: false,
-			preserveRouteChanges: true,
-			metaMapping: {
-				navigationBarTitleText: 'title',
-				requireAuth: 'requireAuth'
+			pages: {
+				pagesDir: 'src/pages',
+				subPackages: [{ root: 'pages-sub', dir: 'src/pages-sub' }],
+				routeConfigBlock: 'route-config',
+				titleFallback: 'filename',
+				entryPage: 'pages/index/index',
+				tabBar: {
+					color: '#999999',
+					selectedColor: '#42b883',
+					borderStyle: 'black',
+					backgroundColor: '#ffffff'
+				}
 			},
-			headerTemplate: true,
-			dts: false
+			router: {
+				outputPath: 'src/router.config.ts',
+				outputFormat: 'ts',
+				nameStrategy: 'camelCase',
+				includeSubPackages: true,
+				exportTypes: false,
+				preserveRouteChanges: true,
+				metaMapping: {
+					navigationBarTitleText: 'title',
+					requireAuth: 'requireAuth'
+				},
+				headerTemplate: true,
+				dts: false
+			}
 		}),
 
 		// 文件复制

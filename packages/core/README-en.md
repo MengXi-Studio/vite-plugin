@@ -18,7 +18,7 @@
 
 ## Features
 
-- **Ready to Use** - 16 practical plugins grouped by function (compress / generate / inject / analyze / copy / guard / proxy), covering auto-import, build progress, bundle analysis & compression, file copying,
+- **Ready to Use** - 17 practical plugins grouped by function (compress / generate / inject / analyze / copy / guard / proxy), covering auto-import, build progress, bundle analysis & compression, file copying,
   environment variable validation, route generation, pages config generation, version management, HTML injection, favicon management, global Loading, image optimization, dev proxy, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
 - **Common Utility Library** - Built-in 14 Common utility modules supporting on-demand sub-path imports
@@ -53,8 +53,7 @@ import {
 	copyFile,
 	envGuard,
 	faviconManager,
-	generatePages,
-	generateRouter,
+	generateUni,
 	generateVersion,
 	htmlInject,
 	imageOptimizer,
@@ -73,8 +72,10 @@ export default defineConfig({
 		copyFile({ sourceDir: 'src/assets', targetDir: 'dist/assets' }),
 		envGuard({ rules: { VITE_API_URL: { type: 'string', required: true } } }),
 		faviconManager('/assets'),
-		generatePages({ tabBar: { color: '#999999', selectedColor: '#42b883' } }),
-		generateRouter(),
+		generateUni({
+			pages: { pagesDir: 'src/pages', tabBar: { color: '#999999', selectedColor: '#42b883' } },
+			router: { outputPath: 'src/router.config.ts', nameStrategy: 'camelCase', dts: true }
+		}),
 		generateVersion({ format: 'datetime', outputType: 'both' }),
 		htmlInject({ rules: [{ id: 'meta', content: '<meta name="description" content="My App">', position: 'head-end' }] }),
 		imageOptimizer({ quality: { jpeg: 80, webp: 75 }, convertToWebp: { png: true } }),
@@ -98,6 +99,7 @@ Grouped by function (Lodash-style), supports importing by group or individually.
 ### generate - Generation
 
 - **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with built-in presets (Vue/Vue Router/Pinia etc.), alias/type/namespace imports, directory glob scanning, Vue template & directive auto-import, DTS generation, ESLint/Biome config generation
+- **[generateUni](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-uni.html)** - Composite entry plugin that pipelines "scan pages → pages.json → route config" in one pass with in-memory data (no disk round-trip), equivalent to combining `generatePages` + `generateRouter` (uni-app)
 - **[generatePages](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-pages.html)** - Scan Vue files to auto-generate pages.json page config, supporting sub-packages, tabBar aggregation and per-page `<route-config>` blocks (uni-app)
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)** - Auto-generate route config and type declarations from pages.json (uni-app)
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)** - Auto-generate version numbers with file output and global variable injection

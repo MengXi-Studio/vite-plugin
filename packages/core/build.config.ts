@@ -35,6 +35,7 @@ export default defineBuildConfig({
 		'src/plugins/generate/autoImport/index',
 		'src/plugins/generate/generatePages/index',
 		'src/plugins/generate/generateRouter/index',
+		'src/plugins/generate/generateUni/index',
 		'src/plugins/generate/generateVersion/index',
 		'src/plugins/guard/index',
 		'src/plugins/guard/envGuard/index',

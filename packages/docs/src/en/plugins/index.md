@@ -1,13 +1,13 @@
 # Plugins Overview
 
-`@meng-xi/vite-plugin` ships with **16 plugins** grouped by functional verb into **7 categories**: compress / generate / inject / analyze / copy / guard / proxy.
+`@meng-xi/vite-plugin` ships with **17 plugins** grouped by functional verb into **7 categories**: compress / generate / inject / analyze / copy / guard / proxy.
 
 ## Group Overview
 
 | Group    | Count | Description   | Sub-path           |
 | -------- | ----- | ------------- | ------------------ |
 | compress | 2     | Compression   | `plugins/compress` |
-| generate | 4     | Generation    | `plugins/generate` |
+| generate | 5     | Generation    | `plugins/generate` |
 | inject   | 4     | Injection     | `plugins/inject`   |
 | analyze  | 2     | Analysis      | `plugins/analyze`  |
 | copy     | 2     | Copy          | `plugins/copy`     |
@@ -34,12 +34,13 @@ Automated code generation to reduce boilerplate.
 | Plugin | Function | Phase |
 | ------ | -------- | ----- |
 | [autoImport](/en/plugins/auto-import) | Auto import Vue/React APIs and generate `.d.ts` | Dev + Build |
+| [generateUni](/en/plugins/generate-uni) | Composite entry: one pipeline of "scan pages → pages.json → route config" (equivalent to combining generatePages + generateRouter) | Dev + Build |
 | [generatePages](/en/plugins/generate-pages) | Scan Vue files to auto-generate pages.json page config (sub-packages/tabBar) | Dev + Build |
 | [generateRouter](/en/plugins/generate-router) | Auto-generate router config and type declarations from pages.json | Dev + Build |
 | [generateVersion](/en/plugins/generate-version) | Generate version number (timestamp/semantic/hash) | Build |
 
 ```typescript
-import { autoImport, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { autoImport, generateUni, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
 ```
 
 ## inject — Injection

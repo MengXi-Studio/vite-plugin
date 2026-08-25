@@ -18,7 +18,7 @@
 
 ## 特性
 
-- **开箱即用** - 16 个实用插件，按功能分组（compress / generate / inject / analyze / copy / guard /
+- **开箱即用** - 17 个实用插件，按功能分组（compress / generate / inject / analyze / copy / guard /
   proxy），覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、页面配置生成、版本管理、HTML 注入、图标管理、全局 Loading、图片优化、开发代理 等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
 - **通用工具库** - 内置 14 大 Common 工具模块，支持按需子路径导入
@@ -53,8 +53,7 @@ import {
 	copyFile,
 	envGuard,
 	faviconManager,
-	generatePages,
-	generateRouter,
+	generateUni,
 	generateVersion,
 	htmlInject,
 	imageOptimizer,
@@ -73,8 +72,10 @@ export default defineConfig({
 		copyFile({ sourceDir: 'src/assets', targetDir: 'dist/assets' }),
 		envGuard({ rules: { VITE_API_URL: { type: 'string', required: true } } }),
 		faviconManager('/assets'),
-		generatePages({ tabBar: { color: '#999999', selectedColor: '#42b883' } }),
-		generateRouter(),
+		generateUni({
+			pages: { pagesDir: 'src/pages', tabBar: { color: '#999999', selectedColor: '#42b883' } },
+			router: { outputPath: 'src/router.config.ts', nameStrategy: 'camelCase', dts: true }
+		}),
 		generateVersion({ format: 'datetime', outputType: 'both' }),
 		htmlInject({ rules: [{ id: 'meta', content: '<meta name="description" content="My App">', position: 'head-end' }] }),
 		imageOptimizer({ quality: { jpeg: 80, webp: 75 }, convertToWebp: { png: true } }),
@@ -97,6 +98,7 @@ export default defineConfig({
 ### generate - 生成类
 
 - **[autoImport](https://mengxi-studio.github.io/vite-plugin/plugins/auto-import.html)** - 自动注入 import 语句，支持内置预设（Vue/Vue Router/Pinia 等）、别名/类型/命名空间导入、目录 glob 扫描、Vue 模板与指令自动导入、DTS 生成、ESLint/Biome 配置生成
+- **[generateUni](https://mengxi-studio.github.io/vite-plugin/plugins/generate-uni.html)** - 组合入口插件，一条流水线完成「扫描页面 → pages.json → 路由配置」，内存数据直传不重复读盘，等价于 `generatePages` + `generateRouter` 连用（uni-app）
 - **[generatePages](https://mengxi-studio.github.io/vite-plugin/plugins/generate-pages.html)** - 扫描 Vue 文件自动生成 pages.json 页面配置，支持分包、tabBar 归集与 `<route-config>` 块的就近声明（uni-app）
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)** - 根据 pages.json 自动生成路由配置与类型声明（uni-app）
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/plugins/generate-version.html)** - 自动生成版本号，支持文件输出和全局变量注入

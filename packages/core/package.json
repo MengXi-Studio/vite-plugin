@@ -175,6 +175,11 @@
 			"import": "./dist/plugins/generate/generateRouter/index.mjs",
 			"types": "./dist/plugins/generate/generateRouter/index.d.ts"
 		},
+		"./plugins/generate/generate-uni": {
+			"require": "./dist/plugins/generate/generateUni/index.cjs",
+			"import": "./dist/plugins/generate/generateUni/index.mjs",
+			"types": "./dist/plugins/generate/generateUni/index.d.ts"
+		},
 		"./plugins/generate/generate-version": {
 			"require": "./dist/plugins/generate/generateVersion/index.cjs",
 			"import": "./dist/plugins/generate/generateVersion/index.mjs",
