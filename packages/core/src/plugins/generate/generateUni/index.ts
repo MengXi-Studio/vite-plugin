@@ -7,7 +7,7 @@ import { TaskQueue } from '@/common/concurrency'
 import type { GenerateUniOptions } from './types'
 import type { GeneratePagesOptions } from '../generatePages/types'
 import { producePages, generateRouterFromPages } from './helpers'
-import { stripDefineUniPageCalls, DEFINE_UNI_PAGE } from '../generatePages/helpers'
+import { stripDefineUniPageCalls, DEFINE_UNI_PAGE, ensureDefineUniPageDts } from '../generatePages/helpers'
 
 /**
  * 合并插件：一键完成「页面配置生成 + 路由配置生成」
@@ -144,6 +144,9 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 			pagesJsonPath: this.options.pagesJsonPath!
 		}
 		const routerOptions = this.options.router ?? {}
+
+		// 生成 defineUniPage 宏的全局类型声明，供 IDE（Vue (Official) / Volar）识别
+		ensureDefineUniPageDts(this.projectRoot, this.options.pages?.dts, this.logger)
 
 		// 阶段一：扫描页面，产出内存 pages 对象
 		const { pagesJson } = producePages(this.projectRoot, pagesOptions)

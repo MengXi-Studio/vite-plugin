@@ -5,7 +5,7 @@ import { BasePlugin, createPluginFactory } from '@/factory'
 import { DirectoryWatcher, writeFileContent } from '@/common/fs'
 import { TaskQueue } from '@/common/concurrency'
 import type { GeneratePagesOptions } from './types'
-import { producePages, stripDefineUniPageCalls, DEFINE_UNI_PAGE } from './helpers'
+import { producePages, stripDefineUniPageCalls, DEFINE_UNI_PAGE, ensureDefineUniPageDts } from './helpers'
 
 /**
  * 生成 uni-app pages.json 插件
@@ -60,7 +60,8 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 			tabBar: undefined,
 			includeExtensions: ['.vue'],
 			excludePatterns: ['node_modules'],
-			watch: true
+			watch: true,
+			dts: 'src/define-uni-page.d.ts'
 		}
 	}
 
@@ -78,12 +79,16 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 			.enum(['filename', 'none'])
 			.field('watch')
 			.boolean()
+			.field('dts')
+			.custom(v => v === undefined || v === false || typeof v === 'string', 'dts 必须为 false 或字符串路径')
 			.validate()
 	}
 
 	protected onConfigResolved(config: ResolvedConfig): void {
 		super.onConfigResolved(config)
 		this.projectRoot = config.root
+		// 生成 defineUniPage 宏的全局类型声明，供 IDE（Vue (Official) / Volar）识别
+		ensureDefineUniPageDts(this.projectRoot, this.options.dts, this.logger)
 		this.runGenerate()
 		if (config.command === 'serve') {
 			this.startWatching()

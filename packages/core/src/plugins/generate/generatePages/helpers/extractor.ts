@@ -1,5 +1,6 @@
 import type { RouteConfigBlock } from '../types'
 import { stripJsonComments } from '@/common/string'
+import { parseJsObjectLiteral } from './macro'
 
 /**
  * 从 Vue SFC 源码中提取指定自定义块的内容
@@ -24,7 +25,9 @@ export function extractCustomBlock(source: string, blockName: string): string | 
  * @param raw 块内原始文本
  * @returns 解析后的配置对象；解析失败返回 null
  *
- * @description 内容为 JSON（支持注释），解析失败或内容非法时返回 null，
+ * @description 内容为 JSON（支持注释）。优先使用严格 `JSON.parse`；
+ * 解析失败（如 JSONC 尾随逗号）时回退到宽松的 JS 对象字面量解析，
+ * 与 `lang="jsonc"` 的 IDE 高亮语义保持一致。均失败时返回 null，
  * 由调用方静默忽略，不影响其他页面生成。
  */
 export function parseRouteConfig(raw: string | null): RouteConfigBlock | null {
@@ -36,7 +39,8 @@ export function parseRouteConfig(raw: string | null): RouteConfigBlock | null {
 		// 仅接受对象，若误传数组 / 原始值则忽略
 		return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as RouteConfigBlock) : null
 	} catch {
-		return null
+		// 严格 JSON 失败（如尾随逗号），回退到宽松对象字面量解析
+		return parseJsObjectLiteral(raw)
 	}
 }
 

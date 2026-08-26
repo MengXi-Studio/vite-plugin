@@ -1,6 +1,6 @@
 # generatePages
 
-扫描 Vue 文件并动态生成 / 更新 uni-app 的 `pages.json` 页面相关配置（`pages` / `subPackages` / `tabBar`），配合页面内 `<route-config>` 自定义块彻底解放手动配置页面。
+扫描 Vue 文件并动态生成 / 更新 uni-app 的 `pages.json` 页面相关配置（`pages` / `subPackages` / `tabBar`），配合页面内 `<route-config>` 自定义块或 `defineUniPage` 宏彻底解放手动配置页面。
 
 ::: tip 与 generateRouter 的关系
 `generateRouter` 是「读 `pages.json` → 生成路由配置」，`generatePages` 则是反向「扫描 Vue 文件 → 生成 `pages.json`」。二者可配合使用，也可单独使用。
@@ -31,7 +31,7 @@ export default defineConfig({
 
 ```vue
 <!-- src/pages/index/index.vue -->
-<route-config>
+<route-config lang="jsonc">
 {
   "title": "首页",
   "isTab": true,
@@ -73,6 +73,7 @@ export default defineConfig({
 | includeExtensions| `string[]`                    | `['.vue']`                                | 页面文件扩展名列表           |
 | excludePatterns | `string[]`                    | `['node_modules']`                        | 排除的路径模式列表           |
 | watch           | `boolean`                     | `true`                                    | 监听页面目录变化自动重新生成 |
+| dts             | `string \| false`             | `'src/define-uni-page.d.ts'`              | `defineUniPage` 宏的全局类型声明输出路径（`false` 关闭） |
 
 > 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
@@ -110,16 +111,11 @@ defineUniPage({
 - 宏在扫描时被消费，运行时由插件自动移除调用，**无需 import**
 - 参数需为纯对象字面量（不接受变量 / 表达式），否则静默忽略
 
-**TypeScript 声明**：为让 TS 识别该全局宏，请在项目内新增一个 `.d.ts`（inline import 类型保持全局）：
-
-```typescript
-// src/define-uni-page.d.ts
-declare function defineUniPage(config: import('@meng-xi/vite-plugin/plugins/generate/generate-pages').RouteConfigBlock): void
-```
+**TypeScript 声明**：插件默认自动生成全局声明 `src/define-uni-page.d.ts`（`dts` 选项可自定义路径或 `false` 关闭），IDE（Vue (Official) / Volar / tsc）无需 import 即可识别宏，并获得类型提示与编译期检查。
 
 ## route-config 自定义块
 
-页面中也可通过 `<route-config>` 自定义块声明配置（优先级低于宏），内容为 JSON（支持注释）。
+页面中也可通过 `<route-config>` 自定义块声明配置（优先级低于宏），内容为 JSONC（支持注释与尾随逗号，与 `lang="jsonc"` 的 IDE 高亮语义一致）。建议添加 `lang="jsonc"` 属性，让 IDE（Vue (Official) / Volar）按 JSONC 语法高亮自定义块内容。
 
 | 字段 | 类型 | 说明 |
 | ---- | ---- | ---- |
@@ -131,7 +127,7 @@ declare function defineUniPage(config: import('@meng-xi/vite-plugin/plugins/gene
 | tab | `TabBarItemOverride` | tabBar 图标、文本与 `order` 排序权重（`order` 仅排序，不写入输出） |
 
 ```vue
-<route-config>
+<route-config lang="jsonc">
 {
   "title": "详情",
   "name": "DetailPage",
@@ -175,7 +171,7 @@ generatePages({
 
 ```vue
 <!-- src/pages/mine/mine.vue -->
-<route-config>
+<route-config lang="jsonc">
 {
   "title": "我的",
   "isTab": true,
@@ -204,7 +200,7 @@ generatePages({
 
 ### RouteConfigBlock
 
-`<route-config>` 块中可声明的页面配置（`title` / `name` / `style` / `meta` / `isTab` / `tab`）。
+`defineUniPage` 宏与 `<route-config>` 块共用的页面配置类型（`title` / `name` / `style` / `meta` / `isTab` / `tab`）。
 
 ### TabBarTemplate
 

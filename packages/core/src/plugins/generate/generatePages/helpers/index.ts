@@ -4,6 +4,9 @@ export { extractCustomBlock, parseRouteConfig, extractRouteConfig } from './extr
 // defineUniPage 宏
 export { DEFINE_UNI_PAGE, parseJsObjectLiteral, extractDefineUniPage, stripDefineUniPageCalls } from './macro'
 
+// defineUniPage 宏的全局类型声明
+export { DEFAULT_DEFINE_UNI_PAGE_DTS, getDefineUniPageDtsContent, ensureDefineUniPageDts } from './macro-dts'
+
 // 目录扫描与页面组装
 export { scanPageFiles, buildPageConfig, buildScannedPage, isTabPage, orderMainPages } from './scanner'
 export type { ScanOrigin } from './scanner'

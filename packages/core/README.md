@@ -99,7 +99,7 @@ export default defineConfig({
 
 - **[autoImport](https://mengxi-studio.github.io/vite-plugin/plugins/auto-import.html)** - 自动注入 import 语句，支持内置预设（Vue/Vue Router/Pinia 等）、别名/类型/命名空间导入、目录 glob 扫描、Vue 模板与指令自动导入、DTS 生成、ESLint/Biome 配置生成
 - **[generateUni](https://mengxi-studio.github.io/vite-plugin/plugins/generate-uni.html)** - 组合入口插件，一条流水线完成「扫描页面 → pages.json → 路由配置」，内存数据直传不重复读盘，等价于 `generatePages` + `generateRouter` 连用（uni-app）
-- **[generatePages](https://mengxi-studio.github.io/vite-plugin/plugins/generate-pages.html)** - 扫描 Vue 文件自动生成 pages.json 页面配置，支持分包、tabBar 归集与 `<route-config>` 块的就近声明（uni-app）
+- **[generatePages](https://mengxi-studio.github.io/vite-plugin/plugins/generate-pages.html)** - 扫描 Vue 文件自动生成 pages.json 页面配置，支持分包、tabBar 归集，页面配置支持 `<route-config>` 块与 `defineUniPage` 宏就近声明（宏优先级更高，并自动生成全局类型声明）（uni-app）
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/plugins/generate-router.html)** - 根据 pages.json 自动生成路由配置与类型声明（uni-app）
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/plugins/generate-version.html)** - 自动生成版本号，支持文件输出和全局变量注入
 

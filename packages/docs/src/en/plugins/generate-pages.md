@@ -1,6 +1,6 @@
 # generatePages
 
-Scan Vue files and dynamically generate / update the page-related config (`pages` / `subPackages` / `tabBar`) of uni-app's `pages.json`, combined with a per-page `<route-config>` block to fully eliminate manual page configuration.
+Scan Vue files and dynamically generate / update the page-related config (`pages` / `subPackages` / `tabBar`) of uni-app's `pages.json`, combined with a per-page `<route-config>` block or the `defineUniPage` macro to fully eliminate manual page configuration.
 
 ::: tip Relationship with generateRouter
 `generateRouter` reads `pages.json` to generate route configs; `generatePages` works in reverse — it scans Vue files to generate `pages.json`. They can be used together or independently.
@@ -33,7 +33,7 @@ Declare title, meta, tabBar membership, etc. in a per-page `<route-config>` bloc
 
 ```vue
 <!-- src/pages/index/index.vue -->
-<route-config>
+<route-config lang="jsonc">
 {
   "title": "Home",
   "isTab": true,
@@ -75,6 +75,7 @@ Generated `pages.json` fragment:
 | includeExtensions| `string[]`                   | `['.vue']`                               | Page file extension list             |
 | excludePatterns  | `string[]`                   | `['node_modules']`                       | Path patterns to exclude             |
 | watch            | `boolean`                    | `true`                                   | Watch page directories and regenerate |
+| dts              | `string \| false`            | `'src/define-uni-page.d.ts'`             | Output path for the `defineUniPage` macro global type declaration (`false` to disable) |
 
 > Inherits [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
@@ -112,16 +113,11 @@ defineUniPage({
 - The macro is consumed at scan time and automatically removed at runtime by the plugin — **no import needed**
 - The argument must be a plain object literal (variables/expressions are not accepted and are silently ignored)
 
-**TypeScript declaration**: to let TS recognize the global macro, add a `.d.ts` in your project (inline import keeps it global):
-
-```typescript
-// src/define-uni-page.d.ts
-declare function defineUniPage(config: import('@meng-xi/vite-plugin/plugins/generate/generate-pages').RouteConfigBlock): void
-```
+**TypeScript declaration**: the plugin auto-generates the global declaration `src/define-uni-page.d.ts` by default (customize the path via the `dts` option, or set `false` to disable). IDEs (Vue (Official) / Volar / tsc) recognize the macro without import, with type hints and compile-time checks.
 
 ## route-config Block
 
-You can also declare config via a per-page `<route-config>` block (lower priority than the macro); the content is JSON (comments supported).
+You can also declare config via a per-page `<route-config>` block (lower priority than the macro); the content is JSONC (comments and trailing commas supported, matching the `lang="jsonc"` IDE highlighting). Adding `lang="jsonc"` lets IDEs (Vue (Official) / Volar) highlight the block as JSONC.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
@@ -133,7 +129,7 @@ You can also declare config via a per-page `<route-config>` block (lower priorit
 | tab | `TabBarItemOverride` | tabBar icon, text, and `order` sort weight (`order` is sort-only, not written to output) |
 
 ```vue
-<route-config>
+<route-config lang="jsonc">
 {
   "title": "Detail",
   "name": "DetailPage",
@@ -177,7 +173,7 @@ It is recommended to declare icons locally in the page; the factory only needs t
 
 ```vue
 <!-- src/pages/mine/mine.vue -->
-<route-config>
+<route-config lang="jsonc">
 {
   "title": "Mine",
   "isTab": true,
@@ -206,7 +202,7 @@ Plugin options, see "Options" above.
 
 ### RouteConfigBlock
 
-The page config declarable in the `<route-config>` block (`title` / `name` / `style` / `meta` / `isTab` / `tab`).
+The shared page config type for both the `defineUniPage` macro and the `<route-config>` block (`title` / `name` / `style` / `meta` / `isTab` / `tab`).
 
 ### TabBarTemplate
 

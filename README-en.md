@@ -100,7 +100,7 @@ Grouped by function (Lodash-style), supports importing by group or individually.
 
 - **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with built-in presets (Vue/Vue Router/Pinia etc.), alias/type/namespace imports, directory glob scanning, Vue template & directive auto-import, DTS generation, ESLint/Biome config generation
 - **[generateUni](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-uni.html)** - Composite entry plugin that pipelines "scan pages → pages.json → route config" in one pass with in-memory data (no disk round-trip), equivalent to combining `generatePages` + `generateRouter` (uni-app)
-- **[generatePages](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-pages.html)** - Scan Vue files to auto-generate pages.json page config, supporting sub-packages, tabBar aggregation and per-page `<route-config>` blocks (uni-app)
+- **[generatePages](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-pages.html)** - Scan Vue files to auto-generate pages.json page config, supporting sub-packages, tabBar aggregation, and per-page config via `<route-config>` blocks or the `defineUniPage` macro (macro takes higher priority and auto-generates a global type declaration) (uni-app)
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)** - Auto-generate route config and type declarations from pages.json (uni-app)
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)** - Auto-generate version numbers with file output and global variable injection
 
