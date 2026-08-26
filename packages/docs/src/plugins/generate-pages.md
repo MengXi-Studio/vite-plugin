@@ -89,9 +89,37 @@ generatePages({
 })
 ```
 
+## defineUniPage 宏
+
+支持在 `<script setup>` 中通过 `defineUniPage` 宏声明页面配置，写法更贴近 JS/TS。
+
+**优先级**：同一页面同时声明宏与 `<route-config>` 时，**以宏为准**（顶层字段按宏覆盖自定义块）。
+
+```vue
+<script setup lang="ts">
+defineUniPage({
+  title: '详情',
+  name: 'DetailPage',
+  isTab: true,
+  tab: { text: '详情', order: 0 }
+})
+</script>
+```
+
+- 宏参数为 JS 对象字面量，支持注释、单引号、尾随逗号与嵌套对象（`tab` / `style` / `meta`）
+- 宏在扫描时被消费，运行时由插件自动移除调用，**无需 import**
+- 参数需为纯对象字面量（不接受变量 / 表达式），否则静默忽略
+
+**TypeScript 声明**：为让 TS 识别该全局宏，请在项目内新增一个 `.d.ts`（inline import 类型保持全局）：
+
+```typescript
+// src/define-uni-page.d.ts
+declare function defineUniPage(config: import('@meng-xi/vite-plugin/plugins/generate/generate-pages').RouteConfigBlock): void
+```
+
 ## route-config 自定义块
 
-页面中通过 `<route-config>` 自定义块声明配置，内容为 JSON（支持注释）。
+页面中也可通过 `<route-config>` 自定义块声明配置（优先级低于宏），内容为 JSON（支持注释）。
 
 | 字段 | 类型 | 说明 |
 | ---- | ---- | ---- |

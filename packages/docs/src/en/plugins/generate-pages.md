@@ -91,9 +91,37 @@ generatePages({
 })
 ```
 
+## defineUniPage Macro
+
+Declare page config in `<script setup>` via the `defineUniPage` macro, with a more JS/TS-friendly syntax.
+
+**Priority**: When both the macro and `<route-config>` are declared in the same page, **the macro wins** (top-level fields override the block).
+
+```vue
+<script setup lang="ts">
+defineUniPage({
+  title: 'Detail',
+  name: 'DetailPage',
+  isTab: true,
+  tab: { text: 'Detail', order: 0 }
+})
+</script>
+```
+
+- The macro argument is a JS object literal; comments, single quotes, trailing commas, and nested objects (`tab` / `style` / `meta`) are supported
+- The macro is consumed at scan time and automatically removed at runtime by the plugin — **no import needed**
+- The argument must be a plain object literal (variables/expressions are not accepted and are silently ignored)
+
+**TypeScript declaration**: to let TS recognize the global macro, add a `.d.ts` in your project (inline import keeps it global):
+
+```typescript
+// src/define-uni-page.d.ts
+declare function defineUniPage(config: import('@meng-xi/vite-plugin/plugins/generate/generate-pages').RouteConfigBlock): void
+```
+
 ## route-config Block
 
-Declare config in a per-page `<route-config>` block; the content is JSON (comments supported).
+You can also declare config via a per-page `<route-config>` block (lower priority than the macro); the content is JSON (comments supported).
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |

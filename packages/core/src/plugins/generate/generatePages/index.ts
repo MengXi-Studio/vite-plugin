@@ -5,7 +5,7 @@ import { BasePlugin, createPluginFactory } from '@/factory'
 import { DirectoryWatcher, writeFileContent } from '@/common/fs'
 import { TaskQueue } from '@/common/concurrency'
 import type { GeneratePagesOptions } from './types'
-import { producePages } from './helpers'
+import { producePages, stripDefineUniPageCalls, DEFINE_UNI_PAGE } from './helpers'
 
 /**
  * 生成 uni-app pages.json 插件
@@ -101,18 +101,29 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 	 * @param plugin Vite 插件对象
 	 * @description 拦截 `<route-config>` 自定义块产生的虚拟模块请求
 	 * （如 `xxx.vue?vue&type=route-config&index=0`），返回空模块以避免
-	 * 被 Vue 插件当作 JavaScript 源码解析导致构建失败。
-	 * 块内容已由扫描时解析，无需在模块系统中保留。
+	 * 被 Vue 插件当作 JavaScript 源码解析导致构建失败；同时移除 Vue SFC
+	 * script 模块中的 `defineUniPage` 宏调用（宏已在扫描时消费，运行时
+	 * 不应保留调用，否则 `defineUniPage` 未定义导致 ReferenceError）。
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		this.registerHook(
 			plugin,
 			'transform',
-			(_code: string, id: string) => {
-				if (!this.isRouteConfigRequest(id)) return null
-				return { code: 'export default {}', map: null }
+			(code: string, id: string) => {
+				// 1. route-config 自定义块虚拟模块 → 空模块
+				if (this.isRouteConfigRequest(id)) {
+					return { code: 'export default {}', map: null }
+				}
+				// 2. Vue SFC script 模块 → 移除 defineUniPage 宏调用
+				if (this.isVueScriptRequest(id) && code.includes(DEFINE_UNI_PAGE)) {
+					const stripped = stripDefineUniPageCalls(code)
+					if (stripped !== code) {
+						return { code: stripped, map: null }
+					}
+				}
+				return null
 			},
-			'transform route-config 自定义块'
+			'transform route-config 自定义块与 defineUniPage 宏'
 		)
 	}
 
@@ -121,6 +132,11 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 		if (!id.includes('?vue')) return false
 		const match = id.match(/[?&]type=([^&]+)/)
 		return match?.[1] === this.getRouteConfigBlockName()
+	}
+
+	/** 判断请求 id 是否为 Vue SFC 的 script 子模块（如 ?vue&type=script&setup=true） */
+	private isVueScriptRequest(id: string): boolean {
+		return id.includes('.vue') && /[?&]type=script/.test(id)
 	}
 
 	/** 解析页面配置自定义块名称（默认 route-config） */

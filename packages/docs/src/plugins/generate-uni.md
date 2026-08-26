@@ -42,10 +42,22 @@ export default defineConfig({
 })
 ```
 
-页面配置仍通过页面内 `<route-config>` 自定义块就近声明，与 `generatePages` 完全一致：
+页面配置可通过 `defineUniPage` 宏或页面内 `<route-config>` 自定义块就近声明，与 `generatePages` 完全一致。宏优先级高于 `<route-config>`，用法与 [generatePages 的宏说明](./generate-pages#defineunipage-宏) 一致：
 
 ```vue
 <!-- src/pages/index/index.vue -->
+<script setup lang="ts">
+defineUniPage({
+  title: '首页',
+  isTab: true,
+  tab: { order: 0 }
+})
+</script>
+```
+
+也可使用 `<route-config>` 自定义块（优先级低于宏）：
+
+```vue
 <route-config>
 {
   "title": "首页",

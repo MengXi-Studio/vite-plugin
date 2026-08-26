@@ -44,10 +44,22 @@ export default defineConfig({
 })
 ```
 
-Page config is still declared per-page via the `<route-config>` block, exactly the same as `generatePages`:
+Page config can be declared per-page via the `defineUniPage` macro or the `<route-config>` block, exactly the same as `generatePages`. The macro has higher priority than `<route-config>`, see the [macro docs in generatePages](./generate-pages#defineunipage-macro):
 
 ```vue
 <!-- src/pages/index/index.vue -->
+<script setup lang="ts">
+defineUniPage({
+  title: '首页',
+  isTab: true,
+  tab: { order: 0 }
+})
+</script>
+```
+
+You can also use the `<route-config>` block (lower priority than the macro):
+
+```vue
 <route-config>
 {
   "title": "首页",

@@ -1,6 +1,9 @@
 // 页面配置提取
 export { extractCustomBlock, parseRouteConfig, extractRouteConfig } from './extractor'
 
+// defineUniPage 宏
+export { DEFINE_UNI_PAGE, parseJsObjectLiteral, extractDefineUniPage, stripDefineUniPageCalls } from './macro'
+
 // 目录扫描与页面组装
 export { scanPageFiles, buildPageConfig, buildScannedPage, isTabPage, orderMainPages } from './scanner'
 export type { ScanOrigin } from './scanner'

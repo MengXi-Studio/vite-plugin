@@ -48,24 +48,6 @@ export default defineConfig({
 | headerTemplate      | `boolean \| string`        | `false`      | File header comment template       |
 | customFields        | `Record<string, string>`   | `{}`         | Custom field key-value pairs       |
 
-### Route Naming Strategies
-
-| Strategy   | Description     | Example Path          | Generated Name     |
-| ---------- | --------------- | --------------------- | ------------------ |
-| camelCase  | Camel case      | `/pages/user/profile` | pagesUserProfile   |
-| pascalCase | Pascal case     | `/pages/user/profile` | PagesUserProfile   |
-| path       | Path underscore | `/pages/user/profile` | pages_user_profile |
-| custom     | Custom function | -                     | -                  |
-
-### Default metaMapping
-
-```typescript
-{
-  navigationBarTitleText: 'title',
-  requireAuth: 'requireAuth'
-}
-```
-
 ### name Property in pages.json
 
 The `name` field in a page configuration object in `pages.json` is used directly as the route name, and takes **priority over `nameStrategy` auto-generation**.
@@ -84,6 +66,15 @@ The `name` field in a page configuration object in `pages.json` is used directly
 
 In the above configuration, the route name is `'UserProfile'` instead of the auto-generated `'pagesUserProfile'` from `nameStrategy`.
 
+### Route Naming Strategies
+
+| Strategy   | Description     | Example Path          | Generated Name     |
+| ---------- | --------------- | --------------------- | ------------------ |
+| camelCase  | Camel case      | `/pages/user/profile` | pagesUserProfile   |
+| pascalCase | Pascal case     | `/pages/user/profile` | PagesUserProfile   |
+| path       | Path underscore | `/pages/user/profile` | pages_user_profile |
+| custom     | Custom function | -                     | -                  |
+
 ### meta Object in pages.json
 
 The `meta` field in a page configuration object in `pages.json` is directly merged into the route's `meta`, and takes **priority over `metaMapping`**.
@@ -101,6 +92,15 @@ The `meta` field in a page configuration object in `pages.json` is directly merg
 ```
 
 In the above configuration, `meta.requireAuth` and `meta.customField` are written directly to the route meta, while `style.navigationBarTitleText` is mapped to `title` via `metaMapping`. When both have the same field name, the `meta` object value takes priority.
+
+### Default metaMapping
+
+```typescript
+{
+  navigationBarTitleText: 'title',
+  requireAuth: 'requireAuth'
+}
+```
 
 ### preserveRouteChanges Route Modification Preservation
 
