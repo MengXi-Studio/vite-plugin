@@ -43,6 +43,18 @@ generateUni({
 为 standalone 的 `generatePages` 补充 `<route-config>` 自定义块虚拟模块拦截：注册 `transform` 钩子，将 `xxx.vue?vue&type=route-config&index=0` 请求替换为空模块，**避免生产构建把块内容当作 JavaScript 解析而报错**（与
 `generateUni` 行为一致，此前仅 generateUni 具备）。
 
+### proxyManager（优化）
+
+生产构建优化：`config` 钩子新增 `env.command === 'build'` 拦截，**构建时完全跳过**代理规则加载与配置生成。
+
+| 变更点         | 说明                                                          |
+| -------------- | ------------------------------------------------------------- |
+| 避免无意义加载 | build 阶段不再加载 `.proxyrc.ts`、不再解析 envPrefix 覆盖     |
+| 消除误导日志   | 移除 build 时的「已加载 X 条代理规则 (环境: production)」日志 |
+| 行为不变       | 开发服务器（dev）下功能、规则、中间件、日志逻辑完全保持不变   |
+
+> 背景：`config` 钩子在 serve 与 build 两个阶段都会执行，而代理配置与中间件仅对开发服务器有效，此前打包时会白白加载规则并输出误导性日志。
+
 ### 插件清单（变更）
 
 - 插件总数由 16 增至 **17**，分组由 7 组不变

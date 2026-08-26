@@ -189,7 +189,7 @@ console.log(rules)  // ResolvedProxyRule[]
 
 ## Notes
 
-- This plugin only takes effect in dev server mode, injecting proxy config via `config` and `configureServer` hooks
+- This plugin only takes effect in dev server mode, injecting proxy config via `config` and `configureServer` hooks; during production builds (`build`), the `config` hook is skipped entirely — no rules are loaded and no proxy logs are printed
 - Rules from `configFile` are merged with `rules`, with `rules` taking higher priority
 - Environment variable override: converts context to uppercase, replaces non-alphanumeric with underscores, appends `${envPrefix}${KEY}_TARGET`
 - Delay middleware is registered after logging middleware to ensure `duration` includes delay time
