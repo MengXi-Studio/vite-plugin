@@ -57,7 +57,7 @@ export default defineConfig({
 
     // Environment variable validation
     envGuard({
-      rules: { VITE_API_URL: { type: 'string', required: true } }
+      required: { VITE_API_URL: { type: 'string', required: true } }
     })
   ]
 })
@@ -129,5 +129,5 @@ compressAssets({
 
 - [Core Concepts](/en/guide/concepts) — Deep dive into the plugin system and lifecycle
 - [On-demand Import](/en/guide/on-demand-import) — Full strategies for bundle size optimization
-- [Plugins Overview](/en/plugins/index) — Browse all 16 plugins
+- [Plugins Overview](/en/plugins/index) — Browse all 17 plugins
 - [Best Practices](/en/guide/best-practices) — Scenario-based recommendations and common pitfalls

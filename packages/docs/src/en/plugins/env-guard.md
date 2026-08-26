@@ -41,7 +41,7 @@ export default defineConfig({
 | runtimeGuard     | `boolean`                           | `false`    | Inject runtime guard code              |
 | generateTemplate | `boolean`                           | `true`     | Auto-generate .env template file       |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 
@@ -67,7 +67,7 @@ Validation rule configuration for each environment variable.
 | default    | `string`                                                                               | Default value when missing                 |
 | message    | `string`                                                                               | Custom error message on validation failure |
 | pattern    | `RegExp`                                                                               | Regex pattern validation                   |
-| custom     | `(value: string) => boolean`                                                           | Custom validation function                 |
+| validator  | `(value: string) => boolean \| string`                                                | Custom validation function, return a string as the failure message |
 | minValue   | `number`                                                                               | Minimum value (number type)                |
 | maxValue   | `number`                                                                               | Maximum value (number type)                |
 | minLength  | `number`                                                                               | Minimum length (string type)               |

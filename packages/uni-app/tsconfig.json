@@ -16,12 +16,5 @@
 		"useDefineForClassFields": true,
 		"types": ["@dcloudio/types", "vite/client"]
 	},
-	"include": [
-		"*.ts",
-		"*.d.ts",
-		"pages/**/*.vue",
-		"App.vue",
-		"main.js",
-		"uni_modules/vite-plugin/js_sdk/**/*.d.ts"
-	]
+	"include": ["*.ts", "*.d.ts", "@types/**/*.d.ts", "pages/**/*.vue", "App.vue", "main.js", "uni_modules/vite-plugin/js_sdk/**/*.d.ts"]
 }

@@ -1,10 +1,8 @@
 import type { BasePluginOptions } from '@/factory/types'
-import type { UniAppTabBarConfig, UniAppPageConfig } from '../generateRouter/types'
-export type { UniAppPageConfig } from '../generateRouter/types'
-export type { UniAppTabBarConfig } from '../generateRouter/types'
+import type { UniAppTabBarConfig, UniAppPageConfig } from '../types'
 
-// 纯转发导出，供 generatePages 子路径按需使用，不参与父级聚合以避免歧义
-export type { UniAppPagesJson } from '../generateRouter/types'
+// 共享的 uni-app 通用类型（generate 分组公共模块），此处转发以便子路径消费者使用
+export type { UniAppPageConfig, UniAppTabBarConfig, UniAppPagesJson } from '../types'
 
 /**
  * `<route-config>` 自定义块中可声明的页面配置

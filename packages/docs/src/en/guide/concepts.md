@@ -14,9 +14,9 @@ Understand the core design concepts of `@meng-xi/vite-plugin`, including the plu
          ┌─────────────┴─────────────┐
          │   @meng-xi/vite-plugin    │
          ├───────────────────────────┤
-         │  Built-in Plugins (15, 7) │
+         │  Built-in Plugins (17, 7) │
          │  ├─ compress (2)          │
-         │  ├─ generate (3)          │
+         │  ├─ generate (5)          │
          │  ├─ inject (4)            │
          │  ├─ analyze (2)           │
          │  ├─ copy (2)              │

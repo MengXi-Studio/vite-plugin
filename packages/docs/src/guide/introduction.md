@@ -4,7 +4,7 @@
 
 ## 它能做什么
 
-- **15 款开箱即用插件** — 按功能分为 7 组（compress / generate / inject / analyze / copy / guard / proxy），覆盖构建优化、代码生成、资源管理、开发体验等场景
+- **17 款开箱即用插件** — 按功能分为 7 组（compress / generate / inject / analyze / copy / guard / proxy），覆盖构建优化、代码生成、资源管理、开发体验等场景
 - **插件开发框架** — 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
 - **14 大通用工具模块** — 并发控制、文件系统、HTML 注入、路径处理等，支持子路径按需导入
 
@@ -15,7 +15,7 @@
 | 分组 | 说明 | 插件 |
 | ---- | ---- | ---- |
 | [compress](/plugins/index#compress-压缩类) | 压缩类 | compressAssets、imageOptimizer |
-| [generate](/plugins/index#generate-生成类) | 生成类 | autoImport、generateRouter、generateVersion |
+| [generate](/plugins/index#generate-生成类) | 生成类 | autoImport、generateUni、generatePages、generateRouter、generateVersion |
 | [inject](/plugins/index#inject-注入类) | 注入类 | htmlInject、loadingManager、faviconManager、versionUpdateChecker |
 | [analyze](/plugins/index#analyze-分析类) | 分析类 | bundleAnalyzer、buildProgress |
 | [copy](/plugins/index#copy-拷贝类) | 拷贝类 | copyFile、assetManifest |

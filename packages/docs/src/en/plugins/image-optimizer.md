@@ -60,7 +60,7 @@ Both dependencies are optional. The plugin automatically detects installed depen
 | convertToAvif   | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>` | `{}`                                                                   | Convert specified formats to AVIF     |
 | keepOriginal    | `boolean`                                                       | `false`                                                                | Keep original files during conversion |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 

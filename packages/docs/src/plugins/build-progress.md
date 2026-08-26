@@ -29,7 +29,7 @@ export default defineConfig({
 | width           | `number`                      | `30`    | 进度条宽度（字符数）     |
 | clearOnComplete | `boolean`                     | `true`  | 构建完成后是否清除进度条 |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 

@@ -11,7 +11,7 @@ Vite 实用插件集与插件开发框架（uni-app 版本）。
 
 ## 特性
 
-- **开箱即用** - 16 个实用插件，覆盖构建、产物、路由、版本、HTML、代理等场景
+- **开箱即用** - 17 个实用插件，覆盖构建、产物、路由、版本、HTML、代理等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator，快速构建自定义插件
 - **通用工具库** - 内置 14 大 Common 工具模块，支持子路径按需导入
 - **uni-app 适配** - 通过 uni_modules 集成，无需 npm 安装
@@ -51,8 +51,7 @@ import {
 	copyFile,
 	envGuard,
 	faviconManager,
-	generatePages,
-	generateRouter,
+	generateUni,
 	generateVersion,
 	htmlInject,
 	imageOptimizer,
@@ -66,8 +65,10 @@ export default defineConfig({
 		uni(),
 		// 按需启用插件
 		autoImport({ imports: ['vue'], vueTemplate: true }),
-		generatePages({ pagesDir: 'pages', entryPage: 'pages/index/index' }),
-		generateRouter({ dts: true }),
+		generateUni({
+			pages: { pagesDir: 'pages', entryPage: 'pages/index/index' },
+			router: { dts: true }
+		}),
 		generateVersion({ format: 'datetime', outputType: 'both' }),
 		envGuard({ required: { VITE_API_URL: { type: 'url', required: true } } }),
 		loadingManager({ defaultVisible: true, autoHideOn: 'DOMContentLoaded' }),
@@ -88,6 +89,7 @@ export default defineConfig({
 | copyFile             | 文件复制                            |
 | envGuard             | 环境变量校验                        |
 | faviconManager       | 网站图标管理                        |
+| generateUni          | 组合入口：页面配置 + 路由配置一条流水线 |
 | generateRouter       | 路由配置生成（uni-app）             |
 | generatePages        | 页面配置生成（动态生成 pages.json） |
 | generateVersion      | 版本号生成与注入                    |

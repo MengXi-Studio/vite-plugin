@@ -105,8 +105,10 @@ class ProxyManagerPlugin extends BasePlugin<ProxyManagerOptions> {
 	 * - `configureServer`: 注册日志中间件和延迟模拟中间件
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
-		plugin.config = async () => {
-			if (!this.options.enabled) return
+		plugin.config = async (_config, env) => {
+			// 生产构建无开发服务器，代理配置不生效，直接跳过（避免无意义的规则加载与日志）
+			if (!this.options.enabled || env.command === 'build') return
+
 			return this.safeExecute(() => this.buildProxyConfig(), '构建代理配置')
 		}
 

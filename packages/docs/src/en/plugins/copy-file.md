@@ -38,7 +38,7 @@ export default defineConfig({
 | recursive     | `boolean` | `true`    | Recursively copy subdirs |
 | incremental   | `boolean` | `true`    | Copy only modified files |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ## Examples
 

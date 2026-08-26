@@ -36,10 +36,10 @@ export default defineConfig({
 | logLevel      | `'none' \| 'basic' \| 'verbose'` | `'basic'`       | 代理日志级别                           |
 | defaultDelay  | `DelayConfig`                     | `false`         | 全局默认延迟，对未配置 delay 的规则生效 |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ::: tip
-`logLevel` 为插件自身选项，控制代理请求日志级别（`'none' | 'basic' | 'verbose'`），与继承的 `BasePluginOptions.logLevel` 不同。
+`logLevel` 为插件自身选项，控制代理请求日志级别（`'none' | 'basic' | 'verbose'`），与继承的 `BasePluginOptions.verbose` 不同。
 :::
 
 ### 高级选项
@@ -202,7 +202,7 @@ console.log(rules)  // ResolvedProxyRule[]
 
 ## 注意事项
 
-- 该插件仅在开发服务器（`dev`）模式下生效，通过 `config` 和 `configureServer` 钩子注入代理配置
+- 该插件仅在开发服务器（`dev`）模式下生效，通过 `config` 和 `configureServer` 钩子注入代理配置；生产构建（`build`）时 `config` 钩子直接跳过，不加载规则、不输出代理日志
 - `configFile` 中的规则与 `rules` 中的规则会合并，`rules` 优先级更高
 - 环境变量覆盖规则：将 context 转为大写并替换非字母数字为下划线，拼接 `${envPrefix}${KEY}_TARGET`
 - 延迟中间件在日志中间件之后注册，确保 `duration` 包含延迟时间

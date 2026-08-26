@@ -38,7 +38,7 @@ export default defineConfig({
 | runtimeGuard        | `boolean`                           | `false`  | 是否注入运行时守卫代码     |
 | generateTemplate    | `boolean`                           | `true`   | 是否自动生成 .env 模板文件 |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 
@@ -64,7 +64,7 @@ export default defineConfig({
 | default    | `string`                                                                               | 缺省默认值                    |
 | message    | `string`                                                                               | 校验失败时的自定义提示信息    |
 | pattern    | `RegExp`                                                                               | 正则匹配校验                  |
-| custom     | `(value: string) => boolean`                                                           | 自定义校验函数                |
+| validator  | `(value: string) => boolean \| string`                                                | 自定义校验函数，返回字符串表示校验失败提示 |
 | minValue   | `number`                                                                               | 最小值（number 类型）         |
 | maxValue   | `number`                                                                               | 最大值（number 类型）         |
 | minLength  | `number`                                                                               | 最小长度（string 类型）       |

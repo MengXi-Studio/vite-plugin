@@ -43,7 +43,7 @@ export default defineConfig({
 | promptStyle     | `'modal' \| 'banner' \| 'toast'` | `'modal'`                                  | Update prompt UI style               |
 | enableInDev     | `boolean`                        | `false`                                    | Enable in development mode           |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 

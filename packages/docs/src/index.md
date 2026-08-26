@@ -7,7 +7,7 @@ titleTemplate: Vite 实用插件工具包
 hero:
   name: '@meng-xi/vite-plugin'
   text: Vite 实用插件工具包
-  tagline: 15 款开箱即用插件 + 完整插件开发框架，按功能分组，让 Vite 开发更高效
+  tagline: 17 款开箱即用插件 + 完整插件开发框架，按功能分组，让 Vite 开发更高效
   image:
     src: /logo.svg
     alt: Vite Plugin
@@ -25,7 +25,7 @@ hero:
 features:
   - icon: 🧩
     title: 开箱即用插件
-    details: 15 款插件覆盖构建优化、代码生成、资源管理、开发体验等场景，安装即用，零配置上手。
+    details: 17 款插件覆盖构建优化、代码生成、资源管理、开发体验等场景，安装即用，零配置上手。
   - icon: 📊
     title: 功能化分组
     details: 插件按功能动词分为 7 组（compress / generate / inject / analyze / copy / guard / proxy），语义清晰，便于检索与组合。

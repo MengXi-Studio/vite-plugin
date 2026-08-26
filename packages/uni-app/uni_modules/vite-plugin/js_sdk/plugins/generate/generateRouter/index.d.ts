@@ -1,6 +1,7 @@
 import { PluginFactory } from '../../../factory/index.js';
-import { G as GenerateRouterOptions } from '../../../shared/vite-plugin.D2NWtthI.js';
-export { N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta, U as UniAppPageConfig, b as UniAppPagesJson, c as UniAppTabBarConfig } from '../../../shared/vite-plugin.D2NWtthI.js';
+import { G as GenerateRouterOptions } from '../../../shared/vite-plugin.B8yTanEe.js';
+export { N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta } from '../../../shared/vite-plugin.B8yTanEe.js';
+export { U as UniAppPageConfig, a as UniAppPagesJson, b as UniAppTabBarConfig } from '../../../shared/vite-plugin.CjZHnjC7.js';
 import 'vite';
 import '../../../shared/vite-plugin.BmNqGOzh.js';
 import '../../../shared/vite-plugin.DRRlWY8P.js';

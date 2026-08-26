@@ -34,7 +34,7 @@ export default defineConfig({
 | publicPath       | `string`                          | `'/'`                    | Public path prefix prepended to all asset paths              |
 | groupByEntry     | `boolean`                         | `false`                  | Whether to group assets by entry point                       |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 

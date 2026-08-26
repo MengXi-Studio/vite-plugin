@@ -31,7 +31,7 @@ export default defineConfig({
 | sizeThreshold      | `number`                            | `100`               | 体积告警阈值（KB）                       |
 | compareWith        | `string \| null`                    | `null`              | 用于对比的历史报告路径                   |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 

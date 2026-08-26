@@ -47,10 +47,10 @@ export default defineConfig({
 | vueTemplate      | `boolean`                                                                                               | `false`                       | Enable auto-import for Vue templates                               |
 | vueDirectives    | `boolean \| VueDirectivesConfig`                                                                        | `false`                       | Enable auto-import for Vue directives                              |
 | ignore           | `string[]`                                                                                              | `[]`                          | Identifiers to ignore                                              |
-| include          | `Array<string \| RegExp>`                                                                               | `[/\.[tj]sx?$/, /\.vue$/...]` | File patterns to process                                           |
-| exclude          | `Array<string \| RegExp>`                                                                               | `[/node_modules/]`            | File patterns to exclude                                           |
+| include          | `Array<string \| RegExp>`                                                                               | `[/\.[tj]sx?$/, /\.vue$/, /\.vue\?vue/, /\.md$/]` | File patterns to process                                           |
+| exclude          | `Array<string \| RegExp>`                                                                               | `[/node_modules/, /\.git/]`   | File patterns to exclude                                           |
 
-> Inherits [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Directory Scanning Options
 
@@ -75,7 +75,7 @@ export default defineConfig({
 | viteOptimizeDeps   | `boolean`                       | `false`                    | Auto-add imported packages to optimizeDeps     |
 | cache              | `boolean \| CacheConfig`        | `true`                    | Cache configuration                            |
 | resolvers          | `Resolver[]`                    | `[]`                      | Custom resolvers                               |
-| packagePresets     | `PackagePresetConfig[]`         | `[]`                      | Package preset configuration                   |
+| packagePresets     | `Array<string \| PackagePresetOptions>`   | `[]`                      | Package preset configuration                   |
 | commentsDisable    | `string[]`                      | `['@unimport-disable']`   | Comment markers to disable auto-import         |
 
 ### Lint Config Options

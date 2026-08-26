@@ -43,7 +43,7 @@ import { compressAssets, autoImport, buildProgress } from '@meng-xi/vite-plugin'
 import { compressAssets, imageOptimizer } from '@meng-xi/vite-plugin/plugins/compress'
 
 // 生成类
-import { autoImport, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
+import { autoImport, generateUni, generatePages, generateRouter, generateVersion } from '@meng-xi/vite-plugin/plugins/generate'
 
 // 注入类
 import { htmlInject, loadingManager, faviconManager, versionUpdateChecker } from '@meng-xi/vite-plugin/plugins/inject'

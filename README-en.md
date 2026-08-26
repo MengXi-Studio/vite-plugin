@@ -18,7 +18,7 @@
 
 ## Features
 
-- **Ready to Use** - 16 practical plugins grouped by function (compress / generate / inject / analyze / copy / guard / proxy), covering auto-import, build progress, bundle analysis & compression, file copying,
+- **Ready to Use** - 17 practical plugins grouped by function (compress / generate / inject / analyze / copy / guard / proxy), covering auto-import, build progress, bundle analysis & compression, file copying,
 	environment variable validation, route generation, pages config generation, version management, HTML injection, favicon management, global Loading, image optimization, dev proxy, and more
 - **Plugin Development Framework** - Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
 - **Common Utility Library** - Built-in 14 Common utility modules supporting on-demand sub-path imports

@@ -31,7 +31,7 @@ export default defineConfig({
     generateVersion({ format: 'datetime' }),
 
     // 构建校验与优化
-    envGuard({ rules: { VITE_API_URL: { type: 'string', required: true } } }),
+    envGuard({ required: { VITE_API_URL: { type: 'string', required: true } } }),
     compressAssets({ algorithm: 'gzip' })
   ]
 })
@@ -57,8 +57,8 @@ export default defineConfig({
     compressAssets({ algorithm: 'brotli' }),
 
     // 加载体验
-    loadingManager({ type: 'spinner' }),
-    faviconManager({ source: 'src/favicon.png' }),
+    loadingManager({ spinnerType: 'spinner' }),
+    faviconManager({ link: '<link rel="icon" href="/favicon.ico" />' }),
 
     // 体积分析
     bundleAnalyzer({ outputFormat: 'html' })
@@ -75,8 +75,8 @@ import { generateVersion, copyFile } from '@meng-xi/vite-plugin'
 
 export default defineConfig({
   plugins: [
-    generateVersion({ format: 'semver', outputType: 'json' }),
-    copyFile({ patterns: [{ from: 'src/styles', to: 'dist/styles' }] })
+    generateVersion({ format: 'semver', outputType: 'file' }),
+    copyFile({ sourceDir: 'src/styles', targetDir: 'dist/styles' })
   ]
 })
 ```
@@ -88,7 +88,7 @@ export default defineConfig({
 ```typescript
 import {
   buildProgress, bundleAnalyzer, compressAssets, imageOptimizer,
-  autoImport, generateRouter, generateVersion,
+  autoImport, generateUni, generateVersion,
   htmlInject, loadingManager, versionUpdateChecker,
   copyFile, assetManifest,
   envGuard, proxyManager
@@ -102,7 +102,7 @@ export default defineConfig({
 
     // 代码生成
     autoImport({ imports: { vue: ['ref', 'reactive', 'computed', 'watch'] } }),
-    generateRouter({ pagesDir: 'src/pages' }),
+    generateUni({ pages: { pagesDir: 'src/pages' }, router: { outputPath: 'src/router.config.ts' } }),
     generateVersion({ format: 'datetime' }),
 
     // 构建优化
@@ -110,22 +110,22 @@ export default defineConfig({
     imageOptimizer(),
 
     // 注入
-    htmlInject({ inject: { head: ['<meta name="version" content="%VERSION%">'] } }),
+    htmlInject({ rules: [{ id: 'meta-version', content: '<meta name="version" content="{{version}}">', position: 'head-end' }], templateVars: { version: '1.0.0' } }),
     loadingManager(),
-    versionUpdateChecker({ interval: 300000 }),
+    versionUpdateChecker({ checkInterval: 300000 }),
 
     // 资源管理
-    copyFile({ patterns: [{ from: 'public', to: 'dist' }] }),
-    assetManifest({ output: 'manifest.json' }),
+    copyFile({ sourceDir: 'public', targetDir: 'dist' }),
+    assetManifest({ outputFile: 'manifest.json' }),
 
     // 守卫与代理
     envGuard({
-      rules: {
+      required: {
         VITE_API_URL: { type: 'string', required: true },
         VITE_APP_NAME: { type: 'string', required: true }
       }
     }),
-    proxyManager({ config: 'proxy.config.json' })
+    proxyManager({ configFile: '.proxyrc.ts' })
   ]
 })
 ```
@@ -150,7 +150,7 @@ proxyManager({ enabled: !isProd })
 compressAssets({
   algorithm: 'brotli',
   threshold: 10240,  // 仅压缩大于 10KB 的文件
-  deleteOriginalAssets: false  // 保留原始文件，避免影响开发
+  deleteOriginalFile: false  // 保留原始文件，避免影响开发
 })
 ```
 
@@ -160,7 +160,7 @@ compressAssets({
 
 ```typescript
 imageOptimizer({
-  concurrency: 4  // 默认值，CPU 密集型可调低，IO 密集型可调高
+  parallelLimit: 4  // 默认值，CPU 密集型可调低，IO 密集型可调高
 })
 ```
 
@@ -214,9 +214,9 @@ generateVersion()
 同类型插件多次使用时，框架会自动分配实例 ID（`插件名#1`、`插件名#2`），日志互不干扰。但需注意配置上的逻辑冲突：
 
 ```typescript
-// 同一目录被两个 copyFile 操作，注意 patterns 不要重叠
-copyFile({ patterns: [{ from: 'public/a', to: 'dist/a' }] }),
-copyFile({ patterns: [{ from: 'public/b', to: 'dist/b' }] })
+// 同一目录被两个 copyFile 操作，注意 sourceDir/targetDir 不要重叠
+copyFile({ sourceDir: 'public/a', targetDir: 'dist/a' }),
+copyFile({ sourceDir: 'public/b', targetDir: 'dist/b' })
 ```
 
 ### 3. envGuard 规则与构建时机的匹配
@@ -225,18 +225,18 @@ copyFile({ patterns: [{ from: 'public/b', to: 'dist/b' }] })
 
 ```typescript
 // 推荐将 envGuard 放在插件数组靠前位置
-envGuard({ rules: { ... } }),
+envGuard({ required: { VITE_APP_TITLE: { type: 'string', required: true } } }),
 // 后续插件可安全使用 process.env.VITE_XXX
 ```
 
-### 4. compressAssets 与 deleteOriginalAssets
+### 4. compressAssets 与 deleteOriginalFile
 
 ```typescript
-// ⚠️ 生产环境慎用 deleteOriginalAssets: true
+// ⚠️ 生产环境慎用 deleteOriginalFile: true
 // 部分服务器/CDN 需要原始文件作为回退
 compressAssets({
   algorithm: 'brotli',
-  deleteOriginalAssets: false  // 保留原始文件（推荐）
+  deleteOriginalFile: false  // 保留原始文件（推荐）
 })
 ```
 

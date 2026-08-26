@@ -41,7 +41,7 @@ export default defineConfig({
 | icons       | `Icon[]`      | -       | Custom icon array                            |
 | copyOptions | `CopyOptions` | -       | Icon file copy config                        |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### copyOptions
 

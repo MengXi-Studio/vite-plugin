@@ -53,7 +53,7 @@ loadingManager({ autoBind: 'fetch' })
 | defaultVisible | `boolean`                                  | `false`                   | Initial visibility             |
 | autoHideOn     | `'DOMContentLoaded' \| 'load' \| 'manual'` | `'DOMContentLoaded'`      | Auto-hide timing               |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 

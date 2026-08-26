@@ -39,7 +39,7 @@ export default defineConfig({
 | icons         | `Icon[]`                       | -         | 自定义图标数组                          |
 | copyOptions   | `CopyOptions`                  | -         | 图标文件复制配置                        |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 配置优先级
 

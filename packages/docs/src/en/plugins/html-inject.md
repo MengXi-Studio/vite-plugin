@@ -52,7 +52,7 @@ export default defineConfig({
 | security      | `SecurityConfig`               | See below      | Security configuration    |
 | templateVars  | `Record<string, string>`       | -              | Global template variables |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 

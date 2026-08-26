@@ -91,6 +91,7 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 					collapsed: false,
 					items: [
 						{ text: 'autoImport', link: '/plugins/auto-import.html' },
+						{ text: 'generateUni', link: '/plugins/generate-uni.html' },
 						{ text: 'generatePages', link: '/plugins/generate-pages.html' },
 						{ text: 'generateRouter', link: '/plugins/generate-router.html' },
 						{ text: 'generateVersion', link: '/plugins/generate-version.html' }

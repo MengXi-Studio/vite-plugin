@@ -1,4 +1,4 @@
-import type { ResolvedConfig } from 'vite'
+import type { ResolvedConfig, Plugin } from 'vite'
 import fs from 'node:fs'
 import path from 'node:path'
 import { BasePlugin, createPluginFactory } from '@/factory'
@@ -112,6 +112,39 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 	protected destroy(): void {
 		super.destroy()
 		this.stopWatching()
+	}
+
+	/**
+	 * 注册 Vite 插件钩子
+	 *
+	 * @param plugin Vite 插件对象
+	 * @description 拦截 `<route-config>` 自定义块产生的虚拟模块请求
+	 * （如 `xxx.vue?vue&type=route-config&index=0`），返回空模块以避免
+	 * 被 Vue 插件当作 JavaScript 源码解析导致构建失败。
+	 * 块内容已由扫描时解析，无需在模块系统中保留。
+	 */
+	protected addPluginHooks(plugin: Plugin): void {
+		this.registerHook(
+			plugin,
+			'transform',
+			(_code: string, id: string) => {
+				if (!this.isRouteConfigRequest(id)) return null
+				return { code: 'export default {}', map: null }
+			},
+			'transform route-config 自定义块'
+		)
+	}
+
+	/** 判断请求 id 是否为当前自定义块（如 route-config）的虚拟模块请求 */
+	private isRouteConfigRequest(id: string): boolean {
+		if (!id.includes('vue')) return false
+		const match = id.match(/[?&]type=([^&]+)/)
+		return match?.[1] === this.getRouteConfigBlockName()
+	}
+
+	/** 解析页面配置自定义块名称（默认 route-config） */
+	private getRouteConfigBlockName(): string {
+		return this.options.routeConfigBlock ?? 'route-config'
 	}
 
 	/** 完整的 pages.json 生成流程 */

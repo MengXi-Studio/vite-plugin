@@ -4,7 +4,7 @@
 
 ## What It Does
 
-- **15 ready-to-use plugins** — Grouped into 7 functional categories (compress / generate / inject / analyze / copy / guard / proxy), covering build optimization, code generation, asset management, and developer experience
+- **17 ready-to-use plugins** — Grouped into 7 functional categories (compress / generate / inject / analyze / copy / guard / proxy), covering build optimization, code generation, asset management, and developer experience
 - **Plugin Development Framework** — Exports core components like BasePlugin, Logger, and Validator to quickly build custom Vite plugins
 - **14 utility modules** — Concurrency control, file system, HTML injection, path processing, and more, all available via sub-path imports
 
@@ -15,7 +15,7 @@ Plugins are grouped by functional verb, and can be imported by group or individu
 | Group                                                    | Description | Plugins                                                                  |
 | -------------------------------------------------------- | ----------- | ------------------------------------------------------------------------ |
 | [compress](/en/plugins/index#compress)                   | Compression | compressAssets, imageOptimizer                                           |
-| [generate](/en/plugins/index#generate)                   | Generation  | autoImport, generateRouter, generateVersion                              |
+| [generate](/en/plugins/index#generate)                   | Generation  | autoImport, generateUni, generatePages, generateRouter, generateVersion                              |
 | [inject](/en/plugins/index#inject)                       | Injection   | htmlInject, loadingManager, faviconManager, versionUpdateChecker         |
 | [analyze](/en/plugins/index#analyze)                     | Analysis    | bundleAnalyzer, buildProgress                                            |
 | [copy](/en/plugins/index#copy)                           | Copy        | copyFile, assetManifest                                                  |

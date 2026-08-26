@@ -18,7 +18,7 @@
 
 ## 特性
 
-- **开箱即用** - 16 个实用插件，按功能分组（compress / generate / inject / analyze / copy / guard /
+- **开箱即用** - 17 个实用插件，按功能分组（compress / generate / inject / analyze / copy / guard /
 	proxy），覆盖自动导入、构建进度、产物分析与压缩、文件复制、环境变量校验、路由生成、页面配置生成、版本管理、HTML 注入、图标管理、全局 Loading、图片优化、开发代理 等场景
 - **插件开发框架** - 导出 BasePlugin、Logger、Validator 等核心组件，快速构建自定义 Vite 插件
 - **通用工具库** - 内置 14 大 Common 工具模块，支持按需子路径导入

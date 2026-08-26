@@ -1,3 +1,70 @@
+## 1.3.0（2026-08-26）
+
+新增 generateUni 组合入口插件，一条流水线完成「扫描页面 → pages.json → 路由配置」，插件总数增至 17 个
+
+### generateUni（新增）
+
+新增第 17 个插件：将 `generatePages`（扫描页面 → 生成 pages.json）与 `generateRouter`（基于 pages.json → 生成路由配置）编排为一条流水线，**内存数据直传不重复读盘**，等价于两插件连用。原有两个插件保持不变，仍可独立使用。
+
+**核心能力**：
+
+| 能力                | 说明                                                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 流水线编排          | 阶段一扫描页面 + `<route-config>` 产出内存 pages 数据并写盘 pages.json；阶段二直接消费内存数据生成路由配置（+ 可选 dts）                 |
+| 避免读盘往返        | 阶段二不再「先写盘再读盘」，直接使用阶段一的内存 pages 对象                                                                              |
+| 配置分组            | 顶层公共项（`pagesJsonPath` / `watch`）+ `pages` 子对象（generatePages 参数）+ `router` 子对象（generateRouter 参数），避免 20+ 平铺选项 |
+| 串行生成            | 监听页面目录变更时串行重跑「阶段一 + 阶段二」，避免并发读写竞态                                                                          |
+| route-config 块拦截 | 拦截 `<route-config>` 虚拟模块请求为空模块，避免构建时被当作 JavaScript 解析报错                                                         |
+| 保留能力            | 完整继承 generatePages 的 tabBar 归集 / 分包 / 合并策略，与 generateRouter 的 preserveRouteChanges / metaMapping / dts 等                |
+
+**使用示例**：
+
+```typescript
+generateUni({
+	pagesJsonPath: 'src/pages.json',
+	pages: {
+		pagesDir: 'src/pages',
+		subPackages: [{ root: 'pages-sub', dir: 'src/pages-sub' }],
+		entryPage: 'pages/index/index',
+		tabBar: { color: '#999999', selectedColor: '#42b883' }
+	},
+	router: {
+		outputPath: 'src/router.config.ts',
+		nameStrategy: 'camelCase',
+		dts: 'src/router.d.ts'
+	}
+})
+```
+
+**迁移**：原 `generatePages({...})` + `generateRouter({...})` 连用等价替换为 `generateUni({ pages: {...}, router: {...} })`。
+
+### generatePages（增强）
+
+为 standalone 的 `generatePages` 补充 `<route-config>` 自定义块虚拟模块拦截：注册 `transform` 钩子，将 `xxx.vue?vue&type=route-config&index=0` 请求替换为空模块，**避免生产构建把块内容当作 JavaScript 解析而报错**（与
+`generateUni` 行为一致，此前仅 generateUni 具备）。
+
+### proxyManager（优化）
+
+生产构建优化：`config` 钩子新增 `env.command === 'build'` 拦截，**构建时完全跳过**代理规则加载与配置生成。
+
+| 变更点         | 说明                                                          |
+| -------------- | ------------------------------------------------------------- |
+| 避免无意义加载 | build 阶段不再加载 `.proxyrc.ts`、不再解析 envPrefix 覆盖     |
+| 消除误导日志   | 移除 build 时的「已加载 X 条代理规则 (环境: production)」日志 |
+| 行为不变       | 开发服务器（dev）下功能、规则、中间件、日志逻辑完全保持不变   |
+
+> 背景：`config` 钩子在 serve 与 build 两个阶段都会执行，而代理配置与中间件仅对开发服务器有效，此前打包时会白白加载规则并输出误导性日志。
+
+### 插件清单（变更）
+
+- 插件总数由 16 增至 **17**，分组由 7 组不变
+- generate 分组由 4 增至 5：`autoImport`、`generateUni`、`generatePages`、`generateRouter`、`generateVersion`
+
+### 子路径导出（新增）
+
+- `@meng-xi/vite-plugin/plugins/generate/generate-uni` 新增导出：`generateUni` 及类型 `GenerateUniOptions`
+- `@meng-xi/vite-plugin/plugins/generate` 聚合导出 `generateUni` 及其类型
+
 ## 1.2.0（2026-08-25）
 
 新增 generatePages 插件，扫描 Vue 文件 + `<route-config>` 自定义块动态生成 pages.json，插件总数增至 16 个

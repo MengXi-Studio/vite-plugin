@@ -1,6 +1,7 @@
 import { PluginFactory } from '../../../factory/index.cjs';
-import { G as GenerateRouterOptions } from '../../../shared/vite-plugin.CCllMqTE.cjs';
-export { N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta, U as UniAppPageConfig, b as UniAppPagesJson, c as UniAppTabBarConfig } from '../../../shared/vite-plugin.CCllMqTE.cjs';
+import { G as GenerateRouterOptions } from '../../../shared/vite-plugin.BBPyqslH.cjs';
+export { N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta } from '../../../shared/vite-plugin.BBPyqslH.cjs';
+export { U as UniAppPageConfig, a as UniAppPagesJson, b as UniAppTabBarConfig } from '../../../shared/vite-plugin.CjZHnjC7.cjs';
 import 'vite';
 import '../../../shared/vite-plugin.BmNqGOzh.cjs';
 import '../../../shared/vite-plugin.DRRlWY8P.cjs';

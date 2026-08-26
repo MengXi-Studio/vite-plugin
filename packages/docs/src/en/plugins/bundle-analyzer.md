@@ -44,7 +44,7 @@ export default defineConfig({
 | sizeThreshold      | `number`                            | `100`               | Size alert threshold (KB)                      |
 | compareWith        | `string \| null`                    | `null`              | Path to historical report for comparison       |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 

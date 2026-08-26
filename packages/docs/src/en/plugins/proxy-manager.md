@@ -39,10 +39,10 @@ export default defineConfig({
 | logLevel      | `'none' \| 'basic' \| 'verbose'` | `'basic'`      | Proxy log level                                      |
 | defaultDelay  | `DelayConfig`                     | `false`        | Global default delay, applies to rules without delay |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ::: tip
-`logLevel` is a plugin-specific option controlling proxy request log level (`'none' | 'basic' | 'verbose'`), different from the inherited `BasePluginOptions.logLevel`.
+`logLevel` is a plugin-specific option controlling proxy request log level (`'none' | 'basic' | 'verbose'`), different from the inherited `BasePluginOptions.verbose`.
 :::
 
 ### Advanced Options
@@ -189,7 +189,7 @@ console.log(rules)  // ResolvedProxyRule[]
 
 ## Notes
 
-- This plugin only takes effect in dev server mode, injecting proxy config via `config` and `configureServer` hooks
+- This plugin only takes effect in dev server mode, injecting proxy config via `config` and `configureServer` hooks; during production builds (`build`), the `config` hook is skipped entirely — no rules are loaded and no proxy logs are printed
 - Rules from `configFile` are merged with `rules`, with `rules` taking higher priority
 - Environment variable override: converts context to uppercase, replaces non-alphanumeric with underscores, appends `${envPrefix}${KEY}_TARGET`
 - Delay middleware is registered after logging middleware to ensure `duration` includes delay time

@@ -32,7 +32,7 @@ export default defineConfig({
 | dts                  | `string \| boolean`            | `false`                  | 路由类型声明文件输出路径 |
 | preserveRouteChanges | `boolean`                      | `true`                   | 保留用户对路由配置的修改 |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 

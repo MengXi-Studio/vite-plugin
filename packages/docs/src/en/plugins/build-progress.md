@@ -31,7 +31,7 @@ export default defineConfig({
 | width           | `number`         | `30`      | Progress bar width (characters)    |
 | clearOnComplete | `boolean`        | `true`    | Clear progress bar on completion   |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 
