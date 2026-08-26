@@ -56,3 +56,13 @@ export type OptionsNormalizer<T, R = any> = (raw?: R) => T
  * @template R 原始配置类型，默认与 T 相同
  */
 export type PluginFactory<T extends BasePluginOptions = BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>
+
+/**
+ * 仅保留函数型钩子（或含 handler 的对象型钩子）的键映射
+ *
+ * @description 用于将 `Plugin` 类型过滤为「可作为钩子注册」的键集合，
+ * 排除 `name` / `enforce` / `apply` 等非函数属性，提升 registerHook 的类型安全。
+ */
+export type FunctionHookMap<P> = {
+	[K in keyof P]: P[K] extends (...args: any[]) => any ? P[K] : P[K] extends { handler: (...args: any[]) => any } ? P[K] : never
+}

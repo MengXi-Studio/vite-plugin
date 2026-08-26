@@ -53,8 +53,7 @@ import {
 	copyFile,
 	envGuard,
 	faviconManager,
-	generatePages,
-	generateRouter,
+	generateUni,
 	generateVersion,
 	htmlInject,
 	imageOptimizer,
@@ -73,8 +72,10 @@ export default defineConfig({
 		copyFile({ sourceDir: 'src/assets', targetDir: 'dist/assets' }),
 		envGuard({ rules: { VITE_API_URL: { type: 'string', required: true } } }),
 		faviconManager('/assets'),
-		generatePages({ tabBar: { color: '#999999', selectedColor: '#42b883' } }),
-		generateRouter(),
+		generateUni({
+			pages: { pagesDir: 'src/pages', tabBar: { color: '#999999', selectedColor: '#42b883' } },
+			router: { outputPath: 'src/router.config.ts', nameStrategy: 'camelCase', dts: true }
+		}),
 		generateVersion({ format: 'datetime', outputType: 'both' }),
 		htmlInject({ rules: [{ id: 'meta', content: '<meta name="description" content="My App">', position: 'head-end' }] }),
 		imageOptimizer({ quality: { jpeg: 80, webp: 75 }, convertToWebp: { png: true } }),
@@ -98,6 +99,7 @@ Grouped by function (Lodash-style), supports importing by group or individually.
 ### generate - Generation
 
 - **[autoImport](https://mengxi-studio.github.io/vite-plugin/en/plugins/auto-import.html)** - Auto-inject import statements with built-in presets (Vue/Vue Router/Pinia etc.), alias/type/namespace imports, directory glob scanning, Vue template & directive auto-import, DTS generation, ESLint/Biome config generation
+- **[generateUni](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-uni.html)** - Composite entry plugin that pipelines "scan pages → pages.json → route config" in one pass with in-memory data (no disk round-trip), equivalent to combining `generatePages` + `generateRouter` (uni-app)
 - **[generatePages](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-pages.html)** - Scan Vue files to auto-generate pages.json page config, supporting sub-packages, tabBar aggregation and per-page `<route-config>` blocks (uni-app)
 - **[generateRouter](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-router.html)** - Auto-generate route config and type declarations from pages.json (uni-app)
 - **[generateVersion](https://mengxi-studio.github.io/vite-plugin/en/plugins/generate-version.html)** - Auto-generate version numbers with file output and global variable injection
@@ -240,10 +242,10 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCall
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [`common/code`](https://mengxi-studio.github.io/vite-plugin/en/common/code.html)               | JS keyword set, code comment & string stripping (for static analysis preprocessing)                                                                                |
 | [`common/compress`](https://mengxi-studio.github.io/vite-plugin/en/common/compress.html)       | gzip size calculation                                                                                                                                              |
-| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/en/common/concurrency.html) | Batch async execution with concurrency limit                                                                                                                       |
+| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/en/common/concurrency.html) | Batch async execution with concurrency limit + serial task queue                                                                                                   |
 | [`common/env`](https://mengxi-studio.github.io/vite-plugin/en/common/env.html)                 | `.env` file content parsing (supports quote removal and prefix filtering)                                                                                          |
 | [`common/format`](https://mengxi-studio.github.io/vite-plugin/en/common/format.html)           | Date param extraction, template variable replacement `{{key}}`/`{key}` (custom delimiter supported), date formatting, file size, compression ratio                 |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                   | Source check, file/directory copy, directory scan, scan+map, batch delete, file write, JSON report, sync safe write, file change detection, report path resolution |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/en/common/fs.html)                   | Source check, file/directory copy, directory scan, scan+map, batch delete, file write, JSON report, sync safe write, file change detection, report path resolution, recursive directory watching |
 | [`common/hash`](https://mengxi-studio.github.io/vite-plugin/en/common/hash.html)               | Random hash generation (cryptographic random, for version identification, cache busting)                                                                           |
 | [`common/html`](https://mengxi-studio.github.io/vite-plugin/en/common/html.html)               | HTML tag injection, dual-zone injection, content sanitization, HTML attribute value escaping                                                                       |
 | [`common/object`](https://mengxi-studio.github.io/vite-plugin/en/common/object.html)           | Deep merge objects (recursively merges plain objects, skips undefined)                                                                                             |

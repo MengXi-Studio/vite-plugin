@@ -240,10 +240,10 @@ import { Validator, validateGlobalName, validateNoScriptInTemplate, validateCall
 | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | [`common/code`](https://mengxi-studio.github.io/vite-plugin/common/code.html)               | JS 关键字集合、代码注释与字符串移除（用于静态分析预处理）                                                              |
 | [`common/compress`](https://mengxi-studio.github.io/vite-plugin/common/compress.html)       | gzip 压缩大小计算                                                                                                      |
-| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/common/concurrency.html) | 带并发限制的批量异步执行                                                                                               |
+| [`common/concurrency`](https://mengxi-studio.github.io/vite-plugin/common/concurrency.html) | 带并发限制的批量异步执行 + 串行任务队列                                                                                  |
 | [`common/env`](https://mengxi-studio.github.io/vite-plugin/common/env.html)                 | `.env` 文件内容解析（支持引号去除和前缀过滤）                                                                          |
 | [`common/format`](https://mengxi-studio.github.io/vite-plugin/common/format.html)           | 日期参数提取、模板变量替换 `{{key}}`/`{key}`（支持自定义分隔符）、日期格式化、文件大小格式化、压缩率计算               |
-| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                   | 源文件检查、文件/目录复制、目录扫描、扫描+映射、批量删除、文件写入、JSON报告、同步安全写入、文件变更检测、报告路径解析 |
+| [`common/fs`](https://mengxi-studio.github.io/vite-plugin/common/fs.html)                   | 源文件检查、文件/目录复制、目录扫描、扫描+映射、批量删除、文件写入、JSON报告、同步安全写入、文件变更检测、报告路径解析、目录递归监听 |
 | [`common/hash`](https://mengxi-studio.github.io/vite-plugin/common/hash.html)               | 随机哈希生成（加密级随机数，用于版本标识、缓存破坏）                                                                   |
 | [`common/html`](https://mengxi-studio.github.io/vite-plugin/common/html.html)               | HTML 标签注入、双区域注入、内容安全消毒、HTML 属性值转义                                                               |
 | [`common/object`](https://mengxi-studio.github.io/vite-plugin/common/object.html)           | 深度合并对象（递归合并普通对象，跳过 undefined）                                                                       |

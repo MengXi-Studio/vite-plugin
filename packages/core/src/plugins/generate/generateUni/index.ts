@@ -2,7 +2,8 @@ import type { ResolvedConfig, Plugin } from 'vite'
 import fs from 'node:fs'
 import path from 'node:path'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import { writeFileContent } from '@/common/fs'
+import { DirectoryWatcher, writeFileContent } from '@/common/fs'
+import { TaskQueue } from '@/common/concurrency'
 import type { GenerateUniOptions } from './types'
 import type { GeneratePagesOptions } from '../generatePages/types'
 import { producePages, generateRouterFromPages } from './helpers'
@@ -28,11 +29,11 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 	/** 项目根目录 */
 	private projectRoot: string = process.cwd()
 
-	/** 目录监听器列表 */
-	private watchers: fs.FSWatcher[] = []
+	/** 目录监听器 */
+	private watcher: DirectoryWatcher | null = null
 
-	/** 串行生成队列：避免 watch 高频触发时并发读改写 pages.json / router */
-	private pipelineQueue: Promise<void> = Promise.resolve()
+	/** 串行流水线队列：避免 watch 高频触发时并发读改写 pages.json / router */
+	private queue: TaskQueue = new TaskQueue()
 
 	protected getPluginName(): string {
 		return 'generate-uni'
@@ -102,7 +103,7 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 
 	/** 判断请求 id 是否为当前自定义块（如 route-config）的虚拟模块请求 */
 	private isRouteConfigRequest(id: string): boolean {
-		if (!id.includes('vue')) return false
+		if (!id.includes('?vue')) return false
 		const match = id.match(/[?&]type=([^&]+)/)
 		return match?.[1] === this.getRouteConfigBlockName()
 	}
@@ -114,10 +115,7 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 
 	/** 将一次流水线执行加入队列串行执行 */
 	private runPipeline(): void {
-		this.pipelineQueue = this.pipelineQueue
-			.catch(() => {})
-			.then(() => this.safeExecute(() => this.run(), 'generateUni 执行'))
-			.catch(() => {})
+		this.queue.run(() => this.safeExecute(() => this.run(), 'generateUni 执行') as Promise<void>).catch(() => {})
 	}
 
 	/** 阶段一（内存 pages）→ 写 pages.json → 阶段二（路由）→ 写 router */
@@ -149,22 +147,17 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 	/** 启动页面目录监听（主包目录 + 存在的分包目录） */
 	private startWatching(): void {
 		if (!this.options.watch) return
-		const dirs = this.collectWatchDirs()
-		for (const dir of dirs) {
-			if (!fs.existsSync(dir)) continue
-			try {
-				const watcher = fs.watch(dir, { recursive: true }, () => {
-					this.logger.info('检测到页面文件变化，重新生成 pages.json + router...')
-					this.runPipeline()
-				})
-				this.watchers.push(watcher)
-			} catch (error) {
-				this.logger.warn(`监听目录失败（可能不支持 recursive），跳过: ${dir} - ${(error as Error).message}`)
-			}
-		}
-		if (this.watchers.length > 0) {
-			this.logger.info(`正在监听页面目录: ${dirs.join(', ')}`)
-		}
+
+		this.watcher = new DirectoryWatcher({
+			dirs: this.collectWatchDirs(),
+			onChange: () => {
+				this.logger.info('检测到页面文件变化，重新生成 pages.json + router...')
+				this.runPipeline()
+			},
+			logger: this.logger,
+			label: '页面目录'
+		})
+		this.watcher.start()
 	}
 
 	/** 收集需要监听的目录 */
@@ -179,14 +172,8 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 
 	/** 停止所有目录监听 */
 	private stopWatching(): void {
-		for (const watcher of this.watchers) {
-			try {
-				watcher.close()
-			} catch {
-				// 忽略关闭异常
-			}
-		}
-		this.watchers = []
+		this.watcher?.stop()
+		this.watcher = null
 	}
 }
 

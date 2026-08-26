@@ -41,7 +41,7 @@ Submodule imports allow bundlers to only include the code you actually use, avoi
 
 | Module | Description | Exports | Submodule Path |
 | ------ | ----------- | ------- | -------------- |
-| [fs](./fs) | File system utilities | 10 functions + 4 types | `@meng-xi/vite-plugin/common/fs` |
+| [fs](./fs) | File system utilities | 11 functions + 5 types | `@meng-xi/vite-plugin/common/fs` |
 | [path](./path) | Path utilities | 4 functions | `@meng-xi/vite-plugin/common/path` |
 
 ### Formatting & Templates
@@ -82,6 +82,6 @@ Submodule imports allow bundlers to only include the code you actually use, avoi
 
 | Module | Description | Exports | Submodule Path |
 | ------ | ----------- | ------- | -------------- |
-| [concurrency](./concurrency) | Concurrency control | 1 function | `@meng-xi/vite-plugin/common/concurrency` |
+| [concurrency](./concurrency) | Concurrency control | 1 function + 1 class | `@meng-xi/vite-plugin/common/concurrency` |
 | [validation](./validation) | Chainable parameter validator + 3 validation functions | 1 class + 3 functions | `@meng-xi/vite-plugin/common/validation` |
 | [ui](./ui) | Terminal ANSI escape code toolkit | 1 object | `@meng-xi/vite-plugin/common/ui` |

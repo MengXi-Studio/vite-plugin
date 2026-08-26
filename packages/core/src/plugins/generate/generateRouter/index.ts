@@ -4,12 +4,16 @@ import type { GenerateRouterOptions, UniAppPagesJson, RouteConfig } from './type
 import { stripJsonComments } from '@/common/string'
 import { generateRouterDtsContent, parsePagesJson, mergeRoutes, generateFileContent, extractExistingRawRoutes, extractExistingRoutes } from './helpers'
 import { writeFileContent, shouldUpdateFileContent } from '@/common/fs'
+import { TaskQueue } from '@/common/concurrency'
 import { resolve } from 'path'
 import { existsSync, watch as fsWatch, promises as fsp } from 'fs'
 
 class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	private projectRoot: string = process.cwd()
 	private watcher: ReturnType<typeof fsWatch> | null = null
+
+	/** 生成队列：串行执行生成任务，避免 pages.json 高频变更时并发读改写 */
+	private queue: TaskQueue = new TaskQueue()
 
 	protected getPluginName(): string {
 		return 'generate-router'
@@ -46,7 +50,7 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	protected onConfigResolved(config: ResolvedConfig): void {
 		super.onConfigResolved(config)
 		this.projectRoot = config.root
-		this.safeExecute(() => this.generateRouterConfig(), '生成路由配置')
+		this.runGenerate()
 		if (config.command === 'serve') {
 			this.startWatching()
 		}
@@ -55,6 +59,11 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 	protected destroy(): void {
 		super.destroy()
 		this.stopWatching()
+	}
+
+	/** 将一次生成任务加入队列串行执行，避免 pages.json 高频变更时并发读改写 */
+	private runGenerate(): void {
+		this.queue.run(() => this.safeExecute(() => this.generateRouterConfig(), '生成路由配置') as Promise<void>).catch(() => {})
 	}
 
 	/** 完整的路由配置文件生成流程 */
@@ -132,11 +141,9 @@ class GenerateRouterPlugin extends BasePlugin<GenerateRouterOptions> {
 		const pagesJsonPath = resolve(this.projectRoot, this.options.pagesJsonPath!)
 		if (!existsSync(pagesJsonPath)) return
 
-		this.watcher = fsWatch(pagesJsonPath, async eventType => {
-			if (eventType === 'change') {
-				this.logger.info('检测到 pages.json 变化，重新生成路由配置...')
-				await this.safeExecute(() => this.generateRouterConfig(), '重新生成路由配置')
-			}
+		this.watcher = fsWatch(pagesJsonPath, () => {
+			this.logger.info('检测到 pages.json 变化，重新生成路由配置...')
+			this.runGenerate()
 		})
 
 		this.logger.info(`正在监听 pages.json 变化: ${pagesJsonPath}`)

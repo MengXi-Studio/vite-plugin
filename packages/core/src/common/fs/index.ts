@@ -4,6 +4,8 @@ import type { CopyOptions, CopyResult } from './type'
 import { runWithConcurrency } from '@/common/concurrency'
 
 export type { CopyOptions, CopyResult } from './type'
+export { DirectoryWatcher } from './watcher'
+export type { DirectoryWatcherOptions } from './watcher'
 
 /**
  * 默认并发限制数
