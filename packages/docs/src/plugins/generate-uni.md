@@ -61,8 +61,8 @@ export default defineConfig({
 | ---- | ---- | ------ | ---- |
 | pagesJsonPath | `string` | `'src/pages.json'` | pages.json 文件路径（两阶段共用） |
 | watch | `boolean` | `true` | 监听页面目录变更自动重新执行整条流水线 |
-| pages | [`GeneratePagesOptions`](/plugins/generate-pages) | - | 阶段一参数：扫描页面 + `<route-config>` 生成 pages.json（`pagesDir` / `subPackages` / `routeConfigBlock` / `entryPage` / `titleFallback` / `tabBar` / `includeExtensions` / `excludePatterns`） |
-| router | [`GenerateRouterOptions`](/plugins/generate-router) | - | 阶段二参数：基于 pages.json 生成路由配置（`outputPath` / `outputFormat` / `nameStrategy` / `metaMapping` / `exportTypes` / `preserveRouteChanges` / `headerTemplate` / `customFields` / `dts` / `includeSubPackages`） |
+| pages | [`GeneratePagesOptions`](/plugins/generate-pages) | `{ pagesDir: 'src/pages', subPackages: [{ root: 'pages-sub', dir: 'src/pages-sub' }] }` | 阶段一参数：扫描页面 + `<route-config>` 生成 pages.json（`pagesDir` / `subPackages` / `routeConfigBlock` / `entryPage` / `titleFallback` / `tabBar` / `includeExtensions` / `excludePatterns`） |
+| router | [`GenerateRouterOptions`](/plugins/generate-router) | `{ outputPath: 'src/router.config.ts' }` | 阶段二参数：基于 pages.json 生成路由配置（`outputPath` / `outputFormat` / `nameStrategy` / `metaMapping` / `exportTypes` / `preserveRouteChanges` / `headerTemplate` / `customFields` / `dts` / `includeSubPackages`） |
 
 > 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 

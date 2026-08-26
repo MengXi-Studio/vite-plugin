@@ -1,9 +1,9 @@
 export { JS_KEYWORDS, stripCommentsAndStrings } from './code/index.mjs';
 export { calculateGzipSize } from './compress/index.mjs';
-export { runWithConcurrency } from './concurrency/index.mjs';
+export { TaskQueue, runWithConcurrency } from './concurrency/index.mjs';
 export { parseEnvContent } from './env/index.mjs';
 export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parsePluginTemplate, parseTemplate, parseTemplateWithDelimiter } from './format/index.mjs';
-export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './fs/index.mjs';
+export { CopyOptions, CopyResult, DirectoryWatcher, DirectoryWatcherOptions, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './fs/index.mjs';
 export { generateRandomHash } from './hash/index.mjs';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './html/index.mjs';
 export { deepMerge } from './object/index.mjs';

@@ -53,6 +53,16 @@ protected getDefaultOptions(): Partial<T>
 
 Default returns `{}`, subclasses can override to provide plugin-specific defaults.
 
+### getBaseDefaults
+
+Return base plugin default configuration (`enabled` / `verbose` / `errorStrategy`).
+
+```typescript
+protected getBaseDefaults(): BasePluginOptions
+```
+
+Default returns `{ enabled: true, verbose: true, errorStrategy: 'throw' }`, subclasses can override to change base defaults.
+
 ### addPluginHooks
 
 Add Vite plugin hooks.

@@ -1,3 +1,35 @@
+## 1.4.0（2026-08-26）
+
+页面生成架构重构：新增公共 DirectoryWatcher / TaskQueue，统一 generatePages / generateUni / generateRouter 的监听与串行生成，抽取 producePages 公共流水线，消除重复代码
+
+### 公共模块（新增）
+
+| 模块                            | 说明                                                                                                                    |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| DirectoryWatcher（common/fs）   | 目录递归监听器：统一管理多目录监听，提供 start / stop / size；平台不支持 `recursive` 时自动降级跳过并告警，避免插件崩溃 |
+| TaskQueue（common/concurrency） | 串行任务队列：按提交顺序串行执行异步任务，单个任务失败不阻塞后续；用于高频文件监听时的并发读改写防护                    |
+
+### generatePages / generateUni（重构）
+
+- 抽取公共 `producePages()` 流水线：扫描页面 + `<route-config>` → 组装 → 合并，**内存产出**完整 pages 对象（不写盘）
+- generatePages 直接写盘，generateUni 内存直传阶段二，消除「先写盘再读盘」的往返
+- 删除 generateUni 内部重复实现，统一复用 generatePages 公共逻辑
+
+### 监听与串行化统一
+
+- generatePages / generateUni / generateRouter 三者统一使用 TaskQueue 串行生成，避免高频变更时并发读改写竞态
+- generatePages / generateUni 统一使用 DirectoryWatcher 管理页面目录监听（此前为各自私有的 `fs.watch` 循环）
+- generateRouter 监听 pages.json 变更时同样走串行队列（此前直接 await 重新生成）
+
+### factory（增强）
+
+- 新增 `FunctionHookMap` 类型：`registerHook` / `registerOrderedHook` 的钩子名泛型约束收紧为仅限函数型钩子（排除 name / enforce / apply 等非函数属性）
+- 新增可重写的 `getBaseDefaults()` 方法，便于子类覆盖基础默认配置（enabled / verbose / errorStrategy）
+
+### 细节修复
+
+- generatePages / generateUni 的 `<route-config>` 虚拟模块请求匹配由 `id.includes('vue')` 收紧为 `id.includes('?vue')`，避免误拦截
+
 ## 1.3.0（2026-08-26）
 
 新增 generateUni 组合入口插件，一条流水线完成「扫描页面 → pages.json → 路由配置」，插件总数增至 17 个

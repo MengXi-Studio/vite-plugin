@@ -9,7 +9,7 @@
 注册普通 Vite 钩子：
 
 ```typescript
-protected registerHook<K extends keyof NonNullable<Plugin>>(
+protected registerHook<K extends keyof FunctionHookMap<NonNullable<Plugin>>>(
   plugin: Plugin,
   hook: K,
   handler: NonNullable<Plugin>[K],
@@ -28,13 +28,14 @@ protected registerHook<K extends keyof NonNullable<Plugin>>(
 2. 同步/异步钩子分别用 `safeExecuteSync` / `safeExecute` 包裹
 3. 异常根据 `errorStrategy` 决定是否中断构建
 4. 异步结果（Promise）的 `.catch` 自动接入错误处理
+5. `hook` 参数受 `FunctionHookMap` 约束，仅接受函数型钩子（或含 `handler` 的对象型钩子），排除 `name` / `enforce` / `apply` 等非函数属性，提供编译期类型检查
 
 ### registerOrderedHook
 
 注册带执行顺序的钩子（`transform`、`renderChunk`、`generateBundle` 等）：
 
 ```typescript
-protected registerOrderedHook<K extends keyof NonNullable<Plugin>>(
+protected registerOrderedHook<K extends keyof FunctionHookMap<NonNullable<Plugin>>>(
   plugin: Plugin,
   hook: K,
   handler: NonNullable<Plugin>[K],

@@ -63,8 +63,8 @@ Page config is still declared per-page via the `<route-config>` block, exactly t
 | ------ | ---- | ------- | ----------- |
 | pagesJsonPath | `string` | `'src/pages.json'` | pages.json file path (shared by both phases) |
 | watch | `boolean` | `true` | Watch page directories and re-run the whole pipeline on change |
-| pages | [`GeneratePagesOptions`](/en/plugins/generate-pages) | - | Phase 1 options: scan pages + `<route-config>` to generate pages.json (`pagesDir` / `subPackages` / `routeConfigBlock` / `entryPage` / `titleFallback` / `tabBar` / `includeExtensions` / `excludePatterns`) |
-| router | [`GenerateRouterOptions`](/en/plugins/generate-router) | - | Phase 2 options: generate route config from pages.json (`outputPath` / `outputFormat` / `nameStrategy` / `metaMapping` / `exportTypes` / `preserveRouteChanges` / `headerTemplate` / `customFields` / `dts` / `includeSubPackages`) |
+| pages | [`GeneratePagesOptions`](/en/plugins/generate-pages) | `{ pagesDir: 'src/pages', subPackages: [{ root: 'pages-sub', dir: 'src/pages-sub' }] }` | Phase 1 options: scan pages + `<route-config>` to generate pages.json (`pagesDir` / `subPackages` / `routeConfigBlock` / `entryPage` / `titleFallback` / `tabBar` / `includeExtensions` / `excludePatterns`) |
+| router | [`GenerateRouterOptions`](/en/plugins/generate-router) | `{ outputPath: 'src/router.config.ts' }` | Phase 2 options: generate route config from pages.json (`outputPath` / `outputFormat` / `nameStrategy` / `metaMapping` / `exportTypes` / `preserveRouteChanges` / `headerTemplate` / `customFields` / `dts` / `includeSubPackages`) |
 
 > Extends [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 

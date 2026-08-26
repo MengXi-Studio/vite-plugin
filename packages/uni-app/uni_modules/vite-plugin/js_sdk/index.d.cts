@@ -1,9 +1,9 @@
 export { JS_KEYWORDS, stripCommentsAndStrings } from './common/code/index.cjs';
 export { calculateGzipSize } from './common/compress/index.cjs';
-export { runWithConcurrency } from './common/concurrency/index.cjs';
+export { TaskQueue, runWithConcurrency } from './common/concurrency/index.cjs';
 export { parseEnvContent } from './common/env/index.cjs';
 export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parsePluginTemplate, parseTemplate, parseTemplateWithDelimiter } from './common/format/index.cjs';
-export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.cjs';
+export { CopyOptions, CopyResult, DirectoryWatcher, DirectoryWatcherOptions, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.cjs';
 export { generateRandomHash } from './common/hash/index.cjs';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './common/html/index.cjs';
 export { deepMerge } from './common/object/index.cjs';
@@ -13,7 +13,7 @@ export { escapeRegex, stripJsonComments, toCamelCase, toPascalCase } from './com
 export { ANSI, ANSI_REGEX, stripAnsi } from './common/ui/index.cjs';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.cjs';
 export { validateCallbackFields, validateGlobalName, validateNoScriptInTemplate } from './common/validation/index.cjs';
-export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.cjs';
+export { BasePlugin, BasePluginOptions, FunctionHookMap, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.cjs';
 export { Logger } from './logger/index.cjs';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './plugins/analyze/buildProgress/index.cjs';
 export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './plugins/analyze/bundleAnalyzer/index.cjs';

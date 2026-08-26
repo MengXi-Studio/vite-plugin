@@ -1,9 +1,9 @@
 export { JS_KEYWORDS, stripCommentsAndStrings } from './common/code/index.mjs';
 export { calculateGzipSize } from './common/compress/index.mjs';
-export { runWithConcurrency } from './common/concurrency/index.mjs';
+export { TaskQueue, runWithConcurrency } from './common/concurrency/index.mjs';
 export { parseEnvContent } from './common/env/index.mjs';
 export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parsePluginTemplate, parseTemplate, parseTemplateWithDelimiter } from './common/format/index.mjs';
-export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.mjs';
+export { CopyOptions, CopyResult, DirectoryWatcher, DirectoryWatcherOptions, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './common/fs/index.mjs';
 export { generateRandomHash } from './common/hash/index.mjs';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './common/html/index.mjs';
 export { deepMerge } from './common/object/index.mjs';
@@ -13,7 +13,7 @@ export { escapeRegex, stripJsonComments, toCamelCase, toPascalCase } from './com
 export { ANSI, ANSI_REGEX, stripAnsi } from './common/ui/index.mjs';
 export { V as Validator } from './shared/vite-plugin.DRRlWY8P.mjs';
 export { validateCallbackFields, validateGlobalName, validateNoScriptInTemplate } from './common/validation/index.mjs';
-export { BasePlugin, BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.mjs';
+export { BasePlugin, BasePluginOptions, FunctionHookMap, OptionsNormalizer, PluginFactory, PluginWithInstance, createPluginFactory } from './factory/index.mjs';
 export { Logger } from './logger/index.mjs';
 export { BuildPhase, BuildProgressOptions, ProgressFormat, ProgressTheme, buildProgress } from './plugins/analyze/buildProgress/index.mjs';
 export { BundleAnalysisResult, BundleAnalyzerOptions, BundleOutputFormat, ChunkStats, ComparisonDiff, FileTypeDistribution, ModuleStats, SizeWarning, bundleAnalyzer } from './plugins/analyze/bundleAnalyzer/index.mjs';

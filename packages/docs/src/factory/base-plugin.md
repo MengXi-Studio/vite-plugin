@@ -53,6 +53,16 @@ protected getDefaultOptions(): Partial<T>
 
 默认返回 `{}`，子类可重写以提供插件特定的默认值。
 
+### getBaseDefaults
+
+返回基础插件默认配置（`enabled` / `verbose` / `errorStrategy`）。
+
+```typescript
+protected getBaseDefaults(): BasePluginOptions
+```
+
+默认返回 `{ enabled: true, verbose: true, errorStrategy: 'throw' }`，子类可重写以覆盖基础默认值。
+
 ### addPluginHooks
 
 添加 Vite 插件钩子。

@@ -1,9 +1,9 @@
 export { JS_KEYWORDS, stripCommentsAndStrings } from './code/index.cjs';
 export { calculateGzipSize } from './compress/index.cjs';
-export { runWithConcurrency } from './concurrency/index.cjs';
+export { TaskQueue, runWithConcurrency } from './concurrency/index.cjs';
 export { parseEnvContent } from './env/index.cjs';
 export { DateFormatOptions, calcRatio, formatDate, formatFileSize, getDateFormatParams, parsePluginTemplate, parseTemplate, parseTemplateWithDelimiter } from './format/index.cjs';
-export { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './fs/index.cjs';
+export { CopyOptions, CopyResult, DirectoryWatcher, DirectoryWatcherOptions, ScanDirectoryOptions, ScannedFile, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport } from './fs/index.cjs';
 export { generateRandomHash } from './hash/index.cjs';
 export { SanitizeRuleOptions, escapeHtmlAttr, injectBeforeTag, injectHeadAndBody, sanitizeContent } from './html/index.cjs';
 export { deepMerge } from './object/index.cjs';

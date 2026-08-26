@@ -41,7 +41,7 @@ import { ... } from '@meng-xi/vite-plugin/common/validation'
 
 | 模块 | 说明 | 导出数量 | 子模块路径 |
 | ---- | ---- | -------- | ---------- |
-| [fs](./fs) | 文件系统操作工具 | 11 个函数 + 5 个类型 | `@meng-xi/vite-plugin/common/fs` |
+| [fs](./fs) | 文件系统操作工具 | 10 个函数 + 1 个类 + 5 个类型 | `@meng-xi/vite-plugin/common/fs` |
 | [path](./path) | 路径处理工具 | 4 个函数 | `@meng-xi/vite-plugin/common/path` |
 
 ### 格式化与模板

@@ -47,6 +47,22 @@ type OptionsNormalizer<T, R = any> = (raw?: R) => T
 type PluginFactory<T extends BasePluginOptions = BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>
 ```
 
+### FunctionHookMap
+
+将 `Plugin` 类型过滤为「可作为钩子注册」的键集合，用于 `registerHook` / `registerOrderedHook` 的钩子名类型约束。
+
+```typescript
+type FunctionHookMap<P> = {
+	[K in keyof P]: P[K] extends (...args: any[]) => any
+		? P[K]
+		: P[K] extends { handler: (...args: any[]) => any }
+			? P[K]
+			: never
+}
+```
+
+**说明**：仅保留函数型钩子（或含 `handler` 的对象型钩子），排除 `name` / `enforce` / `apply` 等非函数属性。
+
 ## 工具函数
 
 ### deepMerge
