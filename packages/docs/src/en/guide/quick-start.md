@@ -57,7 +57,7 @@ export default defineConfig({
 
     // Environment variable validation
     envGuard({
-      rules: { VITE_API_URL: { type: 'string', required: true } }
+      required: { VITE_API_URL: { type: 'string', required: true } }
     })
   ]
 })

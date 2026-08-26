@@ -32,7 +32,7 @@ export default defineConfig({
 | outputFile  | `string`                       | `'version.json'`    | Output file path        |
 | defineName  | `string`                       | `'__APP_VERSION__'` | Global variable name    |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 
@@ -43,7 +43,7 @@ export default defineConfig({
 | hashLength   | `number`                  | `8`        | Hash length (1-32)      |
 | prefix       | `string`                  | `''`       | Version prefix          |
 | suffix       | `string`                  | `''`       | Version suffix          |
-| extra        | `Record<string, unknown>` | -          | Extra info (JSON only)  |
+| extra        | `Record<string, any>` | -          | Extra info (JSON only)  |
 
 ### Version Formats
 

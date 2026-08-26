@@ -41,7 +41,7 @@ export default defineConfig({
 | security      | `SecurityConfig`               | 见下方         | 安全配置           |
 | templateVars  | `Record<string, string>`       | -              | 全局模板变量       |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 

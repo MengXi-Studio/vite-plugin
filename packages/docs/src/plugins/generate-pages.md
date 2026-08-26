@@ -74,7 +74,7 @@ export default defineConfig({
 | excludePatterns | `string[]`                    | `['node_modules']`                        | 排除的路径模式列表           |
 | watch           | `boolean`                     | `true`                                    | 监听页面目录变化自动重新生成 |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### subPackages 分包
 

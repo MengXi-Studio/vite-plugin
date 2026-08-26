@@ -29,7 +29,7 @@ export default defineConfig({
 | threshold          | `number`                           | `1024`    | 最小压缩阈值（字节）           |
 | deleteOriginalFile | `boolean`                          | `false`   | 压缩后是否删除原始文件         |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 

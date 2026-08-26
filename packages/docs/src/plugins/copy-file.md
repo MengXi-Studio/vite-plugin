@@ -36,7 +36,7 @@ export default defineConfig({
 | recursive   | `boolean` | `true` | 递归复制子目录     |
 | incremental | `boolean` | `true` | 仅复制修改过的文件 |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ## 示例
 

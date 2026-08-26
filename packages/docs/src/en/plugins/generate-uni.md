@@ -66,7 +66,7 @@ Page config is still declared per-page via the `<route-config>` block, exactly t
 | pages | [`GeneratePagesOptions`](/en/plugins/generate-pages) | - | Phase 1 options: scan pages + `<route-config>` to generate pages.json (`pagesDir` / `subPackages` / `routeConfigBlock` / `entryPage` / `titleFallback` / `tabBar` / `includeExtensions` / `excludePatterns`) |
 | router | [`GenerateRouterOptions`](/en/plugins/generate-router) | - | Phase 2 options: generate route config from pages.json (`outputPath` / `outputFormat` / `nameStrategy` / `metaMapping` / `exportTypes` / `preserveRouteChanges` / `headerTemplate` / `customFields` / `dts` / `includeSubPackages`) |
 
-> Extends [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Extends [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 The `pages` / `router` sub-objects support **all options** of the corresponding standalone plugins. See [generatePages](/en/plugins/generate-pages) and [generateRouter](/en/plugins/generate-router) for details.
 

@@ -30,7 +30,7 @@ export default defineConfig({
 | publicPath        | `string`                           | `'/'`                    | 公共路径前缀，添加到所有资源路径前       |
 | groupByEntry      | `boolean`                          | `false`                  | 是否按入口分组资源                       |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 

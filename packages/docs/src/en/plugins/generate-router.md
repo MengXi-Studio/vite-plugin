@@ -34,7 +34,7 @@ export default defineConfig({
 | dts                  | `string \| boolean`            | `false`                  | Route type declaration file output path |
 | preserveRouteChanges | `boolean`                      | `true`                   | Preserve user modifications to route configs |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 

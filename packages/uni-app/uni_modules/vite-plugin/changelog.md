@@ -38,6 +38,11 @@ generateUni({
 
 **迁移**：原 `generatePages({...})` + `generateRouter({...})` 连用等价替换为 `generateUni({ pages: {...}, router: {...} })`。
 
+### generatePages（增强）
+
+为 standalone 的 `generatePages` 补充 `<route-config>` 自定义块虚拟模块拦截：注册 `transform` 钩子，将 `xxx.vue?vue&type=route-config&index=0` 请求替换为空模块，**避免生产构建把块内容当作 JavaScript 解析而报错**（与
+`generateUni` 行为一致，此前仅 generateUni 具备）。
+
 ### 插件清单（变更）
 
 - 插件总数由 16 增至 **17**，分组由 7 组不变

@@ -36,7 +36,7 @@ export default defineConfig({
 | threshold          | `number`                           | `1024`     | Minimum compression threshold (bytes)              |
 | deleteOriginalFile | `boolean`                          | `false`    | Whether to delete original files after compression |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### Advanced Options
 

@@ -36,10 +36,10 @@ export default defineConfig({
 | logLevel      | `'none' \| 'basic' \| 'verbose'` | `'basic'`       | 代理日志级别                           |
 | defaultDelay  | `DelayConfig`                     | `false`         | 全局默认延迟，对未配置 delay 的规则生效 |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ::: tip
-`logLevel` 为插件自身选项，控制代理请求日志级别（`'none' | 'basic' | 'verbose'`），与继承的 `BasePluginOptions.logLevel` 不同。
+`logLevel` 为插件自身选项，控制代理请求日志级别（`'none' | 'basic' | 'verbose'`），与继承的 `BasePluginOptions.verbose` 不同。
 :::
 
 ### 高级选项

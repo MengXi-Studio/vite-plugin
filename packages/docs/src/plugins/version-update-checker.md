@@ -38,7 +38,7 @@ export default defineConfig({
 | promptStyle             | `'modal' \| 'banner' \| 'toast'` | `'modal'`                                  | 更新提示 UI 样式           |
 | enableInDev             | `boolean`                        | `false`                                    | 是否在开发模式下启用       |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 

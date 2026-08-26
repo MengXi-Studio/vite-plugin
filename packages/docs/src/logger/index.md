@@ -57,4 +57,4 @@ class MyPlugin extends BasePlugin<MyOptions> {
 }
 ```
 
-日志开关由 `BasePluginOptions.logLevel` 控制。
+日志开关由 `BasePluginOptions.verbose` 控制。

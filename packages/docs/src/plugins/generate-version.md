@@ -30,7 +30,7 @@ export default defineConfig({
 | outputFile    | `string`                       | `'version.json'`    | 输出文件路径             |
 | defineName    | `string`                       | `'__APP_VERSION__'` | 全局变量名               |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 
@@ -41,7 +41,7 @@ export default defineConfig({
 | hashLength   | `number`                  | `8`       | 哈希长度（1-32）         |
 | prefix       | `string`                  | `''`      | 版本号前缀               |
 | suffix       | `string`                  | `''`      | 版本号后缀               |
-| extra        | `Record<string, unknown>` | -         | 附加信息（仅 JSON 文件） |
+| extra        | `Record<string, any>` | -         | 附加信息（仅 JSON 文件） |
 
 ### 版本号格式
 

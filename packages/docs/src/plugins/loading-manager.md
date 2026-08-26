@@ -32,7 +32,7 @@ export default defineConfig({
 | defaultVisible | `boolean`                                  | `false`                   | 初始可见状态         |
 | autoHideOn     | `'DOMContentLoaded' \| 'load' \| 'manual'` | `'DOMContentLoaded'`      | 自动隐藏时机         |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 

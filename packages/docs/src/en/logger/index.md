@@ -57,4 +57,4 @@ class MyPlugin extends BasePlugin<MyOptions> {
 }
 ```
 
-Log output is controlled by `BasePluginOptions.logLevel`.
+Log output is controlled by `BasePluginOptions.verbose`.

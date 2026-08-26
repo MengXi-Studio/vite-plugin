@@ -44,10 +44,10 @@ export default defineConfig({
 | vueTemplate      | `boolean`                                                                                               | `false`                       | 是否为 Vue 模板启用自动导入               |
 | vueDirectives    | `boolean \| VueDirectivesConfig`                                                                        | `false`                       | 是否为 Vue 指令启用自动导入               |
 | ignore           | `string[]`                                                                                              | `[]`                          | 需要忽略的标识符列表                      |
-| include          | `Array<string \| RegExp>`                                                                               | `[/\.[tj]sx?$/, /\.vue$/...]` | 需要处理的文件匹配模式                    |
-| exclude          | `Array<string \| RegExp>`                                                                               | `[/node_modules/]`            | 不需要处理的文件匹配模式                  |
+| include          | `Array<string \| RegExp>`                                                                               | `[/\.[tj]sx?$/, /\.vue$/, /\.vue\?vue/, /\.md$/]` | 需要处理的文件匹配模式                    |
+| exclude          | `Array<string \| RegExp>`                                                                               | `[/node_modules/, /\.git/]`  | 不需要处理的文件匹配模式                  |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 目录扫描选项
 
@@ -72,7 +72,7 @@ export default defineConfig({
 | viteOptimizeDeps   | `boolean`                       | `false`    | 自动将导入包添加到 optimizeDeps |
 | cache              | `boolean \| CacheConfig`        | `true`    | 缓存配置                   |
 | resolvers          | `Resolver[]`                    | `[]`      | 自定义解析器               |
-| packagePresets     | `PackagePresetConfig[]`         | `[]`      | 包预设配置                 |
+| packagePresets     | `Array<string \| PackagePresetOptions>`   | `[]`      | 包预设配置                 |
 | commentsDisable    | `string[]`                      | `['@unimport-disable']` | 禁用自动导入的注释标记 |
 
 ### Lint 配置选项

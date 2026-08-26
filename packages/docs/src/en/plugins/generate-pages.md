@@ -76,7 +76,7 @@ Generated `pages.json` fragment:
 | excludePatterns  | `string[]`                   | `['node_modules']`                       | Path patterns to exclude             |
 | watch            | `boolean`                    | `true`                                   | Watch page directories and regenerate |
 
-> Inherits [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `logLevel`, `errorStrategy`
+> Inherits [BasePluginOptions](/en/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ### subPackages
 

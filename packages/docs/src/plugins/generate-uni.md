@@ -64,7 +64,7 @@ export default defineConfig({
 | pages | [`GeneratePagesOptions`](/plugins/generate-pages) | - | 阶段一参数：扫描页面 + `<route-config>` 生成 pages.json（`pagesDir` / `subPackages` / `routeConfigBlock` / `entryPage` / `titleFallback` / `tabBar` / `includeExtensions` / `excludePatterns`） |
 | router | [`GenerateRouterOptions`](/plugins/generate-router) | - | 阶段二参数：基于 pages.json 生成路由配置（`outputPath` / `outputFormat` / `nameStrategy` / `metaMapping` / `exportTypes` / `preserveRouteChanges` / `headerTemplate` / `customFields` / `dts` / `includeSubPackages`） |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 `pages` / `router` 两个子对象支持对应独立插件的**全部配置项**，详细说明分别见 [generatePages](/plugins/generate-pages) 与 [generateRouter](/plugins/generate-router)。
 

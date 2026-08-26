@@ -12,10 +12,10 @@ import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
 interface BasePluginOptions {
 	/** Whether to enable the plugin, default true */
 	enabled?: boolean
-	/** Error handling strategy, default 'log' */
+	/** Error handling strategy, default 'throw' */
 	errorStrategy?: 'throw' | 'log' | 'ignore'
-	/** Plugin log level, default 'info' */
-	logLevel?: 'debug' | 'info' | 'warn' | 'error' | 'silent'
+	/** Whether to output plugin logs, default true */
+	verbose?: boolean
 }
 ```
 
@@ -36,11 +36,11 @@ myPlugin({ enabled: false })
 
 Controls how plugin internal errors are handled.
 
-| Value     | Description                                      |
-| --------- | ------------------------------------------------ |
-| `throw`   | Log error and throw exception, aborts build      |
-| `log`     | Log error only, continues execution (default)    |
-| `ignore`  | Log error only, continues execution              |
+| Value     | Description                                 |
+| --------- | ------------------------------------------- |
+| `throw`   | Log error and throw exception, aborts build |
+| `log`     | Log error only, continues execution         |
+| `ignore`  | Log error only, continues execution         |
 
 ::: warning
 The `throw` strategy will abort the entire build process. Only use it when strict build correctness is required.
@@ -51,21 +51,13 @@ The `throw` strategy will abort the entire build process. Only use it when stric
 myPlugin({ errorStrategy: 'throw' })
 ```
 
-### logLevel
+### verbose
 
-Controls plugin log output level. Logs below the set level are ignored.
-
-| Value     | Description                      |
-| --------- | -------------------------------- |
-| `debug`   | Output all level logs            |
-| `info`    | Output info/warn/error logs      |
-| `warn`    | Output warn/error logs           |
-| `error`   | Output error logs only           |
-| `silent`  | No log output                    |
+Controls whether the plugin outputs logs. When set to `false`, plugin logs are silenced without affecting functionality.
 
 ```typescript
-// Silent logs in production
-myPlugin({ logLevel: process.env.NODE_ENV === 'production' ? 'silent' : 'info' })
+// Silence plugin logs in production
+myPlugin({ verbose: false })
 ```
 
 ---
@@ -80,7 +72,6 @@ import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
 interface MyPluginOptions extends BasePluginOptions {
 	// Custom fields
 	outputPath: string
-	verbose?: boolean
 }
 ```
 
@@ -91,9 +82,8 @@ myPlugin({
 	// Common fields
 	enabled: true,
 	errorStrategy: 'log',
-	logLevel: 'info',
+	verbose: true,
 	// Custom fields
-	outputPath: 'dist/output.json',
-	verbose: true
+	outputPath: 'dist/output.json'
 })
 ```

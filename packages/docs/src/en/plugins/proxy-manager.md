@@ -39,10 +39,10 @@ export default defineConfig({
 | logLevel      | `'none' \| 'basic' \| 'verbose'` | `'basic'`      | Proxy log level                                      |
 | defaultDelay  | `DelayConfig`                     | `false`        | Global default delay, applies to rules without delay |
 
-> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `errorStrategy`
+> Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
 ::: tip
-`logLevel` is a plugin-specific option controlling proxy request log level (`'none' | 'basic' | 'verbose'`), different from the inherited `BasePluginOptions.logLevel`.
+`logLevel` is a plugin-specific option controlling proxy request log level (`'none' | 'basic' | 'verbose'`), different from the inherited `BasePluginOptions.verbose`.
 :::
 
 ### Advanced Options

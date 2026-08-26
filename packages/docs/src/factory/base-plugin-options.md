@@ -12,10 +12,10 @@ import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
 interface BasePluginOptions {
 	/** 是否启用插件，默认 true */
 	enabled?: boolean
-	/** 错误处理策略，默认 'log' */
+	/** 错误处理策略，默认 'throw' */
 	errorStrategy?: 'throw' | 'log' | 'ignore'
-	/** 插件日志级别，默认 'info' */
-	logLevel?: 'debug' | 'info' | 'warn' | 'error' | 'silent'
+	/** 是否输出插件日志，默认 true */
+	verbose?: boolean
 }
 ```
 
@@ -36,11 +36,11 @@ myPlugin({ enabled: false })
 
 控制插件内部错误的处理方式。
 
-| 值        | 说明                                   |
-| --------- | -------------------------------------- |
-| `throw`   | 记录错误日志并抛出异常，中断构建       |
-| `log`     | 记录错误日志，继续执行（默认）         |
-| `ignore`  | 记录错误日志，继续执行                 |
+| 值        | 说明                             |
+| --------- | -------------------------------- |
+| `throw`   | 记录错误日志并抛出异常，中断构建 |
+| `log`     | 记录错误日志，继续执行           |
+| `ignore`  | 记录错误日志，继续执行           |
 
 ::: warning
 `throw` 策略会中断整个构建流程，仅在需要严格保证构建正确性时使用。
@@ -51,21 +51,13 @@ myPlugin({ enabled: false })
 myPlugin({ errorStrategy: 'throw' })
 ```
 
-### logLevel
+### verbose
 
-控制插件日志输出级别。低于设定级别的日志将被忽略。
-
-| 值       | 说明                     |
-| -------- | ------------------------ |
-| `debug`  | 输出所有级别日志         |
-| `info`   | 输出 info/warn/error 日志 |
-| `warn`   | 输出 warn/error 日志     |
-| `error`  | 仅输出 error 日志        |
-| `silent` | 不输出任何日志           |
+控制插件是否输出日志。设为 `false` 时插件日志被静默，不影响功能执行。
 
 ```typescript
-// 生产环境静默日志
-myPlugin({ logLevel: process.env.NODE_ENV === 'production' ? 'silent' : 'info' })
+// 生产环境静默插件日志
+myPlugin({ verbose: false })
 ```
 
 ---
@@ -80,7 +72,6 @@ import type { BasePluginOptions } from '@meng-xi/vite-plugin/factory'
 interface MyPluginOptions extends BasePluginOptions {
 	// 自定义字段
 	outputPath: string
-	verbose?: boolean
 }
 ```
 
@@ -91,9 +82,8 @@ myPlugin({
 	// 通用字段
 	enabled: true,
 	errorStrategy: 'log',
-	logLevel: 'info',
+	verbose: true,
 	// 自定义字段
-	outputPath: 'dist/output.json',
-	verbose: true
+	outputPath: 'dist/output.json'
 })
 ```

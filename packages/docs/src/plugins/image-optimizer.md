@@ -57,7 +57,7 @@ npm install svgo -D
 | convertToAvif     | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>` | `{}`                                                                   | 将指定格式转换为 AVIF    |
 | keepOriginal      | `boolean`                                                       | `true`                                                                 | 格式转换时是否保留原始文件 |
 
-> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`logLevel`、`errorStrategy`
+> 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
 ### 高级选项
 
