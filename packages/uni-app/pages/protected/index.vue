@@ -85,7 +85,7 @@ export default {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "受保护页面",
 	"name": "ProtectedPage",

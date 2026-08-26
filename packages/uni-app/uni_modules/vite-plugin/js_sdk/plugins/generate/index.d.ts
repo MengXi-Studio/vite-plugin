@@ -3,7 +3,7 @@ export { generateRouter } from './generateRouter/index.js';
 export { GenerateVersionOptions, OutputType, VersionFormat, VersionInfo, generateVersion } from './generateVersion/index.js';
 export { generatePages } from './generatePages/index.js';
 export { GenerateUniOptions, generateUni } from './generateUni/index.js';
-export { G as GeneratePagesOptions, R as RouteConfigBlock, S as SubPackageConfig, T as TabBarTemplate } from '../../shared/vite-plugin.CBG_QeBu.js';
+export { G as GeneratePagesOptions, R as RouteConfigBlock, S as SubPackageConfig, T as TabBarTemplate } from '../../shared/vite-plugin.BQFpJKhh.js';
 export { G as GenerateRouterOptions, N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta } from '../../shared/vite-plugin.B8yTanEe.js';
 export { U as UniAppPageConfig, a as UniAppPagesJson, b as UniAppTabBarConfig } from '../../shared/vite-plugin.CjZHnjC7.js';
 import '../../factory/index.js';

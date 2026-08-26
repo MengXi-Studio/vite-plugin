@@ -78,6 +78,16 @@
 </template>
 
 <script>
+// defineUniPage 宏：优先级高于 <route-config>，同名字段以宏为准（此处 title 覆盖下方 route-config 的声明）
+// 可在 <script> 或 <script setup> 顶层调用，构建时由插件自动移除，无需 import
+defineUniPage({
+	title: '关于',
+	name: 'AboutPage',
+	meta: { requireAuth: false },
+	isTab: true,
+	tab: { order: 1 }
+})
+
 export default {
 	data() {
 		return {
@@ -188,9 +198,10 @@ export default {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
-	"title": "关于",
+	// 同时声明时，同名配置以 defineUniPage 宏为准（宏的 title 为「关于」）
+	"title": "关于（route-config）",
 	"name": "AboutPage",
 	"meta": { "requireAuth": false },
 	"isTab": true,

@@ -148,7 +148,7 @@ function goToSettings() {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "路由守卫"
 }

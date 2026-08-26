@@ -33,7 +33,7 @@ export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, Lo
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './plugins/inject/versionUpdateChecker/index.cjs';
 export { DelayConfig, ProxyLogEntry, ProxyLogLevel, ProxyManagerOptions, ProxyRule, ResolvedProxyRule, proxyManager } from './plugins/proxy/proxyManager/index.cjs';
 export { C as ConditionType, D as DualInjectResult, H as HtmlInjectResult, I as InjectCondition, a as InjectPosition, S as SecurityConfig, b as SelectorMatch } from './shared/vite-plugin.BI9taN75.cjs';
-export { G as GeneratePagesOptions, R as RouteConfigBlock, S as SubPackageConfig, T as TabBarTemplate } from './shared/vite-plugin.BCief7y6.cjs';
+export { G as GeneratePagesOptions, R as RouteConfigBlock, S as SubPackageConfig, T as TabBarTemplate } from './shared/vite-plugin.6nRXIhkp.cjs';
 export { G as GenerateRouterOptions, N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta } from './shared/vite-plugin.BBPyqslH.cjs';
 export { L as LoggerOptions, P as PluginLogger } from './shared/vite-plugin.BmNqGOzh.cjs';
 export { U as UniAppPageConfig, a as UniAppPagesJson, b as UniAppTabBarConfig } from './shared/vite-plugin.CjZHnjC7.cjs';

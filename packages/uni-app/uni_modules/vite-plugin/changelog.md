@@ -1,6 +1,37 @@
-## 1.4.0（2026-08-26）
+## 1.4.0（2026-08-27）
 
-页面生成架构重构：新增公共 DirectoryWatcher / TaskQueue，统一 generatePages / generateUni / generateRouter 的监听与串行生成，抽取 producePages 公共流水线，消除重复代码
+新增 `defineUniPage` 宏与页面生成架构重构：扫描页面 → pages.json → 路由配置一条流水线，配套公共 DirectoryWatcher / TaskQueue 统一监听与串行生成，插件总数增至 17 个
+
+### 页面配置：defineUniPage 宏（新增）
+
+新增 `defineUniPage` 宏：在 `<script setup>`（或 `<script>` 顶层）中调用，功能与 `<route-config>` 自定义块一致，写法更贴近 JS/TS。
+
+| 能力       | 说明                                                                                                                                                      |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 优先级     | 同一页面同时声明宏与 `<route-config>` 时，**以宏为准**（顶层字段按宏覆盖）                                                                                |
+| 参数       | JS 对象字面量，支持注释、单引号、尾随逗号与嵌套对象（`tab` / `style` / `meta`）                                                                           |
+| 运行时无痕 | 宏在扫描时被消费，构建时自动移除调用，无需 import                                                                                                         |
+| IDE 识别   | 自动生成全局类型声明 `src/define-uni-page.d.ts`（`dts` 选项可自定义路径或 `false` 关闭），Vue (Official) / Volar / tsc 开箱识别，获得类型提示与编译期检查 |
+
+**使用示例**：
+
+```vue
+<script setup lang="ts">
+defineUniPage({
+	title: '首页',
+	isTab: true,
+	tab: { order: 0 }
+})
+</script>
+```
+
+`<route-config>` 自定义块同步增强：解析支持 JSONC 尾随逗号（与 `lang="jsonc"` 的 IDE 高亮语义一致）。
+
+### generatePages / generateUni（重构）
+
+- 抽取公共 `producePages()` 流水线：扫描页面 + `<route-config>` / `defineUniPage` → 组装 → 合并，**内存产出**完整 pages 对象（不写盘）
+- generatePages 直接写盘，generateUni 内存直传阶段二，消除「先写盘再读盘」的往返
+- 删除 generateUni 内部重复实现，统一复用 generatePages 公共逻辑
 
 ### 公共模块（新增）
 
@@ -8,12 +39,6 @@
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | DirectoryWatcher（common/fs）   | 目录递归监听器：统一管理多目录监听，提供 start / stop / size；平台不支持 `recursive` 时自动降级跳过并告警，避免插件崩溃 |
 | TaskQueue（common/concurrency） | 串行任务队列：按提交顺序串行执行异步任务，单个任务失败不阻塞后续；用于高频文件监听时的并发读改写防护                    |
-
-### generatePages / generateUni（重构）
-
-- 抽取公共 `producePages()` 流水线：扫描页面 + `<route-config>` → 组装 → 合并，**内存产出**完整 pages 对象（不写盘）
-- generatePages 直接写盘，generateUni 内存直传阶段二，消除「先写盘再读盘」的往返
-- 删除 generateUni 内部重复实现，统一复用 generatePages 公共逻辑
 
 ### 监听与串行化统一
 
@@ -29,6 +54,7 @@
 ### 细节修复
 
 - generatePages / generateUni 的 `<route-config>` 虚拟模块请求匹配由 `id.includes('vue')` 收紧为 `id.includes('?vue')`，避免误拦截
+- `<route-config>` 解析支持 JSONC 尾随逗号，与 `lang="jsonc"` 的 IDE 高亮语义一致
 
 ## 1.3.0（2026-08-26）
 

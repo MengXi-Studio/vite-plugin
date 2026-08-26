@@ -1,5 +1,5 @@
-import { BasePluginOptions } from '../factory/index.js';
-import { b as UniAppTabBarConfig, U as UniAppPageConfig } from './vite-plugin.CjZHnjC7.js';
+import { BasePluginOptions } from '../factory/index.mjs';
+import { b as UniAppTabBarConfig, U as UniAppPageConfig } from './vite-plugin.CjZHnjC7.mjs';
 
 /**
  * `<route-config>` 自定义块中可声明的页面配置
@@ -142,6 +142,14 @@ interface GeneratePagesOptions extends BasePluginOptions {
      * @default true
      */
     watch?: boolean;
+    /**
+     * `defineUniPage` 宏的全局类型声明文件输出路径（相对项目根目录或绝对路径）
+     *
+     * @description 自动生成后，IDE（Vue (Official) / Volar / tsc）无需 import 即可
+     * 识别 `<script setup>` 中的 `defineUniPage` 宏，获得类型提示且不报未定义。
+     * @default 'src/define-uni-page.d.ts'
+     */
+    dts?: string | false;
 }
 
 export type { GeneratePagesOptions as G, RouteConfigBlock as R, SubPackageConfig as S, TabBarTemplate as T, ScannedPage as a, TabBarItemOverride as b };

@@ -83,7 +83,7 @@ function goHome() {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "错误页面"
 }

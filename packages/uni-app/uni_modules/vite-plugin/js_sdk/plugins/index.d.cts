@@ -15,7 +15,7 @@ export { HtmlInjectOptions, InjectRule, InjectionLogEntry, htmlInject } from './
 export { AutoBindMode, AutoHideOn, DebounceHide, DelayShow, LoadingCallbacks, LoadingManager, LoadingManagerOptions, LoadingPosition, LoadingStyle, MinDisplayTime, RequestFilter, SpinnerType, TransitionConfig, loadingManager } from './inject/loadingManager/index.cjs';
 export { PromptStyle, VersionSource, VersionUpdateCheckerOptions, versionUpdateChecker } from './inject/versionUpdateChecker/index.cjs';
 export { DelayConfig, ProxyLogEntry, ProxyLogLevel, ProxyManagerOptions, ProxyRule, ResolvedProxyRule, proxyManager } from './proxy/proxyManager/index.cjs';
-export { G as GeneratePagesOptions, R as RouteConfigBlock, S as SubPackageConfig, T as TabBarTemplate } from '../shared/vite-plugin.BCief7y6.cjs';
+export { G as GeneratePagesOptions, R as RouteConfigBlock, S as SubPackageConfig, T as TabBarTemplate } from '../shared/vite-plugin.6nRXIhkp.cjs';
 export { G as GenerateRouterOptions, N as NameStrategy, O as OutputFormat, R as RouteConfig, a as RouteMeta } from '../shared/vite-plugin.BBPyqslH.cjs';
 export { U as UniAppPageConfig, a as UniAppPagesJson, b as UniAppTabBarConfig } from '../shared/vite-plugin.CjZHnjC7.cjs';
 import '../factory/index.cjs';

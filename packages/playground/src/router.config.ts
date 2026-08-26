@@ -1,7 +1,7 @@
 /**
  * @plugin generate-router
- * @date 2026-08-26 19:15:35
- * @version 1.3.0
+ * @date 2026-08-27 02:09:47
+ * @version 1.4.0
  */
 
 /**
@@ -20,7 +20,7 @@ export const routes = [
 	},
 	{
 		path: '/pages/about/about',
-		name: 'pagesAboutAbout',
+		name: 'about-macro',
 		meta: { title: '关于', isTab: true }},
 	{
 		path: '/pages/detail/detail',

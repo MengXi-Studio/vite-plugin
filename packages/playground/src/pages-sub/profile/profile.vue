@@ -120,7 +120,7 @@ function goBack() {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "个人中心"
 }

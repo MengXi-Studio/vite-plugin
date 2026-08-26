@@ -148,7 +148,7 @@ export default {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "详情页"
 }

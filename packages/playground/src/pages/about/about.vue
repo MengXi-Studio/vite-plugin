@@ -39,6 +39,13 @@
 </template>
 
 <script setup lang="ts">
+// defineUniPage 宏：优先级高于 <route-config>，同名字段以宏为准（此处 title 覆盖下方 route-config 的声明）
+defineUniPage({
+	title: '关于',
+	name: 'about-macro',
+	isTab: true,
+	tab: { text: '关于我们', order: 1 }
+})
 const appVersion = __APP_VERSION__
 const versionInfo = __APP_VERSION___INFO
 </script>
@@ -99,9 +106,10 @@ const versionInfo = __APP_VERSION___INFO
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
-	"title": "关于",
+	// 同时声明时，同名配置以 defineUniPage 宏为准（宏的 title 为「关于」）
+	"title": "关于（route-config）",
 	"isTab": true,
 	"tab": { "text": "关于我们", "order": 1 }
 }

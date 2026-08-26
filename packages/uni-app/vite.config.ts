@@ -76,6 +76,8 @@ export default defineConfig(config => {
 					pagesDir: 'pages',
 					subPackages: [{ root: 'pages-sub', dir: 'pages-sub' }],
 					entryPage: 'pages/index/index',
+					// defineUniPage 宏的全局类型声明（供 IDE 识别，无需 import）
+					dts: 'define-uni-page.d.ts',
 					tabBar: {
 						color: '#999999',
 						selectedColor: '#007aff',
