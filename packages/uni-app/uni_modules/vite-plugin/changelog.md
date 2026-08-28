@@ -4,7 +4,7 @@
 
 ### 页面配置：defineUniPage 宏（新增）
 
-新增 `defineUniPage` 宏：在 `<script setup>`（或 `<script>` 顶层）中调用，功能与 `<route-config>` 自定义块一致，写法更贴近 JS/TS。
+新增 `defineUniPage` 宏：在 `&lt;script setup&gt;`（或 `&lt;script&gt;` 顶层）中调用，功能与 `<route-config>` 自定义块一致，写法更贴近 JS/TS。
 
 | 能力       | 说明                                                                                                                                                      |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -15,14 +15,12 @@
 
 **使用示例**：
 
-```vue
-<script setup lang="ts">
+```typescript
 defineUniPage({
 	title: '首页',
 	isTab: true,
 	tab: { order: 0 }
 })
-</script>
 ```
 
 `<route-config>` 自定义块同步增强：解析支持 JSONC 尾随逗号（与 `lang="jsonc"` 的 IDE 高亮语义一致）。
