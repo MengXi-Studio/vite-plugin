@@ -1,4 +1,4 @@
-## 1.4.0（2026-08-27）
+## 1.4.0（2026-08-28）
 
 新增 `defineUniPage` 宏与页面生成架构重构：扫描页面 → pages.json → 路由配置一条流水线，配套公共 DirectoryWatcher / TaskQueue 统一监听与串行生成，插件总数增至 17 个
 
