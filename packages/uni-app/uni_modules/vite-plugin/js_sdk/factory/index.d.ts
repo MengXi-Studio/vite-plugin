@@ -52,6 +52,17 @@ type OptionsNormalizer<T, R = any> = (raw?: R) => T;
  * @template R 原始配置类型，默认与 T 相同
  */
 type PluginFactory<T extends BasePluginOptions = BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>;
+/**
+ * 仅保留函数型钩子（或含 handler 的对象型钩子）的键映射
+ *
+ * @description 用于将 `Plugin` 类型过滤为「可作为钩子注册」的键集合，
+ * 排除 `name` / `enforce` / `apply` 等非函数属性，提升 registerHook 的类型安全。
+ */
+type FunctionHookMap<P> = {
+    [K in keyof P]: P[K] extends (...args: any[]) => any ? P[K] : P[K] extends {
+        handler: (...args: any[]) => any;
+    } ? P[K] : never;
+};
 
 /**
  * 基础插件抽象类，提供插件开发的核心功能和生命周期管理
@@ -130,6 +141,14 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
      * @description 子类可以重写此方法，以提供插件特定的默认配置值。默认返回空对象
      */
     protected getDefaultOptions(): Partial<T>;
+    /**
+     * 获取基础插件默认配置
+     *
+     * @protected
+     * @returns {BasePluginOptions} 基础默认配置（enabled / verbose / errorStrategy）
+     * @description 子类可重写此方法以覆盖基础默认值。
+     */
+    protected getBaseDefaults(): BasePluginOptions;
     /**
      * 合并插件配置，将用户提供的配置与默认配置合并
      *
@@ -221,25 +240,25 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
      *
      * @protected
      * @param plugin - Vite 插件对象
-     * @param hook - 钩子名称
+     * @param hook - 钩子名称（仅限函数类型钩子）
      * @param handler - 钩子处理函数
      * @param context - 错误日志上下文描述
      * @description 注册钩子时自动包裹 enabled 检查（禁用时跳过执行）和 safeExecute（捕获异常），
      * 避免每个插件手动重复编写这两层包裹逻辑
      */
-    protected registerHook<K extends keyof NonNullable<Plugin>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string): void;
+    protected registerHook<K extends keyof FunctionHookMap<NonNullable<Plugin>>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string): void;
     /**
      * 注册带 order 配置的 Vite 插件钩子，自动包裹 enabled 检查和错误处理
      *
      * @protected
      * @param plugin - Vite 插件对象
-     * @param hook - 钩子名称
+     * @param hook - 钩子名称（仅限函数类型钩子）
      * @param handler - 钩子处理函数
      * @param context - 错误日志上下文描述
      * @param order - 执行顺序，'pre' 或 'post'
      * @description 与 registerHook 类似，但支持 Vite 的 order 配置（用于 transform、resolveId、generateBundle、writeBundle 等支持排序的钩子）
      */
-    protected registerOrderedHook<K extends keyof NonNullable<Plugin>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string, order: 'pre' | 'post'): void;
+    protected registerOrderedHook<K extends keyof FunctionHookMap<NonNullable<Plugin>>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string, order: 'pre' | 'post'): void;
     /**
      * 注册 transformIndexHtml 钩子，支持 order 配置，自动包裹 enabled 检查和错误处理
      *
@@ -368,4 +387,4 @@ declare abstract class BasePlugin<T extends BasePluginOptions = BasePluginOption
 declare function createPluginFactory<T extends BasePluginOptions, P extends BasePlugin<T>, R = T>(PluginClass: new (options: T, loggerConfig?: LoggerOptions) => P, normalizer?: OptionsNormalizer<T, R>): PluginFactory<T, R>;
 
 export { BasePlugin, createPluginFactory };
-export type { BasePluginOptions, OptionsNormalizer, PluginFactory, PluginWithInstance };
+export type { BasePluginOptions, FunctionHookMap, OptionsNormalizer, PluginFactory, PluginWithInstance };

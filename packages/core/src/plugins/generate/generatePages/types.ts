@@ -159,4 +159,13 @@ export interface GeneratePagesOptions extends BasePluginOptions {
 	 * @default true
 	 */
 	watch?: boolean
+
+	/**
+	 * `defineUniPage` 宏的全局类型声明文件输出路径（相对项目根目录或绝对路径）
+	 *
+	 * @description 自动生成后，IDE（Vue (Official) / Volar / tsc）无需 import 即可
+	 * 识别 `<script setup>` 中的 `defineUniPage` 宏，获得类型提示且不报未定义。
+	 * @default 'src/define-uni-page.d.ts'
+	 */
+	dts?: string | false
 }

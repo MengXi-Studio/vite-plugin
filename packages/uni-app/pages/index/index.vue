@@ -201,26 +201,42 @@
 			<view class="inject-section">
 				<text class="inject-label">envGuard 环境变量</text>
 				<view class="kv-list">
-					<view class="kv-item"><text class="kv-key">VITE_APP_TITLE</text><text class="kv-val">{{ envInfo.title || '-' }}</text></view>
-					<view class="kv-item"><text class="kv-key">VITE_API_URL</text><text class="kv-val">{{ envInfo.apiUrl || '-' }}</text></view>
-					<view class="kv-item"><text class="kv-key">VITE_DEBUG</text><text class="kv-val">{{ envInfo.debug || '-' }}</text></view>
+					<view class="kv-item"
+						><text class="kv-key">VITE_APP_TITLE</text><text class="kv-val">{{ envInfo.title || '-' }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">VITE_API_URL</text><text class="kv-val">{{ envInfo.apiUrl || '-' }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">VITE_DEBUG</text><text class="kv-val">{{ envInfo.debug || '-' }}</text></view
+					>
 				</view>
 			</view>
 
 			<view class="inject-section">
 				<text class="inject-label">htmlInject 注入的 meta</text>
 				<view class="kv-list">
-					<view class="kv-item"><text class="kv-key">description</text><text class="kv-val">{{ injectInfo.description || '未注入' }}</text></view>
-					<view class="kv-item"><text class="kv-key">keywords</text><text class="kv-val">{{ injectInfo.keywords || '未注入' }}</text></view>
-					<view class="kv-item"><text class="kv-key">theme-color</text><text class="kv-val">{{ injectInfo.themeColor || '未注入' }}</text></view>
+					<view class="kv-item"
+						><text class="kv-key">description</text><text class="kv-val">{{ injectInfo.description || '未注入' }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">keywords</text><text class="kv-val">{{ injectInfo.keywords || '未注入' }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">theme-color</text><text class="kv-val">{{ injectInfo.themeColor || '未注入' }}</text></view
+					>
 				</view>
 			</view>
 
 			<view class="inject-section">
 				<text class="inject-label">faviconManager 图标</text>
 				<view class="kv-list">
-					<view class="kv-item"><text class="kv-key">rel</text><text class="kv-val">{{ injectInfo.faviconRel || '未注入' }}</text></view>
-					<view class="kv-item"><text class="kv-key">href</text><text class="kv-val">{{ injectInfo.faviconHref || '未注入' }}</text></view>
+					<view class="kv-item"
+						><text class="kv-key">rel</text><text class="kv-val">{{ injectInfo.faviconRel || '未注入' }}</text></view
+					>
+					<view class="kv-item"
+						><text class="kv-key">href</text><text class="kv-val">{{ injectInfo.faviconHref || '未注入' }}</text></view
+					>
 				</view>
 			</view>
 
@@ -330,7 +346,7 @@ export default {
 			fetch('/manifest.json', { method: 'HEAD' })
 				.then(res => {
 					this.testList[0].passed = !!manifestData || res.ok
-					this.testList[0].summary = manifestData ? '资源映射 ' + assetCount + ' 条' : (res.ok ? 'manifest.json 可访问' : '未生成')
+					this.testList[0].summary = manifestData ? '资源映射 ' + assetCount + ' 条' : res.ok ? 'manifest.json 可访问' : '未生成'
 				})
 				.catch(() => {
 					this.testList[0].passed = !!manifestData
@@ -783,7 +799,7 @@ export default {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "插件功能验证",
 	"isTab": true,

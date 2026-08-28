@@ -58,7 +58,7 @@ Both dependencies are optional. The plugin automatically detects installed depen
 | quality         | `FormatQualityOptions`                                          | `{ jpeg: 80, png: 6, webp: 75, avif: 50, gif: true, tiff: 'deflate' }` | Compression quality for each format   |
 | convertToWebp   | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>` | `{}`                                                                   | Convert specified formats to WebP     |
 | convertToAvif   | `Partial<Record<'jpeg' \| 'png' \| 'gif' \| 'tiff', boolean>>` | `{}`                                                                   | Convert specified formats to AVIF     |
-| keepOriginal    | `boolean`                                                       | `false`                                                                | Keep original files during conversion |
+| keepOriginal    | `boolean`                                                       | `true`                                                                 | Keep original files during conversion |
 
 > Inherits [BasePluginOptions](/factory/base-plugin-options): `enabled`, `verbose`, `errorStrategy`
 
@@ -72,7 +72,7 @@ Both dependencies are optional. The plugin automatically detects installed depen
 | excludePaths      | `string[]`        | `[]`                                                                          | Path prefixes to exclude                                 |
 | threshold         | `number`          | `0`                                                                           | Minimum optimization threshold (bytes), 0 for no limit   |
 | reportOutput      | `string` \| `false` | `'image-optimize-report.json'`                                              | Optimization report output path, false to skip           |
-| parallelLimit     | `number`          | `10`                                                                          | Maximum concurrent file optimization count               |
+| parallelLimit     | `number`          | `5`                                                                           | Maximum concurrent file optimization count               |
 | maxPixels         | `number`          | `0`                                                                           | Maximum pixels per image, 0 for no limit                 |
 
 ## Type Definitions
@@ -217,7 +217,7 @@ imageOptimizer({
 - Uses `enforce: 'post'` to execute after build artifacts are written
 - **Volume conservation**: When only compressing, if the optimized file is larger, it is skipped (original preserved); format conversion always generates the new format file
 - `keepOriginal: true` retains the original file during conversion, output uses new extension (e.g., `logo.png` → `logo.webp`)
-- `keepOriginal: false` (default) replaces the original file during conversion
+- `keepOriginal: false` replaces the original file during conversion
 - `sharp` and `svgo` are both optional dependencies; the plugin automatically skips corresponding optimization types when not installed
-- Concurrent optimization is controlled via `parallelLimit` to manage resource usage, defaulting to 10 concurrent operations
+- Concurrent optimization is controlled via `parallelLimit` to manage resource usage, defaulting to 5 concurrent operations
 - `maxPixels` can limit the pixel count of oversized images to avoid memory overflow

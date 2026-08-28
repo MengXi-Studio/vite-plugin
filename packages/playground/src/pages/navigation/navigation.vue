@@ -114,7 +114,7 @@ function navigateToSubPkg() {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "路由导航"
 }

@@ -9,7 +9,7 @@
 Register a normal Vite hook:
 
 ```typescript
-protected registerHook<K extends keyof NonNullable<Plugin>>(
+protected registerHook<K extends keyof FunctionHookMap<NonNullable<Plugin>>>(
   plugin: Plugin,
   hook: K,
   handler: NonNullable<Plugin>[K],
@@ -28,13 +28,14 @@ protected registerHook<K extends keyof NonNullable<Plugin>>(
 2. Sync/async hooks are wrapped by `safeExecuteSync` / `safeExecute` respectively
 3. Exceptions decide whether to halt build per `errorStrategy`
 4. Async results (Promise) `.catch` is auto-wired to error handling
+5. `hook` is constrained by `FunctionHookMap` to only accept function-type hooks (or object hooks with a `handler`), excluding non-function properties like `name` / `enforce` / `apply`, providing compile-time type safety
 
 ### registerOrderedHook
 
 Register hooks with execution order (`transform`, `renderChunk`, `generateBundle`, etc.):
 
 ```typescript
-protected registerOrderedHook<K extends keyof NonNullable<Plugin>>(
+protected registerOrderedHook<K extends keyof FunctionHookMap<NonNullable<Plugin>>>(
   plugin: Plugin,
   hook: K,
   handler: NonNullable<Plugin>[K],

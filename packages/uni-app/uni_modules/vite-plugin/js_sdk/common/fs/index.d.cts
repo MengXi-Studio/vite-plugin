@@ -46,6 +46,69 @@ interface CopyResult {
 }
 
 /**
+ * 目录监听器配置
+ */
+interface DirectoryWatcherOptions {
+    /** 需要监听的目录列表（绝对路径，不存在的目录自动跳过） */
+    dirs: string[];
+    /** 目录内容变化时的回调 */
+    onChange: (dir: string, eventType: string, filename: string | null) => void;
+    /** 可选日志接口（用于输出监听状态与警告） */
+    logger?: {
+        info(message: string): void;
+        warn(message: string): void;
+    };
+    /** 日志描述文案（如 '页面目录'），用于拼接提示信息 */
+    label?: string;
+}
+/**
+ * 目录递归监听器
+ *
+ * @description 对一组目录建立递归文件监听（`fs.watch`），统一管理监听器的
+ * 启动与停止。macOS/Linux 支持 `recursive`，不支持的平台会抛出异常，由本类
+ * 捕获并降级（跳过该目录），避免插件崩溃。
+ *
+ * @example
+ * ```typescript
+ * const watcher = new DirectoryWatcher({
+ *   dirs: ['/abs/pages', '/abs/pages-sub'],
+ *   onChange: () => regenerate(),
+ *   logger,
+ *   label: '页面目录'
+ * })
+ * watcher.start()
+ * // ...
+ * watcher.stop()
+ * ```
+ */
+declare class DirectoryWatcher {
+    /** 已建立的监听器列表 */
+    private watchers;
+    /** 监听器配置 */
+    private readonly options;
+    constructor(options: DirectoryWatcherOptions);
+    /**
+     * 启动监听
+     *
+     * @returns {number} 成功建立监听的目录数量
+     *
+     * @description 遍历配置的目录，对存在的目录逐个建立递归监听；
+     * 不支持 `recursive` 的平台会跳过并输出警告。
+     */
+    start(): number;
+    /**
+     * 停止所有监听
+     *
+     * @description 关闭全部已建立的监听器并清空列表。
+     */
+    stop(): void;
+    /**
+     * 当前活跃监听器数量
+     */
+    get size(): number;
+}
+
+/**
  * 检查源文件是否存在
  * @param sourcePath 源文件路径
  * @throws 当源文件不存在或无法访问时抛出异常
@@ -227,5 +290,5 @@ declare function scanAndMapFiles<T>(dirPath: string, params: {
  */
 declare function deleteFiles(filePaths: string[]): Promise<void>;
 
-export { checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport };
-export type { CopyOptions, CopyResult, ScanDirectoryOptions, ScannedFile };
+export { DirectoryWatcher, checkSourceExists, copySourceToTarget, deleteFiles, resolveReportPath, scanAndMapFiles, scanDirectory, shouldUpdateFileContent, writeFileContent, writeFileSyncSafely, writeJsonReport };
+export type { CopyOptions, CopyResult, DirectoryWatcherOptions, ScanDirectoryOptions, ScannedFile };

@@ -11,6 +11,7 @@
 		},
 		{
 			"path": "pages/about/about",
+			"name": "about-macro",
 			"style": {
 				"navigationBarTitleText": "关于"
 			},

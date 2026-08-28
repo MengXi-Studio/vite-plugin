@@ -2,10 +2,12 @@ import type { ResolvedConfig, Plugin } from 'vite'
 import fs from 'node:fs'
 import path from 'node:path'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import { writeFileContent } from '@/common/fs'
+import { DirectoryWatcher, writeFileContent } from '@/common/fs'
+import { TaskQueue } from '@/common/concurrency'
 import type { GenerateUniOptions } from './types'
 import type { GeneratePagesOptions } from '../generatePages/types'
 import { producePages, generateRouterFromPages } from './helpers'
+import { stripDefineUniPageCalls, DEFINE_UNI_PAGE, ensureDefineUniPageDts } from '../generatePages/helpers'
 
 /**
  * 合并插件：一键完成「页面配置生成 + 路由配置生成」
@@ -28,11 +30,11 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 	/** 项目根目录 */
 	private projectRoot: string = process.cwd()
 
-	/** 目录监听器列表 */
-	private watchers: fs.FSWatcher[] = []
+	/** 目录监听器 */
+	private watcher: DirectoryWatcher | null = null
 
-	/** 串行生成队列：避免 watch 高频触发时并发读改写 pages.json / router */
-	private pipelineQueue: Promise<void> = Promise.resolve()
+	/** 串行流水线队列：避免 watch 高频触发时并发读改写 pages.json / router */
+	private queue: TaskQueue = new TaskQueue()
 
 	protected getPluginName(): string {
 		return 'generate-uni'
@@ -85,26 +87,42 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 	 * @param plugin Vite 插件对象
 	 * @description 拦截 `<route-config>` 自定义块产生的虚拟模块请求
 	 * （如 `xxx.vue?vue&type=route-config&index=0`），返回空模块以避免
-	 * 被 Vue 插件当作 JavaScript 源码解析导致构建失败。
-	 * 块内容已由阶段一扫描时解析，无需在模块系统中保留。
+	 * 被 Vue 插件当作 JavaScript 源码解析导致构建失败；同时移除 Vue SFC
+	 * script 模块中的 `defineUniPage` 宏调用（宏已在阶段一扫描时消费，
+	 * 运行时不应保留调用，否则 `defineUniPage` 未定义导致 ReferenceError）。
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		this.registerHook(
 			plugin,
 			'transform',
-			(_code: string, id: string) => {
-				if (!this.isRouteConfigRequest(id)) return null
-				return { code: 'export default {}', map: null }
+			(code: string, id: string) => {
+				// 1. route-config 自定义块虚拟模块 → 空模块
+				if (this.isRouteConfigRequest(id)) {
+					return { code: 'export default {}', map: null }
+				}
+				// 2. Vue SFC script 模块 → 移除 defineUniPage 宏调用
+				if (this.isVueScriptRequest(id) && code.includes(DEFINE_UNI_PAGE)) {
+					const stripped = stripDefineUniPageCalls(code)
+					if (stripped !== code) {
+						return { code: stripped, map: null }
+					}
+				}
+				return null
 			},
-			'transform route-config 自定义块'
+			'transform route-config 自定义块与 defineUniPage 宏'
 		)
 	}
 
 	/** 判断请求 id 是否为当前自定义块（如 route-config）的虚拟模块请求 */
 	private isRouteConfigRequest(id: string): boolean {
-		if (!id.includes('vue')) return false
+		if (!id.includes('?vue')) return false
 		const match = id.match(/[?&]type=([^&]+)/)
 		return match?.[1] === this.getRouteConfigBlockName()
+	}
+
+	/** 判断请求 id 是否为 Vue SFC 的 script 子模块（如 ?vue&type=script&setup=true） */
+	private isVueScriptRequest(id: string): boolean {
+		return id.includes('.vue') && /[?&]type=script/.test(id)
 	}
 
 	/** 解析页面配置自定义块名称（默认 route-config） */
@@ -114,10 +132,7 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 
 	/** 将一次流水线执行加入队列串行执行 */
 	private runPipeline(): void {
-		this.pipelineQueue = this.pipelineQueue
-			.catch(() => {})
-			.then(() => this.safeExecute(() => this.run(), 'generateUni 执行'))
-			.catch(() => {})
+		this.queue.run(() => this.safeExecute(() => this.run(), 'generateUni 执行') as Promise<void>).catch(() => {})
 	}
 
 	/** 阶段一（内存 pages）→ 写 pages.json → 阶段二（路由）→ 写 router */
@@ -129,6 +144,9 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 			pagesJsonPath: this.options.pagesJsonPath!
 		}
 		const routerOptions = this.options.router ?? {}
+
+		// 生成 defineUniPage 宏的全局类型声明，供 IDE（Vue (Official) / Volar）识别
+		ensureDefineUniPageDts(this.projectRoot, this.options.pages?.dts, this.logger)
 
 		// 阶段一：扫描页面，产出内存 pages 对象
 		const { pagesJson } = producePages(this.projectRoot, pagesOptions)
@@ -149,22 +167,17 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 	/** 启动页面目录监听（主包目录 + 存在的分包目录） */
 	private startWatching(): void {
 		if (!this.options.watch) return
-		const dirs = this.collectWatchDirs()
-		for (const dir of dirs) {
-			if (!fs.existsSync(dir)) continue
-			try {
-				const watcher = fs.watch(dir, { recursive: true }, () => {
-					this.logger.info('检测到页面文件变化，重新生成 pages.json + router...')
-					this.runPipeline()
-				})
-				this.watchers.push(watcher)
-			} catch (error) {
-				this.logger.warn(`监听目录失败（可能不支持 recursive），跳过: ${dir} - ${(error as Error).message}`)
-			}
-		}
-		if (this.watchers.length > 0) {
-			this.logger.info(`正在监听页面目录: ${dirs.join(', ')}`)
-		}
+
+		this.watcher = new DirectoryWatcher({
+			dirs: this.collectWatchDirs(),
+			onChange: () => {
+				this.logger.info('检测到页面文件变化，重新生成 pages.json + router...')
+				this.runPipeline()
+			},
+			logger: this.logger,
+			label: '页面目录'
+		})
+		this.watcher.start()
 	}
 
 	/** 收集需要监听的目录 */
@@ -179,14 +192,8 @@ class GenerateUniPlugin extends BasePlugin<GenerateUniOptions> {
 
 	/** 停止所有目录监听 */
 	private stopWatching(): void {
-		for (const watcher of this.watchers) {
-			try {
-				watcher.close()
-			} catch {
-				// 忽略关闭异常
-			}
-		}
-		this.watchers = []
+		this.watcher?.stop()
+		this.watcher = null
 	}
 }
 

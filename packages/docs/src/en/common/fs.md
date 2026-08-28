@@ -6,12 +6,12 @@ File system utilities, providing file operations, directory scanning, safe writi
 
 ```typescript
 // Submodule import (recommended)
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles } from '@meng-xi/vite-plugin/common/fs'
-import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles, DirectoryWatcher } from '@meng-xi/vite-plugin/common/fs'
+import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions, DirectoryWatcherOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // Barrel import
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles } from '@meng-xi/vite-plugin/common'
-import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles, DirectoryWatcher } from '@meng-xi/vite-plugin/common'
+import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions, DirectoryWatcherOptions } from '@meng-xi/vite-plugin/common'
 ```
 
 ## Type Exports
@@ -395,4 +395,58 @@ async function deleteFiles(filePaths: string[]): Promise<void>
 
 ```typescript
 await deleteFiles(['/dist/app.js', '/dist/app.js.gz'])
+```
+
+---
+
+## DirectoryWatcher
+
+A recursive directory watcher that sets up recursive file watching on a set of directories, managing the start and stop of watchers uniformly.
+
+```typescript
+class DirectoryWatcher {
+  constructor(options: DirectoryWatcherOptions)
+  start(): number
+  stop(): void
+  get size(): number
+}
+```
+
+**DirectoryWatcherOptions**
+
+| Property | Type                                                       | Description                                                          |
+| -------- | ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| dirs     | `string[]`                                                 | Directories to watch (absolute paths; non-existent ones are skipped) |
+| onChange | `(dir: string, eventType: string, filename: string \| null) => void` | Callback invoked when directory contents change                    |
+| logger   | `{ info(message: string): void; warn(message: string): void }` | Optional logger interface for status and warnings                    |
+| label    | `string`                                                   | Optional log label (e.g., 'page directory')                           |
+
+**Methods**
+
+| Method | Returns  | Description                              |
+| ------ | -------- | ---------------------------------------- |
+| start  | `number` | Starts watching, returns number of dirs watched |
+| stop   | `void`   | Closes all watchers and clears the list  |
+| size   | `number` | Number of active watchers (read-only)    |
+
+**Notes**
+
+- Uses `fs.watch` with the `recursive` option; supported on macOS/Linux. On unsupported platforms an error is thrown, which this class catches and skips that directory, preventing plugin crashes
+- Suitable for watching directories in dev mode to auto-regenerate outputs
+- Internal plugins (e.g., `generatePages`, `generateUni`) use it to watch page directories
+
+**Example**
+
+```typescript
+const watcher = new DirectoryWatcher({
+  dirs: ['/abs/pages', '/abs/pages-sub'],
+  onChange: () => regenerate(),
+  logger: { info: console.log, warn: console.warn },
+  label: 'page directory'
+})
+
+watcher.start()
+// Watching page directory: /abs/pages, /abs/pages-sub
+// ...
+watcher.stop()
 ```

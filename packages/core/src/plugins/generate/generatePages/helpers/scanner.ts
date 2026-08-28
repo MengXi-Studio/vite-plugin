@@ -3,6 +3,7 @@ import path from 'node:path'
 import { normalizePath } from '@/common/path'
 import type { RouteConfigBlock, ScannedPage, UniAppPageConfig } from '../types'
 import { extractRouteConfig } from './extractor'
+import { extractDefineUniPage } from './macro'
 
 /** 目录扫描选项 */
 interface ScanOptions {
@@ -103,8 +104,9 @@ export function buildPageConfig(filePath: string, origin: ScanOrigin, options: {
  * @param options 组装选项
  * @returns 页面信息；文件读取或路径解析失败返回 null
  *
- * @description 读取 Vue 源码一次，同时解析 `<route-config>` 中的页面配置
- * 与 tabBar 图标覆盖信息，供主插件组装 pages / subPackages / tabBar。
+ * @description 读取 Vue 源码一次，同时解析 `<route-config>` 自定义块与
+ * `defineUniPage` 宏中的页面配置与 tabBar 图标覆盖信息，供主插件组装
+ * pages / subPackages / tabBar。两者冲突时以 `defineUniPage` 宏为准。
  */
 export function buildScannedPage(filePath: string, origin: ScanOrigin, options: { blockName: string; titleFallback: 'filename' | 'none' }): ScannedPage | null {
 	const { blockName, titleFallback } = options
@@ -122,12 +124,16 @@ export function buildScannedPage(filePath: string, origin: ScanOrigin, options: 
 	}
 
 	const routeConfig = extractRouteConfig(source, blockName)
+	const macroConfig = extractDefineUniPage(source)
+	// 合并两处声明，宏优先级高于 <route-config>：同名字段以宏为准
+	const mergedConfig: RouteConfigBlock | null = routeConfig || macroConfig ? { ...(routeConfig ?? {}), ...(macroConfig ?? {}) } : null
+
 	const result: ScannedPage = {
-		page: assemblePage(pagePath, routeConfig, titleFallback)
+		page: assemblePage(pagePath, mergedConfig, titleFallback)
 	}
 	// 提取 tab 覆盖信息（仅 isTab 页面有效，交由 buildTabBar 过滤）
-	if (routeConfig?.tab && typeof routeConfig.tab === 'object') {
-		result.tab = routeConfig.tab
+	if (mergedConfig?.tab && typeof mergedConfig.tab === 'object') {
+		result.tab = mergedConfig.tab
 	}
 
 	return result

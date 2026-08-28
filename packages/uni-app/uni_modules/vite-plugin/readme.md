@@ -77,6 +77,36 @@ export default defineConfig({
 })
 ```
 
+## 页面配置：`<route-config>` 与 `defineUniPage` 宏
+
+使用 `generatePages` / `generateUni` 时，页面配置可在 `.vue` 文件中就近声明，支持两种方式：
+
+**`defineUniPage` 宏**（优先级更高）：在 `<script setup>`（或 `<script>` 顶层）中调用，写法更贴近 JS/TS，参数为对象字面量，支持注释、单引号与尾随逗号：
+
+```vue
+<script setup lang="ts">
+defineUniPage({
+  title: '首页',
+  isTab: true,
+  tab: { order: 0 }
+})
+</script>
+```
+
+同一页面同时声明宏与 `<route-config>` 时，**以宏为准**（顶层字段按宏覆盖）。插件默认自动生成全局类型声明 `src/define-uni-page.d.ts`（`pages.dts` 可自定义路径或 `false` 关闭），IDE 无需 import 即可识别宏，并获得类型提示与编译期检查。
+
+**`<route-config>` 自定义块**（优先级低于宏）：内容为 JSONC（支持注释与尾随逗号），建议添加 `lang="jsonc"` 属性，让 IDE（Vue (Official) / Volar）按 JSONC 语法高亮：
+
+```vue
+<route-config lang="jsonc">
+{
+  "title": "首页",
+  "isTab": true,
+  "tab": { "order": 0 }
+}
+</route-config>
+```
+
 ## 内置插件
 
 | 插件                 | 说明                                |
@@ -89,9 +119,9 @@ export default defineConfig({
 | copyFile             | 文件复制                            |
 | envGuard             | 环境变量校验                        |
 | faviconManager       | 网站图标管理                        |
-| generateUni          | 组合入口：页面配置 + 路由配置一条流水线 |
+| generateUni          | 组合入口：页面配置 + 路由配置一条流水线（支持 `<route-config>` / `defineUniPage` 宏） |
 | generateRouter       | 路由配置生成（uni-app）             |
-| generatePages        | 页面配置生成（动态生成 pages.json） |
+| generatePages        | 页面配置生成（动态生成 pages.json，支持 `<route-config>` / `defineUniPage` 宏） |
 | generateVersion      | 版本号生成与注入                    |
 | htmlInject           | HTML 内容注入                       |
 | imageOptimizer       | 图片优化与格式转换                  |
@@ -154,10 +184,10 @@ import { normalizePath } from './uni_modules/vite-plugin/js_sdk/common/path/inde
 | -------------------- | --------------------------- |
 | `common/code`        | JS 关键字、注释与字符串移除 |
 | `common/compress`    | gzip 压缩大小计算           |
-| `common/concurrency` | 并发限制批量异步执行        |
+| `common/concurrency` | 并发限制批量异步执行 + 串行任务队列 |
 | `common/env`         | `.env` 文件解析             |
 | `common/format`      | 日期、模板、文件大小格式化  |
-| `common/fs`          | 文件检查、复制、扫描、写入  |
+| `common/fs`          | 文件检查、复制、扫描、写入、目录递归监听 |
 | `common/hash`        | 随机哈希生成                |
 | `common/html`        | HTML 注入、消毒、属性转义   |
 | `common/object`      | 深度合并对象                |

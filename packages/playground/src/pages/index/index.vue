@@ -733,7 +733,7 @@ async function testProxyDelay() {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "首页",
 	"isTab": true,

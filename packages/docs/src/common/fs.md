@@ -6,12 +6,12 @@
 
 ```typescript
 // 子模块独立导入（推荐）
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles } from '@meng-xi/vite-plugin/common/fs'
-import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common/fs'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles, DirectoryWatcher } from '@meng-xi/vite-plugin/common/fs'
+import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions, DirectoryWatcherOptions } from '@meng-xi/vite-plugin/common/fs'
 
 // barrel 导入
-import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles } from '@meng-xi/vite-plugin/common'
-import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions } from '@meng-xi/vite-plugin/common'
+import { checkSourceExists, copySourceToTarget, writeFileContent, scanDirectory, writeJsonReport, writeFileSyncSafely, shouldUpdateFileContent, resolveReportPath, scanAndMapFiles, deleteFiles, DirectoryWatcher } from '@meng-xi/vite-plugin/common'
+import type { CopyOptions, CopyResult, ScannedFile, ScanDirectoryOptions, DirectoryWatcherOptions } from '@meng-xi/vite-plugin/common'
 ```
 
 ## 类型导出
@@ -395,4 +395,58 @@ async function deleteFiles(filePaths: string[]): Promise<void>
 
 ```typescript
 await deleteFiles(['/dist/app.js', '/dist/app.js.gz'])
+```
+
+---
+
+## DirectoryWatcher
+
+目录递归监听器，对一组目录建立递归文件监听，统一管理监听器的启动与停止。
+
+```typescript
+class DirectoryWatcher {
+  constructor(options: DirectoryWatcherOptions)
+  start(): number
+  stop(): void
+  get size(): number
+}
+```
+
+**DirectoryWatcherOptions**
+
+| 属性     | 类型                                                       | 说明                                           |
+| -------- | ---------------------------------------------------------- | ---------------------------------------------- |
+| dirs     | `string[]`                                                 | 需要监听的目录列表（绝对路径，不存在的自动跳过） |
+| onChange | `(dir: string, eventType: string, filename: string \| null) => void` | 目录内容变化时的回调                          |
+| logger   | `{ info(message: string): void; warn(message: string): void }` | 可选日志接口，输出监听状态与警告               |
+| label    | `string`                                                   | 可选日志描述文案（如 '页面目录'）              |
+
+**方法**
+
+| 方法  | 返回值   | 说明                                       |
+| ----- | -------- | ------------------------------------------ |
+| start | `number` | 启动监听，返回成功建立监听的目录数量       |
+| stop  | `void`   | 关闭所有监听并清空列表                     |
+| size  | `number` | 当前活跃监听器数量（只读属性）             |
+
+**说明**
+
+- 基于 `fs.watch` 的 `recursive` 选项递归监听，macOS/Linux 支持；不支持的平台会抛出异常，由本类捕获并跳过该目录，避免插件崩溃
+- 适用于开发模式监听目录变化自动重新生成产物
+- 内部插件（如 `generatePages`、`generateUni`）使用它监听页面目录变化
+
+**示例**
+
+```typescript
+const watcher = new DirectoryWatcher({
+  dirs: ['/abs/pages', '/abs/pages-sub'],
+  onChange: () => regenerate(),
+  logger: { info: console.log, warn: console.warn },
+  label: '页面目录'
+})
+
+watcher.start()
+// 正在监听页面目录: /abs/pages, /abs/pages-sub
+// ...
+watcher.stop()
 ```

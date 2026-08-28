@@ -322,7 +322,7 @@ export default {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "构建报告"
 }

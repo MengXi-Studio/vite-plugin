@@ -41,7 +41,7 @@ import { ... } from '@meng-xi/vite-plugin/common/validation'
 
 | 模块 | 说明 | 导出数量 | 子模块路径 |
 | ---- | ---- | -------- | ---------- |
-| [fs](./fs) | 文件系统操作工具 | 10 个函数 + 4 个类型 | `@meng-xi/vite-plugin/common/fs` |
+| [fs](./fs) | 文件系统操作工具 | 10 个函数 + 1 个类 + 5 个类型 | `@meng-xi/vite-plugin/common/fs` |
 | [path](./path) | 路径处理工具 | 4 个函数 | `@meng-xi/vite-plugin/common/path` |
 
 ### 格式化与模板
@@ -82,6 +82,6 @@ import { ... } from '@meng-xi/vite-plugin/common/validation'
 
 | 模块 | 说明 | 导出数量 | 子模块路径 |
 | ---- | ---- | -------- | ---------- |
-| [concurrency](./concurrency) | 并发控制工具 | 1 个函数 | `@meng-xi/vite-plugin/common/concurrency` |
+| [concurrency](./concurrency) | 并发控制工具 | 1 个函数 + 1 个类 | `@meng-xi/vite-plugin/common/concurrency` |
 | [validation](./validation) | 链式参数验证器 + 3 个验证函数 | 1 个类 + 3 个函数 | `@meng-xi/vite-plugin/common/validation` |
 | [ui](./ui) | 终端 ANSI 转义码工具 | 1 个对象 | `@meng-xi/vite-plugin/common/ui` |

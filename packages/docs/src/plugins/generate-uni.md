@@ -42,11 +42,23 @@ export default defineConfig({
 })
 ```
 
-页面配置仍通过页面内 `<route-config>` 自定义块就近声明，与 `generatePages` 完全一致：
+页面配置可通过 `defineUniPage` 宏或页面内 `<route-config>` 自定义块就近声明，与 `generatePages` 完全一致。宏优先级高于 `<route-config>`，宏的全局类型声明由插件自动生成（`pages.dts` 可自定义路径），用法与 [generatePages 的宏说明](./generate-pages#defineunipage-宏) 一致：
 
 ```vue
 <!-- src/pages/index/index.vue -->
-<route-config>
+<script setup lang="ts">
+defineUniPage({
+  title: '首页',
+  isTab: true,
+  tab: { order: 0 }
+})
+</script>
+```
+
+也可使用 `<route-config>` 自定义块（优先级低于宏，建议添加 `lang="jsonc"` 获得 IDE 高亮）：
+
+```vue
+<route-config lang="jsonc">
 {
   "title": "首页",
   "isTab": true,
@@ -61,8 +73,8 @@ export default defineConfig({
 | ---- | ---- | ------ | ---- |
 | pagesJsonPath | `string` | `'src/pages.json'` | pages.json 文件路径（两阶段共用） |
 | watch | `boolean` | `true` | 监听页面目录变更自动重新执行整条流水线 |
-| pages | [`GeneratePagesOptions`](/plugins/generate-pages) | - | 阶段一参数：扫描页面 + `<route-config>` 生成 pages.json（`pagesDir` / `subPackages` / `routeConfigBlock` / `entryPage` / `titleFallback` / `tabBar` / `includeExtensions` / `excludePatterns`） |
-| router | [`GenerateRouterOptions`](/plugins/generate-router) | - | 阶段二参数：基于 pages.json 生成路由配置（`outputPath` / `outputFormat` / `nameStrategy` / `metaMapping` / `exportTypes` / `preserveRouteChanges` / `headerTemplate` / `customFields` / `dts` / `includeSubPackages`） |
+| pages | [`GeneratePagesOptions`](/plugins/generate-pages) | `{ pagesDir: 'src/pages', subPackages: [{ root: 'pages-sub', dir: 'src/pages-sub' }] }` | 阶段一参数：扫描页面 + `<route-config>` / `defineUniPage` 生成 pages.json（`pagesDir` / `subPackages` / `routeConfigBlock` / `entryPage` / `titleFallback` / `tabBar` / `includeExtensions` / `excludePatterns` / `dts`） |
+| router | [`GenerateRouterOptions`](/plugins/generate-router) | `{ outputPath: 'src/router.config.ts' }` | 阶段二参数：基于 pages.json 生成路由配置（`outputPath` / `outputFormat` / `nameStrategy` / `metaMapping` / `exportTypes` / `preserveRouteChanges` / `headerTemplate` / `customFields` / `dts` / `includeSubPackages`） |
 
 > 继承 [BasePluginOptions](/factory/base-plugin-options)：`enabled`、`verbose`、`errorStrategy`
 
@@ -86,7 +98,7 @@ generateUni(options)
 
 - `pages.json` 仍会写盘（`uni()` 与构建流程需要该文件），但路由阶段直接消费内存中的 pages 对象，不再读盘回灌
 - 只用一个 `watch` 监听页面目录，变更时**串行**重跑「阶段一 + 阶段二」，避免并发读写竞态
-- `<route-config>` 自定义块的虚拟模块请求会被插件拦截为空模块，避免构建时被当作 JavaScript 解析
+- `<route-config>` 自定义块的虚拟模块请求会被插件拦截为空模块，避免构建时被当作 JavaScript 解析；`defineUniPage` 宏调用同样会在 transform 阶段被移除，运行时无需 import
 
 ## 从两个插件迁移
 

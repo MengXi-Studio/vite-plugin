@@ -47,6 +47,22 @@ Plugin factory function type.
 type PluginFactory<T extends BasePluginOptions = BasePluginOptions, R = T> = (options?: R) => PluginWithInstance<T>
 ```
 
+### FunctionHookMap
+
+A key mapping that filters `Plugin` to only "registerable" hooks, used for compile-time constraints on the hook name in `registerHook` / `registerOrderedHook`.
+
+```typescript
+type FunctionHookMap<P> = {
+	[K in keyof P]: P[K] extends (...args: any[]) => any
+		? P[K]
+		: P[K] extends { handler: (...args: any[]) => any }
+			? P[K]
+			: never
+}
+```
+
+**Notes**: Keeps only function-type hooks (or object hooks with a `handler`), excluding non-function properties like `name` / `enforce` / `apply`.
+
 ## Utility Functions
 
 ### deepMerge

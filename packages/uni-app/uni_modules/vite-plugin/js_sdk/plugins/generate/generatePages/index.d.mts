@@ -1,6 +1,6 @@
 import { PluginFactory } from '../../../factory/index.mjs';
-import { G as GeneratePagesOptions } from '../../../shared/vite-plugin.9wMfxHfz.mjs';
-export { R as RouteConfigBlock, a as ScannedPage, S as SubPackageConfig, b as TabBarItemOverride, T as TabBarTemplate } from '../../../shared/vite-plugin.9wMfxHfz.mjs';
+import { G as GeneratePagesOptions } from '../../../shared/vite-plugin.CVD56Ev-.mjs';
+export { R as RouteConfigBlock, a as ScannedPage, S as SubPackageConfig, b as TabBarItemOverride, T as TabBarTemplate } from '../../../shared/vite-plugin.CVD56Ev-.mjs';
 export { U as UniAppPageConfig, a as UniAppPagesJson, b as UniAppTabBarConfig } from '../../../shared/vite-plugin.CjZHnjC7.mjs';
 import 'vite';
 import '../../../shared/vite-plugin.BmNqGOzh.mjs';

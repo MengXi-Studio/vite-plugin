@@ -1,15 +1,15 @@
 # concurrency
 
-Concurrency control utilities, providing batch async execution with concurrency limits.
+Concurrency control utilities, providing batch async execution with concurrency limits and serial task queue.
 
 ## Import
 
 ```typescript
 // Submodule import (recommended)
-import { runWithConcurrency } from '@meng-xi/vite-plugin/common/concurrency'
+import { runWithConcurrency, TaskQueue } from '@meng-xi/vite-plugin/common/concurrency'
 
 // Barrel import
-import { runWithConcurrency } from '@meng-xi/vite-plugin/common'
+import { runWithConcurrency, TaskQueue } from '@meng-xi/vite-plugin/common'
 ```
 
 ---
@@ -67,4 +67,48 @@ const data = await runWithConcurrency(
   },
   5
 )
+```
+
+---
+
+## TaskQueue
+
+A serial task queue that runs async tasks one after another, ensuring only one task runs at a time.
+
+```typescript
+class TaskQueue {
+  run<T>(task: () => Promise<T>): Promise<T>
+}
+```
+
+**run**
+
+| Parameter | Type               | Description          |
+| --------- | ------------------ | -------------------- |
+| task      | `() => Promise<T>` | Async task to run    |
+
+**Returns**
+
+`Promise<T>` - The task result; rejects if the task fails
+
+**Notes**
+
+- Tasks run serially in submission order; a later task waits for the previous one to complete
+- A single task failure does **not** block subsequent tasks; callers can catch the returned promise to observe failures
+- Suitable for high-frequency triggers (e.g., file watching) to avoid concurrent read/write races
+- Internal plugins (e.g., `generatePages`, `generateRouter`, `generateUni`) use it to serialize generation tasks
+
+**Example**
+
+```typescript
+const queue = new TaskQueue()
+
+// Serialize tasks under high-frequency triggers to avoid read/write races
+queue.run(() => generatePages())
+queue.run(() => generatePages())
+// The second task waits for the first to complete
+
+// A failed task does not block subsequent tasks
+queue.run(() => Promise.reject(new Error('failed')))
+queue.run(() => Promise.resolve('continue'))
 ```

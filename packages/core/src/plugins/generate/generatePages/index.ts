@@ -2,16 +2,10 @@ import type { ResolvedConfig, Plugin } from 'vite'
 import fs from 'node:fs'
 import path from 'node:path'
 import { BasePlugin, createPluginFactory } from '@/factory'
-import { writeFileContent } from '@/common/fs'
-import { stripJsonComments } from '@/common/string'
-import type { GeneratePagesOptions, UniAppPagesJson, ScannedPage } from './types'
-import { scanPageFiles, buildScannedPage, buildTabBar, mergePagesJson, orderMainPages } from './helpers'
-
-/** 目录监听实例集合（fs.FSWatcher 使用 path/event 回调形式） */
-type DirWatcher = {
-	dir: string
-	watcher: fs.FSWatcher
-}
+import { DirectoryWatcher, writeFileContent } from '@/common/fs'
+import { TaskQueue } from '@/common/concurrency'
+import type { GeneratePagesOptions } from './types'
+import { producePages, stripDefineUniPageCalls, DEFINE_UNI_PAGE, ensureDefineUniPageDts } from './helpers'
 
 /**
  * 生成 uni-app pages.json 插件
@@ -46,24 +40,11 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 	/** 项目根目录 */
 	private projectRoot: string = process.cwd()
 
-	/** 目录监听器列表 */
-	private watchers: DirWatcher[] = []
+	/** 目录监听器 */
+	private watcher: DirectoryWatcher | null = null
 
 	/** 生成队列：串行执行生成任务，避免并发读改写竞态 */
-	private generationQueue: Promise<void> = Promise.resolve()
-
-	/**
-	 * 将一次生成任务加入队列串行执行
-	 *
-	 * @description 监听目录在开发时可能高频触发（保存/新增/删除文件），
-	 * 用 Promise 链串行化，确保同一时刻只有一个生成任务在跑，避免并 write 竞态。
-	 */
-	private runGenerate(): void {
-		this.generationQueue = this.generationQueue
-			.catch(() => {})
-			.then(() => this.safeExecute(() => this.generatePagesJson(), '生成 pages.json'))
-			.catch(() => {})
-	}
+	private queue: TaskQueue = new TaskQueue()
 
 	protected getPluginName(): string {
 		return 'generate-pages'
@@ -79,7 +60,8 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 			tabBar: undefined,
 			includeExtensions: ['.vue'],
 			excludePatterns: ['node_modules'],
-			watch: true
+			watch: true,
+			dts: 'src/define-uni-page.d.ts'
 		}
 	}
 
@@ -97,12 +79,16 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 			.enum(['filename', 'none'])
 			.field('watch')
 			.boolean()
+			.field('dts')
+			.custom(v => v === undefined || v === false || typeof v === 'string', 'dts 必须为 false 或字符串路径')
 			.validate()
 	}
 
 	protected onConfigResolved(config: ResolvedConfig): void {
 		super.onConfigResolved(config)
 		this.projectRoot = config.root
+		// 生成 defineUniPage 宏的全局类型声明，供 IDE（Vue (Official) / Volar）识别
+		ensureDefineUniPageDts(this.projectRoot, this.options.dts, this.logger)
 		this.runGenerate()
 		if (config.command === 'serve') {
 			this.startWatching()
@@ -120,26 +106,42 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 	 * @param plugin Vite 插件对象
 	 * @description 拦截 `<route-config>` 自定义块产生的虚拟模块请求
 	 * （如 `xxx.vue?vue&type=route-config&index=0`），返回空模块以避免
-	 * 被 Vue 插件当作 JavaScript 源码解析导致构建失败。
-	 * 块内容已由扫描时解析，无需在模块系统中保留。
+	 * 被 Vue 插件当作 JavaScript 源码解析导致构建失败；同时移除 Vue SFC
+	 * script 模块中的 `defineUniPage` 宏调用（宏已在扫描时消费，运行时
+	 * 不应保留调用，否则 `defineUniPage` 未定义导致 ReferenceError）。
 	 */
 	protected addPluginHooks(plugin: Plugin): void {
 		this.registerHook(
 			plugin,
 			'transform',
-			(_code: string, id: string) => {
-				if (!this.isRouteConfigRequest(id)) return null
-				return { code: 'export default {}', map: null }
+			(code: string, id: string) => {
+				// 1. route-config 自定义块虚拟模块 → 空模块
+				if (this.isRouteConfigRequest(id)) {
+					return { code: 'export default {}', map: null }
+				}
+				// 2. Vue SFC script 模块 → 移除 defineUniPage 宏调用
+				if (this.isVueScriptRequest(id) && code.includes(DEFINE_UNI_PAGE)) {
+					const stripped = stripDefineUniPageCalls(code)
+					if (stripped !== code) {
+						return { code: stripped, map: null }
+					}
+				}
+				return null
 			},
-			'transform route-config 自定义块'
+			'transform route-config 自定义块与 defineUniPage 宏'
 		)
 	}
 
 	/** 判断请求 id 是否为当前自定义块（如 route-config）的虚拟模块请求 */
 	private isRouteConfigRequest(id: string): boolean {
-		if (!id.includes('vue')) return false
+		if (!id.includes('?vue')) return false
 		const match = id.match(/[?&]type=([^&]+)/)
 		return match?.[1] === this.getRouteConfigBlockName()
+	}
+
+	/** 判断请求 id 是否为 Vue SFC 的 script 子模块（如 ?vue&type=script&setup=true） */
+	private isVueScriptRequest(id: string): boolean {
+		return id.includes('.vue') && /[?&]type=script/.test(id)
 	}
 
 	/** 解析页面配置自定义块名称（默认 route-config） */
@@ -147,105 +149,31 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 		return this.options.routeConfigBlock ?? 'route-config'
 	}
 
+	/**
+	 * 将一次生成任务加入队列串行执行
+	 *
+	 * @description 监听目录在开发时可能高频触发（保存/新增/删除文件），
+	 * 用串行队列确保同一时刻只有一个生成任务在跑，避免并发读写竞态。
+	 */
+	private runGenerate(): void {
+		this.queue.run(() => this.safeExecute(() => this.generatePagesJson(), '生成 pages.json') as Promise<void>).catch(() => {})
+	}
+
 	/** 完整的 pages.json 生成流程 */
 	private async generatePagesJson(): Promise<void> {
-		// 1. 组装主包页面
+		// 复用 producePages 完成扫描/组装/合并（内存产出）
 		const pagesJsonPath = path.resolve(this.projectRoot, this.options.pagesJsonPath!)
-		const pagesJsonDir = path.dirname(pagesJsonPath)
-		const pagesDir = path.resolve(this.projectRoot, this.options.pagesDir!)
+		const { pagesJson, mainPages } = producePages(this.projectRoot, this.options, message => this.logger.warn(message))
+		const subPackages = pagesJson.subPackages
+		const tabBar = pagesJson.tabBar
 
-		const pageOptions = {
-			blockName: this.options.routeConfigBlock!,
-			titleFallback: this.options.titleFallback!
-		}
-		const scanOptions = {
-			includeExtensions: this.options.includeExtensions,
-			excludePatterns: this.options.excludePatterns
-		}
-
-		const mainScanned = scanPageFiles(pagesDir, scanOptions)
-			.map(file => buildScannedPage(file, { absDir: pagesJsonDir }, pageOptions))
-			.filter((p): p is ScannedPage => p !== null)
-		// 读取现有 pages.json（用于保留入口页顺序，并按既有字段合并）
-		const existing = this.readExistingPagesJson(pagesJsonPath)
-		// 主包页面：固定入口页于首位，其余按路径稳定排序（入口页优先取配置，其次取现有 pages[0]）
-		const entryPage = this.options.entryPage ?? existing?.pages?.[0]?.path
-		const mainPages = orderMainPages(
-			mainScanned.map(s => s.page),
-			entryPage
-		)
-
-		// 2. 组装分包页面
-		let subPackages: NonNullable<UniAppPagesJson['subPackages']> | undefined
-		const subPkgConfigs = this.options.subPackages ?? []
-		if (subPkgConfigs.length > 0) {
-			const built: NonNullable<UniAppPagesJson['subPackages']> = []
-			for (const sub of subPkgConfigs) {
-				const subDir = path.resolve(this.projectRoot, sub.dir)
-				if (!fs.existsSync(subDir)) continue
-				const subScanned = scanPageFiles(subDir, scanOptions)
-					.map(file => buildScannedPage(file, { absDir: subDir }, pageOptions))
-					.filter((p): p is ScannedPage => p !== null)
-					.sort((a, b) => a.page.path.localeCompare(b.page.path))
-				if (subScanned.length > 0) {
-					built.push({ root: sub.root, pages: subScanned.map(s => s.page) })
-				}
-			}
-			// 仅当至少一个分包生成成功时才输出 subPackages
-			if (built.length > 0) subPackages = built
-		}
-
-		// 3. 组装 tabBar（基于主包页面信息，含页面内 tab 覆盖）
-		const tabBar = buildTabBar(mainScanned, this.options.tabBar)
-
-		// 4. 合并（existing 已在组装主包时读取）
-		const merged = mergePagesJson(existing, { pages: mainPages, subPackages, tabBar })
-
-		// 5. 写入（保持 JSON 缩进风格；先确保目录存在，支持首次生成）
-		const content = JSON.stringify(merged, null, '\t')
+		// 写入（保持 JSON 缩进风格；先确保目录存在，支持首次生成）
+		const content = JSON.stringify(pagesJson, null, '\t')
 		await fs.promises.mkdir(path.dirname(pagesJsonPath), { recursive: true })
 		await writeFileContent(pagesJsonPath, content + '\n')
 
 		this.logger.success(`pages.json 已生成: ${pagesJsonPath}`)
 		this.logger.info(`完成: 主包 ${mainPages.length} 页, 分包 ${subPackages?.reduce((n, s) => n + s.pages.length, 0) ?? 0} 页, tabBar ${tabBar?.list?.length ?? 0} 项`)
-	}
-
-	/** 读取并解析现有 pages.json（用写文件的同一方式兼容注释） */
-	private readExistingPagesJson(pagesJsonPath: string): UniAppPagesJson | null {
-		if (!fs.existsSync(pagesJsonPath)) return null
-		try {
-			const content = fs.readFileSync(pagesJsonPath, 'utf-8')
-			return JSON.parse(stripJsonComments(content)) as UniAppPagesJson
-		} catch (error) {
-			this.logger.warn(`解析现有 pages.json 失败，将完全用生成内容替换: ${(error as Error).message}`)
-			return null
-		}
-	}
-
-	/** 启动页面目录监听 */
-	private startWatching(): void {
-		if (!this.options.watch) return
-
-		const dirs = this.collectWatchDirs()
-		for (const dir of dirs) {
-			if (!fs.existsSync(dir)) continue
-			// mac/Linux 上 fs.watch 支持 recursive；不支持的平台会抛错，需兜底避免插件崩溃。
-			// 生成任务经 runGenerate 串行化，避免变更高频触发时并发读改写。
-			let watcher: fs.FSWatcher
-			try {
-				watcher = fs.watch(dir, { recursive: true }, () => {
-					this.logger.info('检测到页面文件变化，重新生成 pages.json...')
-					this.runGenerate()
-				})
-			} catch (error) {
-				this.logger.warn(`监听目录失败（可能不支持 recursive），跳过: ${dir} - ${(error as Error).message}`)
-				continue
-			}
-			this.watchers.push({ dir, watcher })
-		}
-		if (this.watchers.length > 0) {
-			this.logger.info(`正在监听页面目录: ${dirs.join(', ')}`)
-		}
 	}
 
 	/** 收集需要监听的目录（主包目录 + 存在的分包目录） */
@@ -258,16 +186,26 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 		return dirs
 	}
 
+	/** 启动页面目录监听 */
+	private startWatching(): void {
+		if (!this.options.watch) return
+
+		this.watcher = new DirectoryWatcher({
+			dirs: this.collectWatchDirs(),
+			onChange: () => {
+				this.logger.info('检测到页面文件变化，重新生成 pages.json...')
+				this.runGenerate()
+			},
+			logger: this.logger,
+			label: '页面目录'
+		})
+		this.watcher.start()
+	}
+
 	/** 停止所有目录监听 */
 	private stopWatching(): void {
-		for (const { watcher } of this.watchers) {
-			try {
-				watcher.close()
-			} catch {
-				// 忽略关闭异常
-			}
-		}
-		this.watchers = []
+		this.watcher?.stop()
+		this.watcher = null
 	}
 }
 

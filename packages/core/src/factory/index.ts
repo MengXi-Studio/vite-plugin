@@ -1,5 +1,5 @@
 import type { ResolvedConfig, Plugin } from 'vite'
-import type { BasePluginOptions, PluginFactory, OptionsNormalizer, PluginWithInstance } from './types'
+import type { BasePluginOptions, PluginFactory, OptionsNormalizer, PluginWithInstance, FunctionHookMap } from './types'
 import { Logger, type PluginLogger } from '@/logger'
 import type { LoggerOptions } from '@/logger/types'
 import { Validator } from '@/common/validation'
@@ -108,6 +108,21 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	}
 
 	/**
+	 * 获取基础插件默认配置
+	 *
+	 * @protected
+	 * @returns {BasePluginOptions} 基础默认配置（enabled / verbose / errorStrategy）
+	 * @description 子类可重写此方法以覆盖基础默认值。
+	 */
+	protected getBaseDefaults(): BasePluginOptions {
+		return {
+			enabled: true,
+			verbose: true,
+			errorStrategy: 'throw'
+		}
+	}
+
+	/**
 	 * 合并插件配置，将用户提供的配置与默认配置合并
 	 *
 	 * @protected
@@ -123,15 +138,9 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 * ```
 	 */
 	protected mergeOptions(options: T): Required<T> {
-		const baseDefaults: BasePluginOptions = {
-			enabled: true,
-			verbose: true,
-			errorStrategy: 'throw'
-		}
-
 		const pluginDefaults = this.getDefaultOptions()
 
-		return deepMerge<T>(baseDefaults as Partial<T>, pluginDefaults, options) as Required<T>
+		return deepMerge<T>(this.getBaseDefaults() as Partial<T>, pluginDefaults, options) as Required<T>
 	}
 
 	/**
@@ -233,13 +242,13 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 *
 	 * @protected
 	 * @param plugin - Vite 插件对象
-	 * @param hook - 钩子名称
+	 * @param hook - 钩子名称（仅限函数类型钩子）
 	 * @param handler - 钩子处理函数
 	 * @param context - 错误日志上下文描述
 	 * @description 注册钩子时自动包裹 enabled 检查（禁用时跳过执行）和 safeExecute（捕获异常），
 	 * 避免每个插件手动重复编写这两层包裹逻辑
 	 */
-	protected registerHook<K extends keyof NonNullable<Plugin>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string): void {
+	protected registerHook<K extends keyof FunctionHookMap<NonNullable<Plugin>>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string): void {
 		const instance = this
 		const original = handler as Function
 
@@ -259,13 +268,13 @@ export abstract class BasePlugin<T extends BasePluginOptions = BasePluginOptions
 	 *
 	 * @protected
 	 * @param plugin - Vite 插件对象
-	 * @param hook - 钩子名称
+	 * @param hook - 钩子名称（仅限函数类型钩子）
 	 * @param handler - 钩子处理函数
 	 * @param context - 错误日志上下文描述
 	 * @param order - 执行顺序，'pre' 或 'post'
 	 * @description 与 registerHook 类似，但支持 Vite 的 order 配置（用于 transform、resolveId、generateBundle、writeBundle 等支持排序的钩子）
 	 */
-	protected registerOrderedHook<K extends keyof NonNullable<Plugin>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string, order: 'pre' | 'post'): void {
+	protected registerOrderedHook<K extends keyof FunctionHookMap<NonNullable<Plugin>>>(plugin: Plugin, hook: K, handler: NonNullable<Plugin>[K], context: string, order: 'pre' | 'post'): void {
 		const instance = this
 		const original = handler as Function
 

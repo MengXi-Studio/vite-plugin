@@ -141,7 +141,7 @@ function goBack() {
 }
 </style>
 
-<route-config>
+<route-config lang="jsonc">
 {
 	"title": "设置",
 	"style": { "requireAuth": true }

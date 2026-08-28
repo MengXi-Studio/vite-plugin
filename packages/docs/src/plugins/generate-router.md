@@ -46,24 +46,6 @@ export default defineConfig({
 | headerTemplate      | `boolean \| string`        | `false`            | 文件头部注释模板         |
 | customFields        | `Record<string, string>`   | `{}`               | 自定义字段键值对         |
 
-### 路由名称生成策略
-
-| 策略       | 说明         | 示例路径              | 生成名称           |
-| ---------- | ------------ | --------------------- | ------------------ |
-| camelCase  | 驼峰命名     | `/pages/user/profile` | pagesUserProfile   |
-| pascalCase | 帕斯卡命名   | `/pages/user/profile` | PagesUserProfile   |
-| path       | 路径转下划线 | `/pages/user/profile` | pages_user_profile |
-| custom     | 自定义函数   | -                     | -                  |
-
-### 默认 metaMapping
-
-```typescript
-{
-  navigationBarTitleText: 'title',
-  requireAuth: 'requireAuth'
-}
-```
-
 ### pages.json 中的 name 属性
 
 `pages.json` 中页面配置对象的 `name` 字段会直接作为路由名称，且**优先级高于 `nameStrategy` 自动生成**。
@@ -82,6 +64,15 @@ export default defineConfig({
 
 上述配置中，路由名称为 `'UserProfile'`，而非 `nameStrategy` 自动生成的 `'pagesUserProfile'`。
 
+### 路由名称生成策略
+
+| 策略       | 说明         | 示例路径              | 生成名称           |
+| ---------- | ------------ | --------------------- | ------------------ |
+| camelCase  | 驼峰命名     | `/pages/user/profile` | pagesUserProfile   |
+| pascalCase | 帕斯卡命名   | `/pages/user/profile` | PagesUserProfile   |
+| path       | 路径转下划线 | `/pages/user/profile` | pages_user_profile |
+| custom     | 自定义函数   | -                     | -                  |
+
 ### pages.json 中的 meta 对象
 
 `pages.json` 中页面配置对象的 `meta` 字段会直接合并到路由的 `meta` 中，且**优先级高于 `metaMapping` 映射**。
@@ -99,6 +90,15 @@ export default defineConfig({
 ```
 
 上述配置中，`meta.requireAuth` 和 `meta.customField` 会直接写入路由 meta，`style.navigationBarTitleText` 通过 `metaMapping` 映射为 `title`。当两者存在同名字段时，`meta` 对象的值优先。
+
+### 默认 metaMapping
+
+```typescript
+{
+  navigationBarTitleText: 'title',
+  requireAuth: 'requireAuth'
+}
+```
 
 ### preserveRouteChanges 路由修改保留
 
