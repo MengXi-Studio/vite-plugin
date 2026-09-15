@@ -35,6 +35,7 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 			{ text: 'Framework', link: '/en/factory/index.html' },
 			{ text: 'Logger', link: '/en/logger/index.html' },
 			{ text: 'Utils', link: '/en/common/index.html' },
+			{ text: 'Changelog', link: '/en/changelog.html' },
 			{
 				text: 'Links',
 				items: [
@@ -43,7 +44,7 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						link: 'https://github.com/MengXi-Studio/vite-plugin/discussions'
 					},
 					{
-						text: 'Changelog',
+						text: 'Releases',
 						link: 'https://github.com/MengXi-Studio/vite-plugin/releases'
 					}
 				]

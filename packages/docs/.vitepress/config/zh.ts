@@ -35,6 +35,7 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 			{ text: '框架', link: '/factory/index.html' },
 			{ text: '日志', link: '/logger/index.html' },
 			{ text: '工具', link: '/common/index.html' },
+			{ text: '更新日志', link: '/changelog.html' },
 			{
 				text: '相关链接',
 				items: [
@@ -43,7 +44,7 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
 						link: 'https://github.com/MengXi-Studio/vite-plugin/discussions'
 					},
 					{
-						text: '更新日志',
+						text: 'Releases',
 						link: 'https://github.com/MengXi-Studio/vite-plugin/releases'
 					}
 				]
