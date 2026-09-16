@@ -4,14 +4,15 @@
 
 ### pages.json 路径残留扩展名（修复）
 
-**问题**：页面路径剥离逻辑此前写死仅匹配 `.vue` / `.nvue`（`/\.(vue|nvue)$/`）。当 `includeExtensions` 配置为 `.uvue` 等自定义扩展名时，生成的 `pages.json` 中 `path` 残留扩展名（如 `pages/home/index.uvue`），uni-app 按此路径找不到页面。
+**问题**：页面路径剥离逻辑此前写死仅匹配 `.vue` / `.nvue`（`/\.(vue|nvue)$/`）。当 `includeExtensions` 配置为 `.uvue` 等自定义扩展名时，生成的 `pages.json` 中 `path` 残留扩展名（如
+`pages/home/index.uvue`），uni-app 按此路径找不到页面。
 
 **修复**：页面路径改为按文件实际扩展名动态剥离——扩展名命中 `includeExtensions` 列表（忽略大小写、容忍前导点）才剥离，未配置时保持原 `.vue` / `.nvue` 行为。
 
-| 场景 | 此前 | 现在 |
-| ---- | ---- | ---- |
-| `includeExtensions: ['.uvue']` | `pages/home/index.uvue`（错误） | `pages/home/index` |
-| 未配置 `includeExtensions` | `pages/home/index` | `pages/home/index`（保持） |
+| 场景                           | 此前                            | 现在                       |
+| ------------------------------ | ------------------------------- | -------------------------- |
+| `includeExtensions: ['.uvue']` | `pages/home/index.uvue`（错误） | `pages/home/index`         |
+| 未配置 `includeExtensions`     | `pages/home/index`              | `pages/home/index`（保持） |
 
 generatePages 与 generateUni 共用 `producePages` 流水线，一处修复两插件同时生效。
 
