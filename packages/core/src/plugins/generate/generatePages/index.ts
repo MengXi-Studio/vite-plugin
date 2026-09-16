@@ -139,9 +139,9 @@ class GeneratePagesPlugin extends BasePlugin<GeneratePagesOptions> {
 		return match?.[1] === this.getRouteConfigBlockName()
 	}
 
-	/** 判断请求 id 是否为 Vue SFC 的 script 子模块（如 ?vue&type=script&setup=true） */
+	/** 判断请求 id 是否为 Vue SFC 的 script 子模块（如 ?vue&type=script&setup=true，兼容 .uvue/.nvue） */
 	private isVueScriptRequest(id: string): boolean {
-		return id.includes('.vue') && /[?&]type=script/.test(id)
+		return /\.(vue|uvue|nvue)(\?|$)/i.test(id) && /[?&]type=script/.test(id)
 	}
 
 	/** 解析页面配置自定义块名称（默认 route-config） */

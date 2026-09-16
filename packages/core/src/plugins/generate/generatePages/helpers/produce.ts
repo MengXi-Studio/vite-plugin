@@ -52,7 +52,8 @@ export function producePages(projectRoot: string, options: GeneratePagesOptions,
 
 	const pageOptions = {
 		blockName: options.routeConfigBlock!,
-		titleFallback: options.titleFallback!
+		titleFallback: options.titleFallback!,
+		includeExtensions: options.includeExtensions
 	}
 	const scanOptions = {
 		includeExtensions: options.includeExtensions,
