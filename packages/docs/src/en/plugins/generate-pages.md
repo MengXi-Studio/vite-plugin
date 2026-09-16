@@ -72,7 +72,7 @@ Generated `pages.json` fragment:
 | entryPage        | `string`                     | Existing pages[0]                        | Main package entry page path (e.g. `pages/index/index`), pinned as pages[0] |
 | titleFallback    | `'filename' \| 'none'`       | `'filename'`                             | Fallback strategy when title is missing |
 | tabBar           | `TabBarTemplate`             | -                                        | tabBar template (generated only when provided) |
-| includeExtensions| `string[]`                   | `['.vue']`                               | Page file extension list             |
+| includeExtensions| `string[]`                   | `['.vue']`                               | Page file extensions to scan; the extension is stripped from the generated `path` |
 | excludePatterns  | `string[]`                   | `['node_modules']`                       | Path patterns to exclude             |
 | watch            | `boolean`                    | `true`                                   | Watch page directories and regenerate |
 | dts              | `string \| false`            | `'src/define-uni-page.d.ts'`             | Output path for the `defineUniPage` macro global type declaration (`false` to disable) |

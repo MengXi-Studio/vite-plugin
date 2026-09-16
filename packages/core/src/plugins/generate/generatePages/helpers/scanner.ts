@@ -92,7 +92,7 @@ function isExcluded(filePath: string, patterns: string[]): boolean {
  * 不包含标签栏图标等仅在 tabBar 层生效的信息。需要同时获取 tab 覆盖信息时，
  * 请使用 {@link buildScannedPage}。
  */
-export function buildPageConfig(filePath: string, origin: ScanOrigin, options: { blockName: string; titleFallback: 'filename' | 'none' }): UniAppPageConfig | null {
+export function buildPageConfig(filePath: string, origin: ScanOrigin, options: { blockName: string; titleFallback: 'filename' | 'none'; includeExtensions?: string[] }): UniAppPageConfig | null {
 	return buildScannedPage(filePath, origin, options)?.page ?? null
 }
 
@@ -108,12 +108,12 @@ export function buildPageConfig(filePath: string, origin: ScanOrigin, options: {
  * `defineUniPage` 宏中的页面配置与 tabBar 图标覆盖信息，供主插件组装
  * pages / subPackages / tabBar。两者冲突时以 `defineUniPage` 宏为准。
  */
-export function buildScannedPage(filePath: string, origin: ScanOrigin, options: { blockName: string; titleFallback: 'filename' | 'none' }): ScannedPage | null {
-	const { blockName, titleFallback } = options
+export function buildScannedPage(filePath: string, origin: ScanOrigin, options: { blockName: string; titleFallback: 'filename' | 'none'; includeExtensions?: string[] }): ScannedPage | null {
+	const { blockName, titleFallback, includeExtensions } = options
 
 	// 计算页面路径（相对来源目录，去除扩展名）
 	const relativePath = normalizePath(path.relative(origin.absDir, filePath))
-	const pagePath = relativePath.replace(/\.(vue|nvue)$/i, '')
+	const pagePath = stripPageExtension(relativePath, includeExtensions)
 	if (!pagePath) return null
 
 	let source: string
@@ -173,6 +173,29 @@ function assemblePage(pagePath: string, routeConfig: RouteConfigBlock | null, ti
 	}
 
 	return config
+}
+
+/**
+ * 从页面路径剥离文件扩展名，供 pages.json 的 path 使用
+ *
+ * @param relativePath 相对来源目录的页面路径（如 'pages/home/index.uvue'）
+ * @param includeExtensions 配置的页面文件扩展名列表；未配置时按 .vue / .nvue 处理
+ * @returns 不含扩展名的页面路径（如 'pages/home/index'）
+ *
+ * @description 仅当文件实际扩展名命中 includeExtensions（忽略大小写、容忍前导点）时
+ * 才剥离，保证自定义扩展名（如 .uvue）也能正确处理；includeExtensions 缺省时兼容
+ * 原有的 .vue / .nvue 行为。
+ */
+function stripPageExtension(relativePath: string, includeExtensions?: string[]): string {
+	const exts = includeExtensions?.map(ext => ext.toLowerCase().replace(/^\./, ''))
+	const ext = path.extname(relativePath).toLowerCase().replace(/^\./, '')
+	// 未配置扩展名列表：保留原 .vue / .nvue 剥离行为
+	if (!exts || exts.length === 0) {
+		return relativePath.replace(/\.(vue|nvue)$/i, '')
+	}
+	// 文件扩展名未命中配置列表（正常情况下不会发生）：保持原样
+	if (!ext || !exts.includes(ext)) return relativePath
+	return relativePath.slice(0, -ext.length - 1)
 }
 
 /**

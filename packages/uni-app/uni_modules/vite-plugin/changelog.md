@@ -1,3 +1,28 @@
+## 1.4.1（2026-09-16）
+
+修复 generatePages / generateUni 在自定义页面扩展名（`.uvue`）场景下的两个缺陷，uni-app x 项目可正常使用 `.uvue` 页面
+
+### pages.json 路径残留扩展名（修复）
+
+**问题**：页面路径剥离逻辑此前写死仅匹配 `.vue` / `.nvue`（`/\.(vue|nvue)$/`）。当 `includeExtensions` 配置为 `.uvue` 等自定义扩展名时，生成的 `pages.json` 中 `path` 残留扩展名（如 `pages/home/index.uvue`），uni-app 按此路径找不到页面。
+
+**修复**：页面路径改为按文件实际扩展名动态剥离——扩展名命中 `includeExtensions` 列表（忽略大小写、容忍前导点）才剥离，未配置时保持原 `.vue` / `.nvue` 行为。
+
+| 场景 | 此前 | 现在 |
+| ---- | ---- | ---- |
+| `includeExtensions: ['.uvue']` | `pages/home/index.uvue`（错误） | `pages/home/index` |
+| 未配置 `includeExtensions` | `pages/home/index` | `pages/home/index`（保持） |
+
+generatePages 与 generateUni 共用 `producePages` 流水线，一处修复两插件同时生效。
+
+### `.uvue` 页面 defineUniPage 宏未剥离（修复）
+
+**问题**：SFC script 虚拟模块识别此前使用 `id.includes('.vue')`，`index.uvue?vue&type=script&setup=true` 无法命中，导致 `defineUniPage` 宏调用未在构建时移除、运行时抛出 ReferenceError。
+
+**修复**：识别规则改为正则 `/\.(vue|uvue|nvue)(\?|$)/`，兼容 `.uvue` / `.nvue`；generatePages / generateUni 两处同步修正。
+
+**另外**：文档同步补充 `includeExtensions` 说明——生成的 `path` 不含扩展名。
+
 ## 1.4.0（2026-08-28）
 
 新增 `defineUniPage` 宏与页面生成架构重构：扫描页面 → pages.json → 路由配置一条流水线，配套公共 DirectoryWatcher / TaskQueue 统一监听与串行生成，插件总数增至 17 个
