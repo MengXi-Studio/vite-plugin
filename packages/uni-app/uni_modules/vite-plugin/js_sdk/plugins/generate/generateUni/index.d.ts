@@ -1,6 +1,6 @@
 import { BasePluginOptions, PluginFactory } from '../../../factory/index.js';
-import { GeneratePagesOptions } from '../../../index.js';
-import { GenerateRouterOptions } from '../../../index.js';
+import { G as GeneratePagesOptions } from '../../../shared/vite-plugin.BQFpJKhh.js';
+import { G as GenerateRouterOptions } from '../../../shared/vite-plugin.B8yTanEe.js';
 import 'vite';
 import '../../../shared/vite-plugin.BmNqGOzh.js';
 import '../../../shared/vite-plugin.DRRlWY8P.js';

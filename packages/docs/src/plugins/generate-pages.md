@@ -70,7 +70,7 @@ export default defineConfig({
 | entryPage       | `string`                      | 现有 pages[0]                             | 主包入口页路径（如 `pages/index/index`），固定为 pages[0] |
 | titleFallback   | `'filename' \| 'none'`        | `'filename'`                              | 标题缺失时的兜底策略         |
 | tabBar          | `TabBarTemplate`              | -                                         | tabBar 模板（提供后才生成）  |
-| includeExtensions| `string[]`                    | `['.vue']`                                | 页面文件扩展名列表           |
+| includeExtensions| `string[]`                    | `['.vue']`                                | 页面文件扩展名列表；生成的 `path` 不含扩展名 |
 | excludePatterns | `string[]`                    | `['node_modules']`                        | 排除的路径模式列表           |
 | watch           | `boolean`                     | `true`                                    | 监听页面目录变化自动重新生成 |
 | dts             | `string \| false`             | `'src/define-uni-page.d.ts'`              | `defineUniPage` 宏的全局类型声明输出路径（`false` 关闭） |

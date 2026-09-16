@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.1] - 2026-09-16
+
+Fixed generatePages / generateUni handling of custom page extensions (e.g. `.uvue`), so uni-app x projects can use `.uvue` pages normally.
+
+### Fixed
+
+- **File extension left in pages.json paths**: the page-path stripping logic was hard-coded to `.vue` / `.nvue`; with `includeExtensions` set to custom extensions like `.uvue`, it produced wrong paths such as `pages/home/index.uvue` that uni-app can't resolve. Stripping is now driven by the actual file extension matched against the `includeExtensions` list (case-insensitive, leading dot tolerated), preserving the previous `.vue` / `.nvue` behavior when the option is unset
+- **`defineUniPage` calls not stripped in `.uvue` pages**: SFC script virtual-module detection was changed from `id.includes('.vue')` to `/\.(vue|uvue|nvue)(\?|$)/`, covering `.uvue` / `.nvue`; the macro call is now removed at transform time, avoiding a runtime `ReferenceError`. Fixed in both generatePages and generateUni
+
 ## [1.4.0] - 2026-08-28
 
 Added the `defineUniPage` macro and refactored the page generation pipeline: page scanning → pages.json → route config as one flow, with shared `DirectoryWatcher` / `TaskQueue` for unified watching and serial generation.
